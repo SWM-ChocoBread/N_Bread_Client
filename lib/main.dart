@@ -1,5 +1,5 @@
 import 'package:chocobread/page/app.dart';
-import 'package:chocobread/page/splash.dart';
+import 'package:chocobread/page/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
 
@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
         // primaryColor: Colors.white,
         // primarySwatch: Colors.green,
       ),
-      initialRoute: Splash.routeName, // 앱에 첫 화면을 지정하는 속성
-      routes: routeSplash, // navigation 화면들을 등록하는 부분
+      // initialRoute: Splash.routeName, // 앱에 첫 화면을 지정하는 속성
+      // routes: routeSplash, // navigation 화면들을 등록하는 부분
       home: const App(),
     );
   }

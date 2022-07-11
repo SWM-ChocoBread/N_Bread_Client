@@ -8,6 +8,8 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'mypage.dart';
 
 class App extends StatefulWidget {
+  static String routeName = "/page";
+
   const App({Key? key}) : super(key: key);
 
   @override
@@ -59,7 +61,7 @@ class _AppState extends State<App> {
   Widget _bodyWidget() {
     switch (_currentPageIndex) {
       case 0:
-        return OpenChatting();
+        return const OpenChatting();
       case 1:
         return const Home();
       case 2:
