@@ -1,3 +1,5 @@
+import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -49,6 +51,7 @@ class _MyPageState extends State<MyPage> {
             width: 7,
           ),
           const Text(
+            // user nickname 이 들어와야 하는 공간
             "역삼동 은이님",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
@@ -56,7 +59,12 @@ class _MyPageState extends State<MyPage> {
             width: 15,
           ),
           IconButton(
-              onPressed: () {}, // 닉네임 변경 화면으로 전환
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return NicknameChange();
+                }));
+              }, // 닉네임 변경 화면으로 전환
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               iconSize: 15,
