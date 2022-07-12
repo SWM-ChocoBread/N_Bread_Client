@@ -62,10 +62,26 @@ class ContentsRepository {
         "sellerNickname": "역삼동 kth",
         "sellerAddress": "역삼 2동",
       },
+      {
+        "cid": "4",
+        "image": "assets/images/xexymix.png",
+        "title": "젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
+        "link":
+            "https://www.xexymix.com/shop/shopdetail.html?branduid=2060991&xcode=006&mcode=002&scode=&special=7&GfDT=bm14W1w%3D",
+        "price": "29500",
+        "written": "20일 전",
+        "current": "2",
+        "total": "2",
+        "status": "거래완료",
+        "date": "2022.07.05.화 11:00",
+        "place": "인터밸리 푸드코트 앞",
+        "sellerNickname": "역삼동 kite",
+        "sellerAddress": "역삼 2동",
+      },
     ],
     "bangbae": [
       {
-        "cid": "3",
+        "cid": "10",
         "image": "assets/images/maltesers.png",
         "title": "[방배] 몰티져스 60개입 20개씩 소분 판매",
         "price": "5500",
@@ -79,7 +95,7 @@ class ContentsRepository {
         "sellerAddress": "역삼 2동",
       },
       {
-        "cid": "4",
+        "cid": "11",
         "image": "assets/images/butter.png",
         "title": "[방배] 코스트코 가염버터 4개입 1개씩 소분 판매",
         "price": "5000",
@@ -93,7 +109,7 @@ class ContentsRepository {
         "sellerAddress": "역삼 2동",
       },
       {
-        "cid": "5",
+        "cid": "12",
         "image": "assets/images/flipflop.jpeg",
         "title": "[방배] 아키클래식 클라우드 리커버리 플립플랍",
         "price": "27500",

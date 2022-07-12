@@ -53,7 +53,7 @@ class _MyPageState extends State<MyPage> {
           const Text(
             // user nickname 이 들어와야 하는 공간
             "역삼동 은이님",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(
             width: 15,

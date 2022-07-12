@@ -104,7 +104,7 @@ class _HomeState extends State<Home> {
       case "모집완료":
         return Colors.brown; // 모집완료인 경우의 색
       case "거래완료":
-        return Colors.grey; // 모집완료인 경우의 색
+        return Colors.grey; // 거래완료인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
