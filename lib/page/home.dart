@@ -109,6 +109,51 @@ class _HomeState extends State<Home> {
     return const Color(0xffF6BD60);
   }
 
+  Widget _imageHolder(Map productContents) {
+    if (productContents["status"] == "거래완료") {
+      return Stack(children: [
+        ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(15)),
+            child: Hero(
+              // 사진 확대되는 애니메이션
+              tag: productContents["cid"].toString(),
+              child: Image.asset(
+                productContents["image"].toString(),
+                width: 100,
+                height: 100,
+                fit: BoxFit.fill,
+              ),
+            )),
+        Container(
+          width: 100,
+          height: 100,
+          color: const Color.fromRGBO(255, 255, 255, 0.7),
+        ),
+      ]);
+    } else {
+      return ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
+          child: Hero(
+            // 사진 확대되는 애니메이션
+            tag: productContents["cid"].toString(),
+            child: Image.asset(
+              productContents["image"].toString(),
+              width: 100,
+              height: 100,
+              fit: BoxFit.fill,
+            ),
+          ));
+    }
+  }
+
+  Color _colorDeterminant(String status) {
+    if (status == "거래완료") {
+      return Colors.grey;
+    } else {
+      return Colors.black;
+    }
+  }
+
   _loadContents() {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
@@ -132,18 +177,19 @@ class _HomeState extends State<Home> {
                 vertical: 15, horizontal: 10), // 큰 아이템 사이의 간격
             child: Row(
               children: [
-                ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    child: Hero(
-                      // 사진 확대되는 애니메이션
-                      tag: dataContents[index]["cid"].toString(),
-                      child: Image.asset(
-                        dataContents[index]["image"].toString(),
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.fill,
-                      ),
-                    )),
+                _imageHolder(dataContents[index]),
+                // ClipRRect(
+                //     borderRadius: const BorderRadius.all(Radius.circular(15)),
+                //     child: Hero(
+                //       // 사진 확대되는 애니메이션
+                //       tag: dataContents[index]["cid"].toString(),
+                //       child: Image.asset(
+                //         dataContents[index]["image"].toString(),
+                //         width: 100,
+                //         height: 100,
+                //         fit: BoxFit.fill,
+                //       ),
+                //     )),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
