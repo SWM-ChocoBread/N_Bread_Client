@@ -39,7 +39,7 @@ class OngoingRepository {
       "title": "내가 사고 싶은 물건들2",
       "price": "가격을 써보자 10000",
       "current": "3",
-      "total": "2",
+      "total": "5",
       "status": "모집중",
       "place": "파리바게트 선릉아이타워점",
       "mystatus": "제안",

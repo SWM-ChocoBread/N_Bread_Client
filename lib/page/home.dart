@@ -289,7 +289,7 @@ class _HomeState extends State<Home> {
       }, // 새로운 제안 글을 쓰는 페이지로 이동
       backgroundColor: const Color(0xffF6BD60), // floactingactionbutton의 색
       splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
-      elevation: 1,
+      elevation: 3,
       child: const Icon(
         Icons.add_rounded,
         size: 37,

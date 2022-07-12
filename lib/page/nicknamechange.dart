@@ -42,7 +42,7 @@ class _NicknameChangeState extends State<NicknameChange> {
       keyboardType: TextInputType.text,
       maxLength: 10, // 닉네임 길이 제한
       // focusNode: FocusNode(),
-      autofocus: true,
+      // autofocus: true,
     );
   }
 

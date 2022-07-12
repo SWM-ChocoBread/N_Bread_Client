@@ -109,6 +109,24 @@ class _MyPageState extends State<MyPage> {
     return const Color(0xffF6BD60);
   }
 
+  Widget _currentTotal(Map productOngoing) {
+    switch (productOngoing["status"]) {
+      case "모집중":
+        return Text(
+          "${productOngoing["status"].toString()}: ${productOngoing["current"]}/${productOngoing["total"]}",
+          style: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        );
+      case "모집완료":
+        return Text(
+          productOngoing["status"].toString(),
+          style: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        );
+    }
+    return const Text("데이터에 문제가 있습니다.");
+  }
+
   _loadOngoing() {
     return ongoingRepository.loadOngoing();
   }
@@ -147,21 +165,23 @@ class _MyPageState extends State<MyPage> {
                       width: 5,
                     ),
                     Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 3),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: _colorStatus(
-                              dataOngoing[index]["status"].toString()),
-                        ),
-                        // const Color.fromARGB(255, 137, 82, 205)),
-                        child: Text(
-                          dataOngoing[index]["status"].toString(),
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white),
-                        )),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: _colorStatus(
+                            dataOngoing[index]["status"].toString()),
+                      ),
+                      // const Color.fromARGB(255, 137, 82, 205)),
+                      child: _currentTotal(dataOngoing[index]),
+                      // Text(
+                      //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
+                      //   style: const TextStyle(
+                      //       fontSize: 12,
+                      //       fontWeight: FontWeight.w500,
+                      //       color: Colors.white),
+                      // )
+                    ),
                     const SizedBox(
                       width: 5,
                     ),
