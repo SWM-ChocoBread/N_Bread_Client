@@ -42,7 +42,25 @@ class ContentsRepository {
         "total": "2",
         "status": "모집중",
         "date": "2022.07.12.화 19:00",
-        "place": "아남타워 앞"
+        "place": "아남타워 앞",
+        "sellerNickname": "역삼동 kth",
+        "sellerAddress": "역삼 2동",
+      },
+      {
+        "cid": "3",
+        "image": "assets/images/otg.png",
+        "title": "C타입 젠더 USB A TO C OTG 변환젠더 연결",
+        "link":
+            "https://smartstore.naver.com/storylink/products/2462201862?NaPm=ct%3Dl5hpo37s%7Cci%3Da113ed95c0c49c68e1291afd59ba4f422b5b63dc%7Ctr%3Dslsl%7Csn%3D190552%7Chk%3D81d2f4e60f796cde24ba88d657db89fd302578a8",
+        "price": "1200",
+        "written": "16분 전",
+        "current": "10",
+        "total": "10",
+        "status": "모집완료",
+        "date": "2022.07.15.금 19:00",
+        "place": "올리브영 선릉아이타워점",
+        "sellerNickname": "역삼동 kth",
+        "sellerAddress": "역삼 2동",
       },
     ],
     "bangbae": [
@@ -56,7 +74,9 @@ class ContentsRepository {
         "total": "3",
         "status": "모집중",
         "date": "2022.05.07.토 16:45",
-        "place": "진선여고 앞"
+        "place": "진선여고 앞",
+        "sellerNickname": "역삼동 kth",
+        "sellerAddress": "역삼 2동",
       },
       {
         "cid": "4",
@@ -68,7 +88,9 @@ class ContentsRepository {
         "total": "4",
         "status": "모집중",
         "date": "2022.07.08.금 17:08",
-        "place": "역삼역 5번 출구 앞"
+        "place": "역삼역 5번 출구 앞",
+        "sellerNickname": "역삼동 kth",
+        "sellerAddress": "역삼 2동",
       },
       {
         "cid": "5",
@@ -80,7 +102,9 @@ class ContentsRepository {
         "total": "2",
         "status": "모집중",
         "date": "2022.07.12.화 19:00",
-        "place": "아남타워 앞"
+        "place": "아남타워 앞",
+        "sellerNickname": "역삼동 kth",
+        "sellerAddress": "역삼 2동",
       },
     ],
   };

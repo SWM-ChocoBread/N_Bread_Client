@@ -97,6 +97,18 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Color _colorStatus(String status) {
+    switch (status) {
+      case "모집중":
+        return Colors.green; // 모집중인 경우의 색
+      case "모집완료":
+        return Colors.brown; // 모집완료인 경우의 색
+      case "거래완료":
+        return Colors.grey; // 모집완료인 경우의 색
+    }
+    return const Color(0xffF6BD60);
+  }
+
   _loadContents() {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
@@ -184,9 +196,10 @@ class _HomeState extends State<Home> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 7, vertical: 3),
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: const Color.fromARGB(
-                                          255, 137, 82, 205)),
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: _colorStatus(dataContents[index]
+                                              ["status"]
+                                          .toString())),
                                   child: Text(
                                     '${dataContents[index]["status"]}',
                                     style: const TextStyle(
@@ -230,7 +243,8 @@ class _HomeState extends State<Home> {
       separatorBuilder: (BuildContext context, int index) {
         return Container(
           height: 10,
-          color: const Color(0xfff0f0ef), // separator color
+          color: const Color(0xffF0EBE0),
+          // const Color(0xfff0f0ef), // separator color
           // Colors.transparent,
           // Colors.black.withOpacity(0.1),
         );

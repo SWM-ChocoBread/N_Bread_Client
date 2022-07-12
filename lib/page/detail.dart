@@ -166,17 +166,19 @@ class _DetailContentViewState extends State<DetailContentView> {
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
-                "역삼동 은이님",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                widget.data["sellerNickname"].toString(),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 3,
               ),
-              Text("역삼 2동"),
-              // Text(datas[index]["sellerNickname"].toString()),
-              // Text(datas[index]["sellerAddress"].toString()),
+              Text(
+                widget.data["sellerAddress"].toString(),
+                style: const TextStyle(fontSize: 13),
+              ),
             ],
           )
         ],
