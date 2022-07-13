@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:flutter/material.dart';
@@ -147,11 +149,11 @@ class _HomeState extends State<Home> {
   }
 
   Color _colorDeterminant(String status) {
-    if (status == "거래완료") {
-      return Colors.grey;
-    } else {
-      return Colors.black;
+    switch (status) {
+      case "거래완료":
+        return Colors.grey.withOpacity(0.5);
     }
+    return Colors.black;
   }
 
   _loadContents() {
@@ -204,7 +206,11 @@ class _HomeState extends State<Home> {
                             Text(
                               dataContents[index]["title"].toString(),
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 15),
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: _colorDeterminant(dataContents[index]
+                                          ["status"]
+                                      .toString())),
                             ),
                             const SizedBox(height: 5),
                             Row(
@@ -217,10 +223,12 @@ class _HomeState extends State<Home> {
                                           dataContents[index]["price"]
                                               .toString()),
                                       //'${dataContents[index]["price"]}원/묶음',
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: _colorDeterminant(
+                                              dataContents[index]["status"]
+                                                  .toString())),
                                     ),
                                   ),
                                   Text(
@@ -236,7 +244,12 @@ class _HomeState extends State<Home> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                      '${dataContents[index]["current"]}/${dataContents[index]["total"]}'),
+                                    '${dataContents[index]["current"]}/${dataContents[index]["total"]}',
+                                    style: TextStyle(
+                                        color: _colorDeterminant(
+                                            dataContents[index]["status"]
+                                                .toString())),
+                                  ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
@@ -260,14 +273,23 @@ class _HomeState extends State<Home> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(dataContents[index]["date"].toString()),
+                                Text(
+                                  dataContents[index]["date"].toString(),
+                                  style: TextStyle(
+                                      color: _colorDeterminant(
+                                          dataContents[index]["status"]
+                                              .toString())),
+                                ),
                                 SizedBox(
                                   //color: Colors.red, // 100짜리 박스 색
                                   width: 100, // 장소 박스 크기 조절
                                   child: Text(
                                     dataContents[index]["place"].toString(),
                                     textAlign: TextAlign.end,
-                                    // style: const TextStyle(
+                                    style: TextStyle(
+                                        color: _colorDeterminant(
+                                            dataContents[index]["status"]
+                                                .toString())),
                                     //     backgroundColor:
                                     //         Color.fromARGB(255, 254, 184, 207)),
                                     overflow: TextOverflow.ellipsis,
