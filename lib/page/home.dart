@@ -242,15 +242,15 @@ class _HomeState extends State<Home> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    '${dataContents[index]["current"]}/${dataContents[index]["total"]}',
-                                    style: TextStyle(
-                                        color: _colorDeterminant(
-                                            dataContents[index]["status"]
-                                                .toString())),
-                                  ),
-                                ),
+                                // Expanded(
+                                //   child: Text(
+                                //     '${dataContents[index]["current"]}/${dataContents[index]["total"]}',
+                                //     style: TextStyle(
+                                //         color: _colorDeterminant(
+                                //             dataContents[index]["status"]
+                                //                 .toString())),
+                                //   ),
+                                // ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 7, vertical: 3),
@@ -260,13 +260,16 @@ class _HomeState extends State<Home> {
                                               ["status"]
                                           .toString())),
                                   child: Text(
-                                    '${dataContents[index]["status"]}',
+                                    '${dataContents[index]["status"]}: ${dataContents[index]["current"]}/${dataContents[index]["total"]}',
                                     style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
                                   ),
                                 ),
+                                const Expanded(
+                                    child:
+                                        Text("")) // make empty space clickable
                               ],
                             ),
                             const SizedBox(height: 5),
@@ -280,9 +283,9 @@ class _HomeState extends State<Home> {
                                           dataContents[index]["status"]
                                               .toString())),
                                 ),
-                                SizedBox(
-                                  //color: Colors.red, // 100짜리 박스 색
-                                  width: 100, // 장소 박스 크기 조절
+                                Expanded(
+                                  // color: Colors.red, // 100짜리 박스 색
+                                  // width: 100, // 장소 박스 크기 조절
                                   child: Text(
                                     dataContents[index]["place"].toString(),
                                     textAlign: TextAlign.end,
