@@ -21,39 +21,67 @@ class _NicknameChangeState extends State<NicknameChange> {
   }
 
   Widget _colorProfile() {
-    return IconButton(
-        onPressed: () {},
-        icon: const Icon(
-          Icons.circle,
-          color: Color(0xffF6BD60),
-          size: 100,
-        ));
+    return Icon(
+      Icons.circle,
+      color: Color(0xffF6BD60),
+      size: 100,
+    );
+    // return IconButton(
+    //   onPressed: () {},
+    //   icon: const Icon(
+    //     Icons.circle,
+    //     color: Color(0xffF6BD60),
+    //     size: 100,
+    //   ),
+    //   constraints: const BoxConstraints(),
+    //   padding: EdgeInsets.zero,
+    // );
   }
 
   Widget _nicknameTextField() {
-    return TextFormField(
-      initialValue: "역삼동 은이님", // 닉네임 입력 칸에 들어가 있는 초기값 // 유저 현재 닉네임 설정
-      decoration: const InputDecoration(
-        labelText: '닉네임',
-        // labelStyle: TextStyle(fontSize: 18),
-        hintText: "변경힐 닉네임을 입력하세요.",
-        helperText: "* 필수 입력값입니다.",
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+        // FocusScope().of(context).unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 50.0),
+        child: TextFormField(
+          initialValue: "역삼동 은이님", // 닉네임 입력 칸에 들어가 있는 초기값 // 유저 현재 닉네임 설정
+          decoration: const InputDecoration(
+            labelText: '닉네임',
+            // labelStyle: TextStyle(fontSize: 18),
+            hintText: "변경힐 닉네임을 입력하세요.",
+            helperText: "* 필수 입력값입니다.",
+          ),
+          keyboardType: TextInputType.text,
+          maxLength: 10, // 닉네임 길이 제한
+          validator: (String? val) {
+            if (val == null || val.isEmpty) {
+              return '닉네임은 필수 사항입니다.';
+            }
+            return null;
+          },
+          // focusNode: FocusNode(),
+          // autofocus: true,
+        ),
       ),
-      keyboardType: TextInputType.text,
-      maxLength: 10, // 닉네임 길이 제한
-      // focusNode: FocusNode(),
-      // autofocus: true,
     );
   }
 
   Widget _bodyWidget() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
       child: ListView(
         children: [
+          const SizedBox(
+            height: 30,
+          ),
           _colorProfile(),
           const SizedBox(
-            height: 100,
+            height: 30,
           ),
           _nicknameTextField(),
         ],
