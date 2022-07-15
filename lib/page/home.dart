@@ -156,10 +156,6 @@ class _HomeState extends State<Home> {
     return Colors.black;
   }
 
-  _loadContents() {
-    return contentsRepository.loadContentsFromLocation(currentLocation);
-  }
-
   Widget _currentTotal(Map productContents) {
     if (productContents["status"] == "모집중") {
       return Text(
@@ -176,6 +172,10 @@ class _HomeState extends State<Home> {
       );
     }
     return const Text("데이터에 문제가 있습니다.");
+  }
+
+  _loadContents() {
+    return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
   _makeDataList(List<Map<String, String>> dataContents) {
@@ -294,6 +294,9 @@ class _HomeState extends State<Home> {
                                       color: _colorDeterminant(
                                           dataContents[index]["status"]
                                               .toString())),
+                                ),
+                                const SizedBox(
+                                  width: 3,
                                 ),
                                 Expanded(
                                   // color: Colors.red, // 100짜리 박스 색
