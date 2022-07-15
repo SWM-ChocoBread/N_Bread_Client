@@ -407,23 +407,15 @@ class _DetailContentViewState extends State<DetailContentView> {
     return Container(
       width: size.width,
       height: 55,
-      color: Colors.lightBlue.withOpacity(0.2),
+      color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(), // 수량 + - 정하기 버튼
           Container(), // 총 가격 창
           Expanded(
               child: Row(
             children: [
-              TextButton(
-                // padding:
-                //     const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                // decoration: BoxDecoration(
-                //   borderRadius: BorderRadius.circular(20),
-                //   color: const Color(
-                //       0xffF28482), // decoration을 쓰면 color가 decoration 안으로 들어가야 한다.
-                // ),
+              OutlinedButton(
                 onPressed: () {
                   showDialog(
                       context: context,
@@ -433,19 +425,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                         );
                       });
                 },
-
-                style: TextButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                    shape: const StadiumBorder(),
-                    // backgroundColor: const Color(0xffF28482)),
-                    backgroundColor: const Color(0xffF6BD60)),
                 child: const Text(
                   "참여하기",
-                  style: TextStyle(
-                      color: Color(0xff323232),
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
                 ),
               )
             ],
