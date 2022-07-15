@@ -221,6 +221,14 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _contentsDetail() {
+    if (widget.data["contents"]?.isEmpty ?? true) {
+      // contents 가 아예 없거나 빈 string 을 받을 경우
+      // isEmpty 는 empty string 을 체크하기 위한 것
+      // widget.data["contents"]가 null이라면, isEmpty는 null에 대해 적용 불가능
+      // ?. 는 앞의 것이 null 이 아니라면, 뒤의 연산 수행
+      // ?? 는 앞의 것이 null이면 ?? 뒤에 것을 반환
+      return Container();
+    }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       child: Column(
@@ -275,9 +283,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
             delegate: SliverChildListDelegate([
               const Text("판매 링크"),
-              Container(
-                width: 300,
-                color: Colors.red,
+              Expanded(
                 child: Text(
                   widget.data["link"].toString(),
                   overflow: TextOverflow.ellipsis,
