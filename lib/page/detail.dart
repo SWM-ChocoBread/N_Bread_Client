@@ -283,12 +283,30 @@ class _DetailContentViewState extends State<DetailContentView> {
                     8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
             delegate: SliverChildListDelegate([
               const Text("판매 링크"),
-              Expanded(
-                child: Text(
-                  widget.data["link"].toString(),
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      backgroundColor: Color.fromARGB(255, 254, 184, 207)),
+              GestureDetector(
+                onTap: () {
+                  // 해당 url로 이동하도록 한다.
+                  print("Tapped!");
+                },
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      // icon name : attachment, link_rounded
+                      const Icon(Icons.link_rounded),
+                      const SizedBox(
+                        width: 3,
+                      ),
+                      Text(
+                        widget.data["link"].toString(),
+                        softWrap: false,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        // style: const TextStyle(
+                        //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Row(
