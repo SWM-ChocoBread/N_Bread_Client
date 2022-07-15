@@ -160,6 +160,24 @@ class _HomeState extends State<Home> {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
+  Widget _currentTotal(Map productContents) {
+    if (productContents["status"] == "모집중") {
+      return Text(
+        "${productContents["status"].toString()}: ${productContents["current"]}/${productContents["total"]}",
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+      );
+    } else if (productContents["status"] == "모집완료" ||
+        productContents["status"] == "거래완료") {
+      return Text(
+        productContents["status"].toString(),
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+      );
+    }
+    return const Text("데이터에 문제가 있습니다.");
+  }
+
   _makeDataList(List<Map<String, String>> dataContents) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -259,13 +277,7 @@ class _HomeState extends State<Home> {
                                       color: _colorStatus(dataContents[index]
                                               ["status"]
                                           .toString())),
-                                  child: Text(
-                                    '${dataContents[index]["status"]}: ${dataContents[index]["current"]}/${dataContents[index]["total"]}',
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white),
-                                  ),
+                                  child: _currentTotal(dataContents[index]),
                                 ),
                                 const Expanded(
                                     child:
