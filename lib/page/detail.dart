@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/page/check.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/price_utils.dart';
 import 'done.dart';
@@ -38,9 +39,9 @@ class _DetailContentViewState extends State<DetailContentView> {
     _current = 0; // _current 인덱스를 0으로 초기화
     imgList = [
       // imgList 에 들어갈 이미지들 나열
-      {"id": "0", "url": widget.data["image"].toString()},
-      {"id": "1", "url": widget.data["image"].toString()},
-      {"id": "2", "url": widget.data["image"].toString()},
+      {"id": "0", "_url": widget.data["image"].toString()},
+      {"id": "1", "_url": widget.data["image"].toString()},
+      {"id": "2", "_url": widget.data["image"].toString()},
     ];
   }
 
@@ -97,7 +98,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             child: CarouselSlider(
               items: imgList.map((map) {
                 return Image.asset(
-                  map["url"].toString(),
+                  map["_url"].toString(),
                   width: size.width,
                   fit: BoxFit.fill,
                 );
@@ -284,9 +285,14 @@ class _DetailContentViewState extends State<DetailContentView> {
             delegate: SliverChildListDelegate([
               const Text("판매 링크"),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
                   // 해당 url로 이동하도록 한다.
-                  print("Tapped!");
+                  final Uri url = Uri.parse(widget.data["link"]);
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  } else {
+                    throw "could not launch $url";
+                  }
                 },
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
