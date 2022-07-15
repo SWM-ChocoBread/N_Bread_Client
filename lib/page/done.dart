@@ -22,6 +22,26 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
     );
   }
 
+  Color _colorStatusDone(String current, String total) {
+    if ((int.parse(current) + 1) < int.parse(total)) {
+      return Colors.green; // 모집중인 경우의 색
+    } else if ((int.parse(current) + 1) == int.parse(total)) {
+      return Colors.brown; // 모집완료인 경우의 색
+    } else {
+      return const Color(0xffF6BD60);
+    }
+  }
+
+  String _resultStatus(String current, String total) {
+    if ((int.parse(current) + 1) < int.parse(total)) {
+      return "모집중: ${(int.parse(current) + 1)}/$total"; // 모집중인 경우의 색
+    } else if ((int.parse(current) + 1) == int.parse(total)) {
+      return "모집완료: $total/$total"; // 모집완료인 경우의 색
+    } else {
+      return "데이터 오류";
+    }
+  }
+
   Widget _doneItem() {
     return Container(
       height: 210,
@@ -83,19 +103,24 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Text(
-                                    '${widget.data["current"]}/${widget.data["total"]}'),
-                              ),
+                              // Expanded(
+                              //   child: Text(
+                              //       '${widget.data["current"]}/${widget.data["total"]}'),
+                              // ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 7, vertical: 3),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: const Color.fromARGB(
-                                        255, 137, 82, 205)),
+                                    color: _colorStatusDone(
+                                        widget.data["current"],
+                                        widget.data["total"])
+                                    // const Color.fromARGB(255, 137, 82, 205)
+                                    ),
                                 child: Text(
-                                  '${widget.data["status"]}',
+                                  _resultStatus(widget.data["current"],
+                                      widget.data["total"]),
+                                  // '${widget.data["status"]}',
                                   style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -251,12 +276,12 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextButton(
-            style: TextButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                shape: const StadiumBorder(),
-                backgroundColor: const Color(0xffF6BD60)),
+          OutlinedButton(
+            // style: TextButton.styleFrom(
+            //     padding:
+            //         const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+            //     shape: const StadiumBorder(),
+            //     backgroundColor: const Color(0xffF6BD60)),
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (BuildContext context) {
@@ -265,10 +290,10 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
             },
             child: const Text(
               "홈으로 돌아가기",
-              style: TextStyle(
-                  color: Color(0xff323232),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+              // style: TextStyle(
+              //     color: Color(0xff323232),
+              //     fontSize: 16,
+              //     fontWeight: FontWeight.bold),
             ),
           ),
         ],
