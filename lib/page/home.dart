@@ -55,7 +55,7 @@ class _HomeState extends State<Home> {
         },
         child: Row(children: [
           PopupMenuButton<String>(
-            offset: const Offset(0, 25),
+            offset: const Offset(-5, 30),
             shape: ShapeBorder.lerp(
                 RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),

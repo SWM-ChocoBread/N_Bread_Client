@@ -77,12 +77,43 @@ class _DetailContentViewState extends State<DetailContentView> {
               Icons.share,
               color: Colors.white,
             )),
-        IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.more_vert,
-              color: Colors.white,
-            )),
+        PopupMenuButton(
+          // 수정하기, 삭제하기 가 나오는 팝업메뉴버튼
+          icon: const Icon(
+            Icons.more_vert,
+            color: Colors.white,
+          ),
+          offset: const Offset(-5, 50),
+          shape: ShapeBorder.lerp(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              1),
+          itemBuilder: (BuildContext context) {
+            return [
+              const PopupMenuItem(
+                value: "correction",
+                child: Text("수정하기"),
+              ),
+              const PopupMenuItem(
+                value: "delete",
+                child: Text("삭제하기"),
+              ),
+            ];
+          },
+          onSelected: (String val) {
+            if (val == "correction") {
+              // 수정하기를 누른 경우,
+            } else {
+              // 삭제하기를 누른 경우,
+            }
+          },
+        ),
+        // IconButton(
+        //     onPressed: () {},
+        //     icon: const Icon(
+        //       Icons.more_vert,
+        //       color: Colors.white,
+        //     )),
       ],
     );
   }
@@ -283,13 +314,15 @@ class _DetailContentViewState extends State<DetailContentView> {
                 childAspectRatio:
                     8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
             delegate: SliverChildListDelegate([
-              const Text("판매 링크"),
+              const Text(
+                "판매 링크",
+              ),
               GestureDetector(
                 onTap: () async {
                   // 해당 url로 이동하도록 한다.
                   final Uri url = Uri.parse(widget.data["link"]);
                   if (await canLaunchUrl(url)) {
-                    // canlaunch function checks whether the device can launch url before invoking the launch function
+                    // can launch function checks whether the device can launch url before invoking the launch function
                     await launchUrl(url);
                   } else {
                     throw "could not launch $url";
