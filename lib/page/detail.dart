@@ -409,28 +409,38 @@ class _DetailContentViewState extends State<DetailContentView> {
       height: 55,
       color: Colors.white,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Container(), // 총 가격 창
-          Expanded(
-              child: Row(
-            children: [
-              OutlinedButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CheckParticipation(
-                          data: widget.data,
-                        );
-                      });
-                },
-                child: const Text(
-                  "참여하기",
-                ),
-              )
-            ],
-          ))
+          // Text(
+          //   PriceUtils.calcStringToWon(widget.data["price"].toString()),
+          //   style: TextStyle(fontSize: 16),
+          // ),
+          OutlinedButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CheckParticipation(
+                      data: widget.data,
+                    );
+                  });
+            },
+            child: RichText(
+              // "${PriceUtils.calcStringToWon(widget.data["price"].toString())} 에 거래 참여하기",
+              text: TextSpan(children: [
+                TextSpan(
+                    text: PriceUtils.calcStringToWon(
+                        widget.data["price"].toString()),
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16)),
+                const TextSpan(
+                    text: " 에 거래 참여하기",
+                    style: TextStyle(color: Color(0xffF6BD60), fontSize: 14)),
+              ]),
+            ),
+          )
         ],
       ),
     );
