@@ -289,6 +289,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   // 해당 url로 이동하도록 한다.
                   final Uri url = Uri.parse(widget.data["link"]);
                   if (await canLaunchUrl(url)) {
+                    // canlaunch function checks whether the device can launch url before invoking the launch function
                     await launchUrl(url);
                   } else {
                     throw "could not launch $url";
