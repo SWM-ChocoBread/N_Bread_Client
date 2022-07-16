@@ -34,44 +34,82 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  Size _textSize(String nickname, TextStyle nicknameStyle) {
+    // nickname 텍스트의 길이를 측정
+    final TextPainter textPainter = TextPainter(
+        text: TextSpan(text: nickname, style: nicknameStyle),
+        maxLines: 1,
+        textDirection: TextDirection.ltr)
+      ..layout(minWidth: 0, maxWidth: double.infinity);
+    return textPainter.size;
+  }
+
   Widget _nickname() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.circle,
-                color: Color(0xffF6BD60),
-                // size: 30,
-              )),
-          const SizedBox(
-            width: 7,
-          ),
-          const Text(
-            // user nickname 이 들어와야 하는 공간
-            "역삼동 은이님",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(
-            width: 15,
-          ),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return NicknameChange();
-                }));
-              }, // 닉네임 변경 화면으로 전환
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              iconSize: 15,
-              icon: const Icon(
-                Icons.arrow_forward_ios_rounded,
-              )),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return NicknameChange();
+        }));
+      },
+      child: Container(
+        width: _textSize(
+                    "역삼동 은이님",
+                    const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
+                        ))
+                .width +
+            69, // text 의 width + 아이콘들 width + padding의 width = gesturedetector 가 작동하는 영역 제한
+        // width: 220, // gesturedetector 가 닉네임 길이 최대 10일때 작동하는 가로 길이
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [
+            Icon(
+              Icons.circle,
+              color: Color(0xffF6BD60),
+              // size: 30,
+            ),
+            // const SizedBox(
+            //   width: 20,
+            // ),
+            Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Text(
+                // user nickname 이 들어와야 하는 공간
+                "역삼동 은이님",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
+                    ),
+              ),
+            ),
+            // const SizedBox(
+            //   width: 15,
+            // ),
+            // IconButton(
+            //     onPressed: () {
+            //       Navigator.push(context,
+            //           MaterialPageRoute(builder: (BuildContext context) {
+            //         return NicknameChange();
+            //       }));
+            //     }, // 닉네임 변경 화면으로 전환
+            //     padding: EdgeInsets.zero,
+            //     constraints: const BoxConstraints(),
+            //     iconSize: 15,
+            //     icon: const Icon(
+            //       Icons.arrow_forward_ios_rounded,
+            //     )),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 15,
+            ),
+          ],
+        ),
       ),
     );
   }
