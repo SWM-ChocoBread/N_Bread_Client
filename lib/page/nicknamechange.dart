@@ -51,7 +51,7 @@ class _NicknameChangeState extends State<NicknameChange> {
           decoration: const InputDecoration(
             labelText: '닉네임',
             // labelStyle: TextStyle(fontSize: 18),
-            hintText: "변경힐 닉네임을 입력하세요.",
+            hintText: "변경할 닉네임을 입력하세요.",
             helperText: "* 필수 입력값입니다.",
           ),
           keyboardType: TextInputType.text,
@@ -98,11 +98,12 @@ class _NicknameChangeState extends State<NicknameChange> {
         children: [
           OutlinedButton(
             onPressed: () {
-              // 닉네임 변경 완료 버튼을 눌렀을 때 변경된 정보를 전달해야 한다.
+              // 닉네임이 중복된다면,
+              // 닉네임 변경 완료 버튼을 눌렀을 때, 닉네임이 중복되지 않는다면, 변경된 정보를 전달해야 한다.
               Navigator.pop(context);
             },
             child: const Text(
-              "닉네임 변경 완료",
+              "닉네임 변경",
             ),
           ),
         ],
