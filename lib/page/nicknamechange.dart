@@ -96,22 +96,13 @@ class _NicknameChangeState extends State<NicknameChange> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextButton(
-            style: TextButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                shape: const StadiumBorder(),
-                backgroundColor: const Color(0xffF6BD60)),
+          OutlinedButton(
             onPressed: () {
               // 닉네임 변경 완료 버튼을 눌렀을 때 변경된 정보를 전달해야 한다.
               Navigator.pop(context);
             },
             child: const Text(
               "닉네임 변경 완료",
-              style: TextStyle(
-                  color: Color(0xff323232),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
             ),
           ),
         ],
