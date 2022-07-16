@@ -1,5 +1,6 @@
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/form.dart';
+import 'package:chocobread/page/imageuploader.dart';
 import 'package:flutter/material.dart';
 import 'checkquit.dart';
 
@@ -54,7 +55,14 @@ class _CreateNewState extends State<CreateNew> {
           FocusManager.instance.primaryFocus
               ?.unfocus(); // formfield 제외한 곳 터치하면 키보드 내려가기
         },
-        child: customForm());
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              imageUploader(),
+              customForm(),
+            ],
+          ),
+        ));
   }
 
   @override
