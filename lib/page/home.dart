@@ -113,6 +113,7 @@ class _HomeState extends State<Home> {
 
   Widget _imageHolder(Map productContents) {
     if (productContents["status"] == "거래완료") {
+      // 거래 완료인 경우 이미지 흐리게 처리
       return Stack(children: [
         ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(15)),
