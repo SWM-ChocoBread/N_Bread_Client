@@ -1,5 +1,6 @@
+import 'package:chocobread/constants/sizes_helper.dart';
+import 'package:chocobread/page/form.dart';
 import 'package:flutter/material.dart';
-
 import 'checkquit.dart';
 
 class CreateNew extends StatefulWidget {
@@ -10,6 +11,9 @@ class CreateNew extends StatefulWidget {
 }
 
 class _CreateNewState extends State<CreateNew> {
+  final _formKey = GlobalKey<
+      FormState>(); // this key will be used to identify the state of the form
+
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       leading: IconButton(
@@ -36,7 +40,21 @@ class _CreateNewState extends State<CreateNew> {
   }
 
   Widget _bodyWidget() {
-    return Container();
+    // return Form(
+    //   key: _formKey, // handles the state of the form, validation, and saving
+    //   child: Column(
+    //     children: [
+    //       TextFormField(),
+    //       TextButton(onPressed: () {}, child: const Text("제안하기"))
+    //     ],
+    //   ),
+    // );
+    return GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus
+              ?.unfocus(); // formfield 제외한 곳 터치하면 키보드 내려가기
+        },
+        child: customForm());
   }
 
   @override
