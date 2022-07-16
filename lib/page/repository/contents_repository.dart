@@ -31,11 +31,14 @@ class ContentsRepository {
         "place": "역삼역 5번 출구 앞",
         "sellerNickname": "역삼동 kth",
         "sellerAddress": "역삼 2동",
+        "contents": "",
       },
       {
         "cid": "2",
         "image": "assets/images/flipflop.jpeg",
         "title": "아키클래식 클라우드 리커버리 플립플랍",
+        "link":
+            "https://www.akiii.co.kr/shop/shopdetail.html?branduid=1152964&xcode=014&mcode=004&scode=013&special=3&GfDT=bmp4W10%3D",
         "price": "27500",
         "written": "11분 전",
         "current": "1",
