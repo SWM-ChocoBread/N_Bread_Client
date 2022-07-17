@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/page/check.dart';
 import 'package:chocobread/page/checkparticipation.dart';
+import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,6 +17,7 @@ class DetailContentView extends StatefulWidget {
 }
 
 class _DetailContentViewState extends State<DetailContentView> {
+  late CommentsRepository commentsRepository;
   late Size size;
   late List<Map<String, String>> imgList; // imgList 선언
   late int _current; // _current 변수 선언
@@ -35,6 +37,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+    commentsRepository = CommentsRepository();
     size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
     _current = 0; // _current 인덱스를 0으로 초기화
     imgList = [
@@ -278,6 +281,19 @@ class _DetailContentViewState extends State<DetailContentView> {
       ),
     );
   }
+
+  _loadComments() {
+    return CommentsRepository().loadComments();
+  }
+
+  _makeComments(dataComments) {
+    return;
+  }
+
+  // Widget _commentsWidget() {
+  //   //   return FutureBuilder(
+  //   //       future: _loadComments(), builder: ((context, snapshot) {}));
+  // }
 
   Widget _commentTitle() {
     return Container(
