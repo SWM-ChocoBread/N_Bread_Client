@@ -143,11 +143,11 @@ class _DetailContentViewState extends State<DetailContentView> {
                   initialPage: 0, //첫번째 페이지
                   enableInfiniteScroll: false, // 무한 스크롤 방지
                   viewportFraction: 1, // 전체 화면 사용
-                  onPageChanged: (index, reason) {
+                  onPageChanged: (firstIndex, reason) {
                     setState(() {
-                      _current = index;
+                      _current = firstIndex;
                     });
-                    print(index);
+                    print(firstIndex);
                   }),
               // Image.asset(
               //   widget.data["image"].toString(),
@@ -162,7 +162,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: imgList.map((map) {
-                // List.generate(imgList.length, (index) {
+                // List.generate(imgList.length, (firstIndex) {
                 // imgList.asMap().entries.map((entry) {
                 return Container(
                   width: 10.0,
@@ -282,18 +282,234 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  Color _colorUserStatus(String userstatus) {
+    switch (userstatus) {
+      case "제안자":
+        return Colors.red; // 제안자의 색
+      case "참여자":
+        return Colors.blue; // 참여자의 색
+    }
+    return Colors.grey; // 지나가는 사람의 색
+  }
+
+  Widget _userStatusChip(String userstatus) {
+    if (userstatus == "") {
+      return Container();
+    } else {
+      return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: _colorUserStatus(userstatus),
+          ),
+          // const Color.fromARGB(255, 137, 82, 205)),
+          child: Text(
+            userstatus,
+            style: const TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+          ));
+    }
+  }
+
   _loadComments() {
     return CommentsRepository().loadComments();
   }
 
-  _makeComments(dataComments) {
-    return;
+  _makeComments(List<Map<String, dynamic>> dataComments) {
+    return ListView.separated(
+        physics:
+            const NeverScrollableScrollPhysics(), // listview 가 scroll 되지 않도록 함
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        shrinkWrap: true,
+        itemBuilder: (BuildContext context, int firstIndex) {
+          return Container(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    color: _colorUserStatus(
+                        dataComments[firstIndex]["userStatus"]),
+                    // size: 30,
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "${dataComments[firstIndex]["userNickname"]}",
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  _userStatusChip(
+                      dataComments[firstIndex]["userStatus"].toString()),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "${dataComments[firstIndex]["fromThen"]}",
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // 댓글 내용
+              Padding(
+                padding: const EdgeInsets.only(left: 29.0),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        "${dataComments[firstIndex]["content"]}",
+                        // softWrap: true,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 19.0),
+                child: TextButton(
+                    onPressed: () {},
+                    child: const Text("답글쓰기",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ))),
+              ),
+              ListView.separated(
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int secondIndex) {
+                    return Container(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                color: _colorUserStatus(dataComments[firstIndex]
+                                    ["Replies"][secondIndex]["userStatus"]),
+                                // size: 30,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "${dataComments[firstIndex]["Replies"][secondIndex]["userNickname"]}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              _userStatusChip(dataComments[firstIndex]
+                                      ["Replies"][secondIndex]["userStatus"]
+                                  .toString()),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "${dataComments[firstIndex]["Replies"][secondIndex]["fromThen"]}",
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          // 댓글 내용
+                          Padding(
+                            padding: const EdgeInsets.only(left: 29.0),
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${dataComments[firstIndex]["Replies"][secondIndex]["content"]}",
+                                    // softWrap: true,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 19.0),
+                            child: TextButton(
+                                onPressed: () {},
+                                child: const Text("답글쓰기",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ))),
+                          ),
+                        ]));
+                  },
+                  separatorBuilder: (BuildContext context, int firstIndex) {
+                    return Container(
+                      height: 1,
+                      color: const Color(0xffF0EBE0),
+                      // const Color(0xfff0f0ef),
+                    );
+                  },
+                  itemCount: dataComments[firstIndex]["Replies"].length)
+            ],
+          ));
+        },
+        separatorBuilder: (BuildContext context, int firstIndex) {
+          return Container(
+            height: 1,
+            color: const Color(0xffF0EBE0),
+            // const Color(0xfff0f0ef),
+          );
+        },
+        itemCount: dataComments.length);
   }
 
-  // Widget _commentsWidget() {
-  //   //   return FutureBuilder(
-  //   //       future: _loadComments(), builder: ((context, snapshot) {}));
-  // }
+  Widget _commentsWidget() {
+    return FutureBuilder(
+        future: _loadComments(),
+        builder: ((context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text("댓글 데이터 오류"),
+            );
+          }
+
+          if (snapshot.hasData) {
+            return _makeComments(snapshot.data
+                as List<Map<String, dynamic>>); // 데이터 자료형 선언 뭘로 해야 할까?
+          }
+
+          return Center(
+            child: Column(
+              children: const [
+                Text("아직 댓글이 없어요!"),
+                Text("첫 댓글을 써주세요!"),
+              ],
+            ),
+          );
+        }));
+  }
 
   Widget _commentTitle() {
     return Container(
@@ -397,7 +613,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 overflow: TextOverflow.ellipsis,
               ),
             ]
-                //   List.generate(12, (index) {
+                //   List.generate(12, (firstIndex) {
                 //   return Container(
                 //     height: 1,
                 //     color: Colors.red,
@@ -408,11 +624,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
         SliverList(
           delegate: SliverChildListDelegate(
-            [
-              _contentsDetail(),
-              _line(),
-              _commentTitle(),
-            ],
+            [_contentsDetail(), _line(), _commentTitle(), _commentsWidget()],
           ),
         ),
       ],
