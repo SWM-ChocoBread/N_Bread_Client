@@ -23,7 +23,6 @@ class _FormState extends State<customForm> {
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                height: displayHeight(context),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -63,6 +62,49 @@ class _FormState extends State<customForm> {
                         }
                         return null;
                       },
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    // 판매 링크
+                    const Text(
+                      "판매 링크 (선택)",
+                      style:
+                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    TextFormField(
+                      // cursorColor: const Color(0xffF6BD60),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(
+                          Icons.link_rounded,
+                        ),
+                        hintText: "판매 링크",
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        // focus 가 사라졌을 때
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(width: 0.7, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        // focus 가 맞춰졌을 때
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(width: 1, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // 숫자만 입력 가능 only digits
+                        LengthLimitingTextInputFormatter(2), // 두자리 까지만 입력 가능
+                      ],
                     ),
                     const SizedBox(
                       height: 30,
@@ -213,9 +255,9 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 30,
                     ),
-                    // 거래 일시
+                    // 거래 날짜
                     const Text(
-                      "거래 일시",
+                      "거래 날짜",
                       style:
                           TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                     ),
@@ -228,7 +270,56 @@ class _FormState extends State<customForm> {
                         prefixIcon: const Icon(
                           Icons.calendar_month,
                         ),
-                        hintText: "거래 일시",
+                        hintText: "거래 날짜",
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        // focus 가 사라졌을 때
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(width: 0.7, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        // focus 가 맞춰졌을 때
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(width: 1, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // 숫자만 입력 가능 only digits
+                        LengthLimitingTextInputFormatter(2), // 두자리 까지만 입력 가능
+                      ],
+                      validator: (String? val) {
+                        if (val == null || val.isEmpty) {
+                          return '거래 일시를 입력해주세요.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    // 거래 시간
+                    const Text(
+                      "거래 시간",
+                      style:
+                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    TextFormField(
+                      // cursorColor: const Color(0xffF6BD60),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(
+                          Icons.access_time_filled_rounded,
+                        ),
+                        hintText: "거래 시간",
                         isDense: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
