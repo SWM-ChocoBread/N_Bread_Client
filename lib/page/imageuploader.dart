@@ -17,11 +17,15 @@ class _imageUploaderState extends State<imageUploader> {
 
   void selectImages() async {
     final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
-    if (selectedImages == null) {
-      return;
-    } else if (selectedImages.isNotEmpty) {
+    setState(() {});
+
+    // imageFileList!.addAll(selectedImages!);
+    if (selectedImages != null) {
       imageFileList!.addAll(selectedImages);
     }
+    //else if (selectedImages.isNotEmpty) {
+    //   imageFileList!.addAll(selectedImages);
+    // }
     setState(() {});
   }
 
