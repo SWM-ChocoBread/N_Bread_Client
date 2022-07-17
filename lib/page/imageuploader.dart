@@ -17,10 +17,10 @@ class _imageUploaderState extends State<imageUploader> {
 
   void selectImages() async {
     final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
-    if (selectedImages!.isNotEmpty) {
-      imageFileList!.addAll(selectedImages);
-    } else if (selectedImages == null) {
+    if (selectedImages == null) {
       return;
+    } else if (selectedImages.isNotEmpty) {
+      imageFileList!.addAll(selectedImages);
     }
     setState(() {});
   }
@@ -145,6 +145,29 @@ class _imageUploaderState extends State<imageUploader> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _showPhotoTest() {
+    return Row(
+      children: [
+        _getPhotoButton(),
+        Flexible(
+            child: GridView.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 15,
+          children: List.generate(
+              3,
+              (index) => ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                    child: Image.file(
+                      File(imageFileList![index].path),
+                      fit: BoxFit.cover,
+                      width: 10,
+                    ),
+                  )).toList(),
+        ))
+      ],
     );
   }
 
