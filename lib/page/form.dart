@@ -15,17 +15,40 @@ class customForm extends StatefulWidget {
 }
 
 class _FormState extends State<customForm> {
-  TextEditingController totalPriceController = TextEditingController();
-  // TextEditingController numOfParticipantsController = TextEditingController();
-  String totalPrice = "";
-  String numOfParticipants = "";
-  String customText = "";
+  // 각각의 textfield에 붙는 controller
+  TextEditingController productNameController =
+      TextEditingController(); // 제품명에 붙는 controller
+  TextEditingController productLinkController =
+      TextEditingController(); // 판매 링크에 붙는 controller
+  TextEditingController totalPriceController =
+      TextEditingController(); // 총 가격에 붙는 controller
+  // TextEditingController numOfParticipantsController =
+  //     TextEditingController(); // 모집 인원에 붙는 controller
+  TextEditingController dateController =
+      TextEditingController(); // 거래 날짜에 붙는 controller
+  TextEditingController timeController =
+      TextEditingController(); // 거래 시간에 붙는 controller
+  TextEditingController placeController =
+      TextEditingController(); // 거래 장소에 붙는 controller
+  TextEditingController extraController =
+      TextEditingController(); // 추가 작성에 붙는 controller
+
+  // 서버에 보내기 위해 제안하기 버튼을 눌렀을 때 데이터 저장하기
+  String productName = ""; // 제품명
+  String productLink = ""; // 판매 링크
+  String totalPrice = ""; // 총 가격
+  String numOfParticipants = ""; // 모집 인원
+  String date = ""; // 거래 날짜
+  String time = ""; // 거래 시간
+  String place = ""; // 거래 장소
+  String extra = ""; // 추가 작성
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
   Widget _productNameTextFormField() {
     return TextFormField(
+      controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
         isDense: true, // textfield 내부의 padding 조절
@@ -54,6 +77,7 @@ class _FormState extends State<customForm> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
+      controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -204,6 +228,7 @@ class _FormState extends State<customForm> {
 
   Widget _dateTextFormField() {
     return TextFormField(
+      controller: dateController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -241,6 +266,7 @@ class _FormState extends State<customForm> {
 
   Widget _timeTextFormField() {
     return TextFormField(
+      controller: timeController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -278,6 +304,7 @@ class _FormState extends State<customForm> {
 
   Widget _placeTextFormField() {
     return TextFormField(
+      controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
           prefixIcon: const Icon(Icons.place),
@@ -310,6 +337,7 @@ class _FormState extends State<customForm> {
 
   Widget _extraTextFormField() {
     return TextFormField(
+      controller: extraController,
       maxLines: null,
       decoration: InputDecoration(
         hintText: "추가적으로 덧붙이고 싶은 내용이 있다면 알려주세요.",
@@ -501,15 +529,31 @@ class _FormState extends State<customForm> {
                           //     );
                           //   }
                           // },
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              const SnackBar(
-                                content: Text("제안 완료"),
-                              );
-                            }
+                          onPressed: () {
+                            setState(() {
+                              productName = productNameController.text; // 제품명
+                              productLink = productLinkController.text; // 판매 링크
+                              date = dateController.text; // 거래 날짜
+                              time = timeController.text; // 거래 시간
+                              place = placeController.text; // 거래 장소
+                              extra = extraController.text; // 추가 작성
+                            });
                           },
+
+                          // () async {
+                          //   if (_formKey.currentState!.validate()) {
+                          //     const SnackBar(
+                          //       content: Text("제안 완료"),
+                          //     );
+                          //   }
+                          // },
                           child: const Text('제안하기'),
                         ),
+                        // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
+                        // Flexible(
+                        //   child: Text(
+                        //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
+                        // ),
                       ],
                     )
                   ],
