@@ -14,6 +14,274 @@ class _FormState extends State<customForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
+  Widget _productNameTextFormField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        hintText: "제품명",
+        isDense: true, // textfield 내부의 padding 조절
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      textInputAction: TextInputAction.next, // 완료 버튼 자리에 다음
+      keyboardType: TextInputType.text,
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
+          return '제품명을 입력해주세요.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _productLinkTextFormField() {
+    return TextFormField(
+      // cursorColor: const Color(0xffF6BD60),
+      decoration: InputDecoration(
+        prefixIcon: const Icon(
+          Icons.link_rounded,
+        ),
+        hintText: "판매 링크",
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      keyboardType: TextInputType.text,
+    );
+  }
+
+  Widget _totalPriceTextFormField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        // hintText: "총가격(배송비 포함)",
+        isDense: true,
+        suffixIcon: const Padding(
+          padding: EdgeInsets.all(15.0),
+          child: Text(
+            "원",
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+        // suffixText: "원",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      textInputAction: TextInputAction.next,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(
+            RegExp(r'[0-9]')), // 숫자만 입력 가능 only digits
+        LengthLimitingTextInputFormatter(7), // 여섯자리 까지만 입력 가능 (백만원 단위까지 가능)
+      ],
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
+          return '배송비를 포함한 총가격을 입력해주세요.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _participantsTextFormField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        // hintText: "모집 인원(나 포함)",
+        isDense: true,
+        suffixIcon: const Padding(
+          padding: EdgeInsets.all(15.0),
+          child: Text(
+            "명",
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+        // suffixText: "명",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly, // 숫자만 입력 가능 only digits
+        LengthLimitingTextInputFormatter(2), // 두자리 까지만 입력 가능
+      ],
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
+          return '모집인원을 입력해주세요.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _dateTextFormField() {
+    return TextFormField(
+      // cursorColor: const Color(0xffF6BD60),
+      decoration: InputDecoration(
+        prefixIcon: const Icon(
+          Icons.calendar_month,
+        ),
+        hintText: "거래 날짜",
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly, // 숫자만 입력 가능 only digits
+        LengthLimitingTextInputFormatter(6), // 두자리 까지만 입력 가능
+      ],
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
+          return '거래 날짜를 입력해주세요.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _timeTextFormField() {
+    return TextFormField(
+      // cursorColor: const Color(0xffF6BD60),
+      decoration: InputDecoration(
+        prefixIcon: const Icon(
+          Icons.access_time_filled_rounded,
+        ),
+        hintText: "거래 시간",
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly, // 숫자만 입력 가능 only digits
+        LengthLimitingTextInputFormatter(4), // 두자리 까지만 입력 가능
+      ],
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
+          return '거래 시간을 입력해주세요.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _placeTextFormField() {
+    return TextFormField(
+      maxLines: null,
+      decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.place),
+          hintText: "거래 장소 (ex. 5동 관리 사무소 앞)",
+          // hintStyle: const TextStyle(height: 1.3), // 아이콘과 높이 맞추기 위한 것
+          isDense: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          // focus 가 사라졌을 때
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          // focus 가 맞춰졌을 때
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(width: 1, color: Colors.grey),
+            borderRadius: BorderRadius.circular(10),
+          )),
+      textInputAction: TextInputAction.next,
+      keyboardType: TextInputType.text,
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
+          return '거래 장소를 입력해주세요.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _extraTextFormField() {
+    return TextFormField(
+      maxLines: null,
+      decoration: InputDecoration(
+        hintText: "추가적으로 덧붙이고 싶은 내용이 있다면 알려주세요.",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 사라졌을 때
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        // focus 가 맞춰졌을 때
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(width: 1, color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      keyboardType: TextInputType.text,
+    );
+  }
+
   Widget SuggestionForm() {
     return SafeArea(
         child: Form(
@@ -35,34 +303,7 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: "제품명",
-                        isDense: true, // textfield 내부의 padding 조절
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        // focus 가 사라졌을 때
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 0.7, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 맞춰졌을 때
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 1, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      textInputAction: TextInputAction.next, // 완료 버튼 자리에 다음
-                      keyboardType: TextInputType.text,
-                      validator: (String? val) {
-                        if (val == null || val.isEmpty) {
-                          return '제품명을 입력해주세요.';
-                        }
-                        return null;
-                      },
-                    ),
+                    _productNameTextFormField(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -75,37 +316,7 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextFormField(
-                      // cursorColor: const Color(0xffF6BD60),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.link_rounded,
-                        ),
-                        hintText: "판매 링크",
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 사라졌을 때
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 0.7, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 맞춰졌을 때
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 1, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // 숫자만 입력 가능 only digits
-                        LengthLimitingTextInputFormatter(2), // 두자리 까지만 입력 가능
-                      ],
-                    ),
+                    _productLinkTextFormField(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -137,50 +348,7 @@ class _FormState extends State<customForm> {
                               const SizedBox(
                                 height: 5,
                               ),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  // hintText: "총가격(배송비 포함)",
-                                  isDense: true,
-                                  suffixIcon: const Padding(
-                                    padding: EdgeInsets.all(15.0),
-                                    child: Text(
-                                      "원",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  prefixIconConstraints: const BoxConstraints(
-                                      minWidth: 0, minHeight: 0),
-                                  // suffixText: "원",
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                  // focus 가 사라졌을 때
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        width: 0.7, color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  // focus 가 맞춰졌을 때
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        width: 1, color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                textInputAction: TextInputAction.next,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(RegExp(
-                                      r'[0-9]')), // 숫자만 입력 가능 only digits
-                                  LengthLimitingTextInputFormatter(
-                                      7), // 여섯자리 까지만 입력 가능 (백만원 단위까지 가능)
-                                ],
-                                validator: (String? val) {
-                                  if (val == null || val.isEmpty) {
-                                    return '배송비를 포함한 총가격을 입력해주세요.';
-                                  }
-                                  return null;
-                                },
-                              ),
+                              _totalPriceTextFormField(),
                             ],
                           ),
                         ),
@@ -203,50 +371,7 @@ class _FormState extends State<customForm> {
                               const SizedBox(
                                 height: 5,
                               ),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  // hintText: "모집 인원(나 포함)",
-                                  isDense: true,
-                                  suffixIcon: const Padding(
-                                    padding: EdgeInsets.all(15.0),
-                                    child: Text(
-                                      "명",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  prefixIconConstraints: const BoxConstraints(
-                                      minWidth: 0, minHeight: 0),
-                                  // suffixText: "명",
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  // focus 가 사라졌을 때
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        width: 0.7, color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  // focus 가 맞춰졌을 때
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        width: 1, color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter
-                                      .digitsOnly, // 숫자만 입력 가능 only digits
-                                  LengthLimitingTextInputFormatter(
-                                      2), // 두자리 까지만 입력 가능
-                                ],
-                                validator: (String? val) {
-                                  if (val == null || val.isEmpty) {
-                                    return '모집인원을 입력해주세요.';
-                                  }
-                                  return null;
-                                },
-                              ),
+                              _participantsTextFormField()
                             ],
                           ),
                         ),
@@ -264,43 +389,7 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextFormField(
-                      // cursorColor: const Color(0xffF6BD60),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.calendar_month,
-                        ),
-                        hintText: "거래 날짜",
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 사라졌을 때
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 0.7, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 맞춰졌을 때
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 1, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // 숫자만 입력 가능 only digits
-                        LengthLimitingTextInputFormatter(2), // 두자리 까지만 입력 가능
-                      ],
-                      validator: (String? val) {
-                        if (val == null || val.isEmpty) {
-                          return '거래 일시를 입력해주세요.';
-                        }
-                        return null;
-                      },
-                    ),
+                    _dateTextFormField(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -313,43 +402,7 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextFormField(
-                      // cursorColor: const Color(0xffF6BD60),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.access_time_filled_rounded,
-                        ),
-                        hintText: "거래 시간",
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 사라졌을 때
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 0.7, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 맞춰졌을 때
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 1, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // 숫자만 입력 가능 only digits
-                        LengthLimitingTextInputFormatter(2), // 두자리 까지만 입력 가능
-                      ],
-                      validator: (String? val) {
-                        if (val == null || val.isEmpty) {
-                          return '거래 일시를 입력해주세요.';
-                        }
-                        return null;
-                      },
-                    ),
+                    _timeTextFormField(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -362,37 +415,7 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextFormField(
-                      maxLines: null,
-                      decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.place),
-                          hintText: "거래 장소 (ex. 5동 관리 사무소 앞)",
-                          // hintStyle: const TextStyle(height: 1.3), // 아이콘과 높이 맞추기 위한 것
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          // focus 가 사라졌을 때
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                                width: 0.7, color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          // focus 가 맞춰졌을 때
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                const BorderSide(width: 1, color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          )),
-                      textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.text,
-                      validator: (String? val) {
-                        if (val == null || val.isEmpty) {
-                          return '거래 장소를 입력해주세요.';
-                        }
-                        return null;
-                      },
-                    ),
+                    _placeTextFormField(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -405,28 +428,7 @@ class _FormState extends State<customForm> {
                     const SizedBox(
                       height: 5,
                     ),
-                    TextFormField(
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        hintText: "추가적으로 덧붙이고 싶은 내용이 있다면 알려주세요.",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 사라졌을 때
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 0.7, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // focus 가 맞춰졌을 때
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(width: 1, color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      keyboardType: TextInputType.text,
-                    ),
+                    _extraTextFormField(),
                     const SizedBox(
                       height: 15,
                     ),
