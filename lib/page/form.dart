@@ -15,7 +15,7 @@ class customForm extends StatefulWidget {
 }
 
 class _FormState extends State<customForm> {
-  // TextEditingController totalPriceController = TextEditingController();
+  TextEditingController totalPriceController = TextEditingController();
   // TextEditingController numOfParticipantsController = TextEditingController();
   String totalPrice = "";
   String numOfParticipants = "";
@@ -82,7 +82,10 @@ class _FormState extends State<customForm> {
 
   Widget _totalPriceTextFormField() {
     return TextFormField(
-      // controller: totalPriceController,
+      controller: totalPriceController
+        ..selection = TextSelection.fromPosition(TextPosition(
+            offset: totalPriceController.text
+                .length)), // 총가격에 controller를 붙여서 , 처리를 하면 커서가 앞으로 이동하는데, 이를 막고 커서가 항상 뒤에 있도록 조정
       decoration: InputDecoration(
         // hintText: "총가격(배송비 포함)",
         isDense: true,
@@ -124,6 +127,8 @@ class _FormState extends State<customForm> {
         // print(totalprice);
         setState(() {
           totalPrice = totalprice;
+          totalPriceController.text =
+              PriceUtils.calcStringToWonOnly(totalprice);
         });
       },
     );

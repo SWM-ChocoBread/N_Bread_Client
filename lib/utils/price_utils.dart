@@ -9,6 +9,9 @@ class PriceUtils {
 
   static String calcStringToWonOnly(String priceString) {
     // if (priceString == "무료나눔") return priceString;
-    return oCcy.format(int.parse(priceString));
+    if (priceString.isNotEmpty) {
+      return oCcy.format(int.parse(priceString));
+    }
+    return "";
   }
 }
