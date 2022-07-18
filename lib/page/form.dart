@@ -4,6 +4,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../utils/price_utils.dart';
 import 'app.dart';
@@ -16,6 +17,8 @@ class customForm extends StatefulWidget {
 }
 
 class _FormState extends State<customForm> {
+  final now = DateTime.now();
+
   // 각각의 textfield에 붙는 controller
   TextEditingController productNameController =
       TextEditingController(); // 제품명에 붙는 controller
@@ -230,6 +233,7 @@ class _FormState extends State<customForm> {
   Widget _dateTextFormField() {
     return TextFormField(
       controller: dateController,
+      readOnly: true, // make user not able to edit text
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -261,6 +265,22 @@ class _FormState extends State<customForm> {
           return '거래 날짜를 입력해주세요.';
         }
         return null;
+      },
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+            context: context,
+            initialDate: DateTime(DateTime.now().year, DateTime.now().month,
+                DateTime.now().day + 4),
+            firstDate: DateTime(DateTime.now().year, DateTime.now().month,
+                DateTime.now().day + 4),
+            lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
+                DateTime.now().day + 4));
+        if (pickedDate != null) {
+          String formattedDate = DateFormat('yy.MM.dd.EEEE').format(pickedDate);
+          setState(() {
+            dateController.text = formattedDate;
+          });
+        }
       },
     );
   }
