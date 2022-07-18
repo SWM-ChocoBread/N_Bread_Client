@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../utils/price_utils.dart';
+import 'app.dart';
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -538,6 +539,32 @@ class _FormState extends State<customForm> {
                               place = placeController.text; // 거래 장소
                               extra = extraController.text; // 추가 작성
                             });
+
+                            const snackBar = SnackBar(
+                              content: Text(
+                                "성공적으로 제안되었습니다!",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              // backgroundColor: Colors.black,
+                              duration: Duration(milliseconds: 2000),
+                              // behavior: SnackBarBehavior.floating,
+                              elevation: 50,
+                              shape: StadiumBorder(),
+                              // RoundedRectangleBorder(
+                              //     borderRadius: BorderRadius.only(
+                              //         topLeft: Radius.circular(30),
+                              //         topRight: Radius.circular(30))),
+                            );
+
+                            // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                            if (_formKey.currentState!.validate()) {
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                return const App();
+                              }));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
                           },
 
                           // () async {
