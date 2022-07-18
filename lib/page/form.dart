@@ -288,6 +288,7 @@ class _FormState extends State<customForm> {
   Widget _timeTextFormField() {
     return TextFormField(
       controller: timeController,
+      readOnly: true, // make user not able to edit text
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -319,6 +320,21 @@ class _FormState extends State<customForm> {
           return '거래 시간을 입력해주세요.';
         }
         return null;
+      },
+      onTap: () async {
+        TimeOfDay? pickedTime = await showTimePicker(
+            context: context, initialTime: TimeOfDay.now());
+
+        if (pickedTime != null) {
+          DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
+              .format(context)
+              .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
+          String formattedTime = DateFormat("h:mm a").format(parsedTime);
+
+          setState(() {
+            timeController.text = formattedTime;
+          });
+        }
       },
     );
   }
