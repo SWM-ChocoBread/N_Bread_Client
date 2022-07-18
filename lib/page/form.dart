@@ -144,7 +144,7 @@ class _FormState extends State<customForm> {
       ],
       validator: (String? val) {
         if (val == null || val.isEmpty) {
-          return '배송비를 포함한 총가격을 입력해주세요.';
+          return '총가격을 입력해주세요.';
         }
         return null;
       },
@@ -504,7 +504,7 @@ class _FormState extends State<customForm> {
                     ),
                     // 내용
                     const Text(
-                      "추가 작성 (선택)",
+                      "내용 (선택)",
                       style:
                           TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                     ),

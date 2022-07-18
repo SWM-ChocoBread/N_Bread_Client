@@ -131,7 +131,9 @@ class _imageUploaderState extends State<imageUploader> {
           Flexible(
             // to put gridview in row
             child: GridView.builder(
-                padding: EdgeInsets.all(15),
+                physics:
+                    const NeverScrollableScrollPhysics(), // 사진이 scroll 되지 않도록 설정
+                padding: const EdgeInsets.all(15),
                 shrinkWrap: true,
                 itemCount: imageFileList!.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
