@@ -1,7 +1,11 @@
+import 'dart:ffi';
+
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../utils/price_utils.dart';
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -11,6 +15,12 @@ class customForm extends StatefulWidget {
 }
 
 class _FormState extends State<customForm> {
+  // TextEditingController totalPriceController = TextEditingController();
+  // TextEditingController numOfParticipantsController = TextEditingController();
+  String totalPrice = "";
+  String numOfParticipants = "";
+  String customText = "";
+
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
@@ -65,12 +75,14 @@ class _FormState extends State<customForm> {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
+      textInputAction: TextInputAction.next,
       keyboardType: TextInputType.text,
     );
   }
 
   Widget _totalPriceTextFormField() {
     return TextFormField(
+      // controller: totalPriceController,
       decoration: InputDecoration(
         // hintText: "총가격(배송비 포함)",
         isDense: true,
@@ -108,11 +120,18 @@ class _FormState extends State<customForm> {
         }
         return null;
       },
+      onChanged: (String totalprice) {
+        // print(totalprice);
+        setState(() {
+          totalPrice = totalprice;
+        });
+      },
     );
   }
 
   Widget _participantsTextFormField() {
     return TextFormField(
+      // controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
         isDense: true,
@@ -150,6 +169,31 @@ class _FormState extends State<customForm> {
         }
         return null;
       },
+      onChanged: (String numofparticipants) {
+        // print(numofparticipants);
+        setState(() {
+          numOfParticipants = numofparticipants;
+        });
+      },
+    );
+  }
+
+  Widget _pricePerPerson(String totalprice, String numofparticipants) {
+    if (totalprice.isNotEmpty & numofparticipants.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 3),
+        child: Text(
+          "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() * 10).toString())} 원",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
+    }
+    return const Padding(
+      padding: EdgeInsets.only(left: 3),
+      child: Text(
+        "1인당 부담 가격: ",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -377,6 +421,11 @@ class _FormState extends State<customForm> {
                         ),
                       ],
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // 1인당 부담해야 할 가격
+                    _pricePerPerson(totalPrice, numOfParticipants),
                     const SizedBox(
                       height: 30,
                     ),

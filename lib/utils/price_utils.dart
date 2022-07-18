@@ -6,4 +6,9 @@ class PriceUtils {
     // if (priceString == "무료나눔") return priceString;
     return "${oCcy.format(int.parse(priceString))}원/묶음";
   }
+
+  static String calcStringToWonOnly(String priceString) {
+    // if (priceString == "무료나눔") return priceString;
+    return oCcy.format(int.parse(priceString));
+  }
 }
