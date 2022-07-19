@@ -740,16 +740,17 @@ class _DetailContentViewState extends State<DetailContentView> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           OutlinedButton(
-              style: OutlinedButton.styleFrom(),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return CheckCloseDeal();
-                    });
-              },
-              child: const Text("거래 마감하기",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)))
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                width: 1.0,
+                color: _colorStatus(widget.data["status"].toString()),
+              )),
+              onPressed: () {},
+              child: Text(_currentTotal(widget.data),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: _colorStatus(widget.data["status"].toString()))))
         ],
       ),
     );
