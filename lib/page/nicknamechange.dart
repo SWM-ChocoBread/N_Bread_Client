@@ -1,6 +1,8 @@
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:flutter/material.dart';
 
+import 'checknicknameoverlap.dart';
+
 class NicknameChange extends StatefulWidget {
   NicknameChange({Key? key}) : super(key: key);
 
@@ -9,6 +11,8 @@ class NicknameChange extends StatefulWidget {
 }
 
 class _NicknameChangeState extends State<NicknameChange> {
+  bool enablebutton = false;
+
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       title: const Text("닉네임 변경"),
@@ -21,7 +25,7 @@ class _NicknameChangeState extends State<NicknameChange> {
   }
 
   Widget _colorProfile() {
-    return Icon(
+    return const Icon(
       Icons.circle,
       color: Color(0xffF6BD60),
       size: 100,
@@ -89,26 +93,47 @@ class _NicknameChangeState extends State<NicknameChange> {
     );
   }
 
+  // _loadCheckNickname() {
+  //   String nicknameoverlap = "true";
+  //   showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return CheckNicknameOverlap();
+  //       });
+  // }
+
   Widget _bottomNavigationBarWidget() {
     return SizedBox(
-      // width: displayWidth(context),
-      height: 55,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        // width: displayWidth(context),
+        height: 110,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           OutlinedButton(
             onPressed: () {
-              // 닉네임이 중복된다면,
-              // 닉네임 변경 완료 버튼을 눌렀을 때, 닉네임이 중복되지 않는다면, 변경된 정보를 전달해야 한다.
-              Navigator.pop(context);
+              bool nicknameoverlap = false;
+              if (nicknameoverlap == false) {
+                setState(() {
+                  enablebutton = true;
+                });
+              }
             },
-            child: const Text(
-              "닉네임 변경",
-            ),
+            child: const Text("닉네임 중복 확인"),
           ),
-        ],
-      ),
-    );
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              side: enablebutton
+                  ? const BorderSide(width: 1.0, color: Color(0xffF6BD60))
+                  : const BorderSide(width: 1.0, color: Colors.grey),
+            ),
+            onPressed: enablebutton
+                ? () {
+                    Navigator.pop(context);
+                  }
+                : null,
+            child: const Text(
+              "닉네임 변경 완료",
+            ),
+          )
+        ]));
   }
 
   @override
