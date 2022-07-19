@@ -41,15 +41,6 @@ class _CreateNewState extends State<CreateNew> {
   }
 
   Widget _bodyWidget() {
-    // return Form(
-    //   key: _formKey, // handles the state of the form, validation, and saving
-    //   child: Column(
-    //     children: [
-    //       TextFormField(),
-    //       TextButton(onPressed: () {}, child: const Text("제안하기"))
-    //     ],
-    //   ),
-    // );
     return GestureDetector(
         onTap: () {
           FocusManager.instance.primaryFocus
