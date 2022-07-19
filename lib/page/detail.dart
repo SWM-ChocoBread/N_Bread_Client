@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/price_utils.dart';
-import 'checkclosedeal.dart';
 import 'done.dart';
+import 'formchange.dart';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -50,6 +50,50 @@ class _DetailContentViewState extends State<DetailContentView> {
     ];
   }
 
+  Widget _popupMenuButtonSelector() {
+    // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
+    if (currentuserstatus == "제안자" && widget.data["current"] == "1") {
+      return PopupMenuButton(
+        // 수정하기, 삭제하기가 나오는 팝업메뉴버튼
+        icon: const Icon(
+          Icons.more_vert,
+          color: Colors.white,
+        ),
+        offset: const Offset(-5, 50),
+        shape: ShapeBorder.lerp(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            1),
+        itemBuilder: (BuildContext context) {
+          return [
+            const PopupMenuItem(
+              value: "correction",
+              child: Text("수정하기"),
+            ),
+            const PopupMenuItem(
+              value: "delete",
+              child: Text("삭제하기"),
+            ),
+          ];
+        },
+        onSelected: (String val) {
+          if (val == "correction") {
+            // 수정하기를 누른 경우, 해당 detail page 에 있는 정보를 그대로 form에 전달해서 navigator
+            Navigator.push(context,
+                MaterialPageRoute(builder: (BuildContext context) {
+              return customFormChange(
+                data: widget.data,
+              );
+            }));
+          } else {
+            // 삭제하기를 누른 경우,
+          }
+        },
+      );
+    }
+    return Container();
+  }
+
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
       backgroundColor: Colors.transparent, // 투명 처리
@@ -82,37 +126,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               Icons.share,
               color: Colors.white,
             )),
-        PopupMenuButton(
-          // 수정하기, 삭제하기 가 나오는 팝업메뉴버튼
-          icon: const Icon(
-            Icons.more_vert,
-            color: Colors.white,
-          ),
-          offset: const Offset(-5, 50),
-          shape: ShapeBorder.lerp(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-              1),
-          itemBuilder: (BuildContext context) {
-            return [
-              const PopupMenuItem(
-                value: "correction",
-                child: Text("수정하기"),
-              ),
-              const PopupMenuItem(
-                value: "delete",
-                child: Text("삭제하기"),
-              ),
-            ];
-          },
-          onSelected: (String val) {
-            if (val == "correction") {
-              // 수정하기를 누른 경우,
-            } else {
-              // 삭제하기를 누른 경우,
-            }
-          },
-        ),
+        _popupMenuButtonSelector(),
         // IconButton(
         //     onPressed: () {},
         //     icon: const Icon(
@@ -614,14 +628,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 widget.data["place"].toString(),
                 overflow: TextOverflow.ellipsis,
               ),
-            ]
-                //   List.generate(12, (firstIndex) {
-                //   return Container(
-                //     height: 1,
-                //     color: Colors.red,
-                //   );
-                // }).toList()
-                ),
+            ]),
           ),
         ),
         SliverList(
