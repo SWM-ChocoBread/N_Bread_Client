@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/price_utils.dart';
+import 'checkclosedeal.dart';
 import 'done.dart';
 
 class DetailContentView extends StatefulWidget {
@@ -23,6 +24,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
+  String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
 
   @override
   void initState() {
@@ -631,7 +633,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  Widget _bottomNavigationBarWidget() {
+  Widget _bottomNavigationBarWidgetForNormal() {
     return Container(
       width: size.width,
       height: 55,
@@ -674,13 +676,151 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  Color _colorStatus(String status) {
+    switch (status) {
+      case "모집중":
+        return Colors.green; // 모집중인 경우의 색
+      case "모집완료":
+        return Colors.brown; // 모집완료인 경우의 색
+      case "거래완료":
+        return Colors.grey; // 거래완료인 경우의 색
+    }
+    return const Color(0xffF6BD60);
+  }
+
+  String _currentTotal(Map productContents) {
+    if (productContents["status"] == "모집중") {
+      return "${productContents["status"].toString()}: ${productContents["current"]}/${productContents["total"]}";
+    } else if (productContents["status"] == "모집완료" ||
+        productContents["status"] == "거래완료") {
+      return productContents["status"].toString();
+    }
+    return "데이터에 문제가 있습니다.";
+  }
+
+  _bottomNavigationBarWidgetForParticipant() {
+    return Container(
+      width: size.width,
+      height: 55,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(width: 1.0, color: Colors.grey),
+            ),
+            onPressed: () {},
+            child: RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                    text: _currentTotal(widget.data),
+                    // "${widget.data["status"]}: ${widget.data["current"]}/${widget.data["total"]}",
+                    style: TextStyle(
+                        color: _colorStatus(widget.data["status"].toString()),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16)),
+                const TextSpan(
+                    text: "    이미 참여한 거래입니다.",
+                    style: TextStyle(color: Colors.grey, fontSize: 14)),
+              ]),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  _bottomNavigationBarWidgetForSeller() {
+    return Container(
+      width: size.width,
+      height: 55,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          OutlinedButton(
+              style: OutlinedButton.styleFrom(),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return CheckCloseDeal();
+                    });
+              },
+              child: const Text("거래 마감하기",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)))
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomNavigationBarWidgetForRecruitmentComplete() {
+    return Container(
+      width: size.width,
+      height: 55,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(width: 1.0, color: Colors.grey),
+              ),
+              onPressed: () {},
+              child: const Text("모집이 완료되었습니다.",
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16)))
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomNavigationBarWidgetForDealComplete() {
+    return Container(
+      width: size.width,
+      height: 55,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(width: 1.0, color: Colors.grey),
+              ),
+              onPressed: () {},
+              child: const Text("완료된 거래입니다.",
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16)))
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomNavigationBarWidgetSelector() {
+    if (currentuserstatus == "참여자") {
+      return _bottomNavigationBarWidgetForParticipant(); // 참여한 거래입니다.
+    } else if (widget.data["status"] == "모집완료") {
+      return _bottomNavigationBarWidgetForRecruitmentComplete(); // 모집이 완료되었습니다.
+    } else if (widget.data["status"] == "거래완료") {
+      return _bottomNavigationBarWidgetForDealComplete(); // 완료된 거래입니다.
+    } else if (currentuserstatus == "제안자") {
+      return _bottomNavigationBarWidgetForSeller(); // 거래 마감하기
+    }
+    return _bottomNavigationBarWidgetForNormal();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
-      bottomNavigationBar: _bottomNavigationBarWidget(),
+      bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
     );
   }
 }
