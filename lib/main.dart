@@ -2,6 +2,8 @@ import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +46,13 @@ class MyApp extends StatelessWidget {
           ),
       // initialRoute: Splash.routeName, // 앱에 첫 화면을 지정하는 속성
       // routes: routeSplash, // navigation 화면들을 등록하는 부분
+      // 영어로 된 time picker, date picker 한글로 변환
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ],
+      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
       home: const App(),
     );
   }

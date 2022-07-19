@@ -276,9 +276,18 @@ class _FormState extends State<customForm> {
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
                 DateTime.now().day + 4));
         if (pickedDate != null) {
-          String formattedDate = DateFormat('yy.MM.dd.EEEE').format(pickedDate);
+          String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
+          String? weekday = {
+            "Mon": "월",
+            "Tue": "화",
+            "Wed": "수",
+            "Thu": "목",
+            "Fri": "금",
+            "Sat": "토",
+            "Sun": "일"
+          }[DateFormat("E").format(pickedDate)];
           setState(() {
-            dateController.text = formattedDate;
+            dateController.text = "$formattedDate$weekday";
           });
         }
       },
@@ -329,10 +338,14 @@ class _FormState extends State<customForm> {
           DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
               .format(context)
               .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
-          String formattedTime = DateFormat("h:mm a").format(parsedTime);
+          String formattedTime = DateFormat("h:mm").format(parsedTime);
+          String? dayNight = {
+            "AM": "오전",
+            "PM": "오후"
+          }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
 
           setState(() {
-            timeController.text = formattedTime;
+            timeController.text = "${dayNight!} $formattedTime";
           });
         }
       },
