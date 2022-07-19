@@ -3,6 +3,8 @@ import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:flutter/material.dart';
 
+import 'detail.dart';
+
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
 
@@ -176,73 +178,84 @@ class _MyPageState extends State<MyPage> {
             true, // Listview widget 이 children's size 까지 shrink down 하도록 함
         padding: const EdgeInsets.symmetric(horizontal: 0),
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
+          return GestureDetector(
+            onTap: () {
+              // 페이지 전환
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return DetailContentView(
+                  data: dataOngoing[index],
+                );
+              }));
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: _colorMyStatus(
+                                dataOngoing[index]["mystatus"].toString()),
+                          ),
+                          // const Color.fromARGB(255, 137, 82, 205)),
+                          child: Text(
+                            dataOngoing[index]["mystatus"].toString(),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          )),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 7, vertical: 3),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: _colorMyStatus(
-                              dataOngoing[index]["mystatus"].toString()),
+                          color: _colorStatus(
+                              dataOngoing[index]["status"].toString()),
                         ),
                         // const Color.fromARGB(255, 137, 82, 205)),
-                        child: Text(
-                          dataOngoing[index]["mystatus"].toString(),
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white),
-                        )),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 7, vertical: 3),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: _colorStatus(
-                            dataOngoing[index]["status"].toString()),
+                        child: _currentTotal(dataOngoing[index]),
+                        // Text(
+                        //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
+                        //   style: const TextStyle(
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //       color: Colors.white),
+                        // )
                       ),
-                      // const Color.fromARGB(255, 137, 82, 205)),
-                      child: _currentTotal(dataOngoing[index]),
-                      // Text(
-                      //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
-                      //   style: const TextStyle(
-                      //       fontSize: 12,
-                      //       fontWeight: FontWeight.w500,
-                      //       color: Colors.white),
-                      // )
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      dataOngoing[index]["date"].toString(),
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(dataOngoing[index]["title"].toString()),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  dataOngoing[index]["place"].toString(),
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w700),
-                ),
-              ],
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        dataOngoing[index]["date"].toString(),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(dataOngoing[index]["title"].toString()),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    dataOngoing[index]["place"].toString(),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
             ),
           );
         },
