@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -83,6 +84,16 @@ class _HomeState extends State<Home> {
           ),
         ]),
       ), // name of the app
+      actions: [
+        IconButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return KakaoLogin();
+              }));
+            },
+            icon: const Icon(Icons.mood))
+      ],
       centerTitle: false,
       titleSpacing: 0,
       elevation: 0,
@@ -239,7 +250,7 @@ class _HomeState extends State<Home> {
                                   Expanded(
                                     child: Text(
                                       PriceUtils.calcStringToWon(
-                                          dataContents[index]["price"]
+                                          dataContents[index]["personalPrice"]
                                               .toString()),
                                       //'${dataContents[index]["price"]}원/묶음',
                                       style: TextStyle(
