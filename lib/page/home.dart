@@ -341,8 +341,9 @@ class _HomeState extends State<Home> {
       separatorBuilder: (BuildContext context, int index) {
         return Container(
           height: 10,
-          color: const Color(0xffF0EBE0),
-          // const Color(0xfff0f0ef), // separator color
+          color:
+              // const Color(0xffF0EBE0),
+              const Color(0xfff0f0ef), // separator color
           // Colors.transparent,
           // Colors.black.withOpacity(0.1),
         );
