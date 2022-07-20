@@ -141,6 +141,9 @@ class ContentsRepository {
     );
     var response = await http.get(url);
     String responseBody = utf8.decode(response.bodyBytes);
+    print(response.body);
+    print(response.body.runtimeType);
+    print(jsonDecode(responseBody).runtimeType);
 
     //print(responseBody[0]);
 
@@ -159,10 +162,33 @@ class ContentsRepository {
     // API 통신 location 값을 보내주면서
     await _callAPI();
     await Future.delayed(const Duration(milliseconds: 1000));
-    
 
-    print(data[location]);
-    print(data[location].runtimeType);
-    return data[location];
+    var tmp = List<Map<String, String>>.empty(growable: true);
+    // print("data[lcationsdfsdfsdf]");
+    // print(data[location][0].runtimeType);
+    for (int i = 0; i < data[location].length; i++) {
+      print("check");
+      print(data[location][i].runtimeType);
+      try {
+        var toMap = Map<String, String>.from(data[location][i]);
+        print("type of tomap");
+        print(toMap.runtimeType);
+         tmp.add(toMap);
+      } catch (err) {
+        print("에러발생");
+        print(data[location][i]);
+      }
+
+      
+      // Map<String, String> strr = data[location][i]
+      //     .map((key, value) => MapEntry(key, value?.toString()));
+      //print(strr.runtimeType);
+     
+    }
+    //print(data[location].length);
+    print(tmp);
+    print(tmp.runtimeType);
+    //print(jsonDecode(data[location]));
+    return tmp;
   }
 }
