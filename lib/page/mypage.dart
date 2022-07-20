@@ -153,7 +153,7 @@ class _MyPageState extends State<MyPage> {
     switch (productOngoing["status"]) {
       case "모집중":
         return Text(
-          "${productOngoing["status"].toString()}: ${productOngoing["current"]}/${productOngoing["total"]}",
+          "${productOngoing["status"].toString()}: ${productOngoing["currentMember"]}/${productOngoing["totalMember"]}",
           style: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
         );

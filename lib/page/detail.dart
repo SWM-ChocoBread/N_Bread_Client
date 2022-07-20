@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/page/check.dart';
 import 'package:chocobread/page/checkparticipation.dart';
+import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -52,7 +53,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    if (currentuserstatus == "제안자" && widget.data["current"] == "1") {
+    if (currentuserstatus == "제안자" && widget.data["currentMember"] == "1") {
       return PopupMenuButton(
         // 수정하기, 삭제하기가 나오는 팝업메뉴버튼
         icon: const Icon(
@@ -81,7 +82,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             // 수정하기를 누른 경우, 해당 detail page 에 있는 정보를 그대로 form에 전달해서 navigator
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
-              return customFormChange(
+              return Modify(
                 data: widget.data,
               );
             }));
@@ -615,10 +616,12 @@ class _DetailContentViewState extends State<DetailContentView> {
                         )),
                   ]),
               Text(
-                PriceUtils.calcStringToWon(widget.data["price"].toString()),
+                PriceUtils.calcStringToWon(
+                    widget.data["personalPrice"].toString()),
               ),
               const Text("모집 인원"),
-              Text('${widget.data["current"]}/${widget.data["total"]}'),
+              Text(
+                  '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
               const Text("모집 마감 일자"),
               Text(widget.data["date"].toString()), // TODO : 수정 필요함
               const Text("거래 일시"),
@@ -667,7 +670,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               text: TextSpan(children: [
                 TextSpan(
                     text: PriceUtils.calcStringToWon(
-                        widget.data["price"].toString()),
+                        widget.data["personalPrice"].toString()),
                     style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w500,
@@ -697,7 +700,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   String _currentTotal(Map productContents) {
     if (productContents["status"] == "모집중") {
-      return "${productContents["status"].toString()}: ${productContents["current"]}/${productContents["total"]}";
+      return "${productContents["status"].toString()}: ${productContents["currentMember"]}/${productContents["totalMember"]}";
     } else if (productContents["status"] == "모집완료" ||
         productContents["status"] == "거래완료") {
       return productContents["status"].toString();

@@ -171,7 +171,7 @@ class _HomeState extends State<Home> {
   Widget _currentTotal(Map productContents) {
     if (productContents["status"] == "모집중") {
       return Text(
-        "${productContents["status"].toString()}: ${productContents["current"]}/${productContents["total"]}",
+        "${productContents["status"].toString()}: ${productContents["currentMember"]}/${productContents["totalMember"]}",
         style: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       );

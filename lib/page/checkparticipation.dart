@@ -65,7 +65,8 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
                 crossAxisCellCount: 8,
                 mainAxisCellCount: 1,
                 child: Text(
-                  PriceUtils.calcStringToWon(widget.data["price"].toString()),
+                  PriceUtils.calcStringToWon(
+                      widget.data["personalPrice"].toString()),
                   style: const TextStyle(
                     fontSize: 15,
                   ),

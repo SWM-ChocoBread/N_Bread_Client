@@ -9,15 +9,34 @@ import 'package:intl/intl.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
 
-class customForm extends StatefulWidget {
-  customForm({Key? key}) : super(key: key);
+class customFormChange extends StatefulWidget {
+  Map<String, dynamic> data;
+  customFormChange({Key? key, required this.data}) : super(key: key);
 
   @override
-  State<customForm> createState() => _customFormState();
+  State<customFormChange> createState() => _customFormChangeState();
 }
 
-class _customFormState extends State<customForm> {
+class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    productNameController.text = widget.data["title"];
+    productLinkController.text = widget.data["link"];
+    totalPriceController.text =
+        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"]);
+    numOfParticipantsController.text = widget.data["totalMember"];
+    dateController.text =
+        widget.data["date"].substring(0, 12); // 서버에서 보내는 형식을 보고 수정할 것!
+    timeController.text = widget.data["date"].substring(
+      14,
+    );
+    placeController.text = widget.data["place"];
+    extraController.text = widget.data["contents"];
+  }
 
   // 각각의 textfield에 붙는 controller
   TextEditingController productNameController =
@@ -26,8 +45,8 @@ class _customFormState extends State<customForm> {
       TextEditingController(); // 판매 링크에 붙는 controller
   TextEditingController totalPriceController =
       TextEditingController(); // 총 가격에 붙는 controller
-  // TextEditingController numOfParticipantsController =
-  //     TextEditingController(); // 모집 인원에 붙는 controller
+  TextEditingController numOfParticipantsController =
+      TextEditingController(); // 모집 인원에 붙는 controller
   TextEditingController dateController =
       TextEditingController(); // 거래 날짜에 붙는 controller
   TextEditingController timeController =
@@ -164,7 +183,7 @@ class _customFormState extends State<customForm> {
 
   Widget _participantsTextFormField() {
     return TextFormField(
-      // controller: numOfParticipantsController,
+      controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
         isDense: true,
@@ -409,7 +428,7 @@ class _customFormState extends State<customForm> {
     );
   }
 
-  Widget SuggestionForm() {
+  Widget SuggestionFormChange() {
     return SafeArea(
         child: Form(
             // autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -615,14 +634,6 @@ class _customFormState extends State<customForm> {
                                   .showSnackBar(snackBar);
                             }
                           },
-
-                          // () async {
-                          //   if (_formKey.currentState!.validate()) {
-                          //     const SnackBar(
-                          //       content: Text("제안 완료"),
-                          //     );
-                          //   }
-                          // },
                           child: const Text('제안하기'),
                         ),
                         // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
@@ -640,6 +651,6 @@ class _customFormState extends State<customForm> {
 
   @override
   Widget build(BuildContext context) {
-    return SuggestionForm();
+    return SuggestionFormChange();
   }
 }

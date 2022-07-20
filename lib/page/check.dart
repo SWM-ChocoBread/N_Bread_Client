@@ -58,7 +58,7 @@ class _CheckParticipationState extends State<CheckParticipationTest> {
                 children: [
                   const Text("가격"),
                   Text(PriceUtils.calcStringToWon(
-                      widget.data["price"].toString()))
+                      widget.data["personalPrice"].toString()))
                 ],
               ),
             )

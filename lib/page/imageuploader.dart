@@ -29,15 +29,6 @@ class _imageUploaderState extends State<imageUploader> {
     setState(() {});
   }
 
-  // final List _boxContents = [
-  //   IconButton(
-  //     onPressed: () {
-  //       // _pickImg(); // 누르면 카메라나 갤러리 중 어디에서 사진을 가져올지 물어보는 bottomsheet 가 나타나야 한다.
-  //     },
-  //     icon: const Icon(Icons.camera),
-  //   )
-  // ];
-
   Widget _getPhotoButton() {
     return OutlinedButton(
         onPressed: () {
@@ -122,6 +113,40 @@ class _imageUploaderState extends State<imageUploader> {
         ));
   }
 
+// 3개의 사진이 들어갈 공간
+  final List _boxContents = [Container(), Container(), Container()];
+// 3개만 들어가도록 하는 코드
+  Widget _showPhotoTest() {
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: Row(children: [
+          _getPhotoButton(),
+          Flexible(
+            child: GridView.count(
+                crossAxisCount: 3,
+                crossAxisSpacing: 15,
+                padding: const EdgeInsets.all(15),
+                shrinkWrap: true,
+                children: List.generate(
+                  3,
+                  (index) => Container(
+                    decoration: index < imageFileList!.length
+                        ? BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(25)),
+                            color: Colors.grey,
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: FileImage(
+                                    File(imageFileList![index].path))))
+                        : null,
+                    child: _boxContents[index],
+                  ),
+                )),
+          )
+        ]));
+  }
+
   Widget _showPhoto() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -154,7 +179,8 @@ class _imageUploaderState extends State<imageUploader> {
     );
   }
 
-  Widget _showPhotoTest() {
+  // 끄적이다 만 test code
+  Widget _showPhotoCustom() {
     return Row(
       children: [
         _getPhotoButton(),
@@ -179,7 +205,7 @@ class _imageUploaderState extends State<imageUploader> {
 
   @override
   Widget build(BuildContext context) {
-    return _showPhoto();
+    return _showPhotoTest();
     // OutlinedButton(
     //     onPressed: () {
     //       showModalBottomSheet(

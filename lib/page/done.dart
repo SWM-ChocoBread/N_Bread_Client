@@ -22,21 +22,21 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
     );
   }
 
-  Color _colorStatusDone(String current, String total) {
-    if ((int.parse(current) + 1) < int.parse(total)) {
+  Color _colorStatusDone(String currentMember, String totalMember) {
+    if ((int.parse(currentMember) + 1) < int.parse(totalMember)) {
       return Colors.green; // 모집중인 경우의 색
-    } else if ((int.parse(current) + 1) == int.parse(total)) {
+    } else if ((int.parse(currentMember) + 1) == int.parse(totalMember)) {
       return Colors.brown; // 모집완료인 경우의 색
     } else {
       return const Color(0xffF6BD60);
     }
   }
 
-  String _resultStatus(String current, String total) {
-    if ((int.parse(current) + 1) < int.parse(total)) {
-      return "모집중: ${(int.parse(current) + 1)}/$total"; // 모집중인 경우의 색
-    } else if ((int.parse(current) + 1) == int.parse(total)) {
-      return "모집완료: $total/$total"; // 모집완료인 경우의 색
+  String _resultStatus(String currentMember, String totalMember) {
+    if ((int.parse(currentMember) + 1) < int.parse(totalMember)) {
+      return "모집중: ${(int.parse(currentMember) + 1)}/$totalMember"; // 모집중인 경우의 색
+    } else if ((int.parse(currentMember) + 1) == int.parse(totalMember)) {
+      return "모집완료: $totalMember/$totalMember"; // 모집완료인 경우의 색
     } else {
       return "데이터 오류";
     }
@@ -89,8 +89,9 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    PriceUtils.calcStringToWon(
-                                        widget.data["price"].toString()),
+                                    PriceUtils.calcStringToWon(widget
+                                        .data["personalPrice"]
+                                        .toString()),
                                     //'${datas[index]["price"]}원/묶음',
                                     style: const TextStyle(
                                       fontSize: 13,
@@ -113,13 +114,13 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     color: _colorStatusDone(
-                                        widget.data["current"],
-                                        widget.data["total"])
+                                        widget.data["currentMember"],
+                                        widget.data["totalMember"])
                                     // const Color.fromARGB(255, 137, 82, 205)
                                     ),
                                 child: Text(
-                                  _resultStatus(widget.data["current"],
-                                      widget.data["total"]),
+                                  _resultStatus(widget.data["currentMember"],
+                                      widget.data["totalMember"]),
                                   // '${widget.data["status"]}',
                                   style: const TextStyle(
                                       fontSize: 12,
