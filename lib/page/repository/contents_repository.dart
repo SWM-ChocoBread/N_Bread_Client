@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 class ContentsRepository {
   Map<String, dynamic> data = {
     "yeoksam": [
@@ -130,10 +135,34 @@ class ContentsRepository {
     ],
   };
 
+  Future<Map<String, dynamic>> _callAPI() async {
+    var url = Uri.parse(
+      'http://localhost:8090',
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+
+    //print(responseBody[0]);
+
+    Map<String, dynamic> list = jsonDecode(responseBody);
+
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
+    print(list);
+    data = list;
+    print(list.runtimeType);
+    return list;
+  }
+
   Future<List<Map<String, String>>> loadContentsFromLocation(
       String location) async {
     // API 통신 location 값을 보내주면서
+    await _callAPI();
     await Future.delayed(const Duration(milliseconds: 1000));
+    
+
+    print(data[location]);
+    print(data[location].runtimeType);
     return data[location];
   }
 }
