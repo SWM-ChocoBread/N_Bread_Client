@@ -14,6 +14,8 @@ import 'formchange.dart';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
+  String replyTo = "";
+
   DetailContentView({Key? key, required this.data}) : super(key: key);
 
   @override
@@ -421,8 +423,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                           Navigator.push(context, MaterialPageRoute(
                               builder: (BuildContext context) {
                             return DetailCommentsView(
-                              data: dataComments,
-                            );
+                                data: dataComments,
+                                replyTo: dataComments[firstIndex]
+                                    ["userNickname"]);
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -500,31 +503,34 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   ],
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 19.0),
-                                child: TextButton(
-                                    focusNode: currentfocusnode,
-                                    onPressed: () {
-                                      // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
-                                      // setState(() {
-                                      //   enablecommentsbox = true;
-                                      // });
-                                      // currentfocusnode.requestFocus();
+                              const SizedBox(
+                                height: 15,
+                              )
+                              // Padding(
+                              //   padding: const EdgeInsets.only(left: 19.0),
+                              //   child: TextButton(
+                              //       focusNode: currentfocusnode,
+                              //       onPressed: () {
+                              //         // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
+                              //         // setState(() {
+                              //         //   enablecommentsbox = true;
+                              //         // });
+                              //         // currentfocusnode.requestFocus();
 
-                                      // 답글쓰기 버튼을 누르면, comments.dart 페이지로 이동한다.
-                                      Navigator.push(context, MaterialPageRoute(
-                                          builder: (BuildContext context) {
-                                        return DetailCommentsView(
-                                          data: dataComments,
-                                        );
-                                      }));
-                                    },
-                                    child: const Text("답글쓰기",
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ))),
-                              ),
+                              //         // 답글쓰기 버튼을 누르면, comments.dart 페이지로 이동한다.
+                              //         Navigator.push(context, MaterialPageRoute(
+                              //             builder: (BuildContext context) {
+                              //           return DetailCommentsView(
+                              //             data: dataComments,
+                              //           );
+                              //         }));
+                              //       },
+                              //       child: const Text("답글쓰기",
+                              //           style: TextStyle(
+                              //             color: Colors.grey,
+                              //             fontSize: 12,
+                              //           ))),
+                              // ),
                             ]));
                       },
                       separatorBuilder: (BuildContext context, int firstIndex) {
@@ -725,6 +731,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     MaterialPageRoute(builder: (BuildContext context) {
                   return DetailCommentsView(
                     data: dataComments,
+                    replyTo: "",
                   );
                 }));
               },

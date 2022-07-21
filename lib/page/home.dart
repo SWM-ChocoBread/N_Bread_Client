@@ -190,7 +190,7 @@ class _HomeState extends State<Home> {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
-  _makeDataList(List<Map<String, String>> dataContents) {
+  _makeDataList(List<Map<String, dynamic>> dataContents) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
@@ -369,7 +369,7 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData) {
-            return _makeDataList(snapshot.data as List<Map<String, String>>);
+            return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
           }
 
           return const Center(
