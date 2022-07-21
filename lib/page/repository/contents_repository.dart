@@ -134,6 +134,7 @@ class ContentsRepository {
       String location) async {
     // API 통신 location 값을 보내주면서
     await Future.delayed(const Duration(milliseconds: 1000));
+    print(data[location]);
     return data[location];
   }
 }
