@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 class CommentsRepository {
   List<Map<String, dynamic>> dataComments = [
     {
-      "id": 1,
+      "id": 0,
       "content":
           "정식 오픈 기준 시점으로 최적화는 준수한 편으로, 권장 사양을 지킨다면 원활하게 플레이 가능하다. 2011년 이후에 나온 쿼드코어 이상의 CPU와 16기가 정도의 램을 갖춘 컴퓨터로도 대규모 전투를 연출한 상황에서 프레임이 조금 떨어지는 수준이다. 다만, QHD 이상 해상도에서 공식 요구사항이 극단적으로 높아지는 것을 볼수 있는데, 60프레임 완전 보장을 기준으로 설명된 것으로 추정된다. 실제 플레이 상황에선 FHD 해상도와, 모든 옵션 최상을 기준으로 6세대 이후의 인텔 CPU, 라이젠 이후의 AMD CPU와 GTX1060 정도의 사양으로도 원활한 플레이가 가능하다.",
       "isDeleted": null,
@@ -79,7 +79,7 @@ class CommentsRepository {
       ]
     },
     {
-      "id": 2,
+      "id": 1,
       "content": "5분 정도 늦을 것 같은데, 괜찮을까요?",
       "isDeleted": null,
       "createdAt": "2022-07-17T05:22:25.000Z",
@@ -92,7 +92,7 @@ class CommentsRepository {
       "userStatus": "참여자",
       "Replies": [
         {
-          "id": 5,
+          "id": 0,
           "content": "넵! 기다리겠습니다!",
           "isDeleted": null,
           "createdAt": "2022-07-17T05:23:35.000Z",
@@ -108,7 +108,7 @@ class CommentsRepository {
       ]
     },
     {
-      "id": 3,
+      "id": 2,
       "content": "시간 조정 가능한가요?",
       "isDeleted": null,
       "createdAt": "2022-07-17T05:22:33.000Z",

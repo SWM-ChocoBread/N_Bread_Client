@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/check.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
@@ -7,11 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/price_utils.dart';
+import 'comments.dart';
 import 'done.dart';
 import 'formchange.dart';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
+  String replyTo = "";
+
   DetailContentView({Key? key, required this.data}) : super(key: key);
 
   @override
@@ -26,6 +30,15 @@ class _DetailContentViewState extends State<DetailContentView> {
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
   String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
+  bool enablecommentsbox = false;
+  FocusScopeNode currentfocusnode = FocusScopeNode();
+
+  @override
+  void dispose() {
+    currentfocusnode.dispose();
+
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -34,6 +47,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
+    // bool enablecommentsbox = false;
   }
 
   @override
@@ -333,167 +347,214 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   _makeComments(List<Map<String, dynamic>> dataComments) {
-    return ListView.separated(
-        physics:
-            const NeverScrollableScrollPhysics(), // listview 가 scroll 되지 않도록 함
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        shrinkWrap: true,
-        itemBuilder: (BuildContext context, int firstIndex) {
-          return Container(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 15,
-              ),
-              Row(
+    return Column(
+      children: [
+        ListView.separated(
+            physics:
+                const NeverScrollableScrollPhysics(), // listview 가 scroll 되지 않도록 함
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int firstIndex) {
+              return Container(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.circle,
-                    color: _colorUserStatus(
-                        dataComments[firstIndex]["userStatus"]),
-                    // size: 30,
-                  ),
                   const SizedBox(
-                    width: 5,
+                    height: 15,
                   ),
-                  Text(
-                    "${dataComments[firstIndex]["userNickname"]}",
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  _userStatusChip(
-                      dataComments[firstIndex]["userStatus"].toString()),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    "${dataComments[firstIndex]["fromThen"]}",
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              // 댓글 내용
-              Padding(
-                padding: const EdgeInsets.only(left: 29.0),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        "${dataComments[firstIndex]["content"]}",
-                        // softWrap: true,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        color: _colorUserStatus(
+                            dataComments[firstIndex]["userStatus"]),
+                        // size: 30,
                       ),
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 19.0),
-                child: TextButton(
-                    onPressed: () {},
-                    child: const Text("답글쓰기",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ))),
-              ),
-              ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int secondIndex) {
-                    return Container(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          const SizedBox(
-                            height: 15,
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "${dataComments[firstIndex]["userNickname"]}",
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      _userStatusChip(
+                          dataComments[firstIndex]["userStatus"].toString()),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "${dataComments[firstIndex]["fromThen"]}",
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  // 댓글 내용
+                  Padding(
+                    padding: const EdgeInsets.only(left: 29.0),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            "${dataComments[firstIndex]["content"]}",
+                            // softWrap: true,
                           ),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.circle,
-                                color: _colorUserStatus(dataComments[firstIndex]
-                                    ["Replies"][secondIndex]["userStatus"]),
-                                // size: 30,
-                              ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 19.0),
+                    child: TextButton(
+                        onPressed: () {
+                          // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
+                          // setState(() {
+                          //   enablecommentsbox = true;
+                          // });
+                          // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
+
+                          // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (BuildContext context) {
+                            return DetailCommentsView(
+                                data: dataComments,
+                                replyTo: dataComments[firstIndex]
+                                    ["userNickname"]);
+                          }));
+                        },
+                        child: const Text("답글쓰기",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ))),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 25),
+                    width: displayWidth(context) - 80,
+                    height: 1,
+                    color: const Color(0xffF0EBE0),
+                  ),
+                  // 대댓글
+                  ListView.separated(
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int secondIndex) {
+                        return Container(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                               const SizedBox(
-                                width: 5,
+                                height: 15,
                               ),
-                              Text(
-                                "${dataComments[firstIndex]["Replies"][secondIndex]["userNickname"]}",
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              _userStatusChip(dataComments[firstIndex]
-                                      ["Replies"][secondIndex]["userStatus"]
-                                  .toString()),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                "${dataComments[firstIndex]["Replies"][secondIndex]["fromThen"]}",
-                                style: const TextStyle(
-                                    color: Colors.grey, fontSize: 12),
-                              )
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          // 댓글 내용
-                          Padding(
-                            padding: const EdgeInsets.only(left: 29.0),
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["content"]}",
-                                    // softWrap: true,
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.circle,
+                                    color: _colorUserStatus(
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["userStatus"]),
+                                    // size: 30,
                                   ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 19.0),
-                            child: TextButton(
-                                onPressed: () {},
-                                child: const Text("답글쓰기",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                    ))),
-                          ),
-                        ]));
-                  },
-                  separatorBuilder: (BuildContext context, int firstIndex) {
-                    return Container(
-                      height: 1,
-                      color: const Color(0xffF0EBE0),
-                      // const Color(0xfff0f0ef),
-                    );
-                  },
-                  itemCount: dataComments[firstIndex]["Replies"].length)
-            ],
-          ));
-        },
-        separatorBuilder: (BuildContext context, int firstIndex) {
-          return Container(
-            height: 1,
-            color: const Color(0xffF0EBE0),
-            // const Color(0xfff0f0ef),
-          );
-        },
-        itemCount: dataComments.length);
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    "${dataComments[firstIndex]["Replies"][secondIndex]["userNickname"]}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  _userStatusChip(dataComments[firstIndex]
+                                          ["Replies"][secondIndex]["userStatus"]
+                                      .toString()),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    "${dataComments[firstIndex]["Replies"][secondIndex]["fromThen"]}",
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 12),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              // 댓글 내용
+                              Padding(
+                                padding: const EdgeInsets.only(left: 29.0),
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        "${dataComments[firstIndex]["Replies"][secondIndex]["content"]}",
+                                        // softWrap: true,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 15,
+                              )
+                              // Padding(
+                              //   padding: const EdgeInsets.only(left: 19.0),
+                              //   child: TextButton(
+                              //       focusNode: currentfocusnode,
+                              //       onPressed: () {
+                              //         // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
+                              //         // setState(() {
+                              //         //   enablecommentsbox = true;
+                              //         // });
+                              //         // currentfocusnode.requestFocus();
+
+                              //         // 답글쓰기 버튼을 누르면, comments.dart 페이지로 이동한다.
+                              //         Navigator.push(context, MaterialPageRoute(
+                              //             builder: (BuildContext context) {
+                              //           return DetailCommentsView(
+                              //             data: dataComments,
+                              //           );
+                              //         }));
+                              //       },
+                              //       child: const Text("답글쓰기",
+                              //           style: TextStyle(
+                              //             color: Colors.grey,
+                              //             fontSize: 12,
+                              //           ))),
+                              // ),
+                            ]));
+                      },
+                      separatorBuilder: (BuildContext context, int firstIndex) {
+                        return Container(
+                          height: 1,
+                          color: const Color(0xffF0EBE0),
+                          // const Color(0xfff0f0ef),
+                        );
+                      },
+                      itemCount: dataComments[firstIndex]["Replies"].length)
+                ],
+              ));
+            },
+            separatorBuilder: (BuildContext context, int firstIndex) {
+              return Container(
+                height: 1,
+                color: const Color(0xffF0EBE0),
+                // const Color(0xfff0f0ef),
+              );
+            },
+            itemCount: dataComments.length),
+        _commentsTextField(dataComments),
+      ],
+    );
   }
 
   Widget _commentsWidget() {
@@ -538,108 +599,170 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _bodyWidget() {
-    return CustomScrollView(
-      // list 를 그리드뷰로 처리할 때는 CustomScrollView로 처리한다.
-      // SingleChildScrollView : scroll 가능하게 만들기, 한 화면에 안 들어가면 생기는 에러 해결
-      controller: _scrollControllerForAppBar,
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              _makeSliderImage(),
-              _sellerSimpleInfo(),
-              _line(),
-              _contentsTitle(),
-            ],
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: CustomScrollView(
+        // list 를 그리드뷰로 처리할 때는 CustomScrollView로 처리한다.
+        // SingleChildScrollView : scroll 가능하게 만들기, 한 화면에 안 들어가면 생기는 에러 해결
+        controller: _scrollControllerForAppBar,
+        slivers: [
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                _makeSliderImage(),
+                _sellerSimpleInfo(),
+                _line(),
+                _contentsTitle(),
+              ],
+            ),
           ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 한 줄에 몇 개의 아이템
-                mainAxisSpacing: 10, // 가로 간격 생김
-                crossAxisSpacing: 10, // 세로 간격 생김
-                childAspectRatio:
-                    8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
-            delegate: SliverChildListDelegate([
-              const Text(
-                "판매 링크",
-              ),
-              GestureDetector(
-                onTap: () async {
-                  // 해당 url로 이동하도록 한다.
-                  final Uri url = Uri.parse(widget.data["link"]);
-                  if (await canLaunchUrl(url)) {
-                    // can launch function checks whether the device can launch url before invoking the launch function
-                    await launchUrl(url);
-                  } else {
-                    throw "could not launch $url";
-                  }
-                },
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      // icon name : attachment, link_rounded
-                      const Icon(Icons.link_rounded),
-                      const SizedBox(
-                        width: 3,
-                      ),
-                      Text(
-                        widget.data["link"].toString(),
-                        softWrap: false,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        // style: const TextStyle(
-                        //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
-                      ),
-                    ],
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 한 줄에 몇 개의 아이템
+                  mainAxisSpacing: 10, // 가로 간격 생김
+                  crossAxisSpacing: 10, // 세로 간격 생김
+                  childAspectRatio:
+                      8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
+              delegate: SliverChildListDelegate([
+                const Text(
+                  "판매 링크",
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    // 해당 url로 이동하도록 한다.
+                    final Uri url = Uri.parse(widget.data["link"]);
+                    if (await canLaunchUrl(url)) {
+                      // can launch function checks whether the device can launch url before invoking the launch function
+                      await launchUrl(url);
+                    } else {
+                      throw "could not launch $url";
+                    }
+                  },
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        // icon name : attachment, link_rounded
+                        const Icon(Icons.link_rounded),
+                        const SizedBox(
+                          width: 3,
+                        ),
+                        Text(
+                          widget.data["link"].toString(),
+                          softWrap: false,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          // style: const TextStyle(
+                          //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("단위 가격"),
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    IconButton(
-                        onPressed: () {},
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        iconSize: 17,
-                        icon: const Icon(
-                          Icons.help_outline,
-                        )),
-                  ]),
-              Text(
-                PriceUtils.calcStringToWon(
-                    widget.data["personalPrice"].toString()),
-              ),
-              const Text("모집 인원"),
-              Text(
-                  '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
-              const Text("모집 마감 일자"),
-              Text(widget.data["date"].toString()), // TODO : 수정 필요함
-              const Text("거래 일시"),
-              Text(widget.data["date"].toString()),
-              const Text("거래 장소"),
-              Text(
-                widget.data["place"].toString(),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ]),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text("단위 가격"),
+                      const SizedBox(
+                        width: 7,
+                      ),
+                      IconButton(
+                          onPressed: () {},
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          iconSize: 17,
+                          icon: const Icon(
+                            Icons.help_outline,
+                          )),
+                    ]),
+                Text(
+                  PriceUtils.calcStringToWon(
+                      widget.data["personalPrice"].toString()),
+                ),
+                const Text("모집 인원"),
+                Text(
+                    '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
+                const Text("모집 마감 일자"),
+                Text(widget.data["date"].toString()), // TODO : 수정 필요함
+                const Text("거래 일시"),
+                Text(widget.data["date"].toString()),
+                const Text("거래 장소"),
+                Text(
+                  widget.data["place"].toString(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ]),
+            ),
           ),
-        ),
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [_contentsDetail(), _line(), _commentTitle(), _commentsWidget()],
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                _contentsDetail(),
+                _line(),
+                _commentTitle(),
+                _commentsWidget(),
+                // _commentsTextField(),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _commentsTextField(List<Map<String, dynamic>> dataComments) {
+    return Container(
+      height: 55,
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              // focusNode: currentfocusnode,
+              maxLines: null,
+              onTap: () {
+                // 댓글 textfield를 누르면, comments.dart 페이지로 이동한다.
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return DetailCommentsView(
+                    data: dataComments,
+                    replyTo: "",
+                  );
+                }));
+              },
+              decoration: InputDecoration(
+                hintText: "댓글을 입력해주세요.",
+                contentPadding:
+                    const EdgeInsets.only(left: 10, right: 10, top: 7),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                // focus 가 사라졌을 때
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(width: 0.7, color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                // focus 가 맞춰졌을 때
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(width: 1, color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.send_rounded),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            constraints: const BoxConstraints(),
+          )
+        ],
+      ),
     );
   }
 
@@ -778,7 +901,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(width: 1.0, color: Colors.grey),
               ),
-              onPressed: () {},
+              onPressed: null,
               child: const Text("모집이 완료되었습니다.",
                   style: TextStyle(
                       color: Colors.grey,
@@ -801,7 +924,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(width: 1.0, color: Colors.grey),
               ),
-              onPressed: () {},
+              onPressed: null,
               child: const Text("완료된 거래입니다.",
                   style: TextStyle(
                       color: Colors.grey,
@@ -825,13 +948,79 @@ class _DetailContentViewState extends State<DetailContentView> {
     return _bottomNavigationBarWidgetForNormal();
   }
 
+  Widget _bottomTextfield() {
+    return Padding(
+      padding: MediaQuery.of(context).viewInsets, // 키보드 위로 댓글 입력창이 올라오도록 처리
+      child: Material(
+        elevation: 55,
+        child: Container(
+          height: 55,
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    enablecommentsbox = false;
+                  });
+                },
+                icon: const Icon(Icons.clear_rounded),
+                color: Colors.grey,
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                constraints: const BoxConstraints(),
+              ),
+              Expanded(
+                child: TextFormField(
+                  // focusNode: currentfocusnode,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    hintText: "댓글을 입력해주세요.",
+                    contentPadding:
+                        const EdgeInsets.only(left: 10, right: 10, top: 7),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    // focus 가 사라졌을 때
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 0.7, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    // focus 가 맞춰졌을 때
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 1, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.send_rounded),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                constraints: const BoxConstraints(),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
-      bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
+      bottomNavigationBar:
+          // _bottomNavigationBarWidgetSelector(),
+          enablecommentsbox
+              ? _bottomTextfield()
+              : _bottomNavigationBarWidgetSelector(),
     );
   }
 }

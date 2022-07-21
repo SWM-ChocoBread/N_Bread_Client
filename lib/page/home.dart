@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import '../utils/price_utils.dart';
 import 'create.dart';
 
+// develop
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -192,7 +194,8 @@ class _HomeState extends State<Home> {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
-  _makeDataList(List<Map<String, dynamic>> dataContents) async{
+
+  _makeDataList(List<Map<String, dynamic>> dataContents) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
@@ -374,7 +377,8 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData) {
-            return _makeDataList(snapshot.data as List<Map<String, dynamic>>,);
+
+            return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
           }
 
           return const Center(
