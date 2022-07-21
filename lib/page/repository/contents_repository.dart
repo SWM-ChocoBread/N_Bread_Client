@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 class ContentsRepository {
   Map<String, dynamic> data = {
     "yeoksam": [
@@ -130,11 +135,70 @@ class ContentsRepository {
     ],
   };
 
-  Future<List<Map<String, String>>> loadContentsFromLocation(
+  Future<Map<String, dynamic>> _callAPI(String location) async {
+    String tmpUrl = 'http://localhost:8080/deals/all/' + location;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    // print(response.body);
+    // print(response.body.runtimeType);
+    // print(jsonDecode(responseBody).runtimeType);
+
+    //print(responseBody[0]);
+
+    Map<String, dynamic> list = jsonDecode(responseBody);
+
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
+    //print(list);
+    data = list;
+    //print(list.runtimeType);
+    return list;
+  }
+
+  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
     // API 통신 location 값을 보내주면서
+    Map<String, dynamic> getData = await _callAPI(location);
     await Future.delayed(const Duration(milliseconds: 1000));
-    // print(data[location]);
-    return data[location];
+    print("capsule result");
+    print(getData["result"]["capsule"][0]);
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+    // print("data[lcationsdfsdfsdf]");
+    // print(data[location][0].runtimeType);
+    for (int i = 0; i < getData["result"]["capsule"].length; i++) {
+      print(getData["result"]["capsule"].length);
+      print(getData["result"]["capsule"][i].runtimeType);
+
+      print("변경 시작");
+      //var toMap = Map<String, String>.from(getData["result"]["capsule"][i]);
+      //var toMap=Map.from(getData["result"]["capsule"][i] as Map<String, dynamic>);
+      // print("type of tomap");
+      // print(toMap.runtimeType);
+      tmp.add(getData["result"]["capsule"][i]);
+      // try {
+      //   var toMap = Map<String, String>.from(getData["result"]["capsule"][i]);
+      //   //var toMap=Map.from(getData["result"]["capsule"][i] as Map<String, dynamic>);
+      //   print("type of tomap");
+      //   print(toMap.runtimeType);
+      //   //tmp.add(toMap);
+      // } catch (err) {
+      //   print("에러발생");
+      //   print(data["result"][location][i]);
+      // }
+
+      // Map<String, String> strr = data[location][i]
+      //     .map((key, value) => MapEntry(key, value?.toString()));
+      //print(strr.runtimeType);
+
+    }
+    //print(data[location].length);
+    print(tmp);
+    print(tmp.runtimeType);
+    //print(jsonDecode(data[location]));
+    return tmp;
+
   }
 }
