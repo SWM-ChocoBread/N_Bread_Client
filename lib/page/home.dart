@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
@@ -6,9 +7,11 @@ import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 import '../utils/price_utils.dart';
 import 'create.dart';
+
 
 // develop
 
@@ -132,7 +135,7 @@ class _HomeState extends State<Home> {
             borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Hero(
               // 사진 확대되는 애니메이션
-              tag: productContents["cid"].toString(),
+              tag: productContents["id"].toString(),
               child: Image.asset(
                 productContents["DealImages"][0]["dealImage"].toString(),
                 width: 100,
@@ -207,6 +210,7 @@ class _HomeState extends State<Home> {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
+
   _makeDataList(List<Map<String, dynamic>> dataContents) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -279,6 +283,7 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   Text(
+
                                       "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
                                       style: TextStyle(
                                         fontSize: 13,
@@ -318,7 +323,7 @@ class _HomeState extends State<Home> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  dataContents[index]["date"].toString(),
+                                  dataContents[index]["dealDate"].toString(),
                                   style: TextStyle(
                                       color: _colorDeterminant(
                                           dataContents[index]["status"]
@@ -331,7 +336,7 @@ class _HomeState extends State<Home> {
                                   // color: Colors.red, // 100짜리 박스 색
                                   // width: 100, // 장소 박스 크기 조절
                                   child: Text(
-                                    dataContents[index]["place"].toString(),
+                                    dataContents[index]["dealPlace"].toString(),
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
                                         color: _colorDeterminant(
@@ -386,6 +391,7 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData) {
+
             return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
           }
 
@@ -422,3 +428,27 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+Future<String> _getUserNick(String userId) async {
+  String tmpUrl = 'http://localhost:8080/users/' + userId;
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  print(tmpUrl);
+  var response = await http.get(url);
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+
+  print(list['result']['nick']);
+
+  return list['result']['nick'];
+}
+
+Future<String> retNick(String userId) async {
+  final nick = await _getUserNick(userId);
+  print("nick");
+  print(nick);
+  return nick;
+}
+
+

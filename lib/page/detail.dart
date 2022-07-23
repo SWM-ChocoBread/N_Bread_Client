@@ -184,7 +184,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         children: [
           Hero(
             // 사진 확대되는 애니메이션
-            tag: widget.data["cid"].toString(),
+            tag: widget.data["id"].toString(),
             child: CarouselSlider(
               items: _itemsForSliderImage(),
               // imgList.map((map) {
@@ -256,7 +256,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.data["sellerNickname"].toString(),
+                widget.data["User"]["nick"].toString(),
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
@@ -264,7 +264,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 height: 3,
               ),
               Text(
-                widget.data["sellerAddress"].toString(),
+                widget.data["User"]['curLocation3'].toString(),
                 style: const TextStyle(fontSize: 13),
               ),
             ],
