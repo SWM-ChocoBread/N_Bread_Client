@@ -164,7 +164,7 @@ class ContentsRepository {
     Map<String, dynamic> getData = await _callAPI(location);
     await Future.delayed(const Duration(milliseconds: 1000));
     print("capsule result");
-    print(getData["result"]["capsule"][0]);
+    //print(getData["result"]["capsule"][0]);
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
     // print("data[lcationsdfsdfsdf]");
     // print(data[location][0].runtimeType);
@@ -196,7 +196,7 @@ class ContentsRepository {
     }
     //print(data[location].length);
     print(tmp);
-    print(tmp.runtimeType);
+    print(tmp[1]["User"]['nick']);
     //print(jsonDecode(data[location]));
     return tmp;
 

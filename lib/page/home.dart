@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import '../utils/price_utils.dart';
 import 'create.dart';
 
+
 // develop
 
 class Home extends StatefulWidget {
@@ -134,7 +135,7 @@ class _HomeState extends State<Home> {
             borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Hero(
               // 사진 확대되는 애니메이션
-              tag: productContents["cid"].toString(),
+              tag: productContents["id"].toString(),
               child: Image.asset(
                 productContents["image"].toString(),
                 width: 100,
@@ -267,10 +268,7 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   Text(
-                                      retNick(dataContents[index]["userId"]
-                                              .toString())
-                                          .toString(),
-                                      // dataContents[index]["written"].toString(),
+                                      dataContents[index]["User"]['nick'].toString(),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black.withOpacity(0.3),
@@ -436,3 +434,5 @@ Future<String> retNick(String userId) async {
   print(nick);
   return nick;
 }
+
+
