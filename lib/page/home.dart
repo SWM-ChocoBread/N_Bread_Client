@@ -151,7 +151,7 @@ class _HomeState extends State<Home> {
               // 사진 확대되는 애니메이션
               tag: productContents["id"].toString(),
               child: Image.asset(
-                productContents["DealImages"][0]["dealImage"].toString(),
+                productContents["DealImages"][0]["dealImage"].toString(), //test
                 width: 100,
                 height: 100,
                 fit: BoxFit.fill,
