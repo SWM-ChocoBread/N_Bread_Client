@@ -45,6 +45,7 @@ dependencies:
   flutter_native_splash: ^2.2.4
   url_launcher: ^6.1.5
   image_picker: ^0.8.5+3
+  receive_sharing_intent: ^1.4.5
 
 flutter_native_splash:
   color: "#F0EBE0"

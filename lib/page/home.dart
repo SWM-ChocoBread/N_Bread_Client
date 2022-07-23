@@ -137,7 +137,7 @@ class _HomeState extends State<Home> {
               // 사진 확대되는 애니메이션
               tag: productContents["id"].toString(),
               child: Image.asset(
-                productContents["image"].toString(),
+                productContents["DealImages"][0]["dealImage"].toString(),
                 width: 100,
                 height: 100,
                 fit: BoxFit.fill,
@@ -149,14 +149,29 @@ class _HomeState extends State<Home> {
           color: const Color.fromRGBO(255, 255, 255, 0.7),
         ),
       ]);
+    } else if (productContents["DealImages"].length == 0) {
+      // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
+      return ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
+          child: Hero(
+            // 사진 확대되는 애니메이션
+            tag: productContents["cid"].toString(),
+            child: Container(
+              color: const Color(0xfff0f0ef),
+              width: 100,
+              height: 100,
+              child: const Icon(Icons.question_mark_rounded),
+            ),
+          ));
     } else {
+      // 모집중, 모집완료인 경우 이미지가 있는 경우, 이미지 보여주기
       return ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Hero(
             // 사진 확대되는 애니메이션
             tag: productContents["cid"].toString(),
             child: Image.asset(
-              productContents["image"].toString(),
+              productContents["DealImages"][0]["dealImage"].toString(),
               width: 100,
               height: 100,
               fit: BoxFit.fill,
@@ -268,7 +283,8 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   Text(
-                                      dataContents[index]["User"]['nick'].toString(),
+
+                                      "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black.withOpacity(0.3),
