@@ -125,7 +125,21 @@ class _HomeState extends State<Home> {
   }
 
   Widget _imageHolder(Map productContents) {
-    if (productContents["status"] == "거래완료") {
+    if (productContents["DealImages"].length == 0) {
+      // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
+      return ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
+          child: Hero(
+            // 사진 확대되는 애니메이션
+            tag: productContents["cid"].toString(),
+            child: Container(
+              color: const Color(0xfff0f0ef),
+              width: 100,
+              height: 100,
+              child: const Icon(Icons.question_mark_rounded),
+            ),
+          ));
+    } else if (productContents["status"] == "거래완료") {
       // 거래 완료인 경우 이미지 흐리게 처리
       return Stack(children: [
         ClipRRect(
@@ -146,20 +160,6 @@ class _HomeState extends State<Home> {
           color: const Color.fromRGBO(255, 255, 255, 0.7),
         ),
       ]);
-    } else if (productContents["DealImages"].length == 0) {
-      // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
-      return ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          child: Hero(
-            // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
-            child: Container(
-              color: const Color(0xfff0f0ef),
-              width: 100,
-              height: 100,
-              child: const Icon(Icons.question_mark_rounded),
-            ),
-          ));
     } else {
       // 모집중, 모집완료인 경우 이미지가 있는 경우, 이미지 보여주기
       return ClipRRect(
