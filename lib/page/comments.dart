@@ -86,7 +86,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           width: 5,
                         ),
                         Text(
-                          "${widget.data[firstIndex]["userNickname"]}",
+                          "${widget.data[firstIndex]["User"]["nick"]}",
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(
@@ -98,7 +98,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           width: 5,
                         ),
                         Text(
-                          "${widget.data[firstIndex]["fromThen"]}",
+                          "${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}",
                           style:
                               const TextStyle(color: Colors.grey, fontSize: 12),
                         )
@@ -154,7 +154,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                   curve: Curves.easeInOut);
                               setState(() {
                                 replyToHere =
-                                    "${widget.data[firstIndex]["userNickname"]}";
+                                    "${widget.data[firstIndex]["User"]["nick"]}";
                               });
                             }
                           },
@@ -196,7 +196,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       width: 5,
                                     ),
                                     Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["userNickname"]}",
+                                      "${widget.data[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -211,7 +211,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       width: 5,
                                     ),
                                     Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["fromThen"]}",
+                                      "${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
                                       style: const TextStyle(
                                           color: Colors.grey, fontSize: 12),
                                     )
@@ -297,7 +297,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                     replyToHere = "";
                   });
                 },
-                icon: Icon(Icons.clear_rounded),
+                icon: const Icon(Icons.clear_rounded),
                 constraints: const BoxConstraints(),
                 padding: EdgeInsets.zero,
                 iconSize: 15,
@@ -324,7 +324,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                     widget.replyTo = "";
                   });
                 },
-                icon: Icon(Icons.clear_rounded),
+                icon: const Icon(Icons.clear_rounded),
                 constraints: const BoxConstraints(),
                 padding: EdgeInsets.zero,
                 iconSize: 15,
@@ -346,7 +346,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
   double heightcontroller() {
     if ("${widget.replyTo}" != "" || replyToHere != "") {
-      return 95;
+      return 93;
     }
     return 69;
   }
@@ -371,7 +371,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                       // initialValue: "${widget.replyTo}",
                       autofocus:
                           true, // 답글쓰기나 댓글 입력 textfield 를 누르면, comments page 로 이동해서 textfield에 자동 focus 이동
-                      maxLines: null,
+                      minLines: 1,
+                      maxLines: 2, // 댓글 입력창의 높이 제한하기
                       decoration: InputDecoration(
                         hintText: "댓글을 입력해주세요.",
                         contentPadding:

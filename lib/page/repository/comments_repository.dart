@@ -11,7 +11,7 @@ class CommentsRepository {
       "fromThen": "17시간 전",
       "dealId": 1,
       "userId": 1,
-      "userNickname": "역삼동 소마사랑",
+      "User": {"nick": "역삼동 소마사랑"},
       "userStatus": "",
       "Replies": [
         {
@@ -26,7 +26,7 @@ class CommentsRepository {
           "parentId": 1,
           "dealId": 1,
           "userId": 2,
-          "userNickname": "역삼동 은이님",
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         },
         {
@@ -39,8 +39,8 @@ class CommentsRepository {
           "fromThen": "15시간 전",
           "parentId": 1,
           "dealId": 1,
-          "userId": 1,
-          "userNickname": "역삼동 은이님",
+          "userId": 2,
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         },
         {
@@ -54,7 +54,7 @@ class CommentsRepository {
           "parentId": 1,
           "dealId": 1,
           "userId": 3,
-          "userNickname": "역삼동 kite",
+          "User": {"nick": "역삼동 kite"},
           "userStatus": "참여자",
         },
         {
@@ -67,8 +67,8 @@ class CommentsRepository {
           "fromThen": "12시간 전",
           "parentId": 1,
           "dealId": 1,
-          "userId": 1,
-          "userNickname": "역삼동 은이님",
+          "userId": 2,
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         },
       ]
@@ -82,8 +82,8 @@ class CommentsRepository {
       "deletedAt": null,
       "fromThen": "12분 전",
       "dealId": 1,
-      "userId": 3,
-      "userNickname": "역삼동 kth",
+      "userId": 4,
+      "User": {"nick": "역삼동 kth"},
       "userStatus": "참여자",
       "Replies": [
         {
@@ -96,8 +96,8 @@ class CommentsRepository {
           "fromThen": "11분 전",
           "parentId": 2,
           "dealId": 1,
-          "userId": 1,
-          "userNickname": "역삼동 은이님",
+          "userId": 2,
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         }
       ]
@@ -111,8 +111,8 @@ class CommentsRepository {
       "deletedAt": null,
       "fromThen": "7분 전",
       "dealId": 1,
-      "userId": 4,
-      "userNickname": "역삼동 소마짱짱",
+      "userId": 1,
+      "User": {"nick": "역삼동 소마짱짱"},
       "userStatus": "",
       "Replies": []
     }

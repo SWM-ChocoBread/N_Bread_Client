@@ -11,22 +11,63 @@ class imageUploader extends StatefulWidget {
 }
 
 class _imageUploaderState extends State<imageUploader> {
-  final ImagePicker imagePicker = ImagePicker();
+  final ImagePicker imagePickerFromGallery =
+      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  final ImagePicker imagePickerFromCamera = ImagePicker();
+  int? currentnumofimages = 0;
 
-  List<XFile>? imageFileList = [];
+  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
 
-  void selectImages() async {
-    final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
+  void selectImagesFromGallery() async {
+    final List<XFile>? selectedImagesFromGallery =
+        await imagePickerFromGallery.pickMultiImage();
     setState(() {});
 
-    // imageFileList!.addAll(selectedImages!);
-    if (selectedImages != null) {
-      imageFileList!.addAll(selectedImages);
-    }
-    //else if (selectedImages.isNotEmpty) {
-    //   imageFileList!.addAll(selectedImages);
+    setState(() {
+      imageFileList = []; // 갤러리 버튼을 누를 때마다 이미지 리스트가 비워진다. (새로 다시 선택)
+      if (selectedImagesFromGallery != null) {
+        imageFileList!.addAll(selectedImagesFromGallery);
+      }
+      currentnumofimages = imageFileList?.length;
+    });
+    // imageFileList = []; // 갤러리 버튼을 누를 때마다 이미지 리스트가 비워진다. (새로 다시 선택)
+    // if (selectedImagesFromGallery != null) {
+    //   imageFileList!.addAll(selectedImagesFromGallery);
+    // }
+    // currentnumofimages = imageFileList?.length;
+
+    //else if (selectedImagesFromGallery.isNotEmpty) {
+    //   imageFileList!.addAll(selectedImagesFromGallery);
     // }
     setState(() {});
+  }
+
+  void selectImagesFromCamera() async {
+    final XFile? selectedImageFromCamera =
+        await imagePickerFromCamera.pickImage(source: ImageSource.camera);
+    setState(() {});
+    imageFileList = [];
+    if (selectedImageFromCamera != null) {
+      imageFileList!.add(selectedImageFromCamera);
+    }
+  }
+
+  String _getNumberOfImages() {
+    int? numofimages = imageFileList?.length;
+    if (numofimages == 0) {
+      return "0";
+    } else if (numofimages! >= 3) {
+      return "3";
+    }
+    return "${imageFileList?.length}";
+  }
+
+  Duration durationforsnackbar() {
+    int? numofimages = imageFileList?.length;
+    if (numofimages! > 3) {
+      return const Duration(milliseconds: 5000);
+    }
+    return const Duration(milliseconds: 0);
   }
 
   Widget _getPhotoButton() {
@@ -51,8 +92,27 @@ class _imageUploaderState extends State<imageUploader> {
                         children: [
                           OutlinedButton(
                             onPressed: () {
-                              selectImages();
-                            }, // 갤러리에서 사진 가져오기
+                              selectImagesFromGallery();
+                              Navigator.pop(context);
+
+                              const snackBar = SnackBar(
+                                content: Text(
+                                  "사진은 3장까지 업로드할 수 있습니다!",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                // backgroundColor: Colors.black,
+                                duration: Duration(milliseconds: 2000),
+                                // behavior: SnackBarBehavior.floating,
+                                elevation: 50,
+                                shape: StadiumBorder(),
+                                // RoundedRectangleBorder(
+                                //     borderRadius: BorderRadius.only(
+                                //         topLeft: Radius.circular(30),
+                                //         topRight: Radius.circular(30))),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }, // 갤러리에서 사진 가져오고
                             style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.all(20),
                                 shape: RoundedRectangleBorder(
@@ -74,7 +134,9 @@ class _imageUploaderState extends State<imageUploader> {
                       Column(
                         children: [
                           OutlinedButton(
-                            onPressed: () {}, // 카메라로 사진 찍기
+                            onPressed: () {
+                              selectImagesFromCamera();
+                            }, // 카메라로 사진 찍기
                             style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.all(20),
                                 shape: RoundedRectangleBorder(
@@ -108,7 +170,7 @@ class _imageUploaderState extends State<imageUploader> {
               Icons.camera_alt_rounded,
               size: 30,
             ),
-            Text("0/3") // 0 자리에 사진의 개수가 들어간다.
+            Text("${_getNumberOfImages()}/3") // 0 자리에 사진의 개수가 들어간다.
           ],
         ));
   }
@@ -226,7 +288,7 @@ class _imageUploaderState extends State<imageUploader> {
     //                   Column(
     //                     children: [
     //                       OutlinedButton(
-    //                         onPressed: () {selectImages()}, // 갤러리에서 사진 가져오기
+    //                         onPressed: () {selectImagesFromGallery()}, // 갤러리에서 사진 가져오기
     //                         style: OutlinedButton.styleFrom(
     //                             padding: const EdgeInsets.all(20),
     //                             shape: RoundedRectangleBorder(

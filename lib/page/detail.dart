@@ -29,7 +29,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
-  String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
+  String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
   bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
 
@@ -59,9 +59,9 @@ class _DetailContentViewState extends State<DetailContentView> {
     _current = 0; // _current 인덱스를 0으로 초기화
     imgList = [
       // imgList 에 들어갈 이미지들 나열
-      {"id": "0", "_url": widget.data["image"].toString()},
-      {"id": "1", "_url": widget.data["image"].toString()},
-      {"id": "2", "_url": widget.data["image"].toString()},
+      {"id": "0", "_url": widget.data["DealImages"].toString()},
+      {"id": "1", "_url": widget.data["DealImages"].toString()},
+      {"id": "2", "_url": widget.data["DealImages"].toString()},
     ];
   }
 
@@ -152,6 +152,31 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  List<Widget> _itemsForSliderImage() {
+    if ( // 이미지가 있는 경우에는 이미지를 보여준다.
+        // widget.data["image"] != null ||
+        // widget.data["image"] != [] ||
+        widget.data["image"] != "") {
+      return imgList.map((map) {
+        return Image.asset(
+          map["_url"].toString(),
+          width: size.width,
+          fit: BoxFit.fill,
+        );
+      }).toList();
+    } else {
+      // 이미지가 없는 경우에는 물음표 박스를 넣어준다.
+      return [
+        Container(
+          color: const Color(0xfff0f0ef),
+          width: displayWidth(context),
+          // height: 100,
+          child: const Icon(Icons.question_mark_rounded),
+        )
+      ];
+    }
+  }
+
   Widget _makeSliderImage() {
     return Container(
       child: Stack(
@@ -161,13 +186,14 @@ class _DetailContentViewState extends State<DetailContentView> {
             // 사진 확대되는 애니메이션
             tag: widget.data["cid"].toString(),
             child: CarouselSlider(
-              items: imgList.map((map) {
-                return Image.asset(
-                  map["_url"].toString(),
-                  width: size.width,
-                  fit: BoxFit.fill,
-                );
-              }).toList(),
+              items: _itemsForSliderImage(),
+              // imgList.map((map) {
+              //   return Image.asset(
+              //     map["_url"].toString(),
+              //     width: size.width,
+              //     fit: BoxFit.fill,
+              //   );
+              // }).toList(),
               // carouselController: _controller,
               options: CarouselOptions(
                   height: size.width,
@@ -180,10 +206,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                     });
                     print(firstIndex);
                   }),
-              // Image.asset(
-              //   widget.data["image"].toString(),
-              //   width: size.width,
-              //   fit: BoxFit.fill,
             ),
           ),
           Positioned(
@@ -275,7 +297,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           Text(
-            widget.data["written"].toString(),
+            "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
             style: const TextStyle(fontSize: 12),
           ),
           const SizedBox(
@@ -374,7 +396,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       Text(
-                        "${dataComments[firstIndex]["userNickname"]}",
+                        "${dataComments[firstIndex]["User"]["nick"]}",
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(
@@ -386,7 +408,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       Text(
-                        "${dataComments[firstIndex]["fromThen"]}",
+                        "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 12),
                       )
@@ -424,8 +446,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                               builder: (BuildContext context) {
                             return DetailCommentsView(
                                 data: dataComments,
-                                replyTo: dataComments[firstIndex]
-                                    ["userNickname"]);
+                                replyTo: dataComments[firstIndex]["User"]
+                                    ["nick"]);
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -466,7 +488,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["userNickname"]}",
+                                    "${dataComments[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w500),
                                   ),
@@ -480,7 +502,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["fromThen"]}",
+                                    "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
                                     style: const TextStyle(
                                         color: Colors.grey, fontSize: 12),
                                   )

@@ -3,12 +3,12 @@ class ContentsRepository {
     "yeoksam": [
       {
         "cid": "0", //
-        "image": "assets/images/maltesers.png",
+        "DealImages": [],
         "title": "몰티져스 60개입 20개씩 소분 판매",
         "link": "https://www.coupang.com",
         "totalPrice": "16490",
         "personalPrice": "5500",
-        "written": "18초 전",
+        "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "1",
         "totalMember": "3",
         "status": "모집중",
@@ -20,12 +20,14 @@ class ContentsRepository {
       },
       {
         "cid": "1",
-        "image": "assets/images/butter.png",
+        "DealImages": [
+          {"dealImage": "assets/images/butter.png"}
+        ],
         "title": "코스트코 가염버터 4개입 1개씩 소분 판매",
         "link": "https://www.naver.com",
         "totalPrice": "19900",
         "personalPrice": "5000",
-        "written": "3분 전",
+        "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "2",
         "totalMember": "4",
         "status": "모집중",
@@ -37,12 +39,14 @@ class ContentsRepository {
       },
       {
         "cid": "2",
-        "image": "assets/images/flipflop.jpeg",
+        "DealImages": [
+          {"dealImage": "assets/images/flipflop.jpeg"}
+        ],
         "title": "아키클래식 클라우드 리커버리 플립플랍",
         "link":
             "https://www.akiii.co.kr/shop/shopdetail.html?branduid=1152964&xcode=014&mcode=004&scode=013&special=3&GfDT=bmp4W10%3D",
         "personalPrice": "27500",
-        "written": "11분 전",
+        "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "1",
         "totalMember": "2",
         "status": "모집중",
@@ -53,12 +57,14 @@ class ContentsRepository {
       },
       {
         "cid": "3",
-        "image": "assets/images/otg.png",
+        "DealImages": [
+          {"dealImage": "assets/images/otg.png"}
+        ],
         "title": "C타입 젠더 USB A TO C OTG 변환젠더 연결",
         "link":
             "https://smartstore.naver.com/storylink/products/2462201862?NaPm=ct%3Dl5hpo37s%7Cci%3Da113ed95c0c49c68e1291afd59ba4f422b5b63dc%7Ctr%3Dslsl%7Csn%3D190552%7Chk%3D81d2f4e60f796cde24ba88d657db89fd302578a8",
         "personalPrice": "1200",
-        "written": "16분 전",
+        "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "10",
         "totalMember": "10",
         "status": "모집완료",
@@ -69,12 +75,14 @@ class ContentsRepository {
       },
       {
         "cid": "4",
-        "image": "assets/images/xexymix.png",
+        "DealImages": [
+          {"dealImage": "assets/images/xexymix.png"}
+        ],
         "title": "젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
         "link":
             "https://www.xexymix.com/shop/shopdetail.html?branduid=2060991&xcode=006&mcode=002&scode=&special=7&GfDT=bm14W1w%3D",
         "personalPrice": "29500",
-        "written": "20일 전",
+        "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "2",
         "totalMember": "2",
         "status": "거래완료",
@@ -87,10 +95,12 @@ class ContentsRepository {
     "bangbae": [
       {
         "cid": "10",
-        "image": "assets/images/maltesers.png",
+        "DealImages": [
+          {"dealImage": "assets/images/maltesers.png"}
+        ],
         "title": "[방배] 몰티져스 60개입 20개씩 소분 판매",
         "personalPrice": "5500",
-        "written": "18초 전",
+        "createdAt": "18초 전",
         "currentMember": "1",
         "totalMember": "3",
         "status": "모집중",
@@ -101,10 +111,12 @@ class ContentsRepository {
       },
       {
         "cid": "11",
-        "image": "assets/images/butter.png",
+        "DealImages": [
+          {"dealImage": "assets/images/butter.png"}
+        ],
         "title": "[방배] 코스트코 가염버터 4개입 1개씩 소분 판매",
         "personalPrice": "5000",
-        "written": "3분 전",
+        "createdAt": "3분 전",
         "currentMember": "1",
         "totalMember": "4",
         "status": "모집중",
@@ -115,10 +127,12 @@ class ContentsRepository {
       },
       {
         "cid": "12",
-        "image": "assets/images/flipflop.jpeg",
+        "DealImages": [
+          {"dealImage": "assets/images/flipflop.jpeg"}
+        ],
         "title": "[방배] 아키클래식 클라우드 리커버리 플립플랍",
         "personalPrice": "27500",
-        "written": "11분 전",
+        "createdAt": "11분 전",
         "currentMember": "1",
         "totalMember": "2",
         "status": "모집중",
@@ -130,7 +144,7 @@ class ContentsRepository {
     ],
   };
 
-  Future<List<Map<String, String>>> loadContentsFromLocation(
+  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
     // API 통신 location 값을 보내주면서
     await Future.delayed(const Duration(milliseconds: 1000));
