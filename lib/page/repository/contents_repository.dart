@@ -76,7 +76,8 @@ class ContentsRepository {
       {
         "cid": "4",
         "DealImages": [
-          {"dealImage": "assets/images/xexymix.png"}
+          {"dealImage": "assets/images/xexymix.png"},
+          {"dealImage": "assets/images/xexymix1.png"}
         ],
         "title": "젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
         "link":

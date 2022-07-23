@@ -25,7 +25,7 @@ class DetailContentView extends StatefulWidget {
 class _DetailContentViewState extends State<DetailContentView> {
   late CommentsRepository commentsRepository;
   late Size size;
-  late List<Map<String, String>> imgList; // imgList 선언
+  List<Map<String, String>> imgList = []; // imgList 선언
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
@@ -57,12 +57,19 @@ class _DetailContentViewState extends State<DetailContentView> {
     commentsRepository = CommentsRepository();
     size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
     _current = 0; // _current 인덱스를 0으로 초기화
-    imgList = [
-      // imgList 에 들어갈 이미지들 나열
-      {"id": "0", "_url": widget.data["DealImages"].toString()},
-      {"id": "1", "_url": widget.data["DealImages"].toString()},
-      {"id": "2", "_url": widget.data["DealImages"].toString()},
-    ];
+    if (widget.data["DealImages"].length > 0) {
+      for (var i = 0; i < widget.data["DealImages"].length; i++) {
+        imgList.add({
+          "id": i.toString(),
+          "_url": widget.data["DealImages"][i]["dealImage"]
+        });
+      }
+    } else {
+      imgList = [
+        // 이미지가 없는 경우에도 indicator 처리를 해주기 위함
+        {"id": "0"}
+      ];
+    }
   }
 
   Widget _popupMenuButtonSelector() {
@@ -156,7 +163,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if ( // 이미지가 있는 경우에는 이미지를 보여준다.
         // widget.data["image"] != null ||
         // widget.data["image"] != [] ||
-        widget.data["image"] != "") {
+        widget.data["DealImages"].length != 0) {
       return imgList.map((map) {
         return Image.asset(
           map["_url"].toString(),
