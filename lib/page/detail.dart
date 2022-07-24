@@ -1,6 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
-import 'package:chocobread/page/check.dart';
+import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
@@ -10,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../utils/price_utils.dart';
 import 'comments.dart';
 import 'done.dart';
-import 'formchange.dart';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -133,7 +132,11 @@ class _DetailContentViewState extends State<DetailContentView> {
       leading: IconButton(
         // Navigator 사용시 보통 자동으로 생성되나, 기타 처리 필요하므로 따로 생성
         onPressed: () {
-          Navigator.pop(context);
+          // Navigator.pop(context);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const App();
+          }));
         },
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
@@ -626,6 +629,44 @@ class _DetailContentViewState extends State<DetailContentView> {
         ));
   }
 
+  Widget _linkonoff() {
+    if (widget.data["link"] != "") {
+      return GestureDetector(
+        onTap: () async {
+          // 해당 url로 이동하도록 한다.
+          final Uri url = Uri.parse(widget.data["link"]);
+          if (await canLaunchUrl(url)) {
+            // can launch function checks whether the device can launch url before invoking the launch function
+            await launchUrl(url);
+          } else {
+            throw "could not launch $url";
+          }
+        },
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              // icon name : attachment, link_rounded
+              const Icon(Icons.link_rounded),
+              const SizedBox(
+                width: 3,
+              ),
+              Text(
+                widget.data["link"].toString(),
+                softWrap: false,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                // style: const TextStyle(
+                //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Container();
+  }
+
   Widget _bodyWidget() {
     return GestureDetector(
       onTap: () {
@@ -659,38 +700,39 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const Text(
                   "판매 링크",
                 ),
-                GestureDetector(
-                  onTap: () async {
-                    // 해당 url로 이동하도록 한다.
-                    final Uri url = Uri.parse(widget.data["link"]);
-                    if (await canLaunchUrl(url)) {
-                      // can launch function checks whether the device can launch url before invoking the launch function
-                      await launchUrl(url);
-                    } else {
-                      throw "could not launch $url";
-                    }
-                  },
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        // icon name : attachment, link_rounded
-                        const Icon(Icons.link_rounded),
-                        const SizedBox(
-                          width: 3,
-                        ),
-                        Text(
-                          widget.data["link"].toString(),
-                          softWrap: false,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          // style: const TextStyle(
-                          //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _linkonoff(),
+                // GestureDetector(
+                //   onTap: () async {
+                //     // 해당 url로 이동하도록 한다.
+                //     final Uri url = Uri.parse(widget.data["link"]);
+                //     if (await canLaunchUrl(url)) {
+                //       // can launch function checks whether the device can launch url before invoking the launch function
+                //       await launchUrl(url);
+                //     } else {
+                //       throw "could not launch $url";
+                //     }
+                //   },
+                //   child: SingleChildScrollView(
+                //     scrollDirection: Axis.horizontal,
+                //     child: Row(
+                //       children: [
+                //         // icon name : attachment, link_rounded
+                //         const Icon(Icons.link_rounded),
+                //         const SizedBox(
+                //           width: 3,
+                //         ),
+                //         Text(
+                //           widget.data["link"].toString(),
+                //           softWrap: false,
+                //           maxLines: 1,
+                //           overflow: TextOverflow.ellipsis,
+                //           // style: const TextStyle(
+                //           //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
