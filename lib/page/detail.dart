@@ -47,16 +47,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
-    // bool enablecommentsbox = false;
-  }
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    commentsRepository = CommentsRepository();
-    size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
-    _current = 0; // _current 인덱스를 0으로 초기화
     if (widget.data["DealImages"].length > 0) {
       for (var i = 0; i < widget.data["DealImages"].length; i++) {
         imgList.add({
@@ -70,6 +60,15 @@ class _DetailContentViewState extends State<DetailContentView> {
         {"id": "0"}
       ];
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    commentsRepository = CommentsRepository();
+    size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
+    _current = 0; // _current 인덱스를 0으로 초기화
   }
 
   Widget _popupMenuButtonSelector() {
