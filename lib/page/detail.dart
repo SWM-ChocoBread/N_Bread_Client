@@ -631,6 +631,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _linkonoff() {
     if (widget.data["link"] != "") {
+      // 링크가 존재하는 경우
       return GestureDetector(
         onTap: () async {
           // 해당 url로 이동하도록 한다.
@@ -664,7 +665,10 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
       );
     }
-    return Container();
+    // 링크가 존재하지 않는 경우, 링크 자리에 들아가는 것
+    return const Center(
+      child: Text("-"),
+    );
   }
 
   Widget _bodyWidget() {
@@ -701,38 +705,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                   "판매 링크",
                 ),
                 _linkonoff(),
-                // GestureDetector(
-                //   onTap: () async {
-                //     // 해당 url로 이동하도록 한다.
-                //     final Uri url = Uri.parse(widget.data["link"]);
-                //     if (await canLaunchUrl(url)) {
-                //       // can launch function checks whether the device can launch url before invoking the launch function
-                //       await launchUrl(url);
-                //     } else {
-                //       throw "could not launch $url";
-                //     }
-                //   },
-                //   child: SingleChildScrollView(
-                //     scrollDirection: Axis.horizontal,
-                //     child: Row(
-                //       children: [
-                //         // icon name : attachment, link_rounded
-                //         const Icon(Icons.link_rounded),
-                //         const SizedBox(
-                //           width: 3,
-                //         ),
-                //         Text(
-                //           widget.data["link"].toString(),
-                //           softWrap: false,
-                //           maxLines: 1,
-                //           overflow: TextOverflow.ellipsis,
-                //           // style: const TextStyle(
-                //           //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
