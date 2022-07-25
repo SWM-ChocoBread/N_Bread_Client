@@ -24,7 +24,7 @@ class ContentsRepository {
           {"dealImage": "assets/images/butter.png"}
         ],
         "title": "코스트코 가염버터 4개입 1개씩 소분 판매",
-        "link": "https://www.naver.com",
+        "link": "",
         "totalPrice": "19900",
         "personalPrice": "5000",
         "createdAt": "2022-07-17T05:22:12.000Z",
@@ -72,6 +72,7 @@ class ContentsRepository {
         "place": "올리브영 선릉아이타워점",
         "sellerNickname": "역삼동 kth",
         "sellerAddress": "역삼 2동",
+        "contents": "",
       },
       {
         "cid": "4",
