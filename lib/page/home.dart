@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
+import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -87,6 +88,14 @@ class _HomeState extends State<Home> {
         ]),
       ), // name of the app
       actions: [
+        IconButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return NotionInfo();
+              }));
+            },
+            icon: const Icon(Icons.help_outline_rounded)),
         IconButton(
             onPressed: () {
               Navigator.push(context,

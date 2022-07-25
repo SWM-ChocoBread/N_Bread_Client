@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'home.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'mypage.dart';
+import 'notioninfo.dart';
 
 class App extends StatefulWidget {
   static String routeName = "/page";
@@ -61,7 +62,7 @@ class _AppState extends State<App> {
   Widget _bodyWidget() {
     switch (_currentPageIndex) {
       case 0:
-        return const OpenChatting();
+        return NotionInfo();
       case 1:
         return const Home();
       case 2:
