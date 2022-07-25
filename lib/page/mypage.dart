@@ -1,8 +1,10 @@
+import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:flutter/material.dart';
 
+import 'accountdelete.dart';
 import 'detail.dart';
 
 class MyPage extends StatefulWidget {
@@ -33,6 +35,40 @@ class _MyPageState extends State<MyPage> {
       bottomOpacity: 0,
       backgroundColor: Colors.transparent,
       automaticallyImplyLeading: false, // 자동으로 생성되는 뒤로가기 버튼 제거하기
+      actions: [
+        IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                  shape: const RoundedRectangleBorder(
+                      // modal bottom sheet 의 윗부분을 둥글게 만들어주기
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30))),
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Container(
+                      height: 100,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 50)),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                  return AccountDelete();
+                                }));
+                              },
+                              child: const Text("탈퇴하기"),
+                            ),
+                          ]),
+                    );
+                  });
+            },
+            icon: const Icon(Icons.settings_rounded))
+      ],
     );
   }
 
@@ -171,7 +207,7 @@ class _MyPageState extends State<MyPage> {
     return ongoingRepository.loadOngoing();
   }
 
-  _makeOngoingList(List<Map<String, String>> dataOngoing) {
+  _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
     return Expanded(
       child: ListView.separated(
         shrinkWrap:
@@ -299,7 +335,7 @@ class _MyPageState extends State<MyPage> {
                   _nickname(),
                   _line(),
                   _ongoingTitle(),
-                  _makeOngoingList(snapshot.data as List<Map<String, String>>),
+                  _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
                 ],
               ),
             );
