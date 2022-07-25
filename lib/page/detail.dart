@@ -132,11 +132,11 @@ class _DetailContentViewState extends State<DetailContentView> {
       leading: IconButton(
         // Navigator 사용시 보통 자동으로 생성되나, 기타 처리 필요하므로 따로 생성
         onPressed: () {
-          // Navigator.pop(context);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) {
-            return const App();
-          }));
+          Navigator.pop(context);
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (BuildContext context) {
+          //   return const App();
+          // }));
         },
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
