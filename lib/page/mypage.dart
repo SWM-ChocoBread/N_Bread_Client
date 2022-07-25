@@ -2,6 +2,10 @@ import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'repository/contents_repository.dart' as cont;
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'detail.dart';
 
@@ -145,6 +149,8 @@ class _MyPageState extends State<MyPage> {
         return Colors.green; // 모집중인 경우의 색
       case "모집완료":
         return Colors.brown; // 모집완료인 경우의 색
+      case "모집실패":
+        return Colors.orange;//모집실패인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
@@ -163,15 +169,31 @@ class _MyPageState extends State<MyPage> {
           style: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
         );
+        case "모집실패":
+        return Text(
+          productOngoing["status"].toString(),
+          style: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        );
+        
     }
     return const Text("데이터에 문제가 있습니다.");
   }
 
-  _loadOngoing() {
-    return ongoingRepository.loadOngoing();
+  _loadOngoing() async {
+    final pref = await SharedPreferences.getInstance();
+    final userId = pref.getString("tmpUserId");
+    print("load ongoing");
+    print(userId);
+
+    if (userId != null) {
+      return ongoingRepository.loadOngoing("2");
+    }
+    return null;
+    //return ongoingRepository.loadOngoing(userId);
   }
 
-  _makeOngoingList(List<Map<String, String>> dataOngoing) {
+  _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
     return Expanded(
       child: ListView.separated(
         shrinkWrap:
@@ -236,7 +258,7 @@ class _MyPageState extends State<MyPage> {
                         width: 5,
                       ),
                       Text(
-                        dataOngoing[index]["date"].toString(),
+                        dataOngoing[index]["dealDate"].toString(),
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w500),
                       ),
@@ -250,7 +272,7 @@ class _MyPageState extends State<MyPage> {
                     height: 5,
                   ),
                   Text(
-                    dataOngoing[index]["place"].toString(),
+                    dataOngoing[index]["dealPlace"].toString(),
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w700),
                   ),
@@ -299,7 +321,7 @@ class _MyPageState extends State<MyPage> {
                   _nickname(),
                   _line(),
                   _ongoingTitle(),
-                  _makeOngoingList(snapshot.data as List<Map<String, String>>),
+                  _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
                 ],
               ),
             );

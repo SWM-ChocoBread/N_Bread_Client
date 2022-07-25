@@ -59,9 +59,11 @@ class _DetailContentViewState extends State<DetailContentView> {
     _current = 0; // _current 인덱스를 0으로 초기화
     imgList = [
       // imgList 에 들어갈 이미지들 나열
-      {"id": "0", "_url": widget.data["DealImages"].toString()},
-      {"id": "1", "_url": widget.data["DealImages"].toString()},
-      {"id": "2", "_url": widget.data["DealImages"].toString()},
+      //혜연 : 값이 null일 경우 처리되지 않아서
+      //widget.data["DealImages"][0]['dealImage'].toString()->assets/images/maltesers.png로 수정
+      {"id": "0", "_url": "assets/images/maltesers.png"},
+      {"id": "1", "_url":"assets/images/maltesers.png"},
+      {"id": "2", "_url": "assets/images/maltesers.png"},
     ];
   }
 
@@ -365,7 +367,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   _loadComments() {
-    return CommentsRepository().loadComments();
+    return CommentsRepository().loadComments(widget.data['id'].toString());
   }
 
   _makeComments(List<Map<String, dynamic>> dataComments) {
@@ -389,8 +391,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                       Icon(
                         Icons.circle,
                         color: _colorUserStatus(
-                            dataComments[firstIndex]["userStatus"]),
-                        // size: 30,
+                            dataComments[firstIndex]['User']["userStatus"]),
+                        size: 30,
                       ),
                       const SizedBox(
                         width: 5,
@@ -403,7 +405,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       _userStatusChip(
-                          dataComments[firstIndex]["userStatus"].toString()),
+                          dataComments[firstIndex]['User']["userStatus"].toString()),
                       const SizedBox(
                         width: 5,
                       ),
@@ -480,8 +482,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   Icon(
                                     Icons.circle,
                                     color: _colorUserStatus(
+                                     
                                         dataComments[firstIndex]["Replies"]
-                                            [secondIndex]["userStatus"]),
+                                            [secondIndex]["User"]["userStatus"]),
                                     // size: 30,
                                   ),
                                   const SizedBox(
@@ -496,7 +499,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   _userStatusChip(dataComments[firstIndex]
-                                          ["Replies"][secondIndex]["userStatus"]
+                                          ["Replies"][secondIndex]["User"]["userStatus"]
                                       .toString()),
                                   const SizedBox(
                                     width: 5,
@@ -710,12 +713,12 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Text(
                     '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
                 const Text("모집 마감 일자"),
-                Text(widget.data["date"].toString()), // TODO : 수정 필요함
+                Text(widget.data["dealDate"].toString()), // TODO : 수정 필요함+혜연 : 모집 마감 일자는 이제 없어지지 않았나?
                 const Text("거래 일시"),
-                Text(widget.data["date"].toString()),
+                Text(widget.data["dealDate"].toString()),
                 const Text("거래 장소"),
                 Text(
-                  widget.data["place"].toString(),
+                  widget.data["dealPlace"].toString(),
                   overflow: TextOverflow.ellipsis,
                 ),
               ]),

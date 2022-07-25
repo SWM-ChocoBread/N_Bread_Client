@@ -123,6 +123,8 @@ class _HomeState extends State<Home> {
         return Colors.brown; // 모집완료인 경우의 색
       case "거래완료":
         return Colors.grey; // 거래완료인 경우의 색
+      case "모집실패":
+        return Colors.orange; // 거래완료인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
@@ -134,7 +136,7 @@ class _HomeState extends State<Home> {
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Hero(
             // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
+            tag: productContents["id"].toString(),
             child: Container(
               color: const Color(0xfff0f0ef),
               width: 100,
@@ -169,7 +171,7 @@ class _HomeState extends State<Home> {
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Hero(
             // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
+            tag: productContents["id"].toString(),
             child: Image.asset(
               productContents["DealImages"][0]["dealImage"].toString(),
               width: 100,
@@ -196,7 +198,8 @@ class _HomeState extends State<Home> {
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       );
     } else if (productContents["status"] == "모집완료" ||
-        productContents["status"] == "거래완료") {
+        productContents["status"] == "거래완료"||
+        productContents["status"] == "모집실패") {
       return Text(
         productContents["status"].toString(),
         style: const TextStyle(
