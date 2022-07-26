@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
+import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:flutter/material.dart';
@@ -100,10 +101,18 @@ class _HomeState extends State<Home> {
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (BuildContext context) {
-                return KakaoLogin();
+                return Login();
               }));
             },
-            icon: const Icon(Icons.mood))
+            icon: const Icon(Icons.mood)),
+        IconButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return NicknameSet();
+              }));
+            },
+            icon: const Icon(Icons.ac_unit))
       ],
       centerTitle: false,
       titleSpacing: 0,
