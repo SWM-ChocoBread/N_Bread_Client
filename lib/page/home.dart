@@ -327,9 +327,6 @@ class _HomeState extends State<Home> {
                                           .toString())),
                                   child: _currentTotal(dataContents[index]),
                                 ),
-                                const Expanded(
-                                    child:
-                                        Text("")) // make empty space clickable
                               ],
                             ),
                             const SizedBox(height: 5),
