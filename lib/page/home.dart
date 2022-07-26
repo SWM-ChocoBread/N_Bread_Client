@@ -230,6 +230,7 @@ class _HomeState extends State<Home> {
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
+          behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () {
             // 페이지 전환
             Navigator.push(context,
