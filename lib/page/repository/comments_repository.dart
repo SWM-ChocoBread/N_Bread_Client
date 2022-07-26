@@ -160,10 +160,10 @@ class CommentsRepository {
     // API 통신 location 값을 보내주면서
     Map<String, dynamic> getData = await _callAPI(dealId);
     Map<String, dynamic> testData = await _callAPI2();
-    print(testData);
+ 
     await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
-    print(getData['result']['comments']);
+
     if (getData['result']['comments'].length != 0) {
       print(getData['result']['comments'][0]);
       for (int i = 0; i < getData['result']['comments'].length; i++) {

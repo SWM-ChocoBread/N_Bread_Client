@@ -9,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserId', '2');
+  await prefs.setString('tmpUserToken',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6Imt5Z2t0aDEyMzQ1NjciLCJwcm92aWRlciI6ImxvY2FsIiwiaWF0IjoxNjU4ODMyMDg3LCJpc3MiOiJjaG9jb0JyZWFkIn0.-r0fDkbJx09PllWj0KQSTAGI9Prw-awaJ0XCZ5v7AIw');
   print("prefs save test");
   print(prefs.get('tmpUserId'));
 
@@ -187,6 +189,7 @@ class ContentsRepository {
       String location) async {
     // API 통신 location 값을 보내주면서
     Map<String, dynamic> getData = await _callAPI(location);
+
     // _callAPI2();
     await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
