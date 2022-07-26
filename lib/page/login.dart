@@ -3,14 +3,14 @@ import 'package:flutter_svg/svg.dart';
 
 import 'kakaologinwebview.dart';
 
-class KakaoLogin extends StatefulWidget {
-  KakaoLogin({Key? key}) : super(key: key);
+class Login extends StatefulWidget {
+  Login({Key? key}) : super(key: key);
 
   @override
-  State<KakaoLogin> createState() => _KakaoLoginState();
+  State<Login> createState() => _LoginState();
 }
 
-class _KakaoLoginState extends State<KakaoLogin> {
+class _LoginState extends State<Login> {
   PreferredSizeWidget _appbarWidget() {
     return AppBar();
   }
