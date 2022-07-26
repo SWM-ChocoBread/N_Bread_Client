@@ -1,8 +1,5 @@
-// import 'dart:html';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class KakaoLoginWebview extends StatefulWidget {
   KakaoLoginWebview({Key? key}) : super(key: key);
@@ -15,21 +12,22 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       centerTitle: false,
-      titleSpacing: 23,
+      titleSpacing: 0,
       elevation: 0,
       bottomOpacity: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
     );
   }
 
-  Widget _webviewScaffold() {
-    return const WebviewScaffold(
-      url: "https://chocobread.shop/auth/kakao",
-      hidden: true,
-      ignoreSSLErrors: true,
-      // invalidUrlRegex: Platform.isAndroid
-      //     ? '^(?!https://|http://|about:blank|data:).+'
-      //     : null,
+  Widget _kakaoLoginWebview() {
+    return InAppWebView(
+      initialUrlRequest:
+          URLRequest(url: Uri.parse("https://chocobread.shop/auth/kakao")),
+      onReceivedServerTrustAuthRequest: (controller, challenge) async {
+        //Do some checks here to decide if CANCELS or PROCEEDS
+        return ServerTrustAuthResponse(
+            action: ServerTrustAuthResponseAction.PROCEED);
+      },
     );
   }
 
@@ -37,20 +35,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBarWidget(),
-      body: _webviewScaffold(),
+      body: _kakaoLoginWebview(),
     );
-    // return const WebviewScaffold(
-    //   url: "https://chocobread.shop/auth/kakao",
-    //   hidden: true,
-    //   ignoreSSLErrors: true,
-    //   // invalidUrlRegex: Platform.isAndroid
-    //   //     ? '^(?!https://|http://|about:blank|data:).+'
-    //   //     : null,
-    // );
-    // return const WebView(
-    //   initialUrl: "https://chocobread.shop/auth/kakao",
-    //   javascriptMode: JavascriptMode.unrestricted,
-    //   gestureNavigationEnabled: true, // 스와이프로 이전 페이지로 돌아가는 기능 활성화
-    // );
   }
 }
