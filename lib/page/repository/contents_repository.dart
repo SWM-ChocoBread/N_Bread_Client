@@ -10,7 +10,7 @@ void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserId', '2');
   await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6Imt5Z2t0aDEyMzQ1NjciLCJwcm92aWRlciI6ImxvY2FsIiwiaWF0IjoxNjU4ODMyMDg3LCJpc3MiOiJjaG9jb0JyZWFkIn0.-r0fDkbJx09PllWj0KQSTAGI9Prw-awaJ0XCZ5v7AIw');
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU4ODQwMDk5LCJpc3MiOiJjaG9jb0JyZWFkIn0.sUXDqZi5n7jM2R91TPIcLqkcNgSQ9i0OCrbqxSOgEVo');
   print("prefs save test");
   print(prefs.get('tmpUserId'));
 
@@ -166,14 +166,15 @@ class ContentsRepository {
   Future<Map<String, dynamic>> _callAPI(String location) async {
     prefTest();
     print("prefTest Function called");
-    String tmpUrl = 'http://localhost:5005/deals/all/' + location;
+    String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,
     );
     var response = await http.get(url);
     String responseBody = utf8.decode(response.bodyBytes);
     Map<String, dynamic> list = jsonDecode(responseBody);
-
+    if (list.length == 0) print("length of list is 0");
+    print(list);
     return list;
   }
 

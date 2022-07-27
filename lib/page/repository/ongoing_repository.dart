@@ -62,7 +62,7 @@ class OngoingRepository {
   // }
 
   Future<Map<String, dynamic>> _callAPI(String userId) async {
-    String tmpUrl = 'http://localhost:5005/users/deals/' + userId;
+    String tmpUrl = 'https://www.chocobread.shop/users/deals/' + userId;
     var url = Uri.parse(
       tmpUrl,
     );

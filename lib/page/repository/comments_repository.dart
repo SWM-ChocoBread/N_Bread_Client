@@ -129,7 +129,7 @@ class CommentsRepository {
   // }
 
   Future<Map<String, dynamic>> _callAPI(String dealId) async {
-    String tmpUrl = 'http://localhost:5005/comments/' + dealId;
+    String tmpUrl = 'https://www.chocobread.shop/comments/' + dealId;
     var url = Uri.parse(
       tmpUrl,
     );

@@ -690,7 +690,7 @@ class _customFormState extends State<customForm> {
 
 void getApiTest(Map jsonbody) async {
   final prefs = await SharedPreferences.getInstance();
-  var tmpUrl = "http://localhost:5005/deals/create";
+  var tmpUrl = "https://www.chocobread.shop/deals/create";
   var url = Uri.parse(
     tmpUrl,
   );
