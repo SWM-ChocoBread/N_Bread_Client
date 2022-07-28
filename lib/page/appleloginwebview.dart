@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-class KakaoLoginWebview extends StatefulWidget {
-  KakaoLoginWebview({Key? key}) : super(key: key);
+class AppleLoginWebview extends StatefulWidget {
+  AppleLoginWebview({Key? key}) : super(key: key);
 
   @override
-  State<KakaoLoginWebview> createState() => _KakaoLoginWebviewState();
+  State<AppleLoginWebview> createState() => _AppleLoginWebviewState();
 }
 
-class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
+class _AppleLoginWebviewState extends State<AppleLoginWebview> {
   late InAppWebViewController _webViewController;
   CookieManager _cookieManager = CookieManager.instance();
   final myurl = Uri.parse("https://chocobread.shop/auth/success");
@@ -19,14 +19,15 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       titleSpacing: 0,
       elevation: 0,
       bottomOpacity: 0,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
+      // Colors.transparent,
     );
   }
 
-  Widget _kakaoLoginWebview() {
+  Widget _appleLoginWebview() {
     return InAppWebView(
       initialUrlRequest:
-          URLRequest(url: Uri.parse("https://chocobread.shop/auth/kakao")),
+          URLRequest(url: Uri.parse("https://chocobread.shop/auth/apple")),
       onReceivedServerTrustAuthRequest: (controller, challenge) async {
         //Do some checks here to decide if CANCELS or PROCEEDS
         return ServerTrustAuthResponse(
@@ -52,8 +53,9 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
     print(myurl.runtimeType);
 
     return Scaffold(
+      extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appBarWidget(),
-      body: _kakaoLoginWebview(),
+      body: _appleLoginWebview(),
     );
   }
 }

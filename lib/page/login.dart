@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import 'appleloginwebview.dart';
 import 'kakaologinwebview.dart';
+import 'naverloginwebview.dart';
 
 class Login extends StatefulWidget {
   Login({Key? key}) : super(key: key);
@@ -22,7 +24,12 @@ class _LoginState extends State<Login> {
           side: const BorderSide(width: 1.0, color: Color(0xff03c75a)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return NaverLoginWebview();
+        }));
+      },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -82,7 +89,12 @@ class _LoginState extends State<Login> {
           side: const BorderSide(width: 1.0, color: Colors.black),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return AppleLoginWebview();
+        }));
+      },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
