@@ -16,6 +16,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   final globalKeysOut = <GlobalKey>[];
   // int heightcontroller = 55;
   String replyToHere = "";
+  TextEditingController commentController =
+      TextEditingController(); // 댓글에 붙는 controller
+  String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 데이터 저장하기
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -393,10 +396,20 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      onChanged: (String commentInput) {
+                        setState(() {
+                          // 입력할 때마다 저장된다.
+                          commentToServer = commentInput;
+                          print(commentToServer + " 1"); // 서버에 전달할 댓글 내용 저장
+                        });
+                      },
                     ),
                   ),
                   IconButton(
                     onPressed: () {
+                      // send 버튼을 누르면 작동한다.
+                      // 입력한 댓글을 서버에 보내기 위한 임시 저장소에 저장한다.??
+                      print(commentToServer + " 2"); //
                       // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
                       Navigator.pop(context);
                     },
