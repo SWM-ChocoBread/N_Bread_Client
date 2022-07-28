@@ -181,24 +181,26 @@ class _MyPageState extends State<MyPage> {
         return Colors.green; // 모집중인 경우의 색
       case "모집완료":
         return Colors.brown; // 모집완료인 경우의 색
+      case "모집실패":
+        return Colors.orange; // 모집실패인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
 
   Widget _currentTotal(Map productOngoing) {
-    switch (productOngoing["status"]) {
-      case "모집중":
-        return Text(
-          "${productOngoing["status"].toString()}: ${productOngoing["currentMember"]}/${productOngoing["totalMember"]}",
-          style: const TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-        );
-      case "모집완료":
-        return Text(
-          productOngoing["status"].toString(),
-          style: const TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-        );
+    if (productOngoing["status"] == "모집중") {
+      return Text(
+        "${productOngoing["status"].toString()}: ${productOngoing["currentMember"]}/${productOngoing["totalMember"]}",
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+      );
+    } else if (productOngoing["status"] == "모집완료" ||
+        productOngoing["status"] == "모집실패") {
+      return Text(
+        productOngoing["status"].toString(),
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+      );
     }
     return const Text("데이터에 문제가 있습니다.");
   }

@@ -77,6 +77,23 @@ class OngoingRepository {
       "sellerNickname": "역삼동 kite",
       "sellerAddress": "역삼 2동",
       "mystatus": "제안",
+    },
+    {
+      "cid": "8",
+      "DealImages": [],
+      "title": "젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
+      "link":
+          "https://www.xexymix.com/shop/shopdetail.html?branduid=2060991&xcode=006&mcode=002&scode=&special=7&GfDT=bm14W1w%3D",
+      "personalPrice": "29500",
+      "createdAt": "2022-07-17T05:22:12.000Z",
+      "currentMember": "2",
+      "totalMember": "2",
+      "status": "모집실패",
+      "date": "2022.07.05.화 11:00",
+      "place": "선릉과 정릉 앞",
+      "sellerNickname": "역삼동 ㅇㅊㅇ",
+      "sellerAddress": "역삼 2동",
+      "mystatus": "제안",
     }
   ];
 

@@ -29,7 +29,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
   String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
-  bool enablecommentsbox = false;
+  // bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
 
   @override
@@ -859,6 +859,8 @@ class _DetailContentViewState extends State<DetailContentView> {
         return Colors.brown; // 모집완료인 경우의 색
       case "거래완료":
         return Colors.grey; // 거래완료인 경우의 색
+      case "모집실패":
+        return Colors.orange; // 거래완료인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
@@ -867,6 +869,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if (productContents["status"] == "모집중") {
       return "${productContents["status"].toString()}: ${productContents["currentMember"]}/${productContents["totalMember"]}";
     } else if (productContents["status"] == "모집완료" ||
+        productContents["status"] == "모집실패" ||
         productContents["status"] == "거래완료") {
       return productContents["status"].toString();
     }
@@ -954,6 +957,29 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  Widget _bottomNavigationBarWidgetForRecruitmentFail() {
+    return Container(
+      width: size.width,
+      height: 55,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(width: 1.0, color: Colors.grey),
+              ),
+              onPressed: null,
+              child: const Text("모집에 실패하였습니다.",
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16)))
+        ],
+      ),
+    );
+  }
+
   Widget _bottomNavigationBarWidgetForDealComplete() {
     return Container(
       width: size.width,
@@ -982,6 +1008,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return _bottomNavigationBarWidgetForParticipant(); // 참여한 거래입니다.
     } else if (widget.data["status"] == "모집완료") {
       return _bottomNavigationBarWidgetForRecruitmentComplete(); // 모집이 완료되었습니다.
+    } else if (widget.data["status"] == "모집실패") {
+      return _bottomNavigationBarWidgetForRecruitmentFail(); // 모집에 실패하였습니다.
     } else if (widget.data["status"] == "거래완료") {
       return _bottomNavigationBarWidgetForDealComplete(); // 완료된 거래입니다.
     } else if (currentuserstatus == "제안자") {
@@ -990,66 +1018,66 @@ class _DetailContentViewState extends State<DetailContentView> {
     return _bottomNavigationBarWidgetForNormal();
   }
 
-  Widget _bottomTextfield() {
-    return Padding(
-      padding: MediaQuery.of(context).viewInsets, // 키보드 위로 댓글 입력창이 올라오도록 처리
-      child: Material(
-        elevation: 55,
-        child: Container(
-          height: 55,
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    enablecommentsbox = false;
-                  });
-                },
-                icon: const Icon(Icons.clear_rounded),
-                color: Colors.grey,
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                constraints: const BoxConstraints(),
-              ),
-              Expanded(
-                child: TextFormField(
-                  // focusNode: currentfocusnode,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    hintText: "댓글을 입력해주세요.",
-                    contentPadding:
-                        const EdgeInsets.only(left: 10, right: 10, top: 7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    // focus 가 사라졌을 때
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 0.7, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    // focus 가 맞춰졌을 때
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 1, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.send_rounded),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                constraints: const BoxConstraints(),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _bottomTextfield() {
+  //   return Padding(
+  //     padding: MediaQuery.of(context).viewInsets, // 키보드 위로 댓글 입력창이 올라오도록 처리
+  //     child: Material(
+  //       elevation: 55,
+  //       child: Container(
+  //         height: 55,
+  //         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
+  //         child: Row(
+  //           children: [
+  //             IconButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   enablecommentsbox = false;
+  //                 });
+  //               },
+  //               icon: const Icon(Icons.clear_rounded),
+  //               color: Colors.grey,
+  //               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+  //               constraints: const BoxConstraints(),
+  //             ),
+  //             Expanded(
+  //               child: TextFormField(
+  //                 // focusNode: currentfocusnode,
+  //                 maxLines: null,
+  //                 decoration: InputDecoration(
+  //                   hintText: "댓글을 입력해주세요.",
+  //                   contentPadding:
+  //                       const EdgeInsets.only(left: 10, right: 10, top: 7),
+  //                   border: OutlineInputBorder(
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                   // focus 가 사라졌을 때
+  //                   enabledBorder: OutlineInputBorder(
+  //                     borderSide:
+  //                         const BorderSide(width: 0.7, color: Colors.grey),
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                   // focus 가 맞춰졌을 때
+  //                   focusedBorder: OutlineInputBorder(
+  //                     borderSide:
+  //                         const BorderSide(width: 1, color: Colors.grey),
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             IconButton(
+  //               onPressed: () {},
+  //               icon: const Icon(Icons.send_rounded),
+  //               padding:
+  //                   const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  //               constraints: const BoxConstraints(),
+  //             )
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1058,11 +1086,10 @@ class _DetailContentViewState extends State<DetailContentView> {
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
-      bottomNavigationBar:
-          // _bottomNavigationBarWidgetSelector(),
-          enablecommentsbox
-              ? _bottomTextfield()
-              : _bottomNavigationBarWidgetSelector(),
+      bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
+      // enablecommentsbox
+      //     ? _bottomTextfield()
+      //     : _bottomNavigationBarWidgetSelector(),
     );
   }
 }

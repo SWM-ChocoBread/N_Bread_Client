@@ -3,7 +3,9 @@ class ContentsRepository {
     "yeoksam": [
       {
         "cid": "0", //
-        "DealImages": [],
+        "DealImages": [
+          {"dealImage": "assets/images/maltesers.png"}
+        ],
         "title": "몰티져스 60개입 20개씩 소분 판매",
         "link": "https://www.coupang.com",
         "totalPrice": "16490",
@@ -45,6 +47,7 @@ class ContentsRepository {
         "title": "아키클래식 클라우드 리커버리 플립플랍",
         "link":
             "https://www.akiii.co.kr/shop/shopdetail.html?branduid=1152964&xcode=014&mcode=004&scode=013&special=3&GfDT=bmp4W10%3D",
+        "totalPrice": "54900",
         "personalPrice": "27500",
         "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "1",
@@ -54,6 +57,7 @@ class ContentsRepository {
         "place": "아남타워 앞",
         "sellerNickname": "역삼동 kth",
         "sellerAddress": "역삼 2동",
+        "contents": "",
       },
       {
         "cid": "3",
@@ -63,6 +67,7 @@ class ContentsRepository {
         "title": "C타입 젠더 USB A TO C OTG 변환젠더 연결",
         "link":
             "https://smartstore.naver.com/storylink/products/2462201862?NaPm=ct%3Dl5hpo37s%7Cci%3Da113ed95c0c49c68e1291afd59ba4f422b5b63dc%7Ctr%3Dslsl%7Csn%3D190552%7Chk%3D81d2f4e60f796cde24ba88d657db89fd302578a8",
+        "totalPrice": "12000",
         "personalPrice": "1200",
         "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "10",
@@ -76,6 +81,24 @@ class ContentsRepository {
       },
       {
         "cid": "4",
+        "DealImages": [],
+        "title": "모집이 실패된 케이스를 테스트하기 위한 경우",
+        "link":
+            "https://smartstore.naver.com/storylink/products/2462201862?NaPm=ct%3Dl5hpo37s%7Cci%3Da113ed95c0c49c68e1291afd59ba4f422b5b63dc%7Ctr%3Dslsl%7Csn%3D190552%7Chk%3D81d2f4e60f796cde24ba88d657db89fd302578a8",
+        "totalPrice": "7200",
+        "personalPrice": "1800",
+        "createdAt": "2022-07-17T05:22:12.000Z",
+        "currentMember": "3",
+        "totalMember": "4",
+        "status": "모집실패",
+        "date": "2022.07.12.화 20:40",
+        "place": "선릉 맥도날드",
+        "sellerNickname": "역삼동 ㅇㅊㅇ",
+        "sellerAddress": "역삼 2동",
+        "contents": "",
+      },
+      {
+        "cid": "5",
         "DealImages": [
           {"dealImage": "assets/images/xexymix.png"},
           {"dealImage": "assets/images/xexymix1.png"}
@@ -83,6 +106,7 @@ class ContentsRepository {
         "title": "젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
         "link":
             "https://www.xexymix.com/shop/shopdetail.html?branduid=2060991&xcode=006&mcode=002&scode=&special=7&GfDT=bm14W1w%3D",
+        "totalPrice": "59900",
         "personalPrice": "29500",
         "createdAt": "2022-07-17T05:22:12.000Z",
         "currentMember": "2",
@@ -92,6 +116,24 @@ class ContentsRepository {
         "place": "인터밸리 푸드코트 앞",
         "sellerNickname": "역삼동 kite",
         "sellerAddress": "역삼 2동",
+        "contents": "",
+      },
+      {
+        "cid": "6",
+        "DealImages": [],
+        "title": "머리끈 소분 판매",
+        "link":
+            "https://www.xexymix.com/shop/shopdetail.html?branduid=2060991&xcode=006&mcode=002&scode=&special=7&GfDT=bm14W1w%3D",
+        "personalPrice": "29500",
+        "createdAt": "2022-06-28T05:22:12.000Z",
+        "currentMember": "3",
+        "totalMember": "3",
+        "status": "모집완료",
+        "date": "2022.07.04.월 10:00",
+        "place": "선릉 버거킹 앞",
+        "sellerNickname": "역삼동 태완킴",
+        "sellerAddress": "역삼 2동",
+        "contents": "",
       },
     ],
     "bangbae": [

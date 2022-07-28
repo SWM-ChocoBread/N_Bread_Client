@@ -138,29 +138,64 @@ class _HomeState extends State<Home> {
         return Colors.brown; // 모집완료인 경우의 색
       case "거래완료":
         return Colors.grey; // 거래완료인 경우의 색
+      case "모집실패":
+        return Colors.orange; // 모집실패인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
 
   Widget _imageHolder(Map productContents) {
     if (productContents["DealImages"].length == 0) {
-      // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
-      return ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          child: Hero(
-            // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
+      // 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
+      if (productContents["status"] == "모집중" ||
+          productContents["status"] == "모집완료") {
+        // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
+        return ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(15)),
+            child: Hero(
+              // 사진 확대되는 애니메이션
+              tag: productContents["cid"].toString(),
+              child: Container(
+                color: const Color(0xfff0f0ef),
+                width: 100,
+                height: 100,
+                child: const Icon(Icons.question_mark_rounded),
+              ),
+            ));
+      } else {
+        // 모집실패, 거래완료인 경우, 빈 회색 화면에 물음표를 넣고, 이미지를 흐리게 처리한다.
+        return Stack(children: [
+          ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(15)),
+              child: Hero(
+                // 사진 확대되는 애니메이션
+                tag: productContents["cid"].toString(),
+                child: Container(
+                  color: const Color(0xfff0f0ef),
+                  width: 100,
+                  height: 100,
+                  child: const Icon(
+                    Icons.question_mark_rounded,
+                    color: Colors.grey,
+                  ),
+                ),
+              )),
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Container(
-              color: const Color(0xfff0f0ef),
               width: 100,
               height: 100,
-              child: const Icon(Icons.question_mark_rounded),
+              color: const Color.fromRGBO(255, 255, 255, 0.1),
             ),
-          ));
-    } else if (productContents["status"] == "거래완료") {
-      // 거래 완료인 경우 이미지 흐리게 처리
-      return Stack(children: [
-        ClipRRect(
+          ),
+        ]);
+      }
+    } else {
+      // 이미지가 있는 경우, 이미지 넣기
+      if (productContents["status"] == "모집중" ||
+          productContents["status"] == "모집완료") {
+        // 모집중, 모집완료인 경우, 이미지가 있다면 이미지 보여주기
+        return ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Hero(
               // 사진 확대되는 애니메이션
@@ -171,34 +206,39 @@ class _HomeState extends State<Home> {
                 height: 100,
                 fit: BoxFit.fill,
               ),
-            )),
-        Container(
-          width: 100,
-          height: 100,
-          color: const Color.fromRGBO(255, 255, 255, 0.7),
-        ),
-      ]);
-    } else {
-      // 모집중, 모집완료인 경우 이미지가 있는 경우, 이미지 보여주기
-      return ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          child: Hero(
-            // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
-            child: Image.asset(
-              productContents["DealImages"][0]["dealImage"].toString(),
-              width: 100,
-              height: 100,
-              fit: BoxFit.fill,
-            ),
-          ));
+            ));
+      } else {
+        // 모집실패, 거래완료인 경우, 이미지가 있다면, 흐릿한 이미지 보여주기
+        return Stack(children: [
+          ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(15)),
+              child: Hero(
+                // 사진 확대되는 애니메이션
+                tag: productContents["cid"].toString(),
+                child: Image.asset(
+                  productContents["DealImages"][0]["dealImage"].toString(),
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.fill,
+                ),
+              )),
+          Container(
+            width: 100,
+            height: 100,
+            color: const Color.fromRGBO(255, 255, 255, 0.7),
+          ),
+        ]);
+      }
     }
   }
 
   Color _colorDeterminant(String status) {
-    switch (status) {
-      case "거래완료":
-        return Colors.grey.withOpacity(0.5);
+    // switch (status) {
+    //   case "거래완료":
+    //     return Colors.grey.withOpacity(0.5);
+    // }
+    if (status == "거래완료" || status == "모집실패") {
+      return Colors.grey.withOpacity(0.5);
     }
     return Colors.black;
   }
@@ -211,7 +251,8 @@ class _HomeState extends State<Home> {
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       );
     } else if (productContents["status"] == "모집완료" ||
-        productContents["status"] == "거래완료") {
+        productContents["status"] == "거래완료" ||
+        productContents["status"] == "모집실패") {
       return Text(
         productContents["status"].toString(),
         style: const TextStyle(
