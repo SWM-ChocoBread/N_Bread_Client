@@ -36,6 +36,9 @@ class _customFormChangeState extends State<customFormChange> {
     );
     placeController.text = widget.data["place"];
     extraController.text = widget.data["contents"];
+
+    totalPrice = widget.data["totalPrice"];
+    print(totalPrice);
   }
 
   // 각각의 textfield에 붙는 controller
@@ -602,6 +605,8 @@ class _customFormChangeState extends State<customFormChange> {
                             setState(() {
                               productName = productNameController.text; // 제품명
                               productLink = productLinkController.text; // 판매 링크
+                              numOfParticipants =
+                                  numOfParticipantsController.text; // 모집인원
                               date = dateController.text; // 거래 날짜
                               time = timeController.text; // 거래 시간
                               place = placeController.text; // 거래 장소
@@ -626,20 +631,22 @@ class _customFormChangeState extends State<customFormChange> {
 
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                return const App();
-                              }));
+                              // Navigator.push(context, MaterialPageRoute(
+                              //     builder: (BuildContext context) {
+                              //   return const App();
+                              // }));
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
                             }
+                            print(
+                                "${productName} ${productLink} ${totalPrice} ${numOfParticipants} ${date} ${time} ${place} ${extra}");
                           },
                           child: const Text('제안하기'),
                         ),
                         // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
                         // Flexible(
                         //   child: Text(
-                        //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
+                        //       "${productName} ${productLink} ${} ${date} ${time} ${place} ${extra}"),
                         // ),
                       ],
                     )
