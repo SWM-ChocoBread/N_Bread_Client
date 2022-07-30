@@ -1,3 +1,4 @@
+import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/sizes_helper.dart';
@@ -18,7 +19,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   String replyToHere = "";
   TextEditingController commentController =
       TextEditingController(); // 댓글에 붙는 controller
-  String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 데이터 저장하기
+  String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 댓글 저장하기
+  String toWhom = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 누구한테 답글을 쓰는지 저장하기
+  bool enableSend = false;
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -34,9 +37,11 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   Color _colorUserStatus(String userstatus) {
     switch (userstatus) {
       case "제안자":
-        return Colors.red; // 제안자의 색
+        return ColorStyle.seller;
+      // Colors.red; // 제안자의 색
       case "참여자":
-        return Colors.blue; // 참여자의 색
+        return ColorStyle.participant;
+      // Colors.blue; // 참여자의 색
     }
     return Colors.grey; // 지나가는 사람의 색
   }
@@ -400,20 +405,39 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                         setState(() {
                           // 입력할 때마다 저장된다.
                           commentToServer = commentInput;
+                          if (commentInput != "") {
+                            enableSend = true;
+                          } else {
+                            enableSend = false;
+                          }
                           print(commentToServer + " 1"); // 서버에 전달할 댓글 내용 저장
                         });
                       },
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      // send 버튼을 누르면 작동한다.
-                      // 입력한 댓글을 서버에 보내기 위한 임시 저장소에 저장한다.??
-                      print(commentToServer + " 2"); //
-                      // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.send_rounded),
+                    // enableSend 가 false이면, 댓글창에 아무것도 없으면, send 버튼 비활성화 (send 버튼 눌러도 변화 없음)
+                    onPressed: enableSend
+                        ? () {
+                            // send 버튼을 누르면 작동한다.
+                            // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
+                            print(commentToServer + " 2"); //
+                            // print("$replyToHere");
+                            // print("${widget.replyTo}");
+                            if (replyToHere != "") {
+                              toWhom = replyToHere;
+                            } else if (widget.replyTo != "") {
+                              toWhom = widget.replyTo;
+                            }
+                            print(toWhom); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+                            Navigator.pop(
+                                context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
+                          }
+                        : null,
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: (enableSend) ? ColorStyle.mainColor : Colors.grey,
+                    ),
                     padding: const EdgeInsets.only(
                         left: 10, right: 0, top: 0, bottom: 0),
                     constraints: const BoxConstraints(),
