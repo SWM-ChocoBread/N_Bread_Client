@@ -209,7 +209,7 @@ class _HomeState extends State<Home> {
     return const Text("데이터에 문제가 있습니다.");
   }
 
-  _loadContents() {
+  loadContents() {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
@@ -377,9 +377,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+
   Widget _bodyWidget() {
     return FutureBuilder(
-        future: _loadContents(),
+        future: loadContents(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(

@@ -3,14 +3,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserId', '2');
   await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU4ODQwMDk5LCJpc3MiOiJjaG9jb0JyZWFkIn0.sUXDqZi5n7jM2R91TPIcLqkcNgSQ9i0OCrbqxSOgEVo');
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU4ODk5ODI1LCJpc3MiOiJjaG9jb0JyZWFkIn0.Jz2ADHd0ZaAVAzfJNUIMLRBuwvFWM0g-TRDseVOSZ3w');
   print("prefs save test");
   print(prefs.get('tmpUserId'));
 

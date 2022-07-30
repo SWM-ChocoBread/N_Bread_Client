@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'repository/contents_repository.dart' as contents;
 
 import '../utils/price_utils.dart';
 import 'app.dart';
@@ -600,13 +601,12 @@ class _customFormState extends State<customForm> {
                                   "numOfParticipants is ${numOfParticipants}");
                               print(int.parse(numOfParticipants).runtimeType);
                               print("totalPrice is ${totalPrice}");
-                              personalPrice = 
-                                  ((int.parse(totalPrice) /
-                                                  int.parse(numOfParticipants) /
-                                                  10)
-                                              .ceil() *
-                                          10)
-                                      .toString();
+                              personalPrice = ((int.parse(totalPrice) /
+                                              int.parse(numOfParticipants) /
+                                              10)
+                                          .ceil() *
+                                      10)
+                                  .toString();
                               date = dateController.text; // 거래 날짜
                               time = timeController.text; // 거래 시간
                               place = placeController.text; // 거래 장소
@@ -632,7 +632,7 @@ class _customFormState extends State<customForm> {
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {
                               // api호출
-                              
+
                               Navigator.push(context, MaterialPageRoute(
                                   builder: (BuildContext context) {
                                 return const App();

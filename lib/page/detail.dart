@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/check.dart';
@@ -6,6 +8,9 @@ import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:chocobread/page/repository/userInfo_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/price_utils.dart';
 import 'comments.dart';
@@ -22,6 +27,8 @@ class DetailContentView extends StatefulWidget {
   State<DetailContentView> createState() => _DetailContentViewState();
 }
 
+late UserInfoRepository userInfoRepository = UserInfoRepository();
+
 class _DetailContentViewState extends State<DetailContentView> {
   late CommentsRepository commentsRepository;
   late Size size;
@@ -29,7 +36,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
-  String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
+  String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
   bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
 
@@ -62,13 +69,15 @@ class _DetailContentViewState extends State<DetailContentView> {
       //혜연 : 값이 null일 경우 처리되지 않아서
       //widget.data["DealImages"][0]['dealImage'].toString()->assets/images/maltesers.png로 수정
       {"id": "0", "_url": "assets/images/maltesers.png"},
-      {"id": "1", "_url":"assets/images/maltesers.png"},
+      {"id": "1", "_url": "assets/images/maltesers.png"},
       {"id": "2", "_url": "assets/images/maltesers.png"},
     ];
   }
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
+    currentuserstatus = "제안자";
+
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
       return PopupMenuButton(
         // 수정하기, 삭제하기가 나오는 팝업메뉴버튼
@@ -103,7 +112,12 @@ class _DetailContentViewState extends State<DetailContentView> {
               );
             }));
           } else {
-            // 삭제하기를 누른 경우,
+            // 삭제하기를 누른 경우,api호출->정말 삭제하시겠습니까?하는 메시지가 떠야하지않을까?
+            print("deleteDeal is called");
+            print(widget.data['id']);
+            deleteDeal(
+              widget.data['id'].toString(),
+            );
           }
         },
       );
@@ -404,8 +418,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                       const SizedBox(
                         width: 5,
                       ),
-                      _userStatusChip(
-                          dataComments[firstIndex]['User']["userStatus"].toString()),
+                      _userStatusChip(dataComments[firstIndex]['User']
+                              ["userStatus"]
+                          .toString()),
                       const SizedBox(
                         width: 5,
                       ),
@@ -482,9 +497,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   Icon(
                                     Icons.circle,
                                     color: _colorUserStatus(
-                                     
                                         dataComments[firstIndex]["Replies"]
-                                            [secondIndex]["User"]["userStatus"]),
+                                                [secondIndex]["User"]
+                                            ["userStatus"]),
                                     // size: 30,
                                   ),
                                   const SizedBox(
@@ -499,7 +514,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   _userStatusChip(dataComments[firstIndex]
-                                          ["Replies"][secondIndex]["User"]["userStatus"]
+                                              ["Replies"][secondIndex]["User"]
+                                          ["userStatus"]
                                       .toString()),
                                   const SizedBox(
                                     width: 5,
@@ -713,7 +729,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Text(
                     '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
                 const Text("모집 마감 일자"),
-                Text(widget.data["dealDate"].toString()), // TODO : 수정 필요함+혜연 : 모집 마감 일자는 이제 없어지지 않았나?
+                Text(widget.data["dealDate"]
+                    .toString()), // TODO : 수정 필요함+혜연 : 모집 마감 일자는 이제 없어지지 않았나?
                 const Text("거래 일시"),
                 Text(widget.data["dealDate"].toString()),
                 const Text("거래 장소"),
@@ -1036,6 +1053,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.data['id'].runtimeType);
+    getUserStatus();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -1047,5 +1066,49 @@ class _DetailContentViewState extends State<DetailContentView> {
               ? _bottomTextfield()
               : _bottomNavigationBarWidgetSelector(),
     );
+  }
+
+  void getUserStatus() async {
+    String dealId = widget.data['id'].toString();
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    String userId = getTokenPayload['id'].toString();
+    print("call getUserStatus");
+    print("${dealId} + ${userId}");
+
+    String tmpUrl =
+        'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list.length == 0) {
+      print("length of list is 0");
+    } else {
+      currentuserstatus = list['result']['description'];
+      print("user setting done");
+    }
+
+    print(list);
+  }
+
+  void deleteDeal(String dealId) async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
+
+    if(userToken!=null){
+      var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.delete(url,
+          headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
   }
 }
