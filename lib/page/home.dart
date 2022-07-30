@@ -136,6 +136,7 @@ class _HomeState extends State<Home> {
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Hero(
             // 사진 확대되는 애니메이션
+
             tag: productContents["id"].toString(),
             child: Container(
               color: const Color(0xfff0f0ef),
