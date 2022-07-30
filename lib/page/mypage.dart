@@ -1,9 +1,20 @@
+import 'dart:convert';
+
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'repository/contents_repository.dart' as cont;
+import 'repository/userInfo_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'detail.dart';
+
+String setUserNickName = "";
+String setUserLocation = "";
+UserInfoRepository userInfoRepository = UserInfoRepository();
 
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
@@ -57,7 +68,7 @@ class _MyPageState extends State<MyPage> {
       },
       child: Container(
         width: _textSize(
-                    "역삼동 은이님",
+                    setUserNickName,
                     const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -69,8 +80,8 @@ class _MyPageState extends State<MyPage> {
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
-            Icon(
+          children: [
+            const Icon(
               Icons.circle,
               color: Color(0xffF6BD60),
               // size: 30,
@@ -79,11 +90,12 @@ class _MyPageState extends State<MyPage> {
             //   width: 20,
             // ),
             Padding(
+              // ignore: prefer_const_constructors
               padding: EdgeInsets.all(15.0),
               child: Text(
                 // user nickname 이 들어와야 하는 공간
-                "역삼동 은이님",
-                style: TextStyle(
+                setUserNickName,
+                style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
@@ -145,6 +157,8 @@ class _MyPageState extends State<MyPage> {
         return Colors.green; // 모집중인 경우의 색
       case "모집완료":
         return Colors.brown; // 모집완료인 경우의 색
+      case "모집실패":
+        return Colors.orange; //모집실패인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
@@ -163,15 +177,30 @@ class _MyPageState extends State<MyPage> {
           style: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
         );
+      case "모집실패":
+        return Text(
+          productOngoing["status"].toString(),
+          style: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        );
     }
     return const Text("데이터에 문제가 있습니다.");
   }
 
-  _loadOngoing() {
-    return ongoingRepository.loadOngoing();
+  _loadOngoing() async {
+    final pref = await SharedPreferences.getInstance();
+    final userId = pref.getString("tmpUserId");
+    print("load ongoing");
+    print(userId);
+
+    if (userId != null) {
+      return ongoingRepository.loadOngoing("2");
+    }
+    return null;
+    //return ongoingRepository.loadOngoing(userId);
   }
 
-  _makeOngoingList(List<Map<String, String>> dataOngoing) {
+  _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
     return Expanded(
       child: ListView.separated(
         shrinkWrap:
@@ -236,7 +265,7 @@ class _MyPageState extends State<MyPage> {
                         width: 5,
                       ),
                       Text(
-                        dataOngoing[index]["date"].toString(),
+                        dataOngoing[index]["dealDate"].toString(),
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w500),
                       ),
@@ -250,7 +279,7 @@ class _MyPageState extends State<MyPage> {
                     height: 5,
                   ),
                   Text(
-                    dataOngoing[index]["place"].toString(),
+                    dataOngoing[index]["dealPlace"].toString(),
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w700),
                   ),
@@ -299,7 +328,7 @@ class _MyPageState extends State<MyPage> {
                   _nickname(),
                   _line(),
                   _ongoingTitle(),
-                  _makeOngoingList(snapshot.data as List<Map<String, String>>),
+                  _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
                 ],
               ),
             );
@@ -313,9 +342,40 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
+    setUserNickname();
+    setUserLocation();
     return Scaffold(
       appBar: _appBarWidget(),
       body: _bodyWidget(),
     );
+  }
+
+  void setUserNickname() async {
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    print("setUserNick was called");
+    print(getTokenPayload['nick']);
+    setUserNickName = getTokenPayload['nick'];
+    print("setUserNickName is ${setUserNickName}");
+  }
+
+  void setUserLocation() async {
+    print("setUserLocation was called");
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    String userId = getTokenPayload['id'].toString();
+
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.post(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list.length == 0) {
+      print("length of list is 0");
+    } else {
+      print(list);
+    }
   }
 }

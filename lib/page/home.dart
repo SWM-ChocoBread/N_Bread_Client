@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
@@ -6,9 +7,11 @@ import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 import '../utils/price_utils.dart';
 import 'create.dart';
+
 
 // develop
 
@@ -120,18 +123,21 @@ class _HomeState extends State<Home> {
         return Colors.brown; // 모집완료인 경우의 색
       case "거래완료":
         return Colors.grey; // 거래완료인 경우의 색
+      case "모집실패":
+        return Colors.orange; // 거래완료인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
 
   Widget _imageHolder(Map productContents) {
-    if (productContents["DealImages"].length == 0) {
+    if(productContents["DealImages"].length == 0) {
       // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
       return ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Hero(
             // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
+
+            tag: productContents["id"].toString(),
             child: Container(
               color: const Color(0xfff0f0ef),
               width: 100,
@@ -146,9 +152,9 @@ class _HomeState extends State<Home> {
             borderRadius: const BorderRadius.all(Radius.circular(15)),
             child: Hero(
               // 사진 확대되는 애니메이션
-              tag: productContents["cid"].toString(),
+              tag: productContents["id"].toString(),
               child: Image.asset(
-                productContents["DealImages"][0]["dealImage"].toString(),
+                productContents["DealImages"][0]["dealImage"].toString(), //test
                 width: 100,
                 height: 100,
                 fit: BoxFit.fill,
@@ -166,7 +172,7 @@ class _HomeState extends State<Home> {
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Hero(
             // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
+            tag: productContents["id"].toString(),
             child: Image.asset(
               productContents["DealImages"][0]["dealImage"].toString(),
               width: 100,
@@ -193,7 +199,8 @@ class _HomeState extends State<Home> {
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       );
     } else if (productContents["status"] == "모집완료" ||
-        productContents["status"] == "거래완료") {
+        productContents["status"] == "거래완료"||
+        productContents["status"] == "모집실패") {
       return Text(
         productContents["status"].toString(),
         style: const TextStyle(
@@ -203,9 +210,10 @@ class _HomeState extends State<Home> {
     return const Text("데이터에 문제가 있습니다.");
   }
 
-  _loadContents() {
+  loadContents() {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
+
 
   _makeDataList(List<Map<String, dynamic>> dataContents) {
     return ListView.separated(
@@ -279,6 +287,7 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   Text(
+
                                       "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
                                       style: TextStyle(
                                         fontSize: 13,
@@ -318,7 +327,7 @@ class _HomeState extends State<Home> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  dataContents[index]["date"].toString(),
+                                  dataContents[index]["dealDate"].toString(),
                                   style: TextStyle(
                                       color: _colorDeterminant(
                                           dataContents[index]["status"]
@@ -331,7 +340,7 @@ class _HomeState extends State<Home> {
                                   // color: Colors.red, // 100짜리 박스 색
                                   // width: 100, // 장소 박스 크기 조절
                                   child: Text(
-                                    dataContents[index]["place"].toString(),
+                                    dataContents[index]["dealPlace"].toString(),
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
                                         color: _colorDeterminant(
@@ -369,9 +378,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+
   Widget _bodyWidget() {
     return FutureBuilder(
-        future: _loadContents(),
+        future: loadContents(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(
@@ -386,6 +396,7 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData) {
+
             return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
           }
 
@@ -422,3 +433,27 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+Future<String> _getUserNick(String userId) async {
+  String tmpUrl = 'http://localhost:8080/users/' + userId;
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  print(tmpUrl);
+  var response = await http.get(url);
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+
+  print(list['result']['nick']);
+
+  return list['result']['nick'];
+}
+
+Future<String> retNick(String userId) async {
+  final nick = await _getUserNick(userId);
+  print("nick");
+  print(nick);
+  return nick;
+}
+
+

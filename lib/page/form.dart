@@ -1,13 +1,22 @@
+import 'dart:convert';
 import 'dart:ffi';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'repository/contents_repository.dart' as contents;
 
 import '../utils/price_utils.dart';
 import 'app.dart';
+
+var jsonString =
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -26,8 +35,8 @@ class _customFormState extends State<customForm> {
       TextEditingController(); // 판매 링크에 붙는 controller
   TextEditingController totalPriceController =
       TextEditingController(); // 총 가격에 붙는 controller
-  // TextEditingController numOfParticipantsController =
-  //     TextEditingController(); // 모집 인원에 붙는 controller
+  TextEditingController numOfParticipantsController =
+      TextEditingController(); // 모집 인원에 붙는 controller
   TextEditingController dateController =
       TextEditingController(); // 거래 날짜에 붙는 controller
   TextEditingController timeController =
@@ -46,6 +55,9 @@ class _customFormState extends State<customForm> {
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
+  String productDate = "";
+  String personalPrice = "";
+  String dateToSend = "";
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
@@ -164,7 +176,7 @@ class _customFormState extends State<customForm> {
 
   Widget _participantsTextFormField() {
     return TextFormField(
-      // controller: numOfParticipantsController,
+      controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
         isDense: true,
@@ -276,6 +288,8 @@ class _customFormState extends State<customForm> {
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
                 DateTime.now().day + 4));
         if (pickedDate != null) {
+          String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateToSend += formattedDate2;
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
           String? weekday = {
             "Mon": "월",
@@ -335,15 +349,23 @@ class _customFormState extends State<customForm> {
             context: context, initialTime: TimeOfDay.now());
 
         if (pickedTime != null) {
+          // var df = DateFormat("h:mm a");
+          // var dt = df.parse(pickedTime.format(context));
+          // var saveTime = DateFormat('HH:mm').format(dt);
+          // print(saveTime);
+
           DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
               .format(context)
               .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
           String formattedTime = DateFormat("h:mm").format(parsedTime);
+          String formattedTime2 = DateFormat.Hm().format(parsedTime);
+          dateToSend += " ";
+          dateToSend += formattedTime2;
           String? dayNight = {
             "AM": "오전",
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
-
+          print(formattedTime2);
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
           });
@@ -569,20 +591,22 @@ class _customFormState extends State<customForm> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         OutlinedButton(
-                          // onPressed: () {
-                          //   // Validate returns true if the form is valid, or false otherwise.
-                          //   if (_formKey.currentState!.validate()) {
-                          //     // If the form is valid, display a snackbar. In the real world,
-                          //     // you'd often call a server or save the information in a database.
-                          //     ScaffoldMessenger.of(context).showSnackBar(
-                          //       const SnackBar(content: Text('성공적으로 제안되었습니다!')),
-                          //     );
-                          //   }
-                          // },
                           onPressed: () {
                             setState(() {
                               productName = productNameController.text; // 제품명
                               productLink = productLinkController.text; // 판매 링크
+                              numOfParticipants =
+                                  numOfParticipantsController.text; //참여자 수
+                              print(
+                                  "numOfParticipants is ${numOfParticipants}");
+                              print(int.parse(numOfParticipants).runtimeType);
+                              print("totalPrice is ${totalPrice}");
+                              personalPrice = ((int.parse(totalPrice) /
+                                              int.parse(numOfParticipants) /
+                                              10)
+                                          .ceil() *
+                                      10)
+                                  .toString();
                               date = dateController.text; // 거래 날짜
                               time = timeController.text; // 거래 시간
                               place = placeController.text; // 거래 장소
@@ -607,12 +631,32 @@ class _customFormState extends State<customForm> {
 
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {
+                              // api호출
+
                               Navigator.push(context, MaterialPageRoute(
                                   builder: (BuildContext context) {
                                 return const App();
                               }));
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
+                              Map mapToSend = jsonDecode(jsonString);
+                              print(
+                                  "value of date to send is ${dateToSend}"); //값 설정
+                              mapToSend['title'] = productName.toString();
+                              mapToSend['link'] = productLink.toString();
+                              mapToSend['totalPrice'] = totalPrice;
+                              mapToSend['personalPrice'] = personalPrice;
+                              mapToSend['totalMember'] = numOfParticipants;
+                              mapToSend['dealDate'] = dateToSend;
+                              mapToSend['place'] = place;
+                              mapToSend['content'] = extra;
+                              //region,imageLink123은 우선 디폴트값
+
+                              print(mapToSend);
+                              getApiTest(mapToSend);
+
+                              print(
+                                  "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
                             }
                           },
 
@@ -626,10 +670,10 @@ class _customFormState extends State<customForm> {
                           child: const Text('제안하기'),
                         ),
                         // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
-                        // Flexible(
-                        //   child: Text(
-                        //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
-                        // ),
+                        Flexible(
+                          child: Text(
+                              "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
+                        ),
                       ],
                     )
                   ],
@@ -641,5 +685,29 @@ class _customFormState extends State<customForm> {
   @override
   Widget build(BuildContext context) {
     return SuggestionForm();
+  }
+}
+
+void getApiTest(Map jsonbody) async {
+  final prefs = await SharedPreferences.getInstance();
+  var tmpUrl = "https://www.chocobread.shop/deals/create";
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  var body = json.encode(jsonbody);
+  var userToken = prefs.getString("tmpUserToken");
+
+  if (userToken != null) {
+    var response = await http.post(url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": userToken
+        },
+        body: body);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print(list);
+  } else {
+    print("오류발생");
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -17,6 +18,9 @@ class customFormChange extends StatefulWidget {
   State<customFormChange> createState() => _customFormChangeState();
 }
 
+var jsonString =
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
+
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
 
@@ -27,15 +31,15 @@ class _customFormChangeState extends State<customFormChange> {
     productNameController.text = widget.data["title"];
     productLinkController.text = widget.data["link"];
     totalPriceController.text =
-        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"]);
-    numOfParticipantsController.text = widget.data["totalMember"];
+        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"].toString());
+    numOfParticipantsController.text = widget.data["totalMember"].toString();
     dateController.text =
-        widget.data["date"].substring(0, 12); // 서버에서 보내는 형식을 보고 수정할 것!
-    timeController.text = widget.data["date"].substring(
+        widget.data["dealDate"].substring(0, 12); // 서버에서 보내는 형식을 보고 수정할 것!
+    timeController.text = widget.data["dealDate"].substring(
       14,
     );
-    placeController.text = widget.data["place"];
-    extraController.text = widget.data["contents"];
+    placeController.text = widget.data["dealPlace"];
+    extraController.text = widget.data["content"];
   }
 
   // 각각의 textfield에 붙는 controller
@@ -65,6 +69,9 @@ class _customFormChangeState extends State<customFormChange> {
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
+  String productDate = "";
+  String personalPrice = "";
+  String dateToSend = "";
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
@@ -174,6 +181,7 @@ class _customFormChangeState extends State<customFormChange> {
         // print(totalprice);
         setState(() {
           totalPrice = totalprice;
+          print("totalprice is value ${totalprice}");
           totalPriceController.text =
               PriceUtils.calcStringToWonOnly(totalprice);
         });
@@ -296,6 +304,8 @@ class _customFormChangeState extends State<customFormChange> {
                 DateTime.now().day + 4));
         if (pickedDate != null) {
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
+          String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateToSend += formattedDate2;
           String? weekday = {
             "Mon": "월",
             "Tue": "화",
@@ -362,6 +372,9 @@ class _customFormChangeState extends State<customFormChange> {
             "AM": "오전",
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          String formattedTime2 = DateFormat.Hm().format(parsedTime);
+          dateToSend += " ";
+          dateToSend += formattedTime2;
 
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
@@ -599,9 +612,29 @@ class _customFormChangeState extends State<customFormChange> {
                           //   }
                           // },
                           onPressed: () {
+                            //혜연 : 수정 api 호출
                             setState(() {
                               productName = productNameController.text; // 제품명
                               productLink = productLinkController.text; // 판매 링크
+                              date = dateController.text; // 거래 날짜
+                              time = timeController.text; // 거래 시간
+                              place = placeController.text; // 거래 장소
+                              extra = extraController.text; // 추가 작성
+
+                              productName = productNameController.text; // 제품명
+                              productLink = productLinkController.text; // 판매 링크
+                              numOfParticipants =
+                                  numOfParticipantsController.text; //참여자 수
+                              print(
+                                  "numOfParticipants is ${numOfParticipants}");
+                              print(int.parse(numOfParticipants).runtimeType);
+                              print("totalPrice is ${totalPrice}");
+                              personalPrice = ((int.parse(totalPrice) /
+                                              int.parse(numOfParticipants) /
+                                              10)
+                                          .ceil() *
+                                      10)
+                                  .toString();
                               date = dateController.text; // 거래 날짜
                               time = timeController.text; // 거래 시간
                               place = placeController.text; // 거래 장소
@@ -632,6 +665,20 @@ class _customFormChangeState extends State<customFormChange> {
                               }));
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
+                              Map mapToSend = jsonDecode(jsonString);
+                              print(
+                                  "value of date to send is ${dateToSend}"); //값 설정
+                              mapToSend['title'] = productName.toString();
+                              mapToSend['link'] = productLink.toString();
+                              mapToSend['totalPrice'] = totalPrice;
+                              mapToSend['personalPrice'] = personalPrice;
+                              mapToSend['totalMember'] = numOfParticipants;
+                              mapToSend['dealDate'] = dateToSend;
+                              mapToSend['place'] = place;
+                              mapToSend['content'] = extra;
+                              //region,imageLink123은 우선 디폴트값
+
+                              print(mapToSend);
                             }
                           },
                           child: const Text('제안하기'),

@@ -1,3 +1,21 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+void prefTest() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('tmpUserId', '2');
+  await prefs.setString('tmpUserToken',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU4ODk5ODI1LCJpc3MiOiJjaG9jb0JyZWFkIn0.Jz2ADHd0ZaAVAzfJNUIMLRBuwvFWM0g-TRDseVOSZ3w');
+  print("prefs save test");
+  print(prefs.get('tmpUserId'));
+
+  //return prefs;
+}
+
 class ContentsRepository {
   Map<String, dynamic> data = {
     "yeoksam": [
@@ -144,11 +162,40 @@ class ContentsRepository {
     ],
   };
 
+  Future<Map<String, dynamic>> _callAPI(String location) async {
+    prefTest();
+    print("prefTest Function called");
+    String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list.length == 0) print("length of list is 0");
+    print(list);
+    return list;
+  }
+
+  // void _callAPI2() async {
+  //   String uu = 'http://localhost:5005/auth/kakao';
+  //   var uu2 = Uri.parse(uu);
+  //   var res2 = await http.get(uu2);
+  //   //String responseBody2 = utf8.decode(res2.bodyBytes);
+  //   //Map<String, dynamic> tmp = jsonDecode(responseBody2);
+  // }
+
   Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
     // API 통신 location 값을 보내주면서
+    Map<String, dynamic> getData = await _callAPI(location);
+
+    // _callAPI2();
     await Future.delayed(const Duration(milliseconds: 1000));
-    // print(data[location]);
-    return data[location];
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+    for (int i = 0; i < getData["result"]["capsule"].length; i++) {
+      tmp.add(getData["result"]["capsule"][i]);
+    }
+    return tmp;
   }
 }
