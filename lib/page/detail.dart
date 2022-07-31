@@ -341,6 +341,35 @@ class _DetailContentViewState extends State<DetailContentView> {
           const SizedBox(
             height: 40,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                onTap: () {
+                  // 게시글 신고하기 버튼을 눌렀을 때
+                },
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.report_outlined,
+                      size: 17,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "게시글 신고하기",
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 7,
+          ),
         ],
       ),
     );
