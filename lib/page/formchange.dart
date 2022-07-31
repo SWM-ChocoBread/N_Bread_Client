@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -29,16 +30,22 @@ class _customFormChangeState extends State<customFormChange> {
     totalPriceController.text =
         PriceUtils.calcStringToWonOnly(widget.data["totalPrice"]);
     numOfParticipantsController.text = widget.data["totalMember"];
-    dateController.text =
-        widget.data["date"].substring(0, 12); // 서버에서 보내는 형식을 보고 수정할 것!
-    timeController.text = widget.data["date"].substring(
-      14,
-    );
+    dateController.text = MyDateUtils.formatMyDate(
+        widget.data["dealDate"]); // 서버에서 보내는 형식을 보고 수정할 것!
+    timeController.text = MyDateUtils.formatMyTime(widget.data["dealDate"]);
     placeController.text = widget.data["place"];
     extraController.text = widget.data["contents"];
 
-    totalPrice = widget.data["totalPrice"];
+    totalPrice = widget
+        .data["totalPrice"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
+    numOfParticipants = widget
+        .data["totalMember"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    print(numOfParticipants);
+    date = widget.data["dealDate"].substring(0, 10);
+    print(date);
+    time = widget.data["dealDate"].substring(11, 16);
+    print(time);
   }
 
   // 각각의 textfield에 붙는 controller
@@ -64,6 +71,8 @@ class _customFormChangeState extends State<customFormChange> {
   String productLink = ""; // 판매 링크
   String totalPrice = ""; // 총 가격
   String numOfParticipants = ""; // 모집 인원
+  String personalPrice = ""; // 1인당 가격
+  String dealDate = ""; // 거래 날짜와 거래 시간을 합쳐서 2022-07-19 16:43 형식으로 보내기 위한 저장소
   String date = ""; // 거래 날짜
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
@@ -235,10 +244,18 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _pricePerPerson(String totalprice, String numofparticipants) {
     if (totalprice.isNotEmpty & numofparticipants.isNotEmpty) {
+      personalPrice =
+          ((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() *
+                  10)
+              .toString();
+      String formattedPersonalPrice = PriceUtils.calcStringToWonOnly(
+          ((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() *
+                  10)
+              .toString());
       return Padding(
         padding: const EdgeInsets.only(left: 3),
         child: Text(
-          "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() * 10).toString())} 원",
+          "1인당 부담 가격: $formattedPersonalPrice 원",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       );
@@ -310,6 +327,7 @@ class _customFormChangeState extends State<customFormChange> {
           }[DateFormat("E").format(pickedDate)];
           setState(() {
             dateController.text = "$formattedDate$weekday";
+            date = DateFormat("yyyy-MM-dd").format(pickedDate);
           });
         }
       },
@@ -368,6 +386,7 @@ class _customFormChangeState extends State<customFormChange> {
 
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
+            time = DateFormat("HH:mm").format(parsedTime);
           });
         }
       },
@@ -607,8 +626,10 @@ class _customFormChangeState extends State<customFormChange> {
                               productLink = productLinkController.text; // 판매 링크
                               numOfParticipants =
                                   numOfParticipantsController.text; // 모집인원
-                              date = dateController.text; // 거래 날짜
-                              time = timeController.text; // 거래 시간
+                              // date = dateController.text; // 거래 날짜
+                              // time = timeController.text; // 거래 시간
+                              dealDate =
+                                  "$date $time"; // 거래 날짜 + 거래 시간 : 2022-07-19 16:43 형식
                               place = placeController.text; // 거래 장소
                               extra = extraController.text; // 추가 작성
                             });
@@ -631,15 +652,15 @@ class _customFormChangeState extends State<customFormChange> {
 
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                return const App();
-                              }));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
+                              // Navigator.push(context, MaterialPageRoute(
+                              //     builder: (BuildContext context) {
+                              //   return const App();
+                              // }));
+                              // ScaffoldMessenger.of(context)
+                              //     .showSnackBar(snackBar);
                             }
                             print(
-                                "${productName} ${productLink} ${totalPrice} ${numOfParticipants} ${date} ${time} ${place} ${extra}");
+                                "${productName} * ${productLink} * ${totalPrice} * ${numOfParticipants} * ${personalPrice} * ${dealDate} * ${date} * ${time} * ${place} * ${extra}");
                           },
                           child: const Text('제안하기'),
                         ),
