@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -18,6 +19,9 @@ class customFormChange extends StatefulWidget {
   @override
   State<customFormChange> createState() => _customFormChangeState();
 }
+
+var jsonString =
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
 
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
@@ -78,6 +82,9 @@ class _customFormChangeState extends State<customFormChange> {
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
+  String productDate = "";
+  String personalPrice = "";
+  String dateToSend = "";
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
@@ -187,6 +194,7 @@ class _customFormChangeState extends State<customFormChange> {
         // print(totalprice);
         setState(() {
           totalPrice = totalprice;
+          print("totalprice is value ${totalprice}");
           totalPriceController.text =
               PriceUtils.calcStringToWonOnly(totalprice);
         });
@@ -317,6 +325,8 @@ class _customFormChangeState extends State<customFormChange> {
                 DateTime.now().day + 4));
         if (pickedDate != null) {
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
+          String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateToSend += formattedDate2;
           String? weekday = {
             "Mon": "월",
             "Tue": "화",
@@ -384,6 +394,9 @@ class _customFormChangeState extends State<customFormChange> {
             "AM": "오전",
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          String formattedTime2 = DateFormat.Hm().format(parsedTime);
+          dateToSend += " ";
+          dateToSend += formattedTime2;
 
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
@@ -665,6 +678,7 @@ class _customFormChangeState extends State<customFormChange> {
                         },
                         child: const Text('제안하기'),
                       ),
+
                     )
                   ],
                 ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
@@ -10,10 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
 import 'create.dart';
+
 
 // develop
 
@@ -251,6 +254,7 @@ class _HomeState extends State<Home> {
           _statusChip(productContents),
         ]);
       }
+
     }
   }
 
@@ -302,9 +306,10 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _loadContents() {
+  loadContents() {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
+
 
   _makeDataList(List<Map<String, dynamic>> dataContents) {
     return ListView.separated(
@@ -515,7 +520,7 @@ class _HomeState extends State<Home> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    dataContents[index]["place"].toString(),
+                                    dataContents[index]["dealPlace"].toString(),
                                     // textAlign: TextAlign.end,
                                     style: TextStyle(
                                       color: _colorDeterminant(
@@ -589,9 +594,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+
   Widget _bodyWidget() {
     return FutureBuilder(
-        future: _loadContents(),
+        future: loadContents(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(
@@ -606,6 +612,7 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData) {
+
             return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
           }
 
@@ -642,3 +649,27 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+Future<String> _getUserNick(String userId) async {
+  String tmpUrl = 'http://localhost:8080/users/' + userId;
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  print(tmpUrl);
+  var response = await http.get(url);
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+
+  print(list['result']['nick']);
+
+  return list['result']['nick'];
+}
+
+Future<String> retNick(String userId) async {
+  final nick = await _getUserNick(userId);
+  print("nick");
+  print(nick);
+  return nick;
+}
+
+
