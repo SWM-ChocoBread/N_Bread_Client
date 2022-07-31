@@ -652,12 +652,12 @@ class _customFormChangeState extends State<customFormChange> {
 
                           // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                           if (_formKey.currentState!.validate()) {
-                            // Navigator.push(context, MaterialPageRoute(
-                            //     builder: (BuildContext context) {
-                            //   return const App();
-                            // }));
-                            // ScaffoldMessenger.of(context)
-                            //     .showSnackBar(snackBar);
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (BuildContext context) {
+                              return const App();
+                            }));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
                           }
                           print(
                               "${productName} * ${productLink} * ${totalPrice} * ${numOfParticipants} * ${personalPrice} * ${dealDate} * ${date} * ${time} * ${place} * ${extra}");
