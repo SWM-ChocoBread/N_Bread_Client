@@ -11,7 +11,7 @@ class AppleLoginWebview extends StatefulWidget {
 class _AppleLoginWebviewState extends State<AppleLoginWebview> {
   late InAppWebViewController _webViewController;
   CookieManager _cookieManager = CookieManager.instance();
-  final myurl = Uri.parse("https://chocobread.shop/auth/success");
+  final myurl = Uri.parse("https://chocobread.shop/auth/apple/callback");
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -40,7 +40,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
           print(cookies[1].value);
           print("object");
           cookies.forEach((cookie) {
-            print(cookie.name + " " + cookie.value[0]);
+            print(cookie.name + " " + cookie.value);
             print(cookie);
           });
         }
