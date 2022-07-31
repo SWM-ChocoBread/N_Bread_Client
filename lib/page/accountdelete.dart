@@ -24,7 +24,7 @@ class _AccountDeleteState extends State<AccountDelete> {
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
-      // title: const Text("탈퇴하기"),
+      title: const Text("탈퇴하기"),
       centerTitle: false,
       titleSpacing: 0,
       elevation: 0,
@@ -45,10 +45,10 @@ class _AccountDeleteState extends State<AccountDelete> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            "회원 탈퇴하기",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          // const Text(
+          //   "회원 탈퇴하기",
+          //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          // ),
           const SizedBox(height: 20),
           Row(
             children: const [
@@ -82,18 +82,16 @@ class _AccountDeleteState extends State<AccountDelete> {
 
   Widget _bottomNavigationBar() {
     return Container(
-      // width: displayWidth(context),
-      height: 55,
-      padding: const EdgeInsets.all(.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 50)),
-              onPressed: () {},
-              child: const Text("탈퇴하기")),
-        ],
+      width: displayWidth(context),
+      height: bottomNavigationBarWidth(),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 50)),
+            onPressed: () {},
+            child: const Text("탈퇴하기")),
       ),
     );
   }

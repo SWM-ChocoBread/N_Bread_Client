@@ -14,3 +14,7 @@ double displayWidth(BuildContext context) {
   // debugPrint('Size = ${displaySize(context).width}');
   return displaySize(context).width;
 }
+
+double bottomNavigationBarWidth() {
+  return 70;
+}
