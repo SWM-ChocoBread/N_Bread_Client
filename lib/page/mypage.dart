@@ -2,10 +2,14 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
+import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'accountdelete.dart';
 import 'detail.dart';
+import 'terms.dart';
 
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
@@ -47,14 +51,37 @@ class _MyPageState extends State<MyPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return Container(
-                      height: 100,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            OutlinedButton(
+                      padding: const EdgeInsets.all(15),
+                      height: 200,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 50)),
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 50)
+                                  ),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                  return Terms();
+                                }));
+                              },
+                              child: const Text("약관 보기"),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 50)
+                                  ),
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
@@ -63,11 +90,17 @@ class _MyPageState extends State<MyPage> {
                               },
                               child: const Text("탈퇴하기"),
                             ),
-                          ]),
+                          ),
+                        ],
+                      ),
                     );
                   });
             },
-            icon: const Icon(Icons.settings_rounded))
+            icon: const FaIcon(
+              FontAwesomeIcons.gear,
+              size: 20,
+            ))
+        // const Icon(Icons.settings_rounded))
       ],
     );
   }
@@ -100,7 +133,7 @@ class _MyPageState extends State<MyPage> {
                         height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
                         ))
                 .width +
-            69, // text 의 width + 아이콘들 width + padding의 width = gesturedetector 가 작동하는 영역 제한
+            100, // text 의 width + 아이콘들 width + padding의 width = gesturedetector 가 작동하는 영역 제한
         // width: 220, // gesturedetector 가 닉네임 길이 최대 10일때 작동하는 가로 길이
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         child: Row(
@@ -108,7 +141,7 @@ class _MyPageState extends State<MyPage> {
           children: const [
             Icon(
               Icons.circle,
-              color: Color(0xffF6BD60),
+              color: ColorStyle.mainColor,
               // size: 30,
             ),
             // const SizedBox(
@@ -168,21 +201,21 @@ class _MyPageState extends State<MyPage> {
   Color _colorMyStatus(String mystatus) {
     switch (mystatus) {
       case "제안":
-        return Colors.red; // 제안하는 경우의 색
+        return ColorStyle.seller; // 제안하는 경우의 색
       case "참여":
-        return Colors.blue; // 참여하는 경우의 색
+        return ColorStyle.participant; // 참여하는 경우의 색
     }
-    return const Color(0xffF6BD60);
+    return ColorStyle.mainColor;
   }
 
   Color _colorStatus(String status) {
     switch (status) {
       case "모집중":
-        return Colors.green; // 모집중인 경우의 색
+        return ColorStyle.ongoing; // 모집중인 경우의 색
       case "모집완료":
-        return Colors.brown; // 모집완료인 경우의 색
+        return ColorStyle.recruitcomplete; // 모집완료인 경우의 색
       case "모집실패":
-        return Colors.orange; // 모집실패인 경우의 색
+        return ColorStyle.fail; // 모집실패인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
@@ -275,24 +308,67 @@ class _MyPageState extends State<MyPage> {
                         const SizedBox(
                           width: 5,
                         ),
+                        // Text(
+                        //   dataOngoing[index]["date"].toString(),
+                        //   style: const TextStyle(
+                        //       fontSize: 18, fontWeight: FontWeight.w500),
+                        // ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 7,
+                    ),
+                    Text(
+                      dataOngoing[index]["title"].toString(),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                          child: FaIcon(
+                            FontAwesomeIcons.calendar,
+                            size: 12,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
                         Text(
-                          dataOngoing[index]["date"].toString(),
+                          MyDateUtils.formatMyDateTime(
+                              dataOngoing[index]["date"].toString()),
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w500),
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(
                       height: 5,
                     ),
-                    Text(dataOngoing[index]["title"].toString()),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      dataOngoing[index]["place"].toString(),
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w700),
+                    Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                          child: FaIcon(
+                            FontAwesomeIcons.locationDot,
+                            size: 12,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        Text(
+                          dataOngoing[index]["place"].toString(),
+                          style: const TextStyle(
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -303,8 +379,9 @@ class _MyPageState extends State<MyPage> {
         separatorBuilder: (BuildContext context, int index) {
           return Container(
             height: 10,
-            color: const Color(0xffF0EBE0),
-            // const Color(0xfff0f0ef),
+            color:
+                // const Color(0xffF0EBE0),
+                const Color(0xfff0f0ef),
           );
         },
         itemCount: dataOngoing.length,
