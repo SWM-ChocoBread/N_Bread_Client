@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
 
@@ -565,72 +566,65 @@ class _customFormState extends State<customForm> {
                       height: 15,
                     ),
                     //제안하기 버튼
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OutlinedButton(
-                          // onPressed: () {
-                          //   // Validate returns true if the form is valid, or false otherwise.
-                          //   if (_formKey.currentState!.validate()) {
-                          //     // If the form is valid, display a snackbar. In the real world,
-                          //     // you'd often call a server or save the information in a database.
-                          //     ScaffoldMessenger.of(context).showSnackBar(
-                          //       const SnackBar(content: Text('성공적으로 제안되었습니다!')),
-                          //     );
-                          //   }
-                          // },
-                          onPressed: () {
-                            setState(() {
-                              productName = productNameController.text; // 제품명
-                              productLink = productLinkController.text; // 판매 링크
-                              date = dateController.text; // 거래 날짜
-                              time = timeController.text; // 거래 시간
-                              place = placeController.text; // 거래 장소
-                              extra = extraController.text; // 추가 작성
-                            });
+                    SizedBox(
+                      width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
+                      child: OutlinedButton(
+                        // onPressed: () {
+                        //   // Validate returns true if the form is valid, or false otherwise.
+                        //   if (_formKey.currentState!.validate()) {
+                        //     // If the form is valid, display a snackbar. In the real world,
+                        //     // you'd often call a server or save the information in a database.
+                        //     ScaffoldMessenger.of(context).showSnackBar(
+                        //       const SnackBar(content: Text('성공적으로 제안되었습니다!')),
+                        //     );
+                        //   }
+                        // },
+                        onPressed: () {
+                          setState(() {
+                            productName = productNameController.text; // 제품명
+                            productLink = productLinkController.text; // 판매 링크
+                            date = dateController.text; // 거래 날짜
+                            time = timeController.text; // 거래 시간
+                            place = placeController.text; // 거래 장소
+                            extra = extraController.text; // 추가 작성
+                          });
 
-                            const snackBar = SnackBar(
-                              content: Text(
-                                "성공적으로 제안되었습니다!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              // backgroundColor: Colors.black,
-                              duration: Duration(milliseconds: 2000),
-                              // behavior: SnackBarBehavior.floating,
-                              elevation: 50,
-                              shape: StadiumBorder(),
-                              // RoundedRectangleBorder(
-                              //     borderRadius: BorderRadius.only(
-                              //         topLeft: Radius.circular(30),
-                              //         topRight: Radius.circular(30))),
-                            );
+                          const snackBar = SnackBar(
+                            content: Text(
+                              "성공적으로 제안되었습니다!",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorStyle.darkMainColor,
+                            duration: Duration(milliseconds: 2000),
+                            // behavior: SnackBarBehavior.floating,
+                            elevation: 50,
+                            shape: StadiumBorder(),
+                            // RoundedRectangleBorder(
+                            //     borderRadius: BorderRadius.only(
+                            //         topLeft: Radius.circular(30),
+                            //         topRight: Radius.circular(30))),
+                          );
 
-                            // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                return const App();
-                              }));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            }
-                          },
+                          // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (BuildContext context) {
+                              return const App();
+                            }));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
+                        },
 
-                          // () async {
-                          //   if (_formKey.currentState!.validate()) {
-                          //     const SnackBar(
-                          //       content: Text("제안 완료"),
-                          //     );
-                          //   }
-                          // },
-                          child: const Text('제안하기'),
-                        ),
-                        // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
-                        // Flexible(
-                        //   child: Text(
-                        //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
-                        // ),
-                      ],
+                        // () async {
+                        //   if (_formKey.currentState!.validate()) {
+                        //     const SnackBar(
+                        //       content: Text("제안 완료"),
+                        //     );
+                        //   }
+                        // },
+                        child: const Text('제안하기'),
+                      ),
                     )
                   ],
                 ),

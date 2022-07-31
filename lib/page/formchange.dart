@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
 
@@ -639,7 +640,7 @@ class _customFormChangeState extends State<customFormChange> {
                               "성공적으로 제안되었습니다!",
                               style: TextStyle(color: Colors.white),
                             ),
-                            // backgroundColor: Colors.black,
+                            backgroundColor: ColorStyle.darkMainColor,
                             duration: Duration(milliseconds: 2000),
                             // behavior: SnackBarBehavior.floating,
                             elevation: 50,
