@@ -1,7 +1,9 @@
 import 'package:chocobread/page/notionreview.dart';
 import 'package:chocobread/page/openchatting.dart';
+import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class NotionInfo extends StatefulWidget {
@@ -34,16 +36,16 @@ class _NotionInfoState extends State<NotionInfo> {
   Widget _speeddial() {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
-      backgroundColor: const Color(0xffF6BD60),
+      backgroundColor: ColorStyle.mainColor,
       elevation: 3,
-      overlayOpacity: 0.5,
+      overlayOpacity: 0.3,
       overlayColor: Colors.black,
       closeManually: false,
       childPadding: const EdgeInsets.only(bottom: 10),
       children: [
         SpeedDialChild(
             foregroundColor: Colors.white,
-            backgroundColor: Colors.green,
+            backgroundColor: ColorStyle.lightMainColor,
             child: const Icon(Icons.border_color_rounded), // edit_note_rounded
             onTap: () {
               Navigator.push(context,
@@ -53,9 +55,9 @@ class _NotionInfoState extends State<NotionInfo> {
             }),
         SpeedDialChild(
           foregroundColor: Colors.white,
-          backgroundColor: Colors.blue,
-          child: const Icon(
-              Icons.chat_rounded), // chat_rounded, question_answer_rounded
+          backgroundColor: ColorStyle.darkMainColor,
+          child: const FaIcon(FontAwesomeIcons
+              .solidCommentDots), // chat_rounded, question_answer_rounded
           onTap: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
