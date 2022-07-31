@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
-import 'package:chocobread/page/check.dart';
+import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
+import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +17,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/price_utils.dart';
 import 'comments.dart';
 import 'done.dart';
-import 'formchange.dart';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -32,12 +33,12 @@ late UserInfoRepository userInfoRepository = UserInfoRepository();
 class _DetailContentViewState extends State<DetailContentView> {
   late CommentsRepository commentsRepository;
   late Size size;
-  late List<Map<String, String>> imgList; // imgList 선언
+  List<Map<String, String>> imgList = []; // imgList 선언
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
-  String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
-  bool enablecommentsbox = false;
+  String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
+  // bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
 
   @override
@@ -54,7 +55,19 @@ class _DetailContentViewState extends State<DetailContentView> {
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
-    // bool enablecommentsbox = false;
+    if (widget.data["DealImages"].length > 0) {
+      for (var i = 0; i < widget.data["DealImages"].length; i++) {
+        imgList.add({
+          "id": i.toString(),
+          "_url": widget.data["DealImages"][i]["dealImage"]
+        });
+      }
+    } else {
+      imgList = [
+        // 이미지가 없는 경우에도 indicator 처리를 해주기 위함
+        {"id": "0"}
+      ];
+    }
   }
 
   @override
@@ -64,14 +77,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     commentsRepository = CommentsRepository();
     size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
     _current = 0; // _current 인덱스를 0으로 초기화
-    imgList = [
-      // imgList 에 들어갈 이미지들 나열
-      //혜연 : 값이 null일 경우 처리되지 않아서
-      //widget.data["DealImages"][0]['dealImage'].toString()->assets/images/maltesers.png로 수정
-      {"id": "0", "_url": "assets/images/maltesers.png"},
-      {"id": "1", "_url": "assets/images/maltesers.png"},
-      {"id": "2", "_url": "assets/images/maltesers.png"},
-    ];
   }
 
   Widget _popupMenuButtonSelector() {
@@ -144,6 +149,10 @@ class _DetailContentViewState extends State<DetailContentView> {
         // Navigator 사용시 보통 자동으로 생성되나, 기타 처리 필요하므로 따로 생성
         onPressed: () {
           Navigator.pop(context);
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (BuildContext context) {
+          //   return const App();
+          // }));
         },
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
@@ -172,7 +181,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if ( // 이미지가 있는 경우에는 이미지를 보여준다.
         // widget.data["image"] != null ||
         // widget.data["image"] != [] ||
-        widget.data["image"] != "") {
+        widget.data["DealImages"].length != 0) {
       return imgList.map((map) {
         return Image.asset(
           map["_url"].toString(),
@@ -262,7 +271,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               onPressed: () {},
               icon: const Icon(
                 Icons.circle,
-                color: Color(0xffF6BD60),
+                color: ColorStyle.seller,
                 // size: 30,
               )),
           const SizedBox(
@@ -353,10 +362,12 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Color _colorUserStatus(String userstatus) {
     switch (userstatus) {
-      case "제안자":
-        return Colors.red; // 제안자의 색
-      case "참여자":
-        return Colors.blue; // 참여자의 색
+      case "제안자": // 제안자의 색
+        return ColorStyle.seller;
+      // Colors.red;
+      case "참여자": // 참여자의 색
+        return ColorStyle.participant;
+      // Colors.blue;
     }
     return Colors.grey; // 지나가는 사람의 색
   }
@@ -639,6 +650,48 @@ class _DetailContentViewState extends State<DetailContentView> {
         ));
   }
 
+  Widget _linkonoff() {
+    if (widget.data["link"] != "") {
+      // 링크가 존재하는 경우
+      return GestureDetector(
+        onTap: () async {
+          // 해당 url로 이동하도록 한다.
+          final Uri url = Uri.parse(widget.data["link"]);
+          if (await canLaunchUrl(url)) {
+            // can launch function checks whether the device can launch url before invoking the launch function
+            await launchUrl(url);
+          } else {
+            throw "could not launch $url";
+          }
+        },
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              // icon name : attachment, link_rounded
+              const Icon(Icons.link_rounded),
+              const SizedBox(
+                width: 3,
+              ),
+              Text(
+                widget.data["link"].toString(),
+                softWrap: false,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                // style: const TextStyle(
+                //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    // 링크가 존재하지 않는 경우, 링크 자리에 들아가는 것
+    return const Center(
+      child: Text("-"),
+    );
+  }
+
   Widget _bodyWidget() {
     return GestureDetector(
       onTap: () {
@@ -672,38 +725,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const Text(
                   "판매 링크",
                 ),
-                GestureDetector(
-                  onTap: () async {
-                    // 해당 url로 이동하도록 한다.
-                    final Uri url = Uri.parse(widget.data["link"]);
-                    if (await canLaunchUrl(url)) {
-                      // can launch function checks whether the device can launch url before invoking the launch function
-                      await launchUrl(url);
-                    } else {
-                      throw "could not launch $url";
-                    }
-                  },
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        // icon name : attachment, link_rounded
-                        const Icon(Icons.link_rounded),
-                        const SizedBox(
-                          width: 3,
-                        ),
-                        Text(
-                          widget.data["link"].toString(),
-                          softWrap: false,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          // style: const TextStyle(
-                          //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _linkonoff(),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -759,14 +781,15 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _commentsTextField(List<Map<String, dynamic>> dataComments) {
     return Container(
-      height: 55,
+      height: bottomNavigationBarWidth(),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
       child: Row(
         children: [
           Expanded(
             child: TextFormField(
               // focusNode: currentfocusnode,
-              maxLines: null,
+              minLines: 1,
+              maxLines: 2,
               onTap: () {
                 // 댓글 textfield를 누르면, comments.dart 페이지로 이동한다.
                 Navigator.push(context,
@@ -799,6 +822,7 @@ class _DetailContentViewState extends State<DetailContentView> {
           ),
           IconButton(
             onPressed: () {},
+            // icon: const FaIcon(FontAwesomeIcons.solidPaperPlane),
             icon: const Icon(Icons.send_rounded),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             constraints: const BoxConstraints(),
@@ -811,54 +835,51 @@ class _DetailContentViewState extends State<DetailContentView> {
   Widget _bottomNavigationBarWidgetForNormal() {
     return Container(
       width: size.width,
-      height: 55,
-      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // Text(
-          //   PriceUtils.calcStringToWon(widget.data["price"].toString()),
-          //   style: TextStyle(fontSize: 16),
-          // ),
-          OutlinedButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CheckParticipation(
-                      data: widget.data,
-                    );
-                  });
-            },
-            child: RichText(
-              // "${PriceUtils.calcStringToWon(widget.data["price"].toString())} 에 거래 참여하기",
-              text: TextSpan(children: [
-                TextSpan(
-                    text: PriceUtils.calcStringToWon(
-                        widget.data["personalPrice"].toString()),
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16)),
-                const TextSpan(
-                    text: " 에 거래 참여하기",
-                    style: TextStyle(color: Color(0xffF6BD60), fontSize: 14)),
-              ]),
-            ),
-          )
-        ],
+      height: bottomNavigationBarWidth(),
+      color: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: OutlinedButton(
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CheckParticipation(
+                  data: widget.data,
+                );
+              });
+        },
+        child: RichText(
+          // "${PriceUtils.calcStringToWon(widget.data["price"].toString())} 에 거래 참여하기",
+          text: TextSpan(children: [
+            TextSpan(
+                text: PriceUtils.calcStringToWon(
+                    widget.data["personalPrice"].toString()),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16)),
+            const TextSpan(
+                text: " 에 거래 참여하기",
+                style: TextStyle(color: ColorStyle.mainColor, fontSize: 14)),
+          ]),
+        ),
       ),
     );
   }
 
   Color _colorStatus(String status) {
     switch (status) {
-      case "모집중":
-        return Colors.green; // 모집중인 경우의 색
-      case "모집완료":
-        return Colors.brown; // 모집완료인 경우의 색
-      case "거래완료":
-        return Colors.grey; // 거래완료인 경우의 색
+      case "모집중": // 모집중인 경우의 색
+        return ColorStyle.ongoing;
+      // Colors.green;
+      case "모집완료": // 모집완료인 경우의 색
+        return ColorStyle.recruitcomplete;
+      // Colors.brown;
+      case "거래완료": // 거래완료인 경우의 색
+        return ColorStyle.dealcomplete;
+      // Colors.grey;
+      case "모집실패":
+        return ColorStyle.fail; // 거래완료인 경우의 색
     }
     return const Color(0xffF6BD60);
   }
@@ -867,6 +888,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if (productContents["status"] == "모집중") {
       return "${productContents["status"].toString()}: ${productContents["currentMember"]}/${productContents["totalMember"]}";
     } else if (productContents["status"] == "모집완료" ||
+        productContents["status"] == "모집실패" ||
         productContents["status"] == "거래완료") {
       return productContents["status"].toString();
     }
@@ -876,32 +898,28 @@ class _DetailContentViewState extends State<DetailContentView> {
   _bottomNavigationBarWidgetForParticipant() {
     return Container(
       width: size.width,
-      height: 55,
+      height: bottomNavigationBarWidth(),
       color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(width: 1.0, color: Colors.grey),
-            ),
-            onPressed: () {},
-            child: RichText(
-              text: TextSpan(children: [
-                TextSpan(
-                    text: _currentTotal(widget.data),
-                    // "${widget.data["status"]}: ${widget.data["current"]}/${widget.data["total"]}",
-                    style: TextStyle(
-                        color: _colorStatus(widget.data["status"].toString()),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16)),
-                const TextSpan(
-                    text: "    이미 참여한 거래입니다.",
-                    style: TextStyle(color: Colors.grey, fontSize: 14)),
-              ]),
-            ),
-          )
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(width: 1.0, color: Colors.grey),
+        ),
+        onPressed: () {},
+        child: RichText(
+          text: TextSpan(children: [
+            TextSpan(
+                text: _currentTotal(widget.data),
+                // "${widget.data["status"]}: ${widget.data["current"]}/${widget.data["total"]}",
+                style: TextStyle(
+                    color: _colorStatus(widget.data["status"].toString()),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16)),
+            const TextSpan(
+                text: "    이미 참여한 거래입니다.",
+                style: TextStyle(color: Colors.grey, fontSize: 14)),
+          ]),
+        ),
       ),
     );
   }
@@ -909,71 +927,78 @@ class _DetailContentViewState extends State<DetailContentView> {
   _bottomNavigationBarWidgetForSeller() {
     return Container(
       width: size.width,
-      height: 55,
+      height: bottomNavigationBarWidth(),
       color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                width: 1.0,
-                color: _colorStatus(widget.data["status"].toString()),
-              )),
-              onPressed: () {},
-              child: Text(_currentTotal(widget.data),
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: _colorStatus(widget.data["status"].toString()))))
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+              side: BorderSide(
+            width: 1.0,
+            color: _colorStatus(widget.data["status"].toString()),
+          )),
+          onPressed: () {},
+          child: Text(_currentTotal(widget.data),
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: _colorStatus(widget.data["status"].toString())))),
     );
   }
 
   Widget _bottomNavigationBarWidgetForRecruitmentComplete() {
     return Container(
       width: size.width,
-      height: 55,
+      height: bottomNavigationBarWidth(),
       color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(width: 1.0, color: Colors.grey),
-              ),
-              onPressed: null,
-              child: const Text("모집이 완료되었습니다.",
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16)))
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(width: 1.0, color: Colors.grey),
+          ),
+          onPressed: null,
+          child: const Text("모집이 완료되었습니다.",
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16))),
+    );
+  }
+
+  Widget _bottomNavigationBarWidgetForRecruitmentFail() {
+    return Container(
+      width: size.width,
+      height: bottomNavigationBarWidth(),
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(width: 1.0, color: Colors.grey),
+          ),
+          onPressed: null,
+          child: const Text("모집에 실패하였습니다.",
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16))),
     );
   }
 
   Widget _bottomNavigationBarWidgetForDealComplete() {
     return Container(
       width: size.width,
-      height: 55,
+      height: bottomNavigationBarWidth(),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(width: 1.0, color: Colors.grey),
-              ),
-              onPressed: null,
-              child: const Text("완료된 거래입니다.",
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16)))
-        ],
-      ),
+      child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(width: 1.0, color: Colors.grey),
+          ),
+          onPressed: null,
+          child: const Text("완료된 거래입니다.",
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16))),
     );
   }
 
@@ -982,6 +1007,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return _bottomNavigationBarWidgetForParticipant(); // 참여한 거래입니다.
     } else if (widget.data["status"] == "모집완료") {
       return _bottomNavigationBarWidgetForRecruitmentComplete(); // 모집이 완료되었습니다.
+    } else if (widget.data["status"] == "모집실패") {
+      return _bottomNavigationBarWidgetForRecruitmentFail(); // 모집에 실패하였습니다.
     } else if (widget.data["status"] == "거래완료") {
       return _bottomNavigationBarWidgetForDealComplete(); // 완료된 거래입니다.
     } else if (currentuserstatus == "제안자") {
@@ -990,66 +1017,66 @@ class _DetailContentViewState extends State<DetailContentView> {
     return _bottomNavigationBarWidgetForNormal();
   }
 
-  Widget _bottomTextfield() {
-    return Padding(
-      padding: MediaQuery.of(context).viewInsets, // 키보드 위로 댓글 입력창이 올라오도록 처리
-      child: Material(
-        elevation: 55,
-        child: Container(
-          height: 55,
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    enablecommentsbox = false;
-                  });
-                },
-                icon: const Icon(Icons.clear_rounded),
-                color: Colors.grey,
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                constraints: const BoxConstraints(),
-              ),
-              Expanded(
-                child: TextFormField(
-                  // focusNode: currentfocusnode,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    hintText: "댓글을 입력해주세요.",
-                    contentPadding:
-                        const EdgeInsets.only(left: 10, right: 10, top: 7),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    // focus 가 사라졌을 때
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 0.7, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    // focus 가 맞춰졌을 때
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 1, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.send_rounded),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                constraints: const BoxConstraints(),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _bottomTextfield() {
+  //   return Padding(
+  //     padding: MediaQuery.of(context).viewInsets, // 키보드 위로 댓글 입력창이 올라오도록 처리
+  //     child: Material(
+  //       elevation: 55,
+  //       child: Container(
+  //         height: 55,
+  //         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
+  //         child: Row(
+  //           children: [
+  //             IconButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   enablecommentsbox = false;
+  //                 });
+  //               },
+  //               icon: const Icon(Icons.clear_rounded),
+  //               color: Colors.grey,
+  //               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+  //               constraints: const BoxConstraints(),
+  //             ),
+  //             Expanded(
+  //               child: TextFormField(
+  //                 // focusNode: currentfocusnode,
+  //                 maxLines: null,
+  //                 decoration: InputDecoration(
+  //                   hintText: "댓글을 입력해주세요.",
+  //                   contentPadding:
+  //                       const EdgeInsets.only(left: 10, right: 10, top: 7),
+  //                   border: OutlineInputBorder(
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                   // focus 가 사라졌을 때
+  //                   enabledBorder: OutlineInputBorder(
+  //                     borderSide:
+  //                         const BorderSide(width: 0.7, color: Colors.grey),
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                   // focus 가 맞춰졌을 때
+  //                   focusedBorder: OutlineInputBorder(
+  //                     borderSide:
+  //                         const BorderSide(width: 1, color: Colors.grey),
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             IconButton(
+  //               onPressed: () {},
+  //               icon: const Icon(Icons.send_rounded),
+  //               padding:
+  //                   const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  //               constraints: const BoxConstraints(),
+  //             )
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1060,11 +1087,10 @@ class _DetailContentViewState extends State<DetailContentView> {
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
-      bottomNavigationBar:
-          // _bottomNavigationBarWidgetSelector(),
-          enablecommentsbox
-              ? _bottomTextfield()
-              : _bottomNavigationBarWidgetSelector(),
+      bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
+      // enablecommentsbox
+      //     ? _bottomTextfield()
+      //     : _bottomNavigationBarWidgetSelector(),
     );
   }
 

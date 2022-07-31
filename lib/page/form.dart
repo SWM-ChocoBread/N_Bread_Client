@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as contents;
 
+import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
 
@@ -587,10 +588,9 @@ class _customFormState extends State<customForm> {
                       height: 15,
                     ),
                     //제안하기 버튼
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OutlinedButton(
+                    SizedBox(
+                      width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
+                      child: OutlinedButton(
                           onPressed: () {
                             setState(() {
                               productName = productNameController.text; // 제품명
@@ -613,21 +613,22 @@ class _customFormState extends State<customForm> {
                               extra = extraController.text; // 추가 작성
                             });
 
-                            const snackBar = SnackBar(
-                              content: Text(
-                                "성공적으로 제안되었습니다!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              // backgroundColor: Colors.black,
-                              duration: Duration(milliseconds: 2000),
-                              // behavior: SnackBarBehavior.floating,
-                              elevation: 50,
-                              shape: StadiumBorder(),
-                              // RoundedRectangleBorder(
-                              //     borderRadius: BorderRadius.only(
-                              //         topLeft: Radius.circular(30),
-                              //         topRight: Radius.circular(30))),
-                            );
+                          const snackBar = SnackBar(
+                            content: Text(
+                              "성공적으로 제안되었습니다!",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorStyle.darkMainColor,
+                            duration: Duration(milliseconds: 2000),
+                            // behavior: SnackBarBehavior.floating,
+                            elevation: 50,
+                            shape: StadiumBorder(),
+                            // RoundedRectangleBorder(
+                            //     borderRadius: BorderRadius.only(
+                            //         topLeft: Radius.circular(30),
+                            //         topRight: Radius.circular(30))),
+                          );
+
 
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {

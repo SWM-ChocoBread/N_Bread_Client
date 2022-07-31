@@ -1,57 +1,27 @@
-import 'dart:convert';
+import 'dart:async';
 import 'dart:ffi';
 
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
-import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
-import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
 
-class customFormChange extends StatefulWidget {
-  Map<String, dynamic> data;
-  customFormChange({Key? key, required this.data}) : super(key: key);
+class customForm extends StatefulWidget {
+  customForm({Key? key}) : super(key: key);
 
   @override
-  State<customFormChange> createState() => _customFormChangeState();
+  State<customForm> createState() => _customFormState();
 }
 
-var jsonString =
-    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
-
-class _customFormChangeState extends State<customFormChange> {
+class _customFormState extends State<customForm> {
+  late StreamSubscription _intentDataStreamSubscription;
+  late String _sharedUrl;
   final now = DateTime.now();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    productNameController.text = widget.data["title"];
-    productLinkController.text = widget.data["link"];
-    totalPriceController.text =
-        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"]);
-    numOfParticipantsController.text = widget.data["totalMember"];
-    dateController.text = MyDateUtils.formatMyDate(
-        widget.data["dealDate"]); // 서버에서 보내는 형식을 보고 수정할 것!
-    timeController.text = MyDateUtils.formatMyTime(widget.data["dealDate"]);
-    placeController.text = widget.data["place"];
-    extraController.text = widget.data["contents"];
-
-    totalPrice = widget
-        .data["totalPrice"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
-    print(totalPrice);
-    numOfParticipants = widget
-        .data["totalMember"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
-    print(numOfParticipants);
-    date = widget.data["dealDate"].substring(0, 10);
-    print(date);
-    time = widget.data["dealDate"].substring(11, 16);
-    print(time);
-  }
 
   // 각각의 textfield에 붙는 controller
   TextEditingController productNameController =
@@ -60,8 +30,8 @@ class _customFormChangeState extends State<customFormChange> {
       TextEditingController(); // 판매 링크에 붙는 controller
   TextEditingController totalPriceController =
       TextEditingController(); // 총 가격에 붙는 controller
-  TextEditingController numOfParticipantsController =
-      TextEditingController(); // 모집 인원에 붙는 controller
+  // TextEditingController numOfParticipantsController =
+  //     TextEditingController(); // 모집 인원에 붙는 controller
   TextEditingController dateController =
       TextEditingController(); // 거래 날짜에 붙는 controller
   TextEditingController timeController =
@@ -76,15 +46,40 @@ class _customFormChangeState extends State<customFormChange> {
   String productLink = ""; // 판매 링크
   String totalPrice = ""; // 총 가격
   String numOfParticipants = ""; // 모집 인원
-  String personalPrice = ""; // 1인당 가격
-  String dealDate = ""; // 거래 날짜와 거래 시간을 합쳐서 2022-07-19 16:43 형식으로 보내기 위한 저장소
   String date = ""; // 거래 날짜
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
-  String productDate = "";
-  String personalPrice = "";
-  String dateToSend = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getTextStream().listen((String value) {
+      setState(() {
+        _sharedUrl = value;
+      });
+    }, onError: (err) {
+      print("링크를 가져오는데 에러가 발생했습니다 : getLinkStream error $err");
+    });
+
+    // For sharing or opening urls/text coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialText().then((value) {
+      setState(() {
+        _sharedUrl = value!;
+      });
+    });
+
+    productLinkController.text = _sharedUrl;
+  }
+
+  void disposeIntent() {
+    _intentDataStreamSubscription.cancel();
+    super.dispose();
+  }
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
@@ -194,7 +189,6 @@ class _customFormChangeState extends State<customFormChange> {
         // print(totalprice);
         setState(() {
           totalPrice = totalprice;
-          print("totalprice is value ${totalprice}");
           totalPriceController.text =
               PriceUtils.calcStringToWonOnly(totalprice);
         });
@@ -204,7 +198,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _participantsTextFormField() {
     return TextFormField(
-      controller: numOfParticipantsController,
+      // controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
         isDense: true,
@@ -253,18 +247,10 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _pricePerPerson(String totalprice, String numofparticipants) {
     if (totalprice.isNotEmpty & numofparticipants.isNotEmpty) {
-      personalPrice =
-          ((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() *
-                  10)
-              .toString();
-      String formattedPersonalPrice = PriceUtils.calcStringToWonOnly(
-          ((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() *
-                  10)
-              .toString());
       return Padding(
         padding: const EdgeInsets.only(left: 3),
         child: Text(
-          "1인당 부담 가격: $formattedPersonalPrice 원",
+          "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() * 10).toString())} 원",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       );
@@ -325,8 +311,6 @@ class _customFormChangeState extends State<customFormChange> {
                 DateTime.now().day + 4));
         if (pickedDate != null) {
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
-          String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
-          dateToSend += formattedDate2;
           String? weekday = {
             "Mon": "월",
             "Tue": "화",
@@ -338,7 +322,6 @@ class _customFormChangeState extends State<customFormChange> {
           }[DateFormat("E").format(pickedDate)];
           setState(() {
             dateController.text = "$formattedDate$weekday";
-            date = DateFormat("yyyy-MM-dd").format(pickedDate);
           });
         }
       },
@@ -394,13 +377,9 @@ class _customFormChangeState extends State<customFormChange> {
             "AM": "오전",
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
-          String formattedTime2 = DateFormat.Hm().format(parsedTime);
-          dateToSend += " ";
-          dateToSend += formattedTime2;
 
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
-            time = DateFormat("HH:mm").format(parsedTime);
           });
         }
       },
@@ -464,7 +443,7 @@ class _customFormChangeState extends State<customFormChange> {
     );
   }
 
-  Widget SuggestionFormChange() {
+  Widget SuggestionForm() {
     return SafeArea(
         child: Form(
             // autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -620,65 +599,72 @@ class _customFormChangeState extends State<customFormChange> {
                       height: 15,
                     ),
                     //제안하기 버튼
-                    SizedBox(
-                      width: double
-                          .infinity, // 버튼의 width 가 부모 widget 의 100% 가 되게 한다.
-                      child: OutlinedButton(
-                        // onPressed: () {
-                        //   // Validate returns true if the form is valid, or false otherwise.
-                        //   if (_formKey.currentState!.validate()) {
-                        //     // If the form is valid, display a snackbar. In the real world,
-                        //     // you'd often call a server or save the information in a database.
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       const SnackBar(content: Text('성공적으로 제안되었습니다!')),
-                        //     );
-                        //   }
-                        // },
-                        onPressed: () {
-                          setState(() {
-                            productName = productNameController.text; // 제품명
-                            productLink = productLinkController.text; // 판매 링크
-                            numOfParticipants =
-                                numOfParticipantsController.text; // 모집인원
-                            // date = dateController.text; // 거래 날짜
-                            // time = timeController.text; // 거래 시간
-                            dealDate =
-                                "$date $time"; // 거래 날짜 + 거래 시간 : 2022-07-19 16:43 형식
-                            place = placeController.text; // 거래 장소
-                            extra = extraController.text; // 추가 작성
-                          });
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        OutlinedButton(
+                          // onPressed: () {
+                          //   // Validate returns true if the form is valid, or false otherwise.
+                          //   if (_formKey.currentState!.validate()) {
+                          //     // If the form is valid, display a snackbar. In the real world,
+                          //     // you'd often call a server or save the information in a database.
+                          //     ScaffoldMessenger.of(context).showSnackBar(
+                          //       const SnackBar(content: Text('성공적으로 제안되었습니다!')),
+                          //     );
+                          //   }
+                          // },
+                          onPressed: () {
+                            setState(() {
+                              productName = productNameController.text; // 제품명
+                              productLink = productLinkController.text; // 판매 링크
+                              date = dateController.text; // 거래 날짜
+                              time = timeController.text; // 거래 시간
+                              place = placeController.text; // 거래 장소
+                              extra = extraController.text; // 추가 작성
+                            });
 
-                          const snackBar = SnackBar(
-                            content: Text(
-                              "성공적으로 제안되었습니다!",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: ColorStyle.darkMainColor,
-                            duration: Duration(milliseconds: 2000),
-                            // behavior: SnackBarBehavior.floating,
-                            elevation: 50,
-                            shape: StadiumBorder(),
-                            // RoundedRectangleBorder(
-                            //     borderRadius: BorderRadius.only(
-                            //         topLeft: Radius.circular(30),
-                            //         topRight: Radius.circular(30))),
-                          );
+                            const snackBar = SnackBar(
+                              content: Text(
+                                "성공적으로 제안되었습니다!",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              // backgroundColor: Colors.black,
+                              duration: Duration(milliseconds: 2000),
+                              // behavior: SnackBarBehavior.floating,
+                              elevation: 50,
+                              shape: StadiumBorder(),
+                              // RoundedRectangleBorder(
+                              //     borderRadius: BorderRadius.only(
+                              //         topLeft: Radius.circular(30),
+                              //         topRight: Radius.circular(30))),
+                            );
 
-                          // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.push(context, MaterialPageRoute(
-                                builder: (BuildContext context) {
-                              return const App();
-                            }));
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                          }
-                          print(
-                              "${productName} * ${productLink} * ${totalPrice} * ${numOfParticipants} * ${personalPrice} * ${dealDate} * ${date} * ${time} * ${place} * ${extra}");
-                        },
-                        child: const Text('제안하기'),
-                      ),
+                            // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                            if (_formKey.currentState!.validate()) {
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                return const App();
+                              }));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
+                          },
 
+                          // () async {
+                          //   if (_formKey.currentState!.validate()) {
+                          //     const SnackBar(
+                          //       content: Text("제안 완료"),
+                          //     );
+                          //   }
+                          // },
+                          child: const Text('제안하기'),
+                        ),
+                        // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
+                        // Flexible(
+                        //   child: Text(
+                        //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
+                        // ),
+                      ],
                     )
                   ],
                 ),
@@ -688,6 +674,6 @@ class _customFormChangeState extends State<customFormChange> {
 
   @override
   Widget build(BuildContext context) {
-    return SuggestionFormChange();
+    return SuggestionForm();
   }
 }
