@@ -1,4 +1,7 @@
+import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../utils/price_utils.dart';
 import 'app.dart';
@@ -24,11 +27,15 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
 
   Color _colorStatusDone(String currentMember, String totalMember) {
     if ((int.parse(currentMember) + 1) < int.parse(totalMember)) {
-      return Colors.green; // 모집중인 경우의 색
+      // 모집중인 경우의 색
+      return ColorStyle.ongoing;
+      // Colors.green;
     } else if ((int.parse(currentMember) + 1) == int.parse(totalMember)) {
-      return Colors.brown; // 모집완료인 경우의 색
+      // 모집완료인 경우의 색
+      return ColorStyle.recruitcomplete;
+      // Colors.brown;
     } else {
-      return const Color(0xffF6BD60);
+      return ColorStyle.mainColor;
     }
   }
 
@@ -44,55 +51,59 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
 
   Widget _imageHolder(Map productContents) {
     if (productContents["DealImages"].length == 0) {
-      // 모집중, 모집완료인 경우에 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
-      return ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          child: Hero(
-            // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
-            child: Container(
-              color: const Color(0xfff0f0ef),
-              width: 100,
-              height: 100,
-              child: const Icon(Icons.question_mark_rounded),
-            ),
-          ));
-    } else if (productContents["status"] == "거래완료") {
-      // 거래 완료인 경우 이미지 흐리게 처리
+      // 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기 (모집중)
       return Stack(children: [
         ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(15)),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: Hero(
+              // 사진 확대되는 애니메이션
+              tag: productContents["cid"].toString(),
+              child: Container(
+                color: const Color(0xfff0f0ef),
+                width: 110,
+                height: 110,
+                child: const Icon(Icons.question_mark_rounded),
+              ),
+            )),
+        _statusChipForDone(),
+      ]);
+    } else {
+      // 이미지가 있는 경우, 이미지 넣기 (모집중)
+      return Stack(children: [
+        ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
             child: Hero(
               // 사진 확대되는 애니메이션
               tag: productContents["cid"].toString(),
               child: Image.asset(
                 productContents["DealImages"][0]["dealImage"].toString(),
-                width: 100,
-                height: 100,
+                width: 110,
+                height: 110,
                 fit: BoxFit.fill,
               ),
             )),
-        Container(
-          width: 100,
-          height: 100,
-          color: const Color.fromRGBO(255, 255, 255, 0.7),
-        ),
+        _statusChipForDone(),
       ]);
-    } else {
-      // 모집중, 모집완료인 경우 이미지가 있는 경우, 이미지 보여주기
-      return ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          child: Hero(
-            // 사진 확대되는 애니메이션
-            tag: productContents["cid"].toString(),
-            child: Image.asset(
-              productContents["DealImages"][0]["dealImage"].toString(),
-              width: 100,
-              height: 100,
-              fit: BoxFit.fill,
-            ),
-          ));
     }
+  }
+
+  Widget _statusChipForDone() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+          color: _colorStatusDone(
+              widget.data["currentMember"], widget.data["totalMember"])
+          // const Color.fromARGB(255, 137, 82, 205)
+          ),
+      child: Text(
+        _resultStatus(widget.data["currentMember"], widget.data["totalMember"]),
+        // '${widget.data["status"]}',
+        style: const TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+      ),
+    );
   }
 
   Widget _doneItem() {
@@ -110,16 +121,8 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
             height: 30,
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ClipRRect(
-              //   borderRadius: const BorderRadius.all(Radius.circular(15)),
-              //   child: Image.asset(
-              //     widget.data["DealImages"].toString(),
-              //     width: 110,
-              //     height: 110,
-              //     fit: BoxFit.fill,
-              //   ),
-              // ),
               _imageHolder(widget.data),
               Expanded(
                 child: Column(
@@ -132,6 +135,36 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     // Expanded(
+                          //     //   child: Text(
+                          //     //       '${widget.data["current"]}/${widget.data["total"]}'),
+                          //     // ),
+                          //     Container(
+                          //       padding: const EdgeInsets.symmetric(
+                          //           horizontal: 7, vertical: 3),
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(10),
+                          //           color: _colorStatusDone(
+                          //               widget.data["currentMember"],
+                          //               widget.data["totalMember"])
+                          //           // const Color.fromARGB(255, 137, 82, 205)
+                          //           ),
+                          //       child: Text(
+                          //         _resultStatus(widget.data["currentMember"],
+                          //             widget.data["totalMember"]),
+                          //         // '${widget.data["status"]}',
+                          //         style: const TextStyle(
+                          //             fontSize: 12,
+                          //             fontWeight: FontWeight.w500,
+                          //             color: Colors.white),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          const SizedBox(height: 7),
                           Text(
                             widget.data["title"].toString(),
                             overflow: TextOverflow.ellipsis,
@@ -141,6 +174,16 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 2.0),
+                                  child: FaIcon(
+                                    FontAwesomeIcons.wonSign,
+                                    size: 12,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 6,
+                                ),
                                 Expanded(
                                   child: Text(
                                     PriceUtils.calcStringToWon(widget
@@ -155,40 +198,54 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                                 ),
                               ]),
                           const SizedBox(height: 5),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     // Expanded(
+                          //     //   child: Text(
+                          //     //       '${widget.data["current"]}/${widget.data["total"]}'),
+                          //     // ),
+                          //     Container(
+                          //       padding: const EdgeInsets.symmetric(
+                          //           horizontal: 7, vertical: 3),
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(10),
+                          //           color: _colorStatusDone(
+                          //               widget.data["currentMember"],
+                          //               widget.data["totalMember"])
+                          //           // const Color.fromARGB(255, 137, 82, 205)
+                          //           ),
+                          //       child: Text(
+                          //         _resultStatus(widget.data["currentMember"],
+                          //             widget.data["totalMember"]),
+                          //         // '${widget.data["status"]}',
+                          //         style: const TextStyle(
+                          //             fontSize: 12,
+                          //             fontWeight: FontWeight.w500,
+                          //             color: Colors.white),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 5),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Expanded(
-                              //   child: Text(
-                              //       '${widget.data["current"]}/${widget.data["total"]}'),
-                              // ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 3),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: _colorStatusDone(
-                                        widget.data["currentMember"],
-                                        widget.data["totalMember"])
-                                    // const Color.fromARGB(255, 137, 82, 205)
-                                    ),
-                                child: Text(
-                                  _resultStatus(widget.data["currentMember"],
-                                      widget.data["totalMember"]),
-                                  // '${widget.data["status"]}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
+                              const Padding(
+                                padding:
+                                    EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                                child: FaIcon(
+                                  FontAwesomeIcons.calendar,
+                                  size: 12,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(widget.data["date"].toString()),
+                              const SizedBox(
+                                width: 6,
+                              ),
+                              Text(
+                                MyDateUtils.formatMyDateTime(
+                                    widget.data["dealDate"].toString()),
+                                style: const TextStyle(fontSize: 13),
+                              ),
                               // SizedBox(
                               //   //color: Colors.red, // 100짜리 박스 색
                               //   // width: 100, // 장소 박스 크기 조절
@@ -204,8 +261,24 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                             ],
                           ),
                           const SizedBox(height: 5),
-                          Text(
-                            widget.data["place"].toString(),
+                          Row(
+                            children: [
+                              const Padding(
+                                padding:
+                                    EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                                child: FaIcon(
+                                  FontAwesomeIcons.locationDot,
+                                  size: 12,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 6,
+                              ),
+                              Text(
+                                widget.data["place"].toString(),
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ],
                           )
                         ],
                       ),
@@ -235,9 +308,10 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
         ),
         Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
             ),
-            color: const Color(0xfff0f0ef), // Colors.grey.withOpacity(0.3),
+            color: ColorStyle.myGrey,
+            // const Color(0xfff0f0ef), // Colors.grey.withOpacity(0.3),
             margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             elevation: 0,
             child: _doneItem()),
@@ -256,7 +330,7 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                     icon: const Icon(
                       Icons.info_outline,
                       size: 17,
-                      color: Color.fromARGB(255, 225, 24, 10),
+                      color: ColorStyle.myRed,
                     )),
                 const SizedBox(
                   width: 3,
@@ -273,27 +347,27 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
               const SizedBox(
                 height: 3,
               ),
-              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.info_outline,
-                      size: 17,
-                      color: Color.fromARGB(255, 225, 24, 10),
-                    )),
-                const SizedBox(
-                  width: 3,
-                ),
-                const Expanded(
-                  child: Text(
-                    "알림을 허용하시면 거래 하루 전 날 알림을 보내드립니다.",
-                    style: TextStyle(height: 1.2),
-                    softWrap: true,
-                  ),
-                )
-              ]),
+              // Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              //   IconButton(
+              //       padding: EdgeInsets.zero,
+              //       constraints: const BoxConstraints(),
+              //       onPressed: () {},
+              //       icon: const Icon(
+              //         Icons.info_outline,
+              //         size: 17,
+              //         color: Color.fromARGB(255, 225, 24, 10),
+              //       )),
+              //   const SizedBox(
+              //     width: 3,
+              //   ),
+              //   const Expanded(
+              //     child: Text(
+              //       "알림을 허용하시면 거래 하루 전 날 알림을 보내드립니다.",
+              //       style: TextStyle(height: 1.2),
+              //       softWrap: true,
+              //     ),
+              //   )
+              // ]),
               const SizedBox(
                 height: 3,
               ),
@@ -305,7 +379,7 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                     icon: const Icon(
                       Icons.info_outline,
                       size: 17,
-                      color: Color.fromARGB(255, 225, 24, 10),
+                      color: ColorStyle.myRed,
                     )),
                 const SizedBox(
                   width: 3,
