@@ -8,8 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserId', '2');
-  await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU4ODk5ODI1LCJpc3MiOiJjaG9jb0JyZWFkIn0.Jz2ADHd0ZaAVAzfJNUIMLRBuwvFWM0g-TRDseVOSZ3w');
+  await prefs.setString('tmpUserToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU5Mjc0NTkzLCJpc3MiOiJjaG9jb0JyZWFkIn0.XNzKawioP9zYJ-0lOLAihb3VIQllF_7O-v2Db9KYH3w');
   print("prefs save test");
   print(prefs.get('tmpUserId'));
 

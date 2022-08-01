@@ -475,7 +475,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                             return DetailCommentsView(
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
-                                    ["nick"]);
+                                    ["nick"],
+                                    id : widget.data["id"].toString());
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -797,6 +798,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   return DetailCommentsView(
                     data: dataComments,
                     replyTo: "",
+                    id: widget.data["id"].toString(),
                   );
                 }));
               },
