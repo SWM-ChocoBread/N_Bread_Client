@@ -165,7 +165,6 @@ class CommentsRepository {
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
 
     if (getData['result']['comments'].length != 0) {
-      print(getData['result']['comments'][0]);
       for (int i = 0; i < getData['result']['comments'].length; i++) {
         Map<String, dynamic> oneComment = getData['result']['comments'][i];
         tmp.add(oneComment);

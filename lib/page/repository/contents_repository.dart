@@ -236,7 +236,6 @@ class ContentsRepository {
     String responseBody = utf8.decode(response.bodyBytes);
     Map<String, dynamic> list = jsonDecode(responseBody);
     if (list.length == 0) print("length of list is 0");
-    print(list);
     return list;
   }
 

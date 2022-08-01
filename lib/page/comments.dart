@@ -8,9 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
 
+var jsonString = '{"content":""}';
+
 class DetailCommentsView extends StatefulWidget {
   List<Map<String, dynamic>> data;
-  DetailCommentsView({Key? key, required this.data, required this.replyTo, required this.id})
+  DetailCommentsView(
+      {Key? key, required this.data, required this.replyTo, required this.id})
       : super(key: key);
   String replyTo;
   String id;
@@ -82,7 +85,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           itemBuilder: (BuildContext context, int firstIndex) {
             globalKeysOut.add(GlobalKey());
             return Container(
-                key: globalKeysOut[widget.data[firstIndex]["id"]-1],
+                key: globalKeysOut[widget.data[firstIndex]["id"] - 1],
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -107,8 +110,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                         const SizedBox(
                           width: 5,
                         ),
-                        _userStatusChip(
-                            widget.data[firstIndex]["User"]["userStatus"].toString()),
+                        _userStatusChip(widget.data[firstIndex]["User"]
+                                ["userStatus"]
+                            .toString()),
                         const SizedBox(
                           width: 5,
                         ),
@@ -202,9 +206,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                   children: [
                                     Icon(
                                       Icons.circle,
-                                      color: _colorUserStatus(
-                                          widget.data[firstIndex]["Replies"]
-                                              [secondIndex]["User"]["userStatus"]),
+                                      color: _colorUserStatus(widget
+                                              .data[firstIndex]["Replies"]
+                                          [secondIndex]["User"]["userStatus"]),
                                       // size: 30,
                                     ),
                                     const SizedBox(
@@ -430,7 +434,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
                             print(commentToServer + " 2"); //
                             print("createComment called");
-                          
+
                             createComment(commentToServer);
                             // print("$replyToHere");
                             // print("${widget.replyTo}");
@@ -479,15 +483,11 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
   void createComment(String comment) async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('tmpUserToken'));
     String? userToken = prefs.getString('tmpUserToken');
-    var map = new Map<String, dynamic>();
-    map['contents'] = comment;
-    print("map is ${map}");
-    print(map.runtimeType);
-    var sendByBody = json.encode(map);
-    print('sendByBody is ${sendByBody}');
-    print(sendByBody.runtimeType);
+
+    var jsonString = '{"content":""}';
+    Map mapToSend = jsonDecode(jsonString);
+    mapToSend['content'] = comment;
 
     if (userToken != null) {
       String tmpUrl = 'https://www.chocobread.shop/comments/2';
@@ -496,13 +496,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           headers: {
             'Authorization': userToken,
           },
-          body: sendByBody);
-      print(response);
+          body: mapToSend);
+          
     } else {
       print('failed to create comment');
     }
   }
-
-
-
 }

@@ -1082,7 +1082,6 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.data['id'].runtimeType);
     getUserStatus();
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -1101,9 +1100,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     String userId = getTokenPayload['id'].toString();
-    print("call getUserStatus");
-    print("${dealId} + ${userId}");
-
     String tmpUrl =
         'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
     var url = Uri.parse(
@@ -1115,12 +1111,8 @@ class _DetailContentViewState extends State<DetailContentView> {
     if (list.length == 0) {
       print("length of list is 0");
     } else {
-      print(list);
       currentuserstatus = list['result']['description'];
-      print("user setting done");
     }
-
-    print(list);
   }
 
   void deleteDeal(String dealId) async {
