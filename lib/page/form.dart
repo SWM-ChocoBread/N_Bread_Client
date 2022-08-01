@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:chocobread/page/imageuploader.dart' as imageFile;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
 import 'package:flutter/foundation.dart';
@@ -815,7 +816,7 @@ class _customFormState extends State<customForm> {
                             extra = extraController.text; // 추가 작성
                             // finalImageFileList = imageUploader().getImageFileList;
                             print("#####");
-                            print(imageFileList);
+
                           });
 
                           const snackBar = SnackBar(
@@ -856,10 +857,16 @@ class _customFormState extends State<customForm> {
                             mapToSend['place'] = place;
                             mapToSend['content'] = extra;
                             //region,imageLink123은 우선 디폴트값
-
+                            //print(imageFileList?[0]);
+                            final List<MultipartFile> _files = imageFileList!.map((img) => MultipartFile.fromFileSync(img.path,  contentType: new MediaType("image", "jpg"))).toList();
+                            print("files: ### ");
+                            print(_files);
+                            FormData _formData = FormData.fromMap({"img": _files});
+                            print("file length :  ${_files.length} ");
+                            
                             print(mapToSend);
                             print(jsonString);
-                            getApiTest(jsonString);
+                            getApiTest(jsonString, _formData);
 
                             print(
                                 "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
@@ -885,11 +892,11 @@ class _customFormState extends State<customForm> {
   }
 }
 
-void getApiTest(String jsonbody) async {
+void getApiTest(String jsonbody, FormData formData) async {
   final prefs = await SharedPreferences.getInstance();
-  var tmpUrl = "http://localhost:5005/deals/create";
+  var dealCreateUrl = "http://localhost:5005/deals/create";
   var url = Uri.parse(
-    tmpUrl,
+    dealCreateUrl,
   );
   var body2 = json.encode(jsonbody);
   var tmpimglink = json.encode('');
@@ -898,28 +905,32 @@ void getApiTest(String jsonbody) async {
 
   var map = new Map<String, dynamic>();
   map['body'] = jsonbody;
-  map['img'] = 'qwerqwrqwerwqereqwer';
   print("value of map");
   print(map);
   print(map.toString());
   var dio = Dio();
-  var formData = FormData.fromMap(map);
+  var dioFormData = FormData.fromMap(map);
 
   if (userToken != null) {
-    // var response = await http.post(url,
-    //     headers: {
-    //       "Authorization": userToken,
-    //       "Content-Type": "multipart/form-data"
-    //     },
-    //     body: map);
+    var response = await http.post(url,
+        headers: {
+          "Authorization": userToken,
+        },
+        body: map);
+    print(response);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print(list);
+    dio.options.contentType = 'multipart/form-data';
     dio.options.headers['Authorization'] = userToken;
-    final response = await dio.post(
-      tmpUrl, 
+    print("dealId : ${list['result']['id']} ");
+    var imgCreateUrl = "http://localhost:5005/deals/${list['result']['id']}/img";
+
+    final dioResponse = await dio.post(
+      imgCreateUrl,
       data: formData,
     );
-    print(response);
-    // Map<String, dynamic> list = jsonDecode(responseBody);
-    // print(list);
+    
   } else {
     print("오류발생");
   }
