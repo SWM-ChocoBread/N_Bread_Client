@@ -1085,7 +1085,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
-    getUserStatus();
+    print(widget.data['id'].runtimeType);
+    //getUserStatus();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
