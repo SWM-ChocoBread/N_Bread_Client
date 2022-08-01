@@ -1115,6 +1115,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if (list.length == 0) {
       print("length of list is 0");
     } else {
+      print(list);
       currentuserstatus = list['result']['description'];
       print("user setting done");
     }
@@ -1127,13 +1128,13 @@ class _DetailContentViewState extends State<DetailContentView> {
     print(prefs.getString('tmpUserToken'));
     String? userToken = prefs.getString('tmpUserToken');
 
-    if(userToken!=null){
+    if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
       var url = Uri.parse(
         tmpUrl,
       );
-      var response = await http.delete(url,
-          headers: {"Authorization": userToken});
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);

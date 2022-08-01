@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
-
+import 'dart:io';
+import 'package:chocobread/page/imageuploader.dart' as imageFile;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -8,6 +9,7 @@ import 'package:chocobread/page/customformfield.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as contents;
@@ -591,27 +593,26 @@ class _customFormState extends State<customForm> {
                     SizedBox(
                       width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
                       child: OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              productName = productNameController.text; // 제품명
-                              productLink = productLinkController.text; // 판매 링크
-                              numOfParticipants =
-                                  numOfParticipantsController.text; //참여자 수
-                              print(
-                                  "numOfParticipants is ${numOfParticipants}");
-                              print(int.parse(numOfParticipants).runtimeType);
-                              print("totalPrice is ${totalPrice}");
-                              personalPrice = ((int.parse(totalPrice) /
-                                              int.parse(numOfParticipants) /
-                                              10)
-                                          .ceil() *
-                                      10)
-                                  .toString();
-                              date = dateController.text; // 거래 날짜
-                              time = timeController.text; // 거래 시간
-                              place = placeController.text; // 거래 장소
-                              extra = extraController.text; // 추가 작성
-                            });
+                        onPressed: () {
+                          setState(() {
+                            productName = productNameController.text; // 제품명
+                            productLink = productLinkController.text; // 판매 링크
+                            numOfParticipants =
+                                numOfParticipantsController.text; //참여자 수
+                            print("numOfParticipants is ${numOfParticipants}");
+                            print(int.parse(numOfParticipants).runtimeType);
+                            print("totalPrice is ${totalPrice}");
+                            personalPrice = ((int.parse(totalPrice) /
+                                            int.parse(numOfParticipants) /
+                                            10)
+                                        .ceil() *
+                                    10)
+                                .toString();
+                            date = dateController.text; // 거래 날짜
+                            time = timeController.text; // 거래 시간
+                            place = placeController.text; // 거래 장소
+                            extra = extraController.text; // 추가 작성
+                          });
 
                           const snackBar = SnackBar(
                             content: Text(
@@ -629,38 +630,36 @@ class _customFormState extends State<customForm> {
                             //         topRight: Radius.circular(30))),
                           );
 
+                          // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                          if (_formKey.currentState!.validate()) {
+                            // api호출
 
-                            // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
-                            if (_formKey.currentState!.validate()) {
-                              // api호출
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (BuildContext context) {
+                              return const App();
+                            }));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                            Map mapToSend = jsonDecode(jsonString);
+                            print(
+                                "value of date to send is ${dateToSend}"); //값 설정
+                            mapToSend['title'] = productName.toString();
+                            mapToSend['link'] = productLink.toString();
+                            mapToSend['totalPrice'] = totalPrice;
+                            mapToSend['personalPrice'] = personalPrice;
+                            mapToSend['totalMember'] = numOfParticipants;
+                            mapToSend['dealDate'] = dateToSend;
+                            mapToSend['place'] = place;
+                            mapToSend['content'] = extra;
+                            //region,imageLink123은 우선 디폴트값
 
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                return const App();
-                              }));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                              Map mapToSend = jsonDecode(jsonString);
-                              print(
-                                  "value of date to send is ${dateToSend}"); //값 설정
-                              mapToSend['title'] = productName.toString();
-                              mapToSend['link'] = productLink.toString();
-                              mapToSend['totalPrice'] = totalPrice;
-                              mapToSend['personalPrice'] = personalPrice;
-                              mapToSend['totalMember'] = numOfParticipants;
-                              mapToSend['dealDate'] = dateToSend;
-                              mapToSend['place'] = place;
-                              mapToSend['content'] = extra;
-                              //region,imageLink123은 우선 디폴트값
+                            print(mapToSend);
+                            getApiTest(jsonString);
 
-                              print(mapToSend);
-                              getApiTest(mapToSend);
-
-                              print(
-                                  "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
-                            }
-                          },
-
+                            print(
+                                "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
+                          }
+                        },
                           // () async {
                           //   if (_formKey.currentState!.validate()) {
                           //     const SnackBar(
@@ -672,7 +671,6 @@ class _customFormState extends State<customForm> {
                         ),    )                    
                       ],
                     )
-                  
                 ),
               
             )));
@@ -684,22 +682,30 @@ class _customFormState extends State<customForm> {
   }
 }
 
-void getApiTest(Map jsonbody) async {
+void getApiTest(String jsonbody) async {
   final prefs = await SharedPreferences.getInstance();
   var tmpUrl = "https://www.chocobread.shop/deals/create";
   var url = Uri.parse(
     tmpUrl,
   );
-  var body = json.encode(jsonbody);
+  var body2 = json.encode(jsonbody);
+  var tmpimglink = json.encode('');
   var userToken = prefs.getString("tmpUserToken");
+  //File _image="assets/images/maltesers.png";
+
+  var map = new Map<String, dynamic>();
+  map['body'] = jsonbody;
+  map['img'] = '';
+  print("value of map");
+  print(map);
+  print(map.toString());
 
   if (userToken != null) {
     var response = await http.post(url,
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": userToken
+          "Authorization": userToken,
         },
-        body: body);
+        body: map.toString());
     String responseBody = utf8.decode(response.bodyBytes);
     Map<String, dynamic> list = jsonDecode(responseBody);
     print(list);

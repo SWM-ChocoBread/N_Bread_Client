@@ -677,7 +677,6 @@ class _customFormChangeState extends State<customFormChange> {
                         },
                         child: const Text('제안하기'),
                       ),
-
                     )
                   ],
                 ),

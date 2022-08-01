@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ui';
+
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
 
 class DetailCommentsView extends StatefulWidget {
@@ -424,6 +429,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             // send 버튼을 누르면 작동한다.
                             // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
                             print(commentToServer + " 2"); //
+                            print("createComment called");
+                          
+                            createComment(commentToServer);
                             // print("$replyToHere");
                             // print("${widget.replyTo}");
                             if (replyToHere != "") {
@@ -467,4 +475,34 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
       ),
     );
   }
+
+  //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
+  void createComment(String comment) async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
+    var map = new Map<String, dynamic>();
+    map['contents'] = comment;
+    print("map is ${map}");
+    print(map.runtimeType);
+    var sendByBody = json.encode(map);
+    print('sendByBody is ${sendByBody}');
+    print(sendByBody.runtimeType);
+
+    if (userToken != null) {
+      String tmpUrl = 'https://www.chocobread.shop/comments/2';
+      var url = Uri.parse(tmpUrl);
+      var response = await http.post(url,
+          headers: {
+            'Authorization': userToken,
+          },
+          body: sendByBody);
+      print(response);
+    } else {
+      print('failed to create comment');
+    }
+  }
+
+
+
 }
