@@ -33,19 +33,19 @@ class _customFormChangeState extends State<customFormChange> {
     productNameController.text = widget.data["title"];
     productLinkController.text = widget.data["link"];
     totalPriceController.text =
-        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"]);
-    numOfParticipantsController.text = widget.data["totalMember"];
+        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"].toString());
+    numOfParticipantsController.text = widget.data["totalMember"].toString();
     dateController.text = MyDateUtils.formatMyDate(
         widget.data["dealDate"]); // 서버에서 보내는 형식을 보고 수정할 것!
     timeController.text = MyDateUtils.formatMyTime(widget.data["dealDate"]);
-    placeController.text = widget.data["place"];
-    extraController.text = widget.data["contents"];
+    placeController.text = widget.data["place"].toString();
+    extraController.text = widget.data["contents"].toString();
 
     totalPrice = widget
-        .data["totalPrice"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+        .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
     numOfParticipants = widget
-        .data["totalMember"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+        .data["totalMember"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(numOfParticipants);
     date = widget.data["dealDate"].substring(0, 10);
     print(date);

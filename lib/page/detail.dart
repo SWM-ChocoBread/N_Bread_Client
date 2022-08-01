@@ -53,6 +53,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("getUserstatus called on initstate");
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
@@ -477,7 +478,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
                                     ["nick"],
-                                replyToId: dataComments[firstIndex]["id"].toString(),
+                                replyToId:
+                                    dataComments[firstIndex]["id"].toString(),
                                 id: widget.data["id"].toString());
                           }));
                         },
@@ -1085,7 +1087,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
-    getUserStatus();
+    //getUserStatus();
+    print('currentUserStatus is ${currentuserstatus}');
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -1098,7 +1101,8 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  void getUserStatus() async {
+  
+  Future getUserStatus() async {
     String dealId = widget.data['id'].toString();
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
@@ -1114,6 +1118,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if (list.length == 0) {
       print("length of list is 0");
     } else {
+      print('getuserStatus function ${list['result']['description']}');
       currentuserstatus = list['result']['description'];
     }
   }

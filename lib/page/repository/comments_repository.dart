@@ -157,7 +157,6 @@ class CommentsRepository {
         tmp.add(oneComment);
       }
     }
-
     return tmp;
   }
 }
