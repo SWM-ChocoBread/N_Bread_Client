@@ -638,7 +638,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    _getUserNick("1");
+    //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
@@ -647,20 +647,20 @@ class _HomeState extends State<Home> {
   }
 }
 
-void _getUserNick(String userId) async {
-  String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
-  var url = Uri.parse(
-    tmpUrl,
-  );
-  print(tmpUrl);
-  var response = await http.get(url);
-  String responseBody = utf8.decode(response.bodyBytes);
-  Map<String, dynamic> list = jsonDecode(responseBody);
-  print("response is");
-  print(list);
+// void _getUserNick(String userId) async {
+//   String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+//   var url = Uri.parse(
+//     tmpUrl,
+//   );
+//   print(tmpUrl);
+//   var response = await http.get(url);
+//   String responseBody = utf8.decode(response.bodyBytes);
+//   Map<String, dynamic> list = jsonDecode(responseBody);
+//   print("response is");
+//   print(list);
 
-  //return list['result']['nick'];
-}
+//   //return list['result']['nick'];
+// }
 void _getUserLocation()async{
   final prefs = await SharedPreferences.getInstance();
   print(prefs.getString('tmpUserToken'));

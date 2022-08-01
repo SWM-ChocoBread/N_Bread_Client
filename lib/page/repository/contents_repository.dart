@@ -9,7 +9,7 @@ void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserId', '2');
   await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU5Mjc0NTkzLCJpc3MiOiJjaG9jb0JyZWFkIn0.XNzKawioP9zYJ-0lOLAihb3VIQllF_7O-v2Db9KYH3w');
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwibmljayI6Imt5Z2t0aDEyMzQ1NjciLCJwcm92aWRlciI6ImxvY2FsIiwiaWF0IjoxNjU5MzUxMDUwLCJpc3MiOiJjaG9jb0JyZWFkIn0.q8qaM4D4N0TGs831aYbJe1VO6KdJ41Z2hnV71asxPG4');
 
   print("prefs save test");
   print(prefs.get('tmpUserId'));

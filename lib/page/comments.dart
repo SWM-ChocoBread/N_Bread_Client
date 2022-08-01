@@ -180,9 +180,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                               setState(() {
                                 replyToHere =
                                     "${widget.data[firstIndex]["User"]["nick"]}";
-                                replyToHereId = widget.data[firstIndex]
-                                        ["userId"]
-                                    .toString();
+                                replyToHereId =
+                                    widget.data[firstIndex]["id"].toString();
                               });
                             }
                           },
@@ -444,9 +443,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             // send 버튼을 누르면 작동한다.
                             // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
                             print(commentToServer + " 2"); //
-                            print("createComment called");
+                            //print("createComment called");
 
-                            createComment(commentToServer);
+                            //createComment(commentToServer);
                             // print("$replyToHere");
                             // print("${widget.replyTo}");
                             if (replyToHereId != "") {
@@ -457,9 +456,12 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
                             if (toWhom == "") {
                               // 댓글을 썼을 경우
+                              print("댓글을 썼을 경우");
                               createComment(commentToServer);
                             } else {
                               // 대댓글을 썼을 경우, 서버에 보내는 API
+                              print("답글을 썼을 경우");
+                              createReply(commentToServer, toWhom);
                             }
                             print(
                                 "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
@@ -501,6 +503,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
   //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
   void createComment(String comment) async {
+    print("create Comment called");
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString('tmpUserToken');
 
@@ -518,6 +521,32 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
+    } else {
+      print('failed to create comment');
+    }
+  }
+
+  void createReply(String comment, String parId) async {
+    print("createReply called");
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('tmpUserToken');
+    print("create Reply usertoken is ${userToken}");
+
+    var jsonString = '{"content": "", "parentId": ""}';
+    Map mapToSend = jsonDecode(jsonString);
+    mapToSend['content'] = comment;
+    mapToSend['parentId'] = parId;
+   
+
+    if (userToken != null) {
+      String tmpUrl = 'https://www.chocobread.shop/comments/reply/2';
+      var url = Uri.parse(tmpUrl);
+      var response = await http.post(url,
+       headers: {
+        'Authorization': userToken,
+      }, 
+      body: mapToSend);
+      print("response is ${response.body}");
     } else {
       print('failed to create comment');
     }

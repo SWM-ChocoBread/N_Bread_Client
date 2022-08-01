@@ -477,7 +477,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
                                     ["nick"],
-                                replyToId: dataComments[firstIndex]["userId"].toString(),
+                                replyToId: dataComments[firstIndex]["id"].toString(),
                                 id: widget.data["id"].toString());
                           }));
                         },
