@@ -83,7 +83,6 @@ class _customFormChangeState extends State<customFormChange> {
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
   String productDate = "";
-  String personalPrice = "";
   String dateToSend = "";
 
   final GlobalKey<FormState> _formKey = GlobalKey<
@@ -678,7 +677,6 @@ class _customFormChangeState extends State<customFormChange> {
                         },
                         child: const Text('제안하기'),
                       ),
-
                     )
                   ],
                 ),
