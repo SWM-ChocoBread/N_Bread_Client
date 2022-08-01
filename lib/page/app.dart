@@ -12,7 +12,6 @@ import 'mypage.dart';
 import 'notioninfo.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 
-
 class App extends StatefulWidget {
   static String routeName = "/page";
 
@@ -177,6 +176,4 @@ class _AppState extends State<App> {
       },
     );
   }
-
-  
 }

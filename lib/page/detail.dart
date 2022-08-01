@@ -21,6 +21,7 @@ import 'done.dart';
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
   String replyTo = "";
+  String replyToId = "";
 
   DetailContentView({Key? key, required this.data}) : super(key: key);
 
@@ -476,7 +477,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
                                     ["nick"],
-                                    id : widget.data["id"].toString());
+                                replyToId: dataComments[firstIndex]["id"].toString(),
+                                id: widget.data["id"].toString());
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -798,6 +800,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   return DetailCommentsView(
                     data: dataComments,
                     replyTo: "",
+                    replyToId: "",
                     id: widget.data["id"].toString(),
                   );
                 }));
@@ -1101,9 +1104,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     String userId = getTokenPayload['id'].toString();
-    print("call getUserStatus");
-    print("${dealId} + ${userId}");
-
     String tmpUrl =
         'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
     var url = Uri.parse(
@@ -1116,10 +1116,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       print("length of list is 0");
     } else {
       currentuserstatus = list['result']['description'];
-      print("user setting done");
     }
-
-    print(list);
   }
 
   void deleteDeal(String dealId) async {
@@ -1127,13 +1124,13 @@ class _DetailContentViewState extends State<DetailContentView> {
     print(prefs.getString('tmpUserToken'));
     String? userToken = prefs.getString('tmpUserToken');
 
-    if(userToken!=null){
+    if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
       var url = Uri.parse(
         tmpUrl,
       );
-      var response = await http.delete(url,
-          headers: {"Authorization": userToken});
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
