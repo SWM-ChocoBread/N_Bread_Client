@@ -22,7 +22,7 @@ import 'app.dart';
 import 'imageuploader.dart';
 
 var jsonString =
-    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "2022-08-05 12:00","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam"}';
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -866,7 +866,7 @@ class _customFormState extends State<customForm> {
                             
                             print(mapToSend);
                             print(jsonString);
-                            getApiTest(jsonString, _formData);
+                            getApiTest(mapToSend, _formData);
 
                             print(
                                 "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
@@ -892,14 +892,13 @@ class _customFormState extends State<customForm> {
   }
 }
 
-void getApiTest(String jsonbody, FormData formData) async {
+void getApiTest(Map jsonbody, FormData formData) async {
   final prefs = await SharedPreferences.getInstance();
-  var dealCreateUrl = "http://localhost:5005/deals/create";
+  var dealCreateUrl = "https://www.chocobread.shop/deals/create";
   var url = Uri.parse(
     dealCreateUrl,
   );
   var body2 = json.encode(jsonbody);
-  var tmpimglink = json.encode('');
   var userToken = prefs.getString("tmpUserToken");
   //File _image="assets/images/maltesers.png";
 
@@ -916,15 +915,16 @@ void getApiTest(String jsonbody, FormData formData) async {
         headers: {
           "Authorization": userToken,
         },
-        body: map);
+        body: jsonbody);
     print(response);
     String responseBody = utf8.decode(response.bodyBytes);
     Map<String, dynamic> list = jsonDecode(responseBody);
     print(list);
     dio.options.contentType = 'multipart/form-data';
     dio.options.headers['Authorization'] = userToken;
+    //  list[result][id] 예외처리 ex) 404 안하면 crash
     print("dealId : ${list['result']['id']} ");
-    var imgCreateUrl = "http://localhost:5005/deals/${list['result']['id']}/img";
+    var imgCreateUrl = "https://www.chocobread.shop/deals/${list['result']['id']}/img";
 
     final dioResponse = await dio.post(
       imgCreateUrl,
