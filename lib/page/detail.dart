@@ -21,6 +21,7 @@ import 'done.dart';
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
   String replyTo = "";
+  String replyToId = "";
 
   DetailContentView({Key? key, required this.data}) : super(key: key);
 
@@ -476,7 +477,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
                                     ["nick"],
-                                    id : widget.data["id"].toString());
+                                replyToId: dataComments[firstIndex]["userId"].toString(),
+                                id: widget.data["id"].toString());
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -798,6 +800,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   return DetailCommentsView(
                     data: dataComments,
                     replyTo: "",
+                    replyToId: "",
                     id: widget.data["id"].toString(),
                   );
                 }));

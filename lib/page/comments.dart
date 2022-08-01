@@ -13,9 +13,14 @@ var jsonString = '{"content":""}';
 class DetailCommentsView extends StatefulWidget {
   List<Map<String, dynamic>> data;
   DetailCommentsView(
-      {Key? key, required this.data, required this.replyTo, required this.id})
+      {Key? key,
+      required this.data,
+      required this.replyTo,
+      required this.replyToId,
+      required this.id})
       : super(key: key);
   String replyTo;
+  String replyToId;
   String id;
 
   @override
@@ -27,6 +32,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   // globalKeysOut.add(GlobalKey());
   // int heightcontroller = 55;
   String replyToHere = "";
+  String replyToHereId = "";
   TextEditingController commentController =
       TextEditingController(); // 댓글에 붙는 controller
   String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 댓글 저장하기
@@ -85,7 +91,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           itemBuilder: (BuildContext context, int firstIndex) {
             globalKeysOut.add(GlobalKey());
             return Container(
-                key: globalKeysOut[widget.data[firstIndex]["id"] - 1],
+                key: globalKeysOut[
+                    firstIndex], // widget.data[firstIndex]["id"] - 1
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -164,9 +171,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             // }));
 
                             // 답글쓰기 버튼을 눌렀을 때
-                            final targetcomments =
-                                globalKeysOut[widget.data[firstIndex]["id"]]
-                                    .currentContext;
+                            final targetcomments = globalKeysOut[firstIndex]
+                                .currentContext; // widget.data[firstIndex]["id"]
                             if (targetcomments != null) {
                               Scrollable.ensureVisible(targetcomments,
                                   duration: const Duration(milliseconds: 600),
@@ -174,6 +180,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                               setState(() {
                                 replyToHere =
                                     "${widget.data[firstIndex]["User"]["nick"]}";
+                                replyToHereId = widget.data[firstIndex]
+                                        ["userId"]
+                                    .toString();
                               });
                             }
                           },
@@ -314,6 +323,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 onPressed: () {
                   setState(() {
                     replyToHere = "";
+                    replyToHereId = "";
                   });
                 },
                 icon: const Icon(Icons.clear_rounded),
@@ -341,6 +351,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 onPressed: () {
                   setState(() {
                     widget.replyTo = "";
+                    widget.replyToId = "";
                   });
                 },
                 icon: const Icon(Icons.clear_rounded),
@@ -438,12 +449,20 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             createComment(commentToServer);
                             // print("$replyToHere");
                             // print("${widget.replyTo}");
-                            if (replyToHere != "") {
-                              toWhom = replyToHere;
-                            } else if (widget.replyTo != "") {
-                              toWhom = widget.replyTo;
+                            if (replyToHereId != "") {
+                              toWhom = replyToHereId;
+                            } else if (widget.replyToId != "") {
+                              toWhom = widget.replyToId;
                             }
-                            print(toWhom); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+
+                            if (toWhom == "") {
+                              // 댓글을 썼을 경우
+                              createComment(commentToServer);
+                            } else {
+                              // 대댓글을 썼을 경우, 서버에 보내는 API
+                            }
+                            print(
+                                "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
                             Navigator.pop(
                                 context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
                           }
