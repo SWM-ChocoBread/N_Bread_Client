@@ -10,9 +10,10 @@ import '../constants/sizes_helper.dart';
 
 class DetailCommentsView extends StatefulWidget {
   List<Map<String, dynamic>> data;
-  DetailCommentsView({Key? key, required this.data, required this.replyTo})
+  DetailCommentsView({Key? key, required this.data, required this.replyTo, required this.id})
       : super(key: key);
   String replyTo;
+  String id;
 
   @override
   State<DetailCommentsView> createState() => _DetailCommentsViewState();
@@ -20,6 +21,7 @@ class DetailCommentsView extends StatefulWidget {
 
 class _DetailCommentsViewState extends State<DetailCommentsView> {
   final globalKeysOut = <GlobalKey>[];
+  // globalKeysOut.add(GlobalKey());
   // int heightcontroller = 55;
   String replyToHere = "";
   TextEditingController commentController =
@@ -80,7 +82,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           itemBuilder: (BuildContext context, int firstIndex) {
             globalKeysOut.add(GlobalKey());
             return Container(
-                key: globalKeysOut[widget.data[firstIndex]["id"]],
+                key: globalKeysOut[widget.data[firstIndex]["id"]-1],
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -92,7 +94,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                         Icon(
                           Icons.circle,
                           color: _colorUserStatus(
-                              widget.data[firstIndex]["userStatus"]),
+                              widget.data[firstIndex]["User"]["userStatus"]),
                           // size: 30,
                         ),
                         const SizedBox(
@@ -106,7 +108,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           width: 5,
                         ),
                         _userStatusChip(
-                            widget.data[firstIndex]["userStatus"].toString()),
+                            widget.data[firstIndex]["User"]["userStatus"].toString()),
                         const SizedBox(
                           width: 5,
                         ),
@@ -202,7 +204,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       Icons.circle,
                                       color: _colorUserStatus(
                                           widget.data[firstIndex]["Replies"]
-                                              [secondIndex]["userStatus"]),
+                                              [secondIndex]["User"]["userStatus"]),
                                       // size: 30,
                                     ),
                                     const SizedBox(
@@ -217,7 +219,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       width: 5,
                                     ),
                                     _userStatusChip(widget.data[firstIndex]
-                                            ["Replies"][secondIndex]
+                                            ["Replies"][secondIndex]["User"]
                                             ["userStatus"]
                                         .toString()),
                                     const SizedBox(

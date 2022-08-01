@@ -660,25 +660,19 @@ class _customFormState extends State<customForm> {
                                 "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
                           }
                         },
-
-                        // () async {
-                        //   if (_formKey.currentState!.validate()) {
-                        //     const SnackBar(
-                        //       content: Text("제안 완료"),
-                        //     );
-                        //   }
-                        // },
-                        child: const Text('제안하기'),
-                      ),
-                      // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
-                      // Flexible(
-                      //   child: Text(
-                      //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
-                      // ),
-                    ),
-                  ],
+                          // () async {
+                          //   if (_formKey.currentState!.validate()) {
+                          //     const SnackBar(
+                          //       content: Text("제안 완료"),
+                          //     );
+                          //   }
+                          // },
+                          child: const Text('제안하기'),
+                        ),    )                    
+                      ],
+                    )
                 ),
-              ),
+              
             )));
   }
 
