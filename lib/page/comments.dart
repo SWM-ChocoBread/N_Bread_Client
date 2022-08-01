@@ -490,14 +490,15 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     mapToSend['content'] = comment;
 
     if (userToken != null) {
-      String tmpUrl = 'https://www.chocobread.shop/comments/2';
+      print("id is ${widget.id}");
+
+      String tmpUrl = 'https://www.chocobread.shop/comments/${widget.id}';
       var url = Uri.parse(tmpUrl);
       var response = await http.post(url,
           headers: {
             'Authorization': userToken,
           },
           body: mapToSend);
-          
     } else {
       print('failed to create comment');
     }
