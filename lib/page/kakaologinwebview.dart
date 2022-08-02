@@ -1,5 +1,8 @@
+import 'package:chocobread/page/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
+import 'nicknameset.dart';
 
 class KakaoLoginWebview extends StatefulWidget {
   KakaoLoginWebview({Key? key}) : super(key: key);
@@ -32,16 +35,21 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
         return ServerTrustAuthResponse(
             action: ServerTrustAuthResponseAction.PROCEED);
       },
-      onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
+      onLoadStart: (InAppWebViewController controller, Uri? myurl) async {
+        // 원래는 onLoadStop 이었다.
         if (myurl != null) {
           List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           print("start");
-          print(cookies[1].value);
+          // print(cookies[1].value);
           print("object");
           cookies.forEach((cookie) {
             print(cookie.name + " " + cookie.value[0]);
             print(cookie);
           });
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return NicknameSet();
+          }));
         }
       },
     );
