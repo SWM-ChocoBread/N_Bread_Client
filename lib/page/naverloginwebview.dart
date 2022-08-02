@@ -32,11 +32,12 @@ class _NaverLoginWebviewState extends State<NaverLoginWebview> {
         return ServerTrustAuthResponse(
             action: ServerTrustAuthResponseAction.PROCEED);
       },
-      onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
+      onLoadStart: (InAppWebViewController controller, Uri? myurl) async {
+        // 원래는 onLoadStop이었다.
         if (myurl != null) {
           List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           print("start");
-          print(cookies[1].value);
+          // print(cookies[1].value);
           print("object");
           cookies.forEach((cookie) {
             print(cookie.name + " " + cookie.value[0]);

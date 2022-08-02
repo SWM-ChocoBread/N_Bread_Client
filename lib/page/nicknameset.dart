@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../constants/sizes_helper.dart';
+import '../style/colorstyles.dart';
+
 class NicknameSet extends StatefulWidget {
   NicknameSet({Key? key}) : super(key: key);
 
@@ -24,7 +27,7 @@ class _NicknameSetState extends State<NicknameSet> {
   Widget _colorProfile() {
     return const Icon(
       Icons.circle,
-      color: Color(0xffF6BD60),
+      color: ColorStyle.mainColor,
       size: 100,
     );
     // return IconButton(
@@ -99,34 +102,45 @@ class _NicknameSetState extends State<NicknameSet> {
   // }
 
   Widget _bottomNavigationBarWidget() {
-    return SizedBox(
-        // width: displayWidth(context),
-        height: 110,
+    return Container(
+        width: displayWidth(context),
+        padding: const EdgeInsets.only(left: 15, right: 15, top: 3, bottom: 10),
+        height: 2 * bottomNavigationBarWidth() + 10,
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          OutlinedButton(
-            onPressed: () {
-              bool nicknameoverlap = false;
-              if (nicknameoverlap == false) {
-                setState(() {
-                  enablebutton = true;
-                });
-              }
-            },
-            child: const Text("닉네임 중복 확인"),
-          ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: enablebutton
-                  ? const BorderSide(width: 1.0, color: Color(0xffF6BD60))
-                  : const BorderSide(width: 1.0, color: Colors.grey),
+          SizedBox(
+            // 닉네임 중복 확인 버튼 width 조정
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
+                if (nicknameoverlap == false) {
+                  // 닉네임이 오버랩되지 않는다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
+                  setState(() {
+                    enablebutton = true;
+                  });
+                }
+              },
+              child: const Text("닉네임 중복 확인"),
             ),
-            onPressed: enablebutton
-                ? () {
-                    Navigator.pop(context);
-                  }
-                : null,
-            child: const Text(
-              "닉네임 설정하기",
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                // enablebutton에 따라 버튼의 아웃라인 색 변경
+                side: enablebutton
+                    ? const BorderSide(width: 1.0, color: ColorStyle.mainColor)
+                    : const BorderSide(width: 1.0, color: Colors.grey),
+              ),
+              onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
+                  ? () {
+                      Navigator.pop(context);
+                    }
+                  : null,
+              child: const Text(
+                "닉네임 변경 완료",
+              ),
             ),
           )
         ]));

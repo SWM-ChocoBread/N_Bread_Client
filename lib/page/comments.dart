@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -124,7 +125,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           width: 5,
                         ),
                         Text(
-                          "${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}",
+                          MyDateUtils.dateTimeDifference(widget.data[firstIndex]
+                              [
+                              "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
                           style:
                               const TextStyle(color: Colors.grey, fontSize: 12),
                         )
@@ -238,7 +241,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       width: 5,
                                     ),
                                     Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                      MyDateUtils.dateTimeDifference(
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["createdAt"]),
                                       style: const TextStyle(
                                           color: Colors.grey, fontSize: 12),
                                     )
@@ -547,6 +552,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
       }, 
       body: mapToSend);
       print("response is ${response.body}");
+
     } else {
       print('failed to create comment');
     }

@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'accountdelete.dart';
 import 'detail.dart';
-import 'terms.dart';
+import 'termslook.dart';
 
 String setUserNickName = "";
 String setUserLocation = "";
@@ -63,7 +63,7 @@ class _MyPageState extends State<MyPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return Container(
-                      padding: const EdgeInsets.all(15),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       height: 200,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -78,7 +78,7 @@ class _MyPageState extends State<MyPage> {
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
-                                  return Terms();
+                                  return TermsLook();
                                 }));
                               },
                               child: const Text("약관 보기"),

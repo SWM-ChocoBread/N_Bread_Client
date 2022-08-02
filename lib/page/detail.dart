@@ -5,8 +5,10 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
+import 'package:chocobread/page/policereport.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -70,6 +72,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         {"id": "0"}
       ];
     }
+    currentuserstatus = widget.data["mystatus"];
   }
 
   @override
@@ -325,7 +328,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           Text(
-            "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+            MyDateUtils.dateTimeDifference(widget.data["createdAt"]),
             style: const TextStyle(fontSize: 12),
           ),
           const SizedBox(
@@ -356,7 +359,52 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const TextStyle(fontSize: 15, height: 1.5), // height 는 줄간격 사이
           ),
           const SizedBox(
-            height: 40,
+            height: 50,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _policeReport() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                onTap: () {
+                  // 게시글 신고하기 버튼을 눌렀을 때 이동하는 화면
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return PoliceReport(
+                        title: widget.data["title"],
+                        nickName: widget.data["User"]["nick"]);
+                  }));
+                },
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.report_outlined,
+                      size: 17,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "게시글 신고하기",
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 15,
           ),
         ],
       ),
@@ -376,7 +424,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _userStatusChip(String userstatus) {
-    if (userstatus == "") {
+    if (userstatus == "user") {
       return Container();
     } else {
       return Container(
@@ -439,7 +487,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       Text(
-                        "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+                        MyDateUtils.dateTimeDifference(
+                            dataComments[firstIndex]["createdAt"]),
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 12),
                       )
@@ -481,6 +530,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     ["nick"],
                                 replyToId:
                                     dataComments[firstIndex]["id"].toString(),
+
                                 id: widget.data["id"].toString());
                           }));
                         },
@@ -538,7 +588,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                    MyDateUtils.dateTimeDifference(
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["createdAt"]),
                                     style: const TextStyle(
                                         color: Colors.grey, fontSize: 12),
                                   )
@@ -736,7 +788,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text("단위 가격"),
+                      const Text("1인당 가격"),
                       const SizedBox(
                         width: 7,
                       ),
@@ -757,10 +809,11 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Text(
                     '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
                 const Text("모집 마감 일자"),
-                Text(widget.data["dealDate"]
-                    .toString()), // TODO : 수정 필요함+혜연 : 모집 마감 일자는 이제 없어지지 않았나?
+                Text(MyDateUtils.formatMyDateTimeDone(
+                    widget.data["dealDate"].toString())), // TODO : 수정 필요함
                 const Text("거래 일시"),
-                Text(widget.data["dealDate"].toString()),
+                Text(MyDateUtils.formatMyDateTime(
+                    widget.data["dealDate"].toString())),
                 const Text("거래 장소"),
                 Text(
                   widget.data["dealPlace"].toString(),
@@ -773,6 +826,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             delegate: SliverChildListDelegate(
               [
                 _contentsDetail(),
+                _policeReport(),
                 _line(),
                 _commentTitle(),
                 _commentsWidget(),
