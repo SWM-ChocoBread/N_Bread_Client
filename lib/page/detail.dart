@@ -325,7 +325,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           Text(
-            "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+            MyDateUtils.dateTimeDifference(widget.data["createdAt"]),
             style: const TextStyle(fontSize: 12),
           ),
           const SizedBox(
@@ -484,7 +484,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       Text(
-                        "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+                        MyDateUtils.dateTimeDifference(
+                            dataComments[firstIndex]["createdAt"]),
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 12),
                       )
@@ -524,7 +525,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
                                     ["nick"],
-                                    id : widget.data["id"].toString());
+                                id: widget.data["id"].toString());
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -581,7 +582,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                    MyDateUtils.dateTimeDifference(
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["createdAt"]),
                                     style: const TextStyle(
                                         color: Colors.grey, fontSize: 12),
                                   )

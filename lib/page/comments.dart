@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -85,7 +86,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           itemBuilder: (BuildContext context, int firstIndex) {
             globalKeysOut.add(GlobalKey());
             return Container(
-                key: globalKeysOut[widget.data[firstIndex]["id"] - 1],
+                key: globalKeysOut[
+                    firstIndex], // widget.data[firstIndex]["id"] - 1
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -117,7 +119,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           width: 5,
                         ),
                         Text(
-                          "${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}",
+                          MyDateUtils.dateTimeDifference(widget.data[firstIndex]
+                              [
+                              "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
                           style:
                               const TextStyle(color: Colors.grey, fontSize: 12),
                         )
@@ -230,7 +234,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       width: 5,
                                     ),
                                     Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                      MyDateUtils.dateTimeDifference(
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["createdAt"]),
                                       style: const TextStyle(
                                           color: Colors.grey, fontSize: 12),
                                     )
@@ -497,7 +503,6 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
-          
     } else {
       print('failed to create comment');
     }
