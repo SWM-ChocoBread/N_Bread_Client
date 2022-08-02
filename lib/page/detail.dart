@@ -38,7 +38,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
-  String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
+  String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
   // bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
 
@@ -1101,7 +1101,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  
   Future getUserStatus() async {
     String dealId = widget.data['id'].toString();
     Map<String, dynamic> getTokenPayload =
