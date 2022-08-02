@@ -70,6 +70,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate
       ],
       supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
+      debugShowCheckedModeBanner: false, // Hide the debug banner
       home: const App(),
     );
   }
