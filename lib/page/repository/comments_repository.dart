@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 class CommentsRepository {
   List<Map<String, dynamic>> dataComments = [
     {
@@ -118,8 +123,54 @@ class CommentsRepository {
     }
   ];
 
-  Future<List<Map<String, dynamic>>> loadComments() async {
+  // Future<List<Map<String, dynamic>>> loadComments(String dealId) async {
+  //   await Future.delayed(const Duration(milliseconds: 1000));
+  //   return dataComments;
+  // }
+
+  Future<Map<String, dynamic>> _callAPI(String dealId) async {
+    String tmpUrl = 'https://www.chocobread.shop/comments/' + dealId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+
+    //print(list);
+
+    return list;
+  }
+
+  Future<Map<String, dynamic>> _callAPI2() async {
+    String tmpUrl = 'https://www.chocobread.shop/users/1';
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+
+    //print(list);
+
+    return list;
+  }
+
+  Future<List<dynamic>> loadComments(String dealId) async {
+    // API 통신 location 값을 보내주면서
+    Map<String, dynamic> getData = await _callAPI(dealId);
+    Map<String, dynamic> testData = await _callAPI2();
+ 
     await Future.delayed(const Duration(milliseconds: 1000));
-    return dataComments;
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+
+    if (getData['result']['comments'].length != 0) {
+      for (int i = 0; i < getData['result']['comments'].length; i++) {
+        Map<String, dynamic> oneComment = getData['result']['comments'][i];
+        tmp.add(oneComment);
+      }
+    }
+
+    return tmp;
   }
 }

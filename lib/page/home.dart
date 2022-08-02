@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chocobread/page/detail.dart';
@@ -11,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
@@ -178,7 +181,7 @@ class _HomeState extends State<Home> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               child: Hero(
                 // 사진 확대되는 애니메이션
-                tag: productContents["cid"].toString(),
+                tag: productContents["id"].toString(),
                 child: Container(
                   color: const Color(0xfff0f0ef),
                   width: 110,
@@ -311,7 +314,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _loadContents() {
+  loadContents() {
     return contentsRepository.loadContentsFromLocation(currentLocation);
   }
 
@@ -524,7 +527,7 @@ class _HomeState extends State<Home> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    dataContents[index]["place"].toString(),
+                                    dataContents[index]["dealPlace"].toString(),
                                     // textAlign: TextAlign.end,
                                     style: TextStyle(
                                       color: _colorDeterminant(
@@ -600,7 +603,7 @@ class _HomeState extends State<Home> {
 
   Widget _bodyWidget() {
     return FutureBuilder(
-        future: _loadContents(),
+        future: loadContents(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(
@@ -644,10 +647,37 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       floatingActionButton: _floatingActionButtonWidget(),
     );
   }
+}
+
+void _getUserNick(String userId) async {
+  String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  print(tmpUrl);
+  var response = await http.get(url);
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  print("response is");
+  print(list);
+
+  //return list['result']['nick'];
+}
+void _getUserLocation()async{
+  final prefs = await SharedPreferences.getInstance();
+  print(prefs.getString('tmpUserToken'));
+  String? userToken = prefs.getString('tmpUserToken');
+  
+  if(userToken!=null){
+    
+  }
+  
+
 }

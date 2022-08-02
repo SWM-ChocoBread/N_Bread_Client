@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
@@ -10,6 +12,9 @@ import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:chocobread/page/repository/userInfo_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/price_utils.dart';
 import 'comments.dart';
@@ -24,6 +29,8 @@ class DetailContentView extends StatefulWidget {
   @override
   State<DetailContentView> createState() => _DetailContentViewState();
 }
+
+late UserInfoRepository userInfoRepository = UserInfoRepository();
 
 class _DetailContentViewState extends State<DetailContentView> {
   late CommentsRepository commentsRepository;
@@ -77,7 +84,9 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    if (currentuserstatus == "제안자" && widget.data["currentMember"] == "1") {
+    currentuserstatus = "제안자";
+
+    if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
       return PopupMenuButton(
         // 수정하기, 삭제하기가 나오는 팝업메뉴버튼
         icon: const Icon(
@@ -111,7 +120,12 @@ class _DetailContentViewState extends State<DetailContentView> {
               );
             }));
           } else {
-            // 삭제하기를 누른 경우,
+            // 삭제하기를 누른 경우,api호출->정말 삭제하시겠습니까?하는 메시지가 떠야하지않을까?
+            print("deleteDeal is called");
+            print(widget.data['id']);
+            deleteDeal(
+              widget.data['id'].toString(),
+            );
           }
         },
       );
@@ -198,7 +212,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         children: [
           Hero(
             // 사진 확대되는 애니메이션
-            tag: widget.data["cid"].toString(),
+            tag: widget.data["id"].toString(),
             child: CarouselSlider(
               items: _itemsForSliderImage(),
               // imgList.map((map) {
@@ -278,7 +292,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 height: 3,
               ),
               Text(
-                widget.data["sellerAddress"].toString(),
+                widget.data["User"]['curLocation3'].toString(),
                 style: const TextStyle(fontSize: 13),
               ),
             ],
@@ -426,7 +440,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   _loadComments() {
-    return CommentsRepository().loadComments();
+    return CommentsRepository().loadComments(widget.data['id'].toString());
   }
 
   _makeComments(List<Map<String, dynamic>> dataComments) {
@@ -450,8 +464,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                       Icon(
                         Icons.circle,
                         color: _colorUserStatus(
-                            dataComments[firstIndex]["userStatus"]),
-                        // size: 30,
+                            dataComments[firstIndex]['User']["userStatus"]),
+                        size: 30,
                       ),
                       const SizedBox(
                         width: 5,
@@ -463,8 +477,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                       const SizedBox(
                         width: 5,
                       ),
-                      _userStatusChip(
-                          dataComments[firstIndex]["userStatus"].toString()),
+                      _userStatusChip(dataComments[firstIndex]['User']
+                              ["userStatus"]
+                          .toString()),
                       const SizedBox(
                         width: 5,
                       ),
@@ -508,7 +523,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                             return DetailCommentsView(
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
-                                    ["nick"]);
+                                    ["nick"],
+                                    id : widget.data["id"].toString());
                           }));
                         },
                         child: const Text("답글쓰기",
@@ -542,7 +558,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     Icons.circle,
                                     color: _colorUserStatus(
                                         dataComments[firstIndex]["Replies"]
-                                            [secondIndex]["userStatus"]),
+                                                [secondIndex]["User"]
+                                            ["userStatus"]),
                                     // size: 30,
                                   ),
                                   const SizedBox(
@@ -557,7 +574,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   _userStatusChip(dataComments[firstIndex]
-                                          ["Replies"][secondIndex]["userStatus"]
+                                              ["Replies"][secondIndex]["User"]
+                                          ["userStatus"]
                                       .toString()),
                                   const SizedBox(
                                     width: 5,
@@ -789,7 +807,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     widget.data["dealDate"].toString())),
                 const Text("거래 장소"),
                 Text(
-                  widget.data["place"].toString(),
+                  widget.data["dealPlace"].toString(),
                   overflow: TextOverflow.ellipsis,
                 ),
               ]),
@@ -830,6 +848,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   return DetailCommentsView(
                     data: dataComments,
                     replyTo: "",
+                    id: widget.data["id"].toString(),
                   );
                 }));
               },
@@ -1113,6 +1132,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
+    getUserStatus();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -1123,5 +1143,43 @@ class _DetailContentViewState extends State<DetailContentView> {
       //     ? _bottomTextfield()
       //     : _bottomNavigationBarWidgetSelector(),
     );
+  }
+
+  void getUserStatus() async {
+    String dealId = widget.data['id'].toString();
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    String userId = getTokenPayload['id'].toString();
+    String tmpUrl =
+        'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list.length == 0) {
+      print("length of list is 0");
+    } else {
+      currentuserstatus = list['result']['description'];
+    }
+  }
+
+  void deleteDeal(String dealId) async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
+
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
   }
 }
