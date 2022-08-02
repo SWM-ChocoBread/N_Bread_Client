@@ -6,6 +6,7 @@ import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
+import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -125,7 +126,15 @@ class _HomeState extends State<Home> {
                 return NicknameSet();
               }));
             },
-            icon: const Icon(Icons.ac_unit))
+            icon: const Icon(Icons.ac_unit)),
+        IconButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return TermsCheck();
+              }));
+            },
+            icon: const Icon(Icons.info_outline_rounded))
       ],
       centerTitle: false,
       titleSpacing: 0,

@@ -399,33 +399,29 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
   }
 
   Widget _bottomNavigationBarWidget() {
-    return SizedBox(
+    return Container(
       width: displayWidth(context),
-      height: 55,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          OutlinedButton(
-            // style: TextButton.styleFrom(
-            //     padding:
-            //         const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-            //     shape: const StadiumBorder(),
-            //     backgroundColor: const Color(0xffF6BD60)),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return const App();
-              }));
-            },
-            child: const Text(
-              "홈으로 돌아가기",
-              // style: TextStyle(
-              //     color: Color(0xff323232),
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 3, bottom: 10),
+      height: bottomNavigationBarWidth(),
+      child: OutlinedButton(
+        // style: TextButton.styleFrom(
+        //     padding:
+        //         const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+        //     shape: const StadiumBorder(),
+        //     backgroundColor: const Color(0xffF6BD60)),
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const App();
+          }));
+        },
+        child: const Text(
+          "홈으로 돌아가기",
+          // style: TextStyle(
+          //     color: Color(0xff323232),
+          //     fontSize: 16,
+          //     fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

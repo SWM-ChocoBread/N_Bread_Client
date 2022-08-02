@@ -1,4 +1,5 @@
 import 'package:chocobread/page/done.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -84,7 +85,8 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
                 crossAxisCellCount: 8,
                 mainAxisCellCount: 1,
                 child: Text(
-                  widget.data["date"].toString(),
+                  MyDateUtils.formatMyDateTime(
+                      widget.data["dealDate"].toString()),
                   softWrap: true,
                   style: const TextStyle(
                     fontSize: 15,

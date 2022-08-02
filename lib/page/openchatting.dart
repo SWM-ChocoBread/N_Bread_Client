@@ -1,5 +1,6 @@
 import 'package:chocobread/page/notionreview.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'notioninfo.dart';
@@ -12,6 +13,8 @@ class OpenChatting extends StatefulWidget {
 }
 
 class _OpenChattingState extends State<OpenChatting> {
+  String _openChattingUrl = 'https://open.kakao.com/o/sa4gFgpe';
+
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       centerTitle: false,
@@ -42,6 +45,15 @@ class _OpenChattingState extends State<OpenChatting> {
       ),
     );
   }
+
+  // _launchURL(url) async {
+  //   if (await canLaunchUrl(url)) {
+  //     // url 자리에는 URi가 들어가야 한다.
+  //     await launchUrl(url);
+  //   } else {
+  //     throw 'Could not launch $url';
+  //   }
+  // }
 
   Widget _openchatting() {
     return const WebView(

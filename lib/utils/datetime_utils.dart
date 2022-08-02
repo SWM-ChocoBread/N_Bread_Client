@@ -15,6 +15,24 @@ class MyDateUtils {
     }[DateFormat("E").format(dt)];
     String formattedTime = DateFormat('hh:MM').format(dt);
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
+    return "$formattedDate$formattedWeekDay  $dayNight $formattedTime"; // "2022.08.01.월  오후 2:29"
+  }
+
+  static String formatMyDateTimeDone(String dateString) {
+    DateTime dt = DateTime.parse(dateString);
+    DateTime ddt = DateTime(dt.year, dt.month, dt.day - 4);
+    String formattedDate = DateFormat('yy.MM.dd.').format(ddt);
+    String? formattedWeekDay = {
+      "Mon": "월",
+      "Tue": "화",
+      "Wed": "수",
+      "Thu": "목",
+      "Fri": "금",
+      "Sat": "토",
+      "Sun": "일"
+    }[DateFormat("E").format(dt)];
+    String formattedTime = DateFormat('hh:MM').format(dt);
+    String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
     return "$formattedDate$formattedWeekDay  $dayNight $formattedTime";
   }
 
