@@ -20,7 +20,7 @@ class MyDateUtils {
 
   static String formatMyDateTimeDone(String dateString) {
     DateTime dt = DateTime.parse(dateString);
-    DateTime ddt = DateTime(dt.year, dt.month, dt.day - 4);
+    DateTime ddt = DateTime(dt.year, dt.month, dt.day - 3);
     String formattedDate = DateFormat('yy.MM.dd.').format(ddt);
     String? formattedWeekDay = {
       "Mon": "월",
