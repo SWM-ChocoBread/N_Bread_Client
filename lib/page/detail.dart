@@ -83,7 +83,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    currentuserstatus = "제안자";
+    currentuserstatus = widget.data['mystatus'];
+    print("curr usrer stat ${widget.data['mystatus']}");
 
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
       return PopupMenuButton(
@@ -1087,8 +1088,6 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
-    //getUserStatus();
-    print('currentUserStatus is ${currentuserstatus}');
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
