@@ -32,7 +32,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
-  String currentuserstatus = "제안자"; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
+  String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
   // bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
 
@@ -63,7 +63,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         {"id": "0"}
       ];
     }
-    currentuserstatus = widget.data["User"]["userStatus"];
+    currentuserstatus = widget.data["mystatus"];
   }
 
   @override
@@ -407,7 +407,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _userStatusChip(String userstatus) {
-    if (userstatus == "") {
+    if (userstatus == "user") {
       return Container();
     } else {
       return Container(
@@ -761,7 +761,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text("단위 가격"),
+                      const Text("1인당 가격"),
                       const SizedBox(
                         width: 7,
                       ),
