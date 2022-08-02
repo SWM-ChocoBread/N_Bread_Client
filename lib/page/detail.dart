@@ -23,6 +23,7 @@ import 'done.dart';
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
   String replyTo = "";
+  String replyToId = "";
 
   DetailContentView({Key? key, required this.data}) : super(key: key);
 
@@ -54,6 +55,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("getUserstatus called on initstate");
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
@@ -84,7 +86,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    currentuserstatus = "제안자";
+    currentuserstatus = widget.data['mystatus'];
+    print("curr usrer stat ${widget.data['mystatus']}");
 
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
       return PopupMenuButton(
@@ -525,6 +528,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 data: dataComments,
                                 replyTo: dataComments[firstIndex]["User"]
                                     ["nick"],
+                                replyToId:
+                                    dataComments[firstIndex]["id"].toString(),
+
                                 id: widget.data["id"].toString());
                           }));
                         },
@@ -851,6 +857,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   return DetailCommentsView(
                     data: dataComments,
                     replyTo: "",
+                    replyToId: "",
                     id: widget.data["id"].toString(),
                   );
                 }));
@@ -1135,7 +1142,6 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
-    getUserStatus();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -1148,7 +1154,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  void getUserStatus() async {
+  Future getUserStatus() async {
     String dealId = widget.data['id'].toString();
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
@@ -1164,6 +1170,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     if (list.length == 0) {
       print("length of list is 0");
     } else {
+      print('getuserStatus function ${list['result']['description']}');
       currentuserstatus = list['result']['description'];
     }
   }

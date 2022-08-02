@@ -7,12 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('tmpUserId', '2');
   await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU5Mjc0NTkzLCJpc3MiOiJjaG9jb0JyZWFkIn0.XNzKawioP9zYJ-0lOLAihb3VIQllF_7O-v2Db9KYH3w');
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmljayI6Iuq2jO2DnO2YhCIsInByb3ZpZGVyIjoibmF2ZXIiLCJpYXQiOjE2NTkzNzQ1MjAsImlzcyI6ImNob2NvQnJlYWQifQ.QfJJjG3ntPPn0lHzHXCIjnw7KVvV5GfGRwUxpqYci6U');
 
-  print("prefs save test");
-  print(prefs.get('tmpUserId'));
 
   //return prefs;
 }
@@ -236,7 +233,6 @@ class ContentsRepository {
 
   Future<Map<String, dynamic>> _callAPI(String location) async {
     prefTest();
-    print("prefTest Function called");
     String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,

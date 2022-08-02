@@ -94,11 +94,11 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
           color: _colorStatusDone(
-              widget.data["currentMember"], widget.data["totalMember"])
+              widget.data["currentMember"].toString(), widget.data["totalMember"].toString())
           // const Color.fromARGB(255, 137, 82, 205)
           ),
       child: Text(
-        _resultStatus(widget.data["currentMember"], widget.data["totalMember"]),
+        _resultStatus(widget.data["currentMember"].toString(), widget.data["totalMember"].toString()),
         // '${widget.data["status"]}',
         style: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),

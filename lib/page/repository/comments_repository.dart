@@ -142,25 +142,11 @@ class CommentsRepository {
     return list;
   }
 
-  Future<Map<String, dynamic>> _callAPI2() async {
-    String tmpUrl = 'https://www.chocobread.shop/users/1';
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-
-    //print(list);
-
-    return list;
-  }
-
   Future<List<dynamic>> loadComments(String dealId) async {
     // API 통신 location 값을 보내주면서
+    print("load comment called");
     Map<String, dynamic> getData = await _callAPI(dealId);
-    Map<String, dynamic> testData = await _callAPI2();
- 
+
     await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
 
@@ -170,7 +156,6 @@ class CommentsRepository {
         tmp.add(oneComment);
       }
     }
-
     return tmp;
   }
 }
