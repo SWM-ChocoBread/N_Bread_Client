@@ -142,12 +142,11 @@ class CommentsRepository {
     return list;
   }
 
-
   Future<List<dynamic>> loadComments(String dealId) async {
     // API 통신 location 값을 보내주면서
+    print("load comment called");
     Map<String, dynamic> getData = await _callAPI(dealId);
 
- 
     await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
 
@@ -157,7 +156,6 @@ class CommentsRepository {
         tmp.add(oneComment);
       }
     }
-
     return tmp;
   }
 }
