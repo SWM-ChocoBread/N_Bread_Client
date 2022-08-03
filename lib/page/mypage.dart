@@ -64,7 +64,7 @@ class _MyPageState extends State<MyPage> {
                   builder: (BuildContext context) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
-                      height: 200,
+                      height: 250,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -97,8 +97,28 @@ class _MyPageState extends State<MyPage> {
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
-                                  return AccountDelete();
+                                  return TermsLook();
                                 }));
+                              },
+                              child: const Text("로그아웃"),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 50)
+                                  ),
+                              onPressed: () {
+                                // 로그아웃을 하면 이동하는 페이지 넣기
+                                // Navigator.push(context, MaterialPageRoute(
+                                //     builder: (BuildContext context) {
+                                //   return AccountDelete();
+                                // }));
                               },
                               child: const Text("탈퇴하기"),
                             ),
@@ -295,12 +315,16 @@ class _MyPageState extends State<MyPage> {
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(
-                                  dataOngoing[index]["mystatus"].toString()),
+                              color: _colorMyStatus(dataOngoing[index]
+                                      ["mystatus"]
+                                  .toString()
+                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
                             ),
                             // const Color.fromARGB(255, 137, 82, 205)),
                             child: Text(
-                              dataOngoing[index]["mystatus"].toString(),
+                              dataOngoing[index]["mystatus"]
+                                  .toString()
+                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
                               style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,

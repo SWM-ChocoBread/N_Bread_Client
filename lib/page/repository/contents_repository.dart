@@ -17,7 +17,7 @@ class ContentsRepository {
   Map<String, dynamic> data = {
     "yeoksam": [
       {
-        "cid": "0", //
+        "id": "0", //
         "DealImages": [
           {"dealImage": "assets/images/maltesers.png"}
         ],
@@ -26,7 +26,7 @@ class ContentsRepository {
         "link": "https://www.coupang.com",
         "totalPrice": "16490",
         "personalPrice": "5500",
-        "createdAt": "2022-07-30T21:30:12.000Z",
+        "createdAt": "2022-08-01T21:54:12.000Z",
         "currentMember": "1",
         "totalMember": "3",
         "status": "모집중",
@@ -37,7 +37,7 @@ class ContentsRepository {
         "contents": "몰티져스 소분 구매하실 분 찾습니다! \n매너 거래 원합니다!",
       },
       {
-        "cid": "1",
+        "id": "1",
         "DealImages": [
           {"dealImage": "assets/images/butter.png"}
         ],
@@ -57,7 +57,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "2",
+        "id": "2",
         "DealImages": [
           {"dealImage": "assets/images/flipflop.jpeg"}
         ],
@@ -78,7 +78,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "3",
+        "id": "3",
         "DealImages": [],
         "mystatus": "제안자",
         "title": "아키클래식 클라우드 리커버리 플립플랍",
@@ -97,7 +97,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "4",
+        "id": "4",
         "DealImages": [
           {"dealImage": "assets/images/otg.png"}
         ],
@@ -118,7 +118,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "5",
+        "id": "5",
         "DealImages": [],
         "mystatus": "참여자",
         "title": "모집이 실패된 케이스를 테스트하기 위한 경우",
@@ -138,7 +138,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "6",
+        "id": "6",
         "DealImages": [
           {"dealImage": "assets/images/xexymix.png"},
           {"dealImage": "assets/images/xexymix1.png"}
@@ -160,7 +160,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "7",
+        "id": "7",
         "DealImages": [],
         "mystatus": "user",
         "title": "머리끈 소분 판매",
@@ -180,7 +180,7 @@ class ContentsRepository {
     ],
     "bangbae": [
       {
-        "cid": "10",
+        "id": "10",
         "DealImages": [
           {"dealImage": "assets/images/maltesers.png"}
         ],
@@ -196,7 +196,7 @@ class ContentsRepository {
         "sellerAddress": "역삼 2동",
       },
       {
-        "cid": "11",
+        "id": "11",
         "DealImages": [
           {"dealImage": "assets/images/butter.png"}
         ],
@@ -212,7 +212,7 @@ class ContentsRepository {
         "sellerAddress": "역삼 2동",
       },
       {
-        "cid": "12",
+        "id": "12",
         "DealImages": [
           {"dealImage": "assets/images/flipflop.jpeg"}
         ],

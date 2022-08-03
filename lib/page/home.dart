@@ -38,9 +38,8 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    currentLocation = "yeoksam";
+    currentLocation = "yeoksam"; // 초기에 앱이 빌드될 때, 현재의 위치 받아오는 곳
   }
 
   @override
@@ -52,55 +51,85 @@ class _HomeState extends State<Home> {
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
-      leading: IconButton(
-        onPressed: () {
-          print(DateTime.now());
-          print(MyDateUtils.dateTimeDifference('2022-07-30T20:37:12.000Z'));
-          print(MyDateUtils.dateTimeDifference('2022-07-30 20:37:12'));
-          print(DateFormat('hh: MM')
-              .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
-        },
-        icon: const FaIcon(FontAwesomeIcons.locationDot),
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(),
-        // SvgPicture.asset(
-        //   "assets/svg/logo.svg",
-        //   width: 100,
-        // )
-      ), // logo, hamburger,
+      // leading: IconButton(
+      //   onPressed: () {
+      //     print(DateTime.now());
+      //     print(MyDateUtils.dateTimeDifference(
+      //         DateTime.now(), '2022-07-30T20:37:12.000Z'));
+      //     print(MyDateUtils.dateTimeDifference(
+      //         DateTime.now(), '2022-07-30 20:37:12'));
+      //     print(DateFormat('hh: MM')
+      //         .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
+      //   },
+      //   icon: const FaIcon(
+      //     FontAwesomeIcons.locationDot,
+      //     size: 18,
+      //   ),
+      //   padding: EdgeInsets.zero,
+      //   constraints: const BoxConstraints(),
+      //   // SvgPicture.asset(
+      //   //   "assets/svg/logo.svg",
+      //   //   width: 100,
+      //   // )
+      // ), // logo, hamburger,
       title: GestureDetector(
         onTap: () {
           print("click");
+          setState(() {
+            currentLocation = ""; // 새로고침했을 때 받아오는 현재 위치
+          });
         },
-        child: Row(children: [
-          PopupMenuButton<String>(
-            offset: const Offset(-5, 30),
-            shape: ShapeBorder.lerp(
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                1),
-            onSelected: (String where) {
-              print(where);
-              setState(() {
-                currentLocation = where;
-              });
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem(value: "yeoksam", child: Text("역삼동")),
-                const PopupMenuItem(value: "bangbae", child: Text("방배동")),
-              ];
-            },
-            child: Row(
-              children: [
-                Text(locationTypeToString[currentLocation] ?? ""),
-                const Icon(Icons.arrow_drop_down_rounded),
-              ],
+        child: Padding(
+          padding: const EdgeInsets.only(left: 15.0),
+          child: Row(children: [
+            Text(locationTypeToString[currentLocation] ?? ""),
+            const SizedBox(
+              width: 10,
             ),
-          ),
-        ]),
+            const FaIcon(
+              FontAwesomeIcons.rotateRight,
+              size: 17,
+            ),
+            // PopupMenuButton<String>(
+            //   offset: const Offset(-5, 30),
+            //   shape: ShapeBorder.lerp(
+            //       RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(10.0)),
+            //       RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(10.0)),
+            //       1),
+            //   onSelected: (String where) {
+            //     print(where);
+            //     setState(() {
+            //       currentLocation = where;
+            //     });
+            //   },
+            //   itemBuilder: (BuildContext context) {
+            //     return [
+            //       const PopupMenuItem(value: "yeoksam", child: Text("역삼동")),
+            //       const PopupMenuItem(value: "bangbae", child: Text("방배동")),
+            //     ];
+            //   },
+            //   child: Row(
+            //     children: [
+            //       Text(locationTypeToString[currentLocation] ?? ""),
+            //       const Icon(Icons.arrow_drop_down_rounded),
+            //     ],
+            //   ),
+            // ),
+            // IconButton(
+            //     onPressed: () {
+            //       // 새로고침 버튼을 눌렀을 때, 위치가 바뀌도록 처리
+            //       setState(() {
+            //         currentLocation = "bangbae";
+            //       });
+            //     },
+            //     icon: const FaIcon(
+            //       FontAwesomeIcons.rotateRight,
+            //       size: 18,
+            //     ))
+          ]),
+        ),
       ), // name of the app
       actions: [
         IconButton(
@@ -198,7 +227,7 @@ class _HomeState extends State<Home> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               child: Hero(
                 // 사진 확대되는 애니메이션
-                tag: productContents["cid"].toString(),
+                tag: productContents["id"].toString(),
                 child: Container(
                   color: const Color(0xfff0f0ef),
                   width: 110,
@@ -230,7 +259,7 @@ class _HomeState extends State<Home> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               child: Hero(
                 // 사진 확대되는 애니메이션
-                tag: productContents["cid"].toString(),
+                tag: productContents["id"].toString(),
                 child: Image.asset(
                   productContents["DealImages"][0]["dealImage"].toString(),
                   width: 110,
@@ -247,7 +276,7 @@ class _HomeState extends State<Home> {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               child: Hero(
                 // 사진 확대되는 애니메이션
-                tag: productContents["cid"].toString(),
+                tag: productContents["id"].toString(),
                 child: Image.asset(
                   productContents["DealImages"][0]["dealImage"].toString(),
                   width: 110,
@@ -567,6 +596,7 @@ class _HomeState extends State<Home> {
                               children: [
                                 Text(
                                     MyDateUtils.dateTimeDifference(
+                                        DateTime.now(),
                                         dataContents[index]["createdAt"]),
                                     // "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
                                     style: TextStyle(
