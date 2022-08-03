@@ -233,6 +233,7 @@ class ContentsRepository {
   Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
     // API 통신 location 값을 보내주면서
+    print("loadContentsfrom location is ${location}");
     String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,

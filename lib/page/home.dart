@@ -20,6 +20,7 @@ import '../utils/price_utils.dart';
 import 'create.dart';
 
 // develop
+late String currentLocation;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -29,7 +30,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late String currentLocation;
   final Map<String, String> locationTypeToString = {
     "yeoksam": "역삼동",
     "bangbae": "방배동",
@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    currentLocation = "yeoksam"; // 초기에 앱이 빌드될 때, 현재의 위치 받아오는 곳
+    currentLocation = "역삼1동"; // 초기에 앱이 빌드될 때, 현재의 위치 받아오는 곳
   }
 
   @override
@@ -76,13 +76,16 @@ class _HomeState extends State<Home> {
         onTap: () {
           print("click");
           setState(() {
-            currentLocation = ""; // 새로고침했을 때 받아오는 현재 위치
+            //currentLocation = "";
+            setUserLocation(); // 새로고침했을 때 받아오는 현재 위치
           });
+          loadContents();
         },
         child: Padding(
           padding: const EdgeInsets.only(left: 15.0),
           child: Row(children: [
-            Text(locationTypeToString[currentLocation] ?? ""),
+            Text(currentLocation),
+            // Text(locationTypeToString[currentLocation] ?? ""),
             const SizedBox(
               width: 10,
             ),
@@ -700,10 +703,25 @@ class _HomeState extends State<Home> {
 
 //   //return list['result']['nick'];
 // }
-void _getUserLocation() async {
-  final prefs = await SharedPreferences.getInstance();
-  print(prefs.getString('tmpUserToken'));
-  String? userToken = prefs.getString('tmpUserToken');
+void setUserLocation() async {
+  print("setUserLocation was called");
+  Map<String, dynamic> getTokenPayload = await userInfoRepository.getUserInfo();
+  String userId = getTokenPayload['id'].toString();
 
-  if (userToken != null) {}
+  String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  var response = await http.post(url);
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  if (list.length == 0) {
+    print("length of list is 0");
+  } else {
+    String location = list['result']['location'];
+    final tmp = location.split(" ");
+
+    currentLocation = tmp[2];
+    print(list['result']['location']);
+  }
 }

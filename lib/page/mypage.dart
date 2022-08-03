@@ -9,6 +9,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
@@ -272,245 +273,246 @@ class _MyPageState extends State<MyPage> {
   }
 
   _loadOngoing() async {
-    final pref = await SharedPreferences.getInstance();
-    final userId = pref.getString("tmpUserId");
-    print("load ongoing");
-    print(userId);
-
-    if (userId != null) {
-      return ongoingRepository.loadOngoing("2");
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
+    if (userToken != null) {
+      String userId = Jwt.parseJwt(userToken)['id'].toString();
+      print('loadOngoing called where userID is ${userId}');
+      return ongoingRepository.loadOngoing(userId);
     }
-    return null;
-    //return ongoingRepository.loadOngoing(userId);
   }
 
-  _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
-    return Expanded(
-      child: ListView.separated(
-        shrinkWrap:
-            true, // Listview widget 이 children's size 까지 shrink down 하도록 함
-        padding: const EdgeInsets.symmetric(horizontal: 0),
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭 가능하도록 만든다.
-            onTap: () {
-              // 페이지 전환
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return DetailContentView(
-                  data: dataOngoing[index],
-                );
-              }));
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
+    _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
+      return Expanded(
+        child: ListView.separated(
+          shrinkWrap:
+              true, // Listview widget 이 children's size 까지 shrink down 하도록 함
+          padding: const EdgeInsets.symmetric(horizontal: 0),
+          itemBuilder: (BuildContext context, int index) {
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭 가능하도록 만든다.
+              onTap: () {
+                // 페이지 전환
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return DetailContentView(
+                    data: dataOngoing[index],
+                  );
+                }));
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: _colorMyStatus(dataOngoing[index]
+                                        ["mystatus"]
+                                    .toString()
+                                    .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
+                              ),
+                              // const Color.fromARGB(255, 137, 82, 205)),
+                              child: Text(
+                                dataOngoing[index]["mystatus"]
+                                    .toString()
+                                    .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                              )),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(dataOngoing[index]
-                                      ["mystatus"]
-                                  .toString()
-                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
+                              color: _colorStatus(
+                                  dataOngoing[index]["status"].toString()),
                             ),
                             // const Color.fromARGB(255, 137, 82, 205)),
-                            child: Text(
-                              dataOngoing[index]["mystatus"]
-                                  .toString()
-                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
-                            )),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: _colorStatus(
-                                dataOngoing[index]["status"].toString()),
+                            child: _currentTotal(dataOngoing[index]),
+                            // Text(
+                            //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
+                            //   style: const TextStyle(
+                            //       fontSize: 12,
+                            //       fontWeight: FontWeight.w500,
+                            //       color: Colors.white),
+                            // )
                           ),
-                          // const Color.fromARGB(255, 137, 82, 205)),
-                          child: _currentTotal(dataOngoing[index]),
+                          const SizedBox(
+                            width: 5,
+                          ),
                           // Text(
-                          //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
+                          //   dataOngoing[index]["date"].toString(),
                           //   style: const TextStyle(
-                          //       fontSize: 12,
-                          //       fontWeight: FontWeight.w500,
-                          //       color: Colors.white),
-                          // )
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        // Text(
-                        //   dataOngoing[index]["date"].toString(),
-                        //   style: const TextStyle(
-                        //       fontSize: 18, fontWeight: FontWeight.w500),
-                        // ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    Text(
-                      dataOngoing[index]["title"].toString(),
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
-                          child: FaIcon(
-                            FontAwesomeIcons.calendar,
-                            size: 12,
+                          //       fontSize: 18, fontWeight: FontWeight.w500),
+                          // ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 7,
+                      ),
+                      Text(
+                        dataOngoing[index]["title"].toString(),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                            child: FaIcon(
+                              FontAwesomeIcons.calendar,
+                              size: 12,
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 6,
-                        ),
-                        Text(
-                          MyDateUtils.formatMyDateTime(
-                              dataOngoing[index]["dealDate"].toString()),
-                          style: const TextStyle(
-                            fontSize: 13,
+                          const SizedBox(
+                            width: 6,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
-                          child: FaIcon(
-                            FontAwesomeIcons.locationDot,
-                            size: 12,
+                          Text(
+                            MyDateUtils.formatMyDateTime(
+                                dataOngoing[index]["dealDate"].toString()),
+                            style: const TextStyle(
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 6,
-                        ),
-                        Text(
-                          dataOngoing[index]["dealPlace"].toString(),
-                          style: const TextStyle(
-                            fontSize: 13,
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                            child: FaIcon(
+                              FontAwesomeIcons.locationDot,
+                              size: 12,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(
+                            width: 6,
+                          ),
+                          Text(
+                            dataOngoing[index]["dealPlace"].toString(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return Container(
-            height: 10,
-            color:
-                // const Color(0xffF0EBE0),
-                const Color(0xfff0f0ef),
-          );
-        },
-        itemCount: dataOngoing.length,
-      ),
-    );
-  }
-
-  Widget _bodyWidget() {
-    return FutureBuilder(
-        future: _loadOngoing(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(
-              child: CircularProgressIndicator(),
             );
-          }
-
-          if (snapshot.hasError) {
-            return const Center(
-              child: Text("데이터 오류"),
-            );
-          }
-
-          if (snapshot.hasData) {
+          },
+          separatorBuilder: (BuildContext context, int index) {
             return Container(
-              // margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _nickname(),
-                  _line(),
-                  _ongoingTitle(),
-                  _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
-                ],
-              ),
+              height: 10,
+              color:
+                  // const Color(0xffF0EBE0),
+                  const Color(0xfff0f0ef),
             );
-          }
+          },
+          itemCount: dataOngoing.length,
+        ),
+      );
+    }
 
-          return const Center(
-            child: Text("진행 중인 거래가 없습니다."),
-          );
-        });
-  }
+    Widget _bodyWidget() {
+      return FutureBuilder(
+          future: _loadOngoing(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-  @override
-  Widget build(BuildContext context) {
-    setUserNickname();
-    setUserLocation();
-    return Scaffold(
-      appBar: _appBarWidget(),
-      body: _bodyWidget(),
-    );
-  }
+            if (snapshot.hasError) {
+              return const Center(
+                child: Text("데이터 오류"),
+              );
+            }
 
-  void setUserNickname() async {
-    Map<String, dynamic> getTokenPayload =
-        await userInfoRepository.getUserInfo();
-    print("setUserNick was called");
-    print(getTokenPayload['nick']);
-    setUserNickName = getTokenPayload['nick'];
-    print("setUserNickName is ${setUserNickName}");
-  }
+            if (snapshot.hasData) {
+              return Container(
+                // margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    _nickname(),
+                    _line(),
+                    _ongoingTitle(),
+                    _makeOngoingList(
+                        snapshot.data as List<Map<String, dynamic>>),
+                  ],
+                ),
+              );
+            }
 
-  void setUserLocation() async {
-    print("setUserLocation was called");
-    Map<String, dynamic> getTokenPayload =
-        await userInfoRepository.getUserInfo();
-    String userId = getTokenPayload['id'].toString();
+            return const Center(
+              child: Text("진행 중인 거래가 없습니다."),
+            );
+          });
+    }
 
-    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.post(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) {
-      print("length of list is 0");
-    } else {
-      print(list);
+    @override
+    Widget build(BuildContext context) {
+      setUserNickname();
+      setUserLocation();
+      return Scaffold(
+        appBar: _appBarWidget(),
+        body: _bodyWidget(),
+      );
+    }
+
+    void setUserNickname() async {
+      Map<String, dynamic> getTokenPayload =
+          await userInfoRepository.getUserInfo();
+      print("setUserNick was called");
+      print(getTokenPayload['nick']);
+      setUserNickName = getTokenPayload['nick'];
+      print("setUserNickName is ${setUserNickName}");
+    }
+
+    void setUserLocation() async {
+      print("setUserLocation was called");
+      Map<String, dynamic> getTokenPayload =
+          await userInfoRepository.getUserInfo();
+      String userId = getTokenPayload['id'].toString();
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        print(list);
+      }
     }
   }
-}
+
