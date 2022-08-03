@@ -125,9 +125,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           width: 5,
                         ),
                         Text(
-                          MyDateUtils.dateTimeDifference(widget.data[firstIndex]
-                              [
-                              "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
+                          MyDateUtils.dateTimeDifference(
+                              DateTime.now(),
+                              widget.data[firstIndex][
+                                  "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
                           style:
                               const TextStyle(color: Colors.grey, fontSize: 12),
                         )
@@ -242,6 +243,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                     ),
                                     Text(
                                       MyDateUtils.dateTimeDifference(
+                                          DateTime.now(),
                                           widget.data[firstIndex]["Replies"]
                                               [secondIndex]["createdAt"]),
                                       style: const TextStyle(
@@ -541,18 +543,16 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     Map mapToSend = jsonDecode(jsonString);
     mapToSend['content'] = comment;
     mapToSend['parentId'] = parId;
-   
 
     if (userToken != null) {
       String tmpUrl = 'https://www.chocobread.shop/comments/reply/2';
       var url = Uri.parse(tmpUrl);
       var response = await http.post(url,
-       headers: {
-        'Authorization': userToken,
-      }, 
-      body: mapToSend);
+          headers: {
+            'Authorization': userToken,
+          },
+          body: mapToSend);
       print("response is ${response.body}");
-
     } else {
       print('failed to create comment');
     }
