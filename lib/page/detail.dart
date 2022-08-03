@@ -311,7 +311,9 @@ class _DetailContentViewState extends State<DetailContentView> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           Text(
-            "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+            MyDateUtils.dateTimeDifference(
+                DateTime.now(), widget.data["createdAt"]),
+            // "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}", //
             style: const TextStyle(fontSize: 12),
           ),
           const SizedBox(
@@ -469,7 +471,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       Text(
-                        "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+                        MyDateUtils.dateTimeDifference(DateTime.now(),
+                            dataComments[firstIndex]["createdAt"]),
+                        // "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 12),
                       )
@@ -563,7 +567,11 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     width: 5,
                                   ),
                                   Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                    MyDateUtils.dateTimeDifference(
+                                        DateTime.now(),
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["createdAt"]),
+                                    // "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
                                     style: const TextStyle(
                                         color: Colors.grey, fontSize: 12),
                                   )
