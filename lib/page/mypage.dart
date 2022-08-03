@@ -293,12 +293,16 @@ class _MyPageState extends State<MyPage> {
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(
-                                  dataOngoing[index]["mystatus"].toString()),
+                              color: _colorMyStatus(dataOngoing[index]
+                                      ["mystatus"]
+                                  .toString()
+                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
                             ),
                             // const Color.fromARGB(255, 137, 82, 205)),
                             child: Text(
-                              dataOngoing[index]["mystatus"].toString(),
+                              dataOngoing[index]["mystatus"]
+                                  .toString()
+                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
                               style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
