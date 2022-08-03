@@ -670,14 +670,10 @@ class _HomeState extends State<Home> {
 
 //   //return list['result']['nick'];
 // }
-void _getUserLocation()async{
+void _getUserLocation() async {
   final prefs = await SharedPreferences.getInstance();
   print(prefs.getString('tmpUserToken'));
   String? userToken = prefs.getString('tmpUserToken');
-  
-  if(userToken!=null){
-    
-  }
-  
 
+  if (userToken != null) {}
 }

@@ -61,8 +61,8 @@ class MyDateUtils {
   }
 
   static String dateTimeDifference(String dateString) {
-    var newDateString =
-        '${dateString.substring(0, 10)} ${dateString.substring(11, 23)}';
+    var newDateString = dateString;
+    // '${dateString.substring(0, 10)} ${dateString.substring(11, 23)}';
     DateTime dt = DateTime.parse(newDateString);
     DateTime now = DateTime.now();
     final seconds = now.difference(dt).inSeconds;
