@@ -1,6 +1,7 @@
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/terms.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 // import 'package:webview_flutter/webview_flutter.dart';
 import '../style/colorstyles.dart';
 import 'terms.dart';
@@ -92,7 +93,21 @@ class _TermsCheckState extends State<TermsCheck> {
                 ? const BorderSide(width: 1.0, color: ColorStyle.mainColor)
                 : const BorderSide(width: 1.0, color: Colors.grey),
           ),
-          onPressed: isChecked ? () {} : null,
+          onPressed: isChecked
+              ? () {
+                  Future<bool> permission() async {
+                    Map<Permission, PermissionStatus> status = await [
+                      Permission.location
+                    ].request(); // [] 권한배열에 권한을 작성
+
+                    if (await Permission.location.isGranted) {
+                      return Future.value(true);
+                    } else {
+                      return Future.value(false);
+                    }
+                  }
+                }
+              : null,
           child: const Text("다음")),
     );
   }
