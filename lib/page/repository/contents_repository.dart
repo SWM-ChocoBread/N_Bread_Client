@@ -8,8 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmljayI6Iuq2jO2DnO2YhCIsInByb3ZpZGVyIjoibmF2ZXIiLCJpYXQiOjE2NTkzNzQ1MjAsImlzcyI6ImNob2NvQnJlYWQifQ.QfJJjG3ntPPn0lHzHXCIjnw7KVvV5GfGRwUxpqYci6U');
-
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwibmljayI6Imt5Z2t0aDEyMzQ1Njc4NSIsInByb3ZpZGVyIjoibG9jYWwiLCJpYXQiOjE2NTk1MTEzNTksImlzcyI6ImNob2NvQnJlYWQifQ.tOYT6wL3oHnbaYyZZUi8vwmSNM4nNhuVBDvaGc4dGWc');
 
   //return prefs;
 }
@@ -231,37 +230,28 @@ class ContentsRepository {
     ],
   };
 
-  Future<Map<String, dynamic>> _callAPI(String location) async {
-    prefTest();
+  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
+      String location) async {
+    // API 통신 location 값을 보내주면서
     String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,
     );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) print("length of list is 0");
-    return list;
-  }
-
-  // void _callAPI2() async {
-  //   String uu = 'http://localhost:5005/auth/kakao';
-  //   var uu2 = Uri.parse(uu);
-  //   var res2 = await http.get(uu2);
-  //   //String responseBody2 = utf8.decode(res2.bodyBytes);
-  //   //Map<String, dynamic> tmp = jsonDecode(responseBody2);
-  // }
-
-  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
-      String location) async {
-    // API 통신 location 값을 보내주면서
-    Map<String, dynamic> getData = await _callAPI(location);
-
-    // _callAPI2();
-    await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
-    for (int i = 0; i < getData["result"]["capsule"].length; i++) {
-      tmp.add(getData["result"]["capsule"][i]);
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
+    if (userToken != null) {
+      var response = await http.get(url, headers: {'Authorization': userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) print("length of list is 0");
+
+      for (int i = 0; i < list["result"]["capsule"].length; i++) {
+        tmp.add(list["result"]["capsule"][i]);
+      }
+      print("loadContents called");
+      print(tmp);
     }
     return tmp;
   }
