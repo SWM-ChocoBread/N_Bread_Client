@@ -1,7 +1,7 @@
 class OngoingRepository {
   List<Map<String, dynamic>> dataOngoing = [
     {
-      "cid": "0",
+      "id": "0",
       "DealImages": [
         {"dealImage": "assets/images/maltesers.png"}
       ],
@@ -18,10 +18,10 @@ class OngoingRepository {
       "sellerNickname": "역삼동 은이님",
       "sellerAddress": "역삼 2동",
       "contents": "몰티져스 소분 구매하실 분 찾습니다! \n매너 거래 원합니다!",
-      "mystatus": "제안",
+      "mystatus": "제안자",
     },
     {
-      "cid": "1",
+      "id": "1",
       "DealImages": [
         {"dealImage": "assets/images/butter.png"}
       ],
@@ -38,10 +38,10 @@ class OngoingRepository {
       "sellerNickname": "역삼동 kth",
       "sellerAddress": "역삼 2동",
       "contents": "",
-      "mystatus": "참여",
+      "mystatus": "참여자",
     },
     {
-      "cid": "3",
+      "id": "3",
       "DealImages": [
         {"dealImage": "assets/images/otg.png"}
       ],
@@ -57,10 +57,10 @@ class OngoingRepository {
       "place": "올리브영 선릉아이타워점",
       "sellerNickname": "역삼동 kth",
       "sellerAddress": "역삼 2동",
-      "mystatus": "참여",
+      "mystatus": "참여자",
     },
     {
-      "cid": "7",
+      "id": "7",
       "DealImages": [
         {"dealImage": "assets/images/xexymix.png"}
       ],
@@ -76,10 +76,10 @@ class OngoingRepository {
       "place": "인터밸리 푸드코트 앞",
       "sellerNickname": "역삼동 kite",
       "sellerAddress": "역삼 2동",
-      "mystatus": "제안",
+      "mystatus": "제안자",
     },
     {
-      "cid": "8",
+      "id": "8",
       "DealImages": [],
       "title": "엄청나게 엄청나게 긴 제목 테스트 젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
       "link":
@@ -93,7 +93,7 @@ class OngoingRepository {
       "place": "선릉과 정릉 앞",
       "sellerNickname": "역삼동 ㅇㅊㅇ",
       "sellerAddress": "역삼 2동",
-      "mystatus": "제안",
+      "mystatus": "제안자",
     }
   ];
 
