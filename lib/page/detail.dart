@@ -38,6 +38,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   late Size size;
   List<Map<String, String>> imgList = []; // imgList 선언
   late int _current; // _current 변수 선언
+  String currentUserId = "";
+
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
   String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
@@ -445,7 +447,46 @@ class _DetailContentViewState extends State<DetailContentView> {
     }
   }
 
-  _loadComments() {
+  Widget _deleteComments() {
+    if (widget.data['userId'] == currentUserId) {
+      // 만약 유저가 해당 댓글을 쓴 사람인 경우
+      TextButton(
+          onPressed: () {
+            // 삭제하기 버튼을 눌렀을 경우 댓글 삭제API
+            deleteComment(widget.data['id']);
+          },
+          child: const Text("삭제하기",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              )));
+    }
+
+    return Container();
+  }
+
+  Widget _deleteReply() {
+    if (widget.data['Replies']['userId'] == currentUserId) {
+      // 만약 유저가 해당 대댓글을 쓴 사람인 경우
+      TextButton(
+          onPressed: () {
+            // 삭제하기 버튼을 눌렀을 경우 대댓글삭제API
+            deleteReply(widget.data['Replies']['id'].toString());
+          },
+          child: const Text("삭제하기",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              )));
+    }
+    return Container();
+  }
+
+  _loadComments() async {
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    currentUserId = getTokenPayload['id'];
+
     return CommentsRepository().loadComments(widget.data['id'].toString());
   }
 
@@ -517,31 +558,36 @@ class _DetailContentViewState extends State<DetailContentView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 19.0),
-                    child: TextButton(
-                        onPressed: () {
-                          // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
-                          // setState(() {
-                          //   enablecommentsbox = true;
-                          // });
-                          // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
+                    child: Row(
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
+                              // setState(() {
+                              //   enablecommentsbox = true;
+                              // });
+                              // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
 
-                          // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return DetailCommentsView(
-                                data: dataComments,
-                                replyTo: dataComments[firstIndex]["User"]
-                                    ["nick"],
-                                replyToId:
-                                    dataComments[firstIndex]["id"].toString(),
-                                id: widget.data["id"].toString());
-                          }));
-                        },
-                        child: const Text("답글쓰기",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ))),
+                              // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                return DetailCommentsView(
+                                    data: dataComments,
+                                    replyTo: dataComments[firstIndex]["User"]
+                                        ["nick"],
+                                    replyToId: dataComments[firstIndex]["id"]
+                                        .toString(),
+                                    id: widget.data["id"].toString());
+                              }));
+                            },
+                            child: const Text("답글쓰기",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ))),
+                        _deleteComments()
+                      ],
+                    ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 25),
@@ -620,7 +666,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                               ),
                               const SizedBox(
                                 height: 15,
-                              )
+                              ),
+
+                              _deleteReply(),
                               // Padding(
                               //   padding: const EdgeInsets.only(left: 19.0),
                               //   child: TextButton(
@@ -1187,6 +1235,40 @@ class _DetailContentViewState extends State<DetailContentView> {
 
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
+  }
+
+  void deleteComment(String commentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString("tmpUserToken");
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/comments/" + commentId;
+
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
+  }
+
+  void deleteReply(String replyId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString("tmpUserToken");
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/comments/reply/" + replyId;
+
       var url = Uri.parse(
         tmpUrl,
       );

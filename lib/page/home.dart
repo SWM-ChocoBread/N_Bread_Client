@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    currentLocation = "역삼1동"; // 초기에 앱이 빌드될 때, 현재의 위치 받아오는 곳
+    currentLocation = "yeoksam"; // 초기에 앱이 빌드될 때, 현재의 위치 받아오는 곳
   }
 
   @override
