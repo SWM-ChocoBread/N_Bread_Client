@@ -704,9 +704,10 @@ class _HomeState extends State<Home> {
 //   //return list['result']['nick'];
 // }
 void setUserLocation() async {
-  print("setUserLocation was called");
   Map<String, dynamic> getTokenPayload = await userInfoRepository.getUserInfo();
+  print('getTokenPayload is ${getTokenPayload}');
   String userId = getTokenPayload['id'].toString();
+  print("setUserLocation was called with userId is ${userId}");
 
   String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
   var url = Uri.parse(

@@ -429,9 +429,13 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _userStatusChip(String userstatus) {
-    if (userstatus == "user") {
-      return Container();
-    } else {
+    // if (userstatus == "user") {
+    //   return Container(
+    //     width: 0,
+    //     height: 0,
+    //   );
+    // } else {
+    if (userstatus != "user") {
       return Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
           decoration: BoxDecoration(
@@ -445,15 +449,17 @@ class _DetailContentViewState extends State<DetailContentView> {
                 fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
           ));
     }
+    return const SizedBox.shrink();
   }
 
-  Widget _deleteComments() {
-    if (widget.data['userId'] == currentUserId) {
-      // 만약 유저가 해당 댓글을 쓴 사람인 경우
-      TextButton(
+  Widget _deleteComments(int userId, int commentsId) {
+    if (userId.toString() == currentUserId) {
+      // 만약 현재 유저가 해당 댓글을 쓴 사람인 경우
+      return TextButton(
           onPressed: () {
             // 삭제하기 버튼을 눌렀을 경우 댓글 삭제API
-            deleteComment(widget.data['id']);
+            deleteComment(commentsId.toString());
+            print(commentsId);
           },
           child: const Text("삭제하기",
               style: TextStyle(
@@ -465,13 +471,13 @@ class _DetailContentViewState extends State<DetailContentView> {
     return Container();
   }
 
-  Widget _deleteReply() {
-    if (widget.data['Replies']['userId'] == currentUserId) {
-      // 만약 유저가 해당 대댓글을 쓴 사람인 경우
-      TextButton(
+  Widget _deleteReply(int repliesUserId, int repliesId) {
+    if (repliesUserId.toString() == currentUserId) {
+      // 만약 현재 유저가 해당 대댓글을 쓴 사람인 경우
+      return TextButton(
           onPressed: () {
             // 삭제하기 버튼을 눌렀을 경우 대댓글삭제API
-            deleteReply(widget.data['Replies']['id'].toString());
+            deleteReply(repliesId.toString());
           },
           child: const Text("삭제하기",
               style: TextStyle(
@@ -485,7 +491,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   _loadComments() async {
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
-    currentUserId = getTokenPayload['id'];
+    currentUserId = getTokenPayload['id'].toString();
 
     return CommentsRepository().loadComments(widget.data['id'].toString());
   }
@@ -585,7 +591,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   color: Colors.grey,
                                   fontSize: 12,
                                 ))),
-                        _deleteComments()
+                        _deleteComments(dataComments[firstIndex]["userId"],
+                            dataComments[firstIndex]["id"]),
                       ],
                     ),
                   ),
@@ -668,7 +675,11 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 height: 15,
                               ),
 
-                              _deleteReply(),
+                              _deleteReply(
+                                  dataComments[firstIndex]["Replies"]
+                                      [secondIndex]["userId"],
+                                  dataComments[firstIndex]["Replies"]
+                                      [secondIndex]["id"]),
                               // Padding(
                               //   padding: const EdgeInsets.only(left: 19.0),
                               //   child: TextButton(

@@ -463,7 +463,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
                             if (toWhom == "") {
                               // 댓글을 썼을 경우
-                              print("댓글을 썼을 경우");
+                              print("댓글을 썼을 경우 댓글 내용은 ${commentToServer}");
                               createComment(commentToServer);
                             } else {
                               // 대댓글을 썼을 경우, 서버에 보내는 API
@@ -528,6 +528,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
+          print("create comment functon's token is ${userToken}");
+
+
+      print("create comment functon's response is ${response.body}");
     } else {
       print('failed to create comment');
     }
@@ -545,7 +549,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     mapToSend['parentId'] = parId;
 
     if (userToken != null) {
-      String tmpUrl = 'https://www.chocobread.shop/comments/reply/2';
+      //아래 링크 2 대신에 게시글 번호 (dealId가져올 수 있어?)
+      String tmpUrl = 'https://www.chocobread.shop/comments/reply/${widget.id}';
       var url = Uri.parse(tmpUrl);
       var response = await http.post(url,
           headers: {
