@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
@@ -472,6 +473,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             }
                             print(
                                 "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+                            // Navigator.push(context, MaterialPageRoute(
+                            //     builder: (BuildContext context) {
+                            //   return DetailContentView(data: {},);
+                            // }));
                             Navigator.pop(
                                 context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
                           }
@@ -528,8 +533,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
-          print("create comment functon's token is ${userToken}");
-
+      print("create comment functon's token is ${userToken}");
 
       print("create comment functon's response is ${response.body}");
     } else {

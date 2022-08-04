@@ -452,6 +452,14 @@ class _DetailContentViewState extends State<DetailContentView> {
     return const SizedBox.shrink();
   }
 
+  bool _showDeletedButton(String contents) {
+    if (contents == "삭제된 댓글입니다.") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   Widget _deleteComments(int userId, int commentsId) {
     if (userId.toString() == currentUserId) {
       // 만약 현재 유저가 해당 댓글을 쓴 사람인 경우
@@ -459,6 +467,9 @@ class _DetailContentViewState extends State<DetailContentView> {
           onPressed: () {
             // 삭제하기 버튼을 눌렀을 경우 댓글 삭제API
             deleteComment(commentsId.toString());
+            setState(() {
+              _commentsWidget();
+            });
             print(commentsId);
           },
           child: const Text("삭제하기",
@@ -478,6 +489,9 @@ class _DetailContentViewState extends State<DetailContentView> {
           onPressed: () {
             // 삭제하기 버튼을 눌렀을 경우 대댓글삭제API
             deleteReply(repliesId.toString());
+            setState(() {
+              _commentsWidget();
+            });
           },
           child: const Text("삭제하기",
               style: TextStyle(
@@ -591,8 +605,11 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   color: Colors.grey,
                                   fontSize: 12,
                                 ))),
-                        _deleteComments(dataComments[firstIndex]["userId"],
-                            dataComments[firstIndex]["id"]),
+                        _showDeletedButton(dataComments[firstIndex]["content"])
+                            ? _deleteComments(
+                                dataComments[firstIndex]["userId"],
+                                dataComments[firstIndex]["id"])
+                            : Container(),
                       ],
                     ),
                   ),
@@ -674,12 +691,14 @@ class _DetailContentViewState extends State<DetailContentView> {
                               const SizedBox(
                                 height: 15,
                               ),
-
-                              _deleteReply(
-                                  dataComments[firstIndex]["Replies"]
-                                      [secondIndex]["userId"],
-                                  dataComments[firstIndex]["Replies"]
-                                      [secondIndex]["id"]),
+                              _showDeletedButton(dataComments[firstIndex]
+                                      ["Replies"][secondIndex]["content"])
+                                  ? _deleteReply(
+                                      dataComments[firstIndex]["Replies"]
+                                          [secondIndex]["userId"],
+                                      dataComments[firstIndex]["Replies"]
+                                          [secondIndex]["id"])
+                                  : Container(),
                               // Padding(
                               //   padding: const EdgeInsets.only(left: 19.0),
                               //   child: TextButton(
@@ -924,7 +943,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                     replyToId: "",
                     id: widget.data["id"].toString(),
                   );
-                }));
+                })).then((_) => setState(() {
+                      _commentsWidget();
+                    })); // 댓글 상세 페이지(comments.dart)로 넘어갔다가 돌아올 때 다시 댓글 로드
               },
               decoration: InputDecoration(
                 hintText: "댓글을 입력해주세요.",
@@ -1206,6 +1227,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
+    print("***build***");
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -1271,6 +1293,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
+      // await _loadComments();
     }
   }
 
@@ -1288,6 +1311,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
+      // await _loadComments();
     }
   }
 }
