@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -21,6 +22,9 @@ class customFormChange extends StatefulWidget {
   State<customFormChange> createState() => _customFormChangeState();
 }
 
+var jsonString =
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
+
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
   final ImagePicker imagePickerFromGallery =
@@ -40,19 +44,19 @@ class _customFormChangeState extends State<customFormChange> {
     productNameController.text = widget.data["title"];
     productLinkController.text = widget.data["link"];
     totalPriceController.text =
-        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"]);
-    numOfParticipantsController.text = widget.data["totalMember"];
+        PriceUtils.calcStringToWonOnly(widget.data["totalPrice"].toString());
+    numOfParticipantsController.text = widget.data["totalMember"].toString();
     dateController.text = MyDateUtils.formatMyDate(
         widget.data["dealDate"]); // 서버에서 보내는 형식을 보고 수정할 것!
     timeController.text = MyDateUtils.formatMyTime(widget.data["dealDate"]);
-    placeController.text = widget.data["place"];
-    extraController.text = widget.data["contents"];
+    placeController.text = widget.data["place"].toString();
+    extraController.text = widget.data["contents"].toString();
 
     totalPrice = widget
-        .data["totalPrice"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+        .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
     numOfParticipants = widget
-        .data["totalMember"]; // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+        .data["totalMember"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(numOfParticipants);
     date = widget.data["dealDate"].substring(0, 10);
     print(date);
@@ -89,6 +93,8 @@ class _customFormChangeState extends State<customFormChange> {
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
+  String productDate = "";
+  String dateToSend = "";
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
@@ -389,6 +395,7 @@ class _customFormChangeState extends State<customFormChange> {
         // print(totalprice);
         setState(() {
           totalPrice = totalprice;
+          print("totalprice is value ${totalprice}");
           totalPriceController.text =
               PriceUtils.calcStringToWonOnly(totalprice);
         });
@@ -519,6 +526,8 @@ class _customFormChangeState extends State<customFormChange> {
                 DateTime.now().day + 4));
         if (pickedDate != null) {
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
+          String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
+          dateToSend += formattedDate2;
           String? weekday = {
             "Mon": "월",
             "Tue": "화",
@@ -586,6 +595,9 @@ class _customFormChangeState extends State<customFormChange> {
             "AM": "오전",
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          String formattedTime2 = DateFormat.Hm().format(parsedTime);
+          dateToSend += " ";
+          dateToSend += formattedTime2;
 
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";

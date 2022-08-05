@@ -103,6 +103,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.7.0):
     - GoogleUtilities/Logger
+
   - image_picker_ios (0.0.1):
     - Flutter
   - nanopb (2.30909.0):

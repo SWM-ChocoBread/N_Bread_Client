@@ -1,13 +1,28 @@
-import 'package:chocobread/style/colorstyles.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ui';
 
+import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
+
+var jsonString = '{"content":""}';
 
 class DetailCommentsView extends StatefulWidget {
   List<Map<String, dynamic>> data;
-  DetailCommentsView({Key? key, required this.data, required this.replyTo})
+  DetailCommentsView(
+      {Key? key,
+      required this.data,
+      required this.replyTo,
+      required this.replyToId,
+      required this.id})
       : super(key: key);
   String replyTo;
+  String replyToId;
+  String id;
 
   @override
   State<DetailCommentsView> createState() => _DetailCommentsViewState();
@@ -15,8 +30,10 @@ class DetailCommentsView extends StatefulWidget {
 
 class _DetailCommentsViewState extends State<DetailCommentsView> {
   final globalKeysOut = <GlobalKey>[];
+  // globalKeysOut.add(GlobalKey());
   // int heightcontroller = 55;
   String replyToHere = "";
+  String replyToHereId = "";
   TextEditingController commentController =
       TextEditingController(); // 댓글에 붙는 controller
   String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 댓글 저장하기
@@ -75,7 +92,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           itemBuilder: (BuildContext context, int firstIndex) {
             globalKeysOut.add(GlobalKey());
             return Container(
-                key: globalKeysOut[widget.data[firstIndex]["id"]],
+                key: globalKeysOut[
+                    firstIndex], // widget.data[firstIndex]["id"] - 1
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -87,7 +105,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                         Icon(
                           Icons.circle,
                           color: _colorUserStatus(
-                              widget.data[firstIndex]["userStatus"]),
+                              widget.data[firstIndex]["User"]["userStatus"]),
                           // size: 30,
                         ),
                         const SizedBox(
@@ -100,13 +118,17 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                         const SizedBox(
                           width: 5,
                         ),
-                        _userStatusChip(
-                            widget.data[firstIndex]["userStatus"].toString()),
+                        _userStatusChip(widget.data[firstIndex]["User"]
+                                ["userStatus"]
+                            .toString()),
                         const SizedBox(
                           width: 5,
                         ),
                         Text(
-                          "${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}",
+                          MyDateUtils.dateTimeDifference(
+                              DateTime.now(),
+                              widget.data[firstIndex][
+                                  "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
                           style:
                               const TextStyle(color: Colors.grey, fontSize: 12),
                         )
@@ -153,9 +175,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             // }));
 
                             // 답글쓰기 버튼을 눌렀을 때
-                            final targetcomments =
-                                globalKeysOut[widget.data[firstIndex]["id"]]
-                                    .currentContext;
+                            final targetcomments = globalKeysOut[firstIndex]
+                                .currentContext; // widget.data[firstIndex]["id"]
                             if (targetcomments != null) {
                               Scrollable.ensureVisible(targetcomments,
                                   duration: const Duration(milliseconds: 600),
@@ -163,6 +184,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                               setState(() {
                                 replyToHere =
                                     "${widget.data[firstIndex]["User"]["nick"]}";
+                                replyToHereId =
+                                    widget.data[firstIndex]["id"].toString();
                               });
                             }
                           },
@@ -195,9 +218,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                   children: [
                                     Icon(
                                       Icons.circle,
-                                      color: _colorUserStatus(
-                                          widget.data[firstIndex]["Replies"]
-                                              [secondIndex]["userStatus"]),
+                                      color: _colorUserStatus(widget
+                                              .data[firstIndex]["Replies"]
+                                          [secondIndex]["User"]["userStatus"]),
                                       // size: 30,
                                     ),
                                     const SizedBox(
@@ -212,14 +235,17 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       width: 5,
                                     ),
                                     _userStatusChip(widget.data[firstIndex]
-                                            ["Replies"][secondIndex]
+                                            ["Replies"][secondIndex]["User"]
                                             ["userStatus"]
                                         .toString()),
                                     const SizedBox(
                                       width: 5,
                                     ),
                                     Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                      MyDateUtils.dateTimeDifference(
+                                          DateTime.now(),
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["createdAt"]),
                                       style: const TextStyle(
                                           color: Colors.grey, fontSize: 12),
                                     )
@@ -303,6 +329,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 onPressed: () {
                   setState(() {
                     replyToHere = "";
+                    replyToHereId = "";
                   });
                 },
                 icon: const Icon(Icons.clear_rounded),
@@ -330,6 +357,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 onPressed: () {
                   setState(() {
                     widget.replyTo = "";
+                    widget.replyToId = "";
                   });
                 },
                 icon: const Icon(Icons.clear_rounded),
@@ -422,14 +450,28 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             // send 버튼을 누르면 작동한다.
                             // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
                             print(commentToServer + " 2"); //
+                            //print("createComment called");
+
+                            //createComment(commentToServer);
                             // print("$replyToHere");
                             // print("${widget.replyTo}");
-                            if (replyToHere != "") {
-                              toWhom = replyToHere;
-                            } else if (widget.replyTo != "") {
-                              toWhom = widget.replyTo;
+                            if (replyToHereId != "") {
+                              toWhom = replyToHereId;
+                            } else if (widget.replyToId != "") {
+                              toWhom = widget.replyToId;
                             }
-                            print(toWhom); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+
+                            if (toWhom == "") {
+                              // 댓글을 썼을 경우
+                              print("댓글을 썼을 경우");
+                              createComment(commentToServer);
+                            } else {
+                              // 대댓글을 썼을 경우, 서버에 보내는 API
+                              print("답글을 썼을 경우");
+                              createReply(commentToServer, toWhom);
+                            }
+                            print(
+                                "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
                             Navigator.pop(
                                 context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
                           }
@@ -464,5 +506,55 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
         bottomNavigationBar: _bottomTextfield(),
       ),
     );
+  }
+
+  //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
+  void createComment(String comment) async {
+    print("create Comment called");
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('tmpUserToken');
+
+    var jsonString = '{"content":""}';
+    Map mapToSend = jsonDecode(jsonString);
+    mapToSend['content'] = comment;
+
+    if (userToken != null) {
+      print("id is ${widget.id}");
+
+      String tmpUrl = 'https://www.chocobread.shop/comments/${widget.id}';
+      var url = Uri.parse(tmpUrl);
+      var response = await http.post(url,
+          headers: {
+            'Authorization': userToken,
+          },
+          body: mapToSend);
+    } else {
+      print('failed to create comment');
+    }
+  }
+
+  void createReply(String comment, String parId) async {
+    print("createReply called");
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('tmpUserToken');
+    print("create Reply usertoken is ${userToken}");
+
+    var jsonString = '{"content": "", "parentId": ""}';
+    Map mapToSend = jsonDecode(jsonString);
+    mapToSend['content'] = comment;
+    mapToSend['parentId'] = parId;
+
+    if (userToken != null) {
+      String tmpUrl = 'https://www.chocobread.shop/comments/reply/2';
+      var url = Uri.parse(tmpUrl);
+      var response = await http.post(url,
+          headers: {
+            'Authorization': userToken,
+          },
+          body: mapToSend);
+      print("response is ${response.body}");
+    } else {
+      print('failed to create comment');
+    }
   }
 }
