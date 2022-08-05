@@ -381,7 +381,12 @@ class _DetailContentViewState extends State<DetailContentView> {
                     ),
                     Text(
                       "게시글 신고하기",
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                        decorationThickness: 0.5,
+                      ),
                     ),
                   ],
                 ),
@@ -708,15 +713,17 @@ class _DetailContentViewState extends State<DetailContentView> {
           child: Row(
             children: [
               // icon name : attachment, link_rounded
-              const Icon(Icons.link_rounded),
-              const SizedBox(
-                width: 3,
-              ),
+              // const Icon(Icons.link_rounded),
+              // const SizedBox(
+              //   width: 3,
+              // ),
               Text(
                 widget.data["link"].toString(),
+                style: TextStyle(decoration: TextDecoration.underline),
                 softWrap: false,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+
                 // style: const TextStyle(
                 //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
               ),
