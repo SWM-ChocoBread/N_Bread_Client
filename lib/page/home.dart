@@ -20,6 +20,7 @@ import '../utils/price_utils.dart';
 import 'create.dart';
 
 // develop
+late String currentLocation;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -29,7 +30,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late String currentLocation;
   final Map<String, String> locationTypeToString = {
     "yeoksam": "역삼동",
     "bangbae": "방배동",
@@ -701,10 +701,26 @@ class _HomeState extends State<Home> {
 
 //   //return list['result']['nick'];
 // }
-void _getUserLocation() async {
-  final prefs = await SharedPreferences.getInstance();
-  print(prefs.getString('tmpUserToken'));
-  String? userToken = prefs.getString('tmpUserToken');
+void setUserLocation() async {
+  Map<String, dynamic> getTokenPayload = await userInfoRepository.getUserInfo();
+  print('getTokenPayload is ${getTokenPayload}');
+  String userId = getTokenPayload['id'].toString();
+  print("setUserLocation was called with userId is ${userId}");
 
-  if (userToken != null) {}
+  String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+  var url = Uri.parse(
+    tmpUrl,
+  );
+  var response = await http.post(url);
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  if (list.length == 0) {
+    print("length of list is 0");
+  } else {
+    String location = list['result']['location'];
+    final tmp = location.split(" ");
+
+    currentLocation = tmp[2];
+    print(list['result']['location']);
+  }
 }
