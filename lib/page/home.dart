@@ -8,6 +8,7 @@ import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -261,7 +262,7 @@ class _HomeState extends State<Home> {
               child: Hero(
                 // 사진 확대되는 애니메이션
                 tag: productContents["id"].toString(),
-                child: Image.asset(
+                child: ExtendedImage.network(
                   productContents["DealImages"][0]["dealImage"].toString(),
                   width: 110,
                   height: 110,
@@ -278,7 +279,7 @@ class _HomeState extends State<Home> {
               child: Hero(
                 // 사진 확대되는 애니메이션
                 tag: productContents["id"].toString(),
-                child: Image.asset(
+                child: ExtendedImage.network(
                   productContents["DealImages"][0]["dealImage"].toString(),
                   width: 110,
                   height: 110,
