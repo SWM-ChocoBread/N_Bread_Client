@@ -45,7 +45,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
           print(cookies[1].value); // 카카오 액세스 토큰
           final prefs = await SharedPreferences.getInstance();
           prefs.setString("userToken", cookies[1].value);
-          print("object");
+          print(prefs.getString("userToken"));
           cookies.forEach((cookie) {
             print(cookie.name + " " + cookie.value[0]);
             print(cookie);
