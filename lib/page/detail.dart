@@ -1281,8 +1281,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   void deleteDeal(String dealId) async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('tmpUserToken'));
-    String? userToken = prefs.getString('tmpUserToken');
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
 
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
@@ -1299,7 +1299,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   void deleteComment(String commentId) async {
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString("tmpUserToken");
+    String? userToken = prefs.getString("userToken");
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/comments/" + commentId;
 
@@ -1317,7 +1317,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   void deleteReply(String replyId) async {
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString("tmpUserToken");
+    String? userToken = prefs.getString("userToken");
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/comments/reply/" + replyId;
 

@@ -517,7 +517,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   void createComment(String comment) async {
     print("create Comment called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('tmpUserToken');
+    String? userToken = prefs.getString('userToken');
 
     var jsonString = '{"content":""}';
     Map mapToSend = jsonDecode(jsonString);
@@ -544,7 +544,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   void createReply(String comment, String parId) async {
     print("createReply called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('tmpUserToken');
+    String? userToken = prefs.getString('userToken');
     print("create Reply usertoken is ${userToken}");
 
     var jsonString = '{"content": "", "parentId": ""}';

@@ -274,8 +274,8 @@ class _MyPageState extends State<MyPage> {
 
   _loadOngoing() async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('tmpUserToken'));
-    String? userToken = prefs.getString('tmpUserToken');
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
     if (userToken != null) {
       String userId = Jwt.parseJwt(userToken)['id'].toString();
       print('loadOngoing called where userID is ${userId}');
