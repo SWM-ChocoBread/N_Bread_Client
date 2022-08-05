@@ -9,6 +9,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
@@ -64,7 +65,7 @@ class _MyPageState extends State<MyPage> {
                   builder: (BuildContext context) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
-                      height: 200,
+                      height: 250,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -97,8 +98,28 @@ class _MyPageState extends State<MyPage> {
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
-                                  return AccountDelete();
+                                  return TermsLook();
                                 }));
+                              },
+                              child: const Text("로그아웃"),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 50)
+                                  ),
+                              onPressed: () {
+                                // 로그아웃을 하면 이동하는 페이지 넣기
+                                // Navigator.push(context, MaterialPageRoute(
+                                //     builder: (BuildContext context) {
+                                //   return AccountDelete();
+                                // }));
                               },
                               child: const Text("탈퇴하기"),
                             ),
@@ -252,16 +273,14 @@ class _MyPageState extends State<MyPage> {
   }
 
   _loadOngoing() async {
-    final pref = await SharedPreferences.getInstance();
-    final userId = pref.getString("tmpUserId");
-    print("load ongoing");
-    print(userId);
-
-    if (userId != null) {
-      return ongoingRepository.loadOngoing("2");
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
+    if (userToken != null) {
+      String userId = Jwt.parseJwt(userToken)['id'].toString();
+      print('loadOngoing called where userID is ${userId}');
+      return ongoingRepository.loadOngoing(userId);
     }
-    return null;
-    //return ongoingRepository.loadOngoing(userId);
   }
 
   _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
@@ -295,12 +314,16 @@ class _MyPageState extends State<MyPage> {
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(
-                                  dataOngoing[index]["mystatus"].toString()),
+                              color: _colorMyStatus(dataOngoing[index]
+                                      ["mystatus"]
+                                  .toString()
+                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
                             ),
                             // const Color.fromARGB(255, 137, 82, 205)),
                             child: Text(
-                              dataOngoing[index]["mystatus"].toString(),
+                              dataOngoing[index]["mystatus"]
+                                  .toString()
+                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
                               style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -471,10 +494,11 @@ class _MyPageState extends State<MyPage> {
   }
 
   void setUserLocation() async {
-    print("setUserLocation was called");
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     String userId = getTokenPayload['id'].toString();
+    print("setUserLocation on mypage, getTokenPayload is ${getTokenPayload}");
+    print("setUserLocation was called on mypage with userId is ${userId}");
 
     String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
     var url = Uri.parse(

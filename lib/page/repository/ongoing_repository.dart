@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OngoingRepository {
   List<Map<String, dynamic>> dataOngoing = [
     {
-      "cid": "0",
+      "id": "0",
       "DealImages": [
         {"dealImage": "assets/images/maltesers.png"}
       ],
@@ -24,10 +24,10 @@ class OngoingRepository {
       "sellerNickname": "역삼동 은이님",
       "sellerAddress": "역삼 2동",
       "contents": "몰티져스 소분 구매하실 분 찾습니다! \n매너 거래 원합니다!",
-      "mystatus": "제안",
+      "mystatus": "제안자",
     },
     {
-      "cid": "1",
+      "id": "1",
       "DealImages": [
         {"dealImage": "assets/images/butter.png"}
       ],
@@ -44,10 +44,10 @@ class OngoingRepository {
       "sellerNickname": "역삼동 kth",
       "sellerAddress": "역삼 2동",
       "contents": "",
-      "mystatus": "참여",
+      "mystatus": "참여자",
     },
     {
-      "cid": "3",
+      "id": "3",
       "DealImages": [
         {"dealImage": "assets/images/otg.png"}
       ],
@@ -63,10 +63,10 @@ class OngoingRepository {
       "place": "올리브영 선릉아이타워점",
       "sellerNickname": "역삼동 kth",
       "sellerAddress": "역삼 2동",
-      "mystatus": "참여",
+      "mystatus": "참여자",
     },
     {
-      "cid": "7",
+      "id": "7",
       "DealImages": [
         {"dealImage": "assets/images/xexymix.png"}
       ],
@@ -82,10 +82,10 @@ class OngoingRepository {
       "place": "인터밸리 푸드코트 앞",
       "sellerNickname": "역삼동 kite",
       "sellerAddress": "역삼 2동",
-      "mystatus": "제안",
+      "mystatus": "제안자",
     },
     {
-      "cid": "8",
+      "id": "8",
       "DealImages": [],
       "title": "엄청나게 엄청나게 긴 제목 테스트 젝시믹스 블랙라벨 시그니처 380N 레깅스 1+1",
       "link":
@@ -99,7 +99,7 @@ class OngoingRepository {
       "place": "선릉과 정릉 앞",
       "sellerNickname": "역삼동 ㅇㅊㅇ",
       "sellerAddress": "역삼 2동",
-      "mystatus": "제안",
+      "mystatus": "제안자",
     }
   ];
 
@@ -108,36 +108,34 @@ class OngoingRepository {
   //   return dataOngoing;
   // }
 
-  Future<Map<String, dynamic>> _callAPI(String userId) async {
+
+//http://localhost:8080/users/deals/2
+  Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
     String tmpUrl = 'https://www.chocobread.shop/users/deals/' + userId;
     var url = Uri.parse(
       tmpUrl,
     );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-
-    //print(list);
-
-    return list;
-  }
-
-//http://localhost:8080/users/deals/2
-  Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
-    // API 통신 location 값을 보내주면서
-    Map<String, dynamic> getData = await _callAPI(userId);
-    print("getData value");
-    print(getData);
-    print(getData['result']);
-    await Future.delayed(const Duration(milliseconds: 1000));
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
-    if (getData['code'] == 401) {
-      //로그인 안했을 경우 처리
-    } else {
-      for (int i = 0; i < getData["result"].length; i++) {
-        tmp.add(getData["result"][i]);
+    if (userToken != null) {
+      var response = await http.get(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      if (list['code'] == 401) {
+        //로그인 안했을 경우 처리
+      } else {
+        for (int i = 0; i < list["result"].length; i++) {
+          tmp.add(list["result"][i]);
+        }
       }
     }
     return tmp;
-  }
+    }
+
+
+    
 }

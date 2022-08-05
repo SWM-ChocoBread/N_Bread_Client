@@ -28,13 +28,19 @@ var jsonString =
 
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
+  final ImagePicker imagePickerFromGallery =
+      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  final ImagePicker imagePickerFromCamera = ImagePicker();
+  int? currentnumofimages = 0;
+
+  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    productNameController.text = widget.data["title"].toString();
-    productLinkController.text = widget.data["link"].toString();
+    productNameController.text = widget.data["title"];
+    productLinkController.text = widget.data["link"];
     totalPriceController.text =
         PriceUtils.calcStringToWonOnly(widget.data["totalPrice"].toString());
     numOfParticipantsController.text = widget.data["totalMember"].toString();
@@ -96,13 +102,13 @@ class _customFormChangeState extends State<customFormChange> {
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
+
   final ImagePicker imagePickerFromGallery =
       ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
   final ImagePicker imagePickerFromCamera = ImagePicker();
   int? currentnumofimages = 0;
 
   List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
-
   void selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
