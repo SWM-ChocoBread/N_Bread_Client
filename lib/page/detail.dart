@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/price_utils.dart';
+import 'checkdeletecomment.dart';
 import 'comments.dart';
 import 'done.dart';
 
@@ -465,11 +466,26 @@ class _DetailContentViewState extends State<DetailContentView> {
       // 만약 현재 유저가 해당 댓글을 쓴 사람인 경우
       return TextButton(
           onPressed: () {
-            // 삭제하기 버튼을 눌렀을 경우 댓글 삭제API
-            deleteComment(commentsId.toString());
-            setState(() {
-              _commentsWidget();
-            });
+            // 삭제하기 버튼을 눌렀을 경우 : 댓글을 삭제하시겠습니까? alert 창 > 댓글 삭제API
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckDeleteComment(
+                      commentsIdString: commentsId.toString());
+                }).then((_) => setState(() {
+                  _commentsWidget();
+                }));
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: (BuildContext context) {
+            //   return CheckDeleteComment(
+            //       commentsIdString: commentsId.toString());
+            // })).then((_) => setState(() {
+            //       _commentsWidget();
+            //     }));
+            // deleteComment(commentsId.toString());
+            // setState(() {
+            //   _commentsWidget();
+            // });
             print(commentsId);
           },
           child: const Text("삭제하기",
