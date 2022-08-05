@@ -1,4 +1,5 @@
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/termscheck.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -48,7 +49,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
           });
           Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
-            return NicknameSet();
+            return TermsCheck();
           }));
         }
       },
