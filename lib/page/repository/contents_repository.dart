@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('tmpUserToken',
+  await prefs.setString('userToken',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU5NjAzNzMxLCJpc3MiOiJjaG9jb0JyZWFkIn0.bTubKwnPrkJP-5x6xqscJD6cK60lfq8yp0-p5xoMpCs');
 
   //return prefs;
@@ -241,8 +241,8 @@ class ContentsRepository {
     );
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('tmpUserToken'));
-    String? userToken = prefs.getString('tmpUserToken');
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
     if (userToken != null) {
       var response = await http.get(url, headers: {'Authorization': userToken});
       String responseBody = utf8.decode(response.bodyBytes);

@@ -51,7 +51,7 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
 
   void deleteComment(String commentId) async {
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString("tmpUserToken");
+    String? userToken = prefs.getString("userToken");
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/comments/" + commentId;
 

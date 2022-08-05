@@ -899,7 +899,7 @@ void getApiTest(Map jsonbody, FormData formData) async {
     dealCreateUrl,
   );
   var body2 = json.encode(jsonbody);
-  var userToken = prefs.getString("tmpUserToken");
+  var userToken = prefs.getString("userToken");
   //File _image="assets/images/maltesers.png";
 
   var map = new Map<String, dynamic>();
