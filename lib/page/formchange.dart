@@ -54,11 +54,11 @@ class _customFormChangeState extends State<customFormChange> {
     print("formChange images");
     print(images);
 
-    totalPrice = widget
-        .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    totalPrice = widget.data["totalPrice"]
+        .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
-    numOfParticipants = widget
-        .data["totalMember"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    numOfParticipants = widget.data["totalMember"]
+        .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(numOfParticipants);
     date = widget.data["dealDate"].substring(0, 10);
     print(date);
@@ -102,13 +102,12 @@ class _customFormChangeState extends State<customFormChange> {
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
+  // final ImagePicker imagePickerFromGallery =
+  //     ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  // final ImagePicker imagePickerFromCamera = ImagePicker();
+  // int? currentnumofimages = 0;
 
-  final ImagePicker imagePickerFromGallery =
-      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
-  final ImagePicker imagePickerFromCamera = ImagePicker();
-  int? currentnumofimages = 0;
-
-  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
+  // List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
   void selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
@@ -157,12 +156,14 @@ class _customFormChangeState extends State<customFormChange> {
     return images.length;
   }
 
-  String _getFinalNumberOfImages (){
+  String _getFinalNumberOfImages() {
     print("전달받은 이미지의 개수는 ${_getNumberOfDeliveredImages()}");
     print("선택한 이미지의 개수는 ${_getNumberOfSelectedImages()}");
-    if (_getNumberOfDeliveredImages() > 0 && _getNumberOfSelectedImages() == 0) {
+    if (_getNumberOfDeliveredImages() > 0 &&
+        _getNumberOfSelectedImages() == 0) {
       return _getNumberOfDeliveredImages().toString();
-    } return _getNumberOfSelectedImages().toString();
+    }
+    return _getNumberOfSelectedImages().toString();
   }
 
   Duration durationforsnackbar() {
@@ -278,54 +279,55 @@ class _customFormChangeState extends State<customFormChange> {
         ));
   }
 
-Widget _showPhotoGrid (){
-  print("images");
-  if (images != [] && imageFileList!.isEmpty) { // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
-    return Flexible(
-            child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 15,
-                padding: const EdgeInsets.all(15),
-                shrinkWrap: true,
-                children: List.generate(
-                  images.length,
-                  (index) => ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(25)),
-                    // decoration: const BoxDecoration(borderRadius:
-                    //             BorderRadius.all(Radius.circular(25)),),
-                    child: ExtendedImage.network(
-                      images[index]["dealImage"].toString(),
-                      fit:BoxFit.cover,
-                    ),
-                  ),
-                )),
-          );
-  } else { // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
-    return Flexible(
-            child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 15,
-                padding: const EdgeInsets.all(15),
-                shrinkWrap: true,
-                children: List.generate(
-                  3,
-                  (index) => Container(
-                    decoration: index < imageFileList!.length
-                        ? BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(25)),
-                            color: Colors.grey,
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(
-                                    File(imageFileList![index].path))))
-                        : null,
-                    child: _boxContents[index],
-                  ),
-                )),
-          );
+  Widget _showPhotoGrid() {
+    print("images");
+    if (images != [] && imageFileList!.isEmpty) {
+      // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
+      return Flexible(
+        child: GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              images.length,
+              (index) => ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+                // decoration: const BoxDecoration(borderRadius:
+                //             BorderRadius.all(Radius.circular(25)),),
+                child: ExtendedImage.network(
+                  images[index]["dealImage"].toString(),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )),
+      );
+    } else {
+      // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
+      return Flexible(
+        child: GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              3,
+              (index) => Container(
+                decoration: index < imageFileList!.length
+                    ? BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(25)),
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(File(imageFileList![index].path))))
+                    : null,
+                child: _boxContents[index],
+              ),
+            )),
+      );
+    }
   }
-}
 
 // 3개의 사진이 들어갈 공간
   final List _boxContents = [Container(), Container(), Container()];
