@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmljayI6Iuq2jO2DnO2YhCIsInByb3ZpZGVyIjoibmF2ZXIiLCJpYXQiOjE2NTkzNzQ1MjAsImlzcyI6ImNob2NvQnJlYWQifQ.QfJJjG3ntPPn0lHzHXCIjnw7KVvV5GfGRwUxpqYci6U');
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6Iuq2jO2DnO2YhCIsInByb3ZpZGVyIjoibmF2ZXIiLCJpYXQiOjE2NTk1MzMwMDksImlzcyI6ImNob2NvQnJlYWQifQ.62aJpytwzazGIv9DlSEtXJv5C2QWb4jbdYLS282kA_E');
 
 
   //return prefs;

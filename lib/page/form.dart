@@ -924,7 +924,7 @@ void getApiTest(Map jsonbody, FormData formData) async {
     dio.options.headers['Authorization'] = userToken;
     //  list[result][id] 예외처리 ex) 404 안하면 crash
     print("dealId : ${list['result']['id']} ");
-    var imgCreateUrl = "https://www.chocobread.shop/deals/${list['result']['id']}/img";
+    var imgCreateUrl = "https://www.chocobread.shop/deals/${list['result']['id']}/img"; 
 
     final dioResponse = await dio.post(
       imgCreateUrl,

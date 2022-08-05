@@ -9,6 +9,7 @@ import 'package:chocobread/page/policereport.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -86,7 +87,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    currentuserstatus = widget.data['mystatus'];
+    currentuserstatus = "제안자";
     print("curr usrer stat ${widget.data['mystatus']}");
 
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
@@ -189,8 +190,9 @@ class _DetailContentViewState extends State<DetailContentView> {
         // widget.data["image"] != [] ||
         widget.data["DealImages"].length != 0) {
       return imgList.map((map) {
-        return Image.asset(
+        return ExtendedImage.network(
           map["_url"].toString(),
+          cache: true,
           width: size.width,
           fit: BoxFit.fill,
         );
@@ -223,7 +225,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               //     map["_url"].toString(),
               //     width: size.width,
               //     fit: BoxFit.fill,
-              //   );
+              //   );eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwibmljayI6IuuvuOyXsOuPmSDqs4TsoJUiLCJwcm92aWRlciI6Imtha2FvIiwiaWF0IjoxNjU5NTMyNDI5LCJpc3MiOiJjaG9jb0JyZWFkIn0.WogJmVigN07zMts2qJFshCf_VcpfZv48zjb5BIyQANM
               // }).toList(),
               // carouselController: _controller,
               options: CarouselOptions(
