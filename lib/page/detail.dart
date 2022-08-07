@@ -775,19 +775,19 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text("1인당 가격"),
-                      const SizedBox(
-                        width: 7,
-                      ),
-                      IconButton(
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          iconSize: 17,
-                          icon: const Icon(
-                            Icons.help_outline,
-                          )),
+                    children: const [
+                      Text("1인당 가격"),
+                      // SizedBox(
+                      //   width: 7,
+                      // ),
+                      // IconButton(
+                      //     onPressed: () {},
+                      //     padding: EdgeInsets.zero,
+                      //     constraints: const BoxConstraints(),
+                      //     iconSize: 17,
+                      //     icon: const Icon(
+                      //       Icons.help_outline,
+                      //     )),
                     ]),
                 Text(
                   PriceUtils.calcStringToWon(
@@ -796,7 +796,33 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const Text("모집 인원"),
                 Text(
                     '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
-                const Text("모집 마감 일자"),
+                Row(
+                  children: const [
+                    Text("모집 마감 일자"),
+                    SizedBox(
+                      width: 7,
+                    ),
+                    Tooltip(
+                      triggerMode:
+                          TooltipTriggerMode.tap, // tap을 했을 때 tooltip이 나타나도록 함
+                      showDuration: Duration(milliseconds: 1),
+                      verticalOffset: 15,
+                      message: "모집 마감 일자는 거래 일시 4일 전입니다.",
+                      child: Icon(
+                        Icons.help_outline,
+                        size: 17,
+                      ),
+                      // child: IconButton(
+                      //     onPressed: () {},
+                      //     padding: EdgeInsets.zero,
+                      //     constraints: const BoxConstraints(),
+                      //     iconSize: 17,
+                      //     icon: const Icon(
+                      //       Icons.help_outline,
+                      //     )),
+                    ),
+                  ],
+                ),
                 Text(MyDateUtils.formatMyDateTimeDone(
                     widget.data["dealDate"].toString())), // TODO : 수정 필요함
                 const Text("거래 일시"),
