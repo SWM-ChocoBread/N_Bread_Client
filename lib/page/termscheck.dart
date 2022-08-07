@@ -17,7 +17,8 @@ class TermsCheck extends StatefulWidget {
 }
 
 class _TermsCheckState extends State<TermsCheck> {
-  bool isChecked = false;
+  bool isServiceChecked = false;
+  bool isPersonalChecked = false;
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -30,6 +31,49 @@ class _TermsCheckState extends State<TermsCheck> {
     );
   }
 
+  Widget _expansion() {
+    final List<Map<String, dynamic>> _terms = [
+      {
+        'header': '이용약관',
+        'body': terms,
+      },
+      {'header': '개인정보처리방침', 'body': "how we deal with personal information"}
+    ];
+    final List<Map<String, dynamic>> _items = List.generate(
+        _terms.length,
+        ((index) => {
+              'id': index,
+              'header': _terms[index]['header'],
+              'body': _terms[index]['body'],
+            }));
+
+    return SingleChildScrollView(
+      child: ExpansionPanelList.radio(
+        dividerColor: ColorStyle.myGrey,
+        elevation: 0,
+        animationDuration: const Duration(milliseconds: 500),
+        expandedHeaderPadding: EdgeInsets.zero,
+        children: _items
+            .map((item) => ExpansionPanelRadio(
+                canTapOnHeader: true, // header 눌러도 열리도록 만들기
+                value: item['id'],
+                headerBuilder: (_, bool isExpanded) => Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
+                    child: Text(
+                      item['header'],
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
+                    )),
+                body: Container(
+                    height: 200,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: SingleChildScrollView(child: Text(item['body'])))))
+            .toList(),
+      ),
+    );
+  }
+
   Widget _termsContent() {
     return Container(
       height: displayHeight(context) - bottomNavigationBarWidth() * 5,
@@ -37,24 +81,71 @@ class _TermsCheckState extends State<TermsCheck> {
     );
   }
 
-  Widget _getAgreement() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "(필수) 위 약관에 동의합니다.",
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
-        Checkbox(
-            value: isChecked,
-            activeColor: ColorStyle.mainColor,
-            onChanged: (value) {
-              setState(() {
-                isChecked = value!;
-                print(isChecked);
-              });
-            })
-      ],
+  Widget _getServiceAgreement() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          RichText(
+            text: const TextSpan(children: [
+              TextSpan(
+                  text: "(필수) ",
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black)),
+              TextSpan(
+                  text: "위 이용약관에 동의합니다.",
+                  style: TextStyle(fontSize: 15, color: Colors.black))
+            ]),
+            // style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          Checkbox(
+              value: isServiceChecked,
+              activeColor: ColorStyle.mainColor,
+              onChanged: (value) {
+                setState(() {
+                  isServiceChecked = value!;
+                  print(isServiceChecked);
+                });
+              })
+        ],
+      ),
+    );
+  }
+
+  Widget _getPersonalAgreement() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          RichText(
+            text: const TextSpan(children: [
+              TextSpan(
+                  text: "(필수) ",
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black)),
+              TextSpan(
+                  text: "위 개인정보처리방침에 동의합니다.",
+                  style: TextStyle(fontSize: 15, color: Colors.black))
+            ]),
+            // style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          Checkbox(
+              value: isPersonalChecked,
+              activeColor: ColorStyle.mainColor,
+              onChanged: (value) {
+                setState(() {
+                  isPersonalChecked = value!;
+                  print(isPersonalChecked);
+                });
+              })
+        ],
+      ),
     );
   }
 
@@ -65,51 +156,56 @@ class _TermsCheckState extends State<TermsCheck> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // const SizedBox(
+          //   height: 5,
+          // ),
+          // const Text(
+          //   "개인정보처리방침",
+          //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          // ),
+          // const SizedBox(
+          //   height: 20,
+          // ),
+          // _termsContent(),
+          // const SizedBox(
+          //   height: 20,
+          // ),
+          _expansion(),
           const SizedBox(
-            height: 5,
+            height: 10,
           ),
-          const Text(
-            "개인정보처리방침",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          _termsContent(),
-          const SizedBox(
-            height: 20,
-          ),
-          _getAgreement()
+          _getServiceAgreement(),
+          _getPersonalAgreement()
         ],
       ),
     );
   }
 
-  Future<void> requestLocationPermission() async {
-    final serviceStatusLocation = await Permission.locationWhenInUse.isGranted;
-    bool isLocation = serviceStatusLocation == ServiceStatus.enabled;
-    final status = await Permission.locationWhenInUse.request();
+  // Future<void> requestLocationPermission() async {
+  //   final serviceStatusLocation = await Permission.locationWhenInUse.isGranted;
+  //   bool isLocation = serviceStatusLocation == ServiceStatus.enabled;
+  //   final status = await Permission.locationWhenInUse.request();
 
-    if (status == PermissionStatus.granted) {
-      print('Permission Granted');
-    } else if (status == PermissionStatus.denied) {
-      print('Permission denied');
-    } else if (status == PermissionStatus.permanentlyDenied) {
-      print('Permission Permanently Denied');
-      await openAppSettings();
-    }
-  }
+  //   if (status == PermissionStatus.granted) {
+  //     print('Permission Granted');
+  //   } else if (status == PermissionStatus.denied) {
+  //     print('Permission denied');
+  //   } else if (status == PermissionStatus.permanentlyDenied) {
+  //     print('Permission Permanently Denied');
+  //     await openAppSettings();
+  //   }
+  // }
 
-  Future<bool> permission() async {
-    Map<Permission, PermissionStatus> status =
-        await [Permission.location].request(); // [] 권한배열에 권한을 작성
+  // Future<bool> permission() async {
+  //   Map<Permission, PermissionStatus> status =
+  //       await [Permission.location].request(); // [] 권한배열에 권한을 작성
 
-    if (await Permission.location.isGranted) {
-      return Future.value(true);
-    } else {
-      return Future.value(false);
-    }
-  }
+  //   if (await Permission.location.isGranted) {
+  //     return Future.value(true);
+  //   } else {
+  //     return Future.value(false);
+  //   }
+  // }
 
   Future<bool> checkIfPermissionGranted() async {
     Map<Permission, PermissionStatus> statuses = await [
@@ -121,11 +217,12 @@ class _TermsCheckState extends State<TermsCheck> {
 
     bool permitted = true;
 
-    statuses.forEach((permission, PermissionStatus) {
-      if (!PermissionStatus.isGranted) {
+    statuses.forEach((permission, permissionStatus) {
+      if (!permissionStatus.isGranted) {
         permitted = false; // 하나라도 허용이 되지 않으면 false 를 리턴한다.
       }
     });
+
     return permitted;
   }
 
@@ -136,11 +233,11 @@ class _TermsCheckState extends State<TermsCheck> {
       height: bottomNavigationBarWidth(),
       child: OutlinedButton(
           style: OutlinedButton.styleFrom(
-            side: isChecked
+            side: isPersonalChecked
                 ? const BorderSide(width: 1.0, color: ColorStyle.mainColor)
                 : const BorderSide(width: 1.0, color: Colors.grey),
           ),
-          onPressed: isChecked
+          onPressed: (isServiceChecked && isPersonalChecked) // 모두 체크한 경우
               ? () async {
                   if (await checkIfPermissionGranted()) {
                     // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
