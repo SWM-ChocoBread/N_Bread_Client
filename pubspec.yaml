@@ -56,6 +56,7 @@ dependencies:
   permission_handler: ^10.0.0
   flutter_secure_storage: ^5.0.2
   shared_preferences: ^2.0.15
+  # uni_links: ^0.5.1
 
 flutter_native_splash:
   color: "#F0EBE0"

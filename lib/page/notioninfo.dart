@@ -63,6 +63,10 @@ class _NotionInfoState extends State<NotionInfo> {
                 MaterialPageRoute(builder: (BuildContext context) {
               return const OpenChatting();
             }));
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: (BuildContext context) {
+            //   return Contact();
+            // }));
           },
         ),
       ],
