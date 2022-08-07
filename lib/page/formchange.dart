@@ -286,6 +286,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _productNameTextFormField() {
     return TextFormField(
+      autocorrect: false, // 자동완성 되지 않도록 설정
       controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
@@ -315,6 +316,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
+      autocorrect: false, // 자동완성 되지 않도록 설정
       controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
@@ -598,6 +600,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _placeTextFormField() {
     return TextFormField(
+      autocorrect: false, // 자동완성 되지 않도록 설정
       controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
@@ -631,7 +634,9 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _extraTextFormField() {
     return TextFormField(
+      autocorrect: false, // 자동완성 되지 않도록 설정
       controller: extraController,
+      minLines: 5,
       maxLines: null,
       decoration: InputDecoration(
         hintText: "추가적으로 덧붙이고 싶은 내용이 있다면 알려주세요.",

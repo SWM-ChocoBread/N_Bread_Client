@@ -1,3 +1,4 @@
+import 'package:chocobread/page/app.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/sizes_helper.dart';
@@ -12,6 +13,8 @@ class NicknameSet extends StatefulWidget {
 
 class _NicknameSetState extends State<NicknameSet> {
   bool enablebutton = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<
+      FormState>(); // added to form widget to identify the state of form
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -50,23 +53,27 @@ class _NicknameSetState extends State<NicknameSet> {
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 50.0),
-        child: TextFormField(
-          decoration: const InputDecoration(
-              labelText: '닉네임',
-              // labelStyle: TextStyle(fontSize: 18),
-              hintText: "닉네임을 입력하세요.",
-              helperText: "* 필수 입력값입니다.",
-              contentPadding: EdgeInsets.zero),
-          keyboardType: TextInputType.text,
-          maxLength: 10, // 닉네임 길이 제한
-          validator: (String? val) {
-            if (val == null || val.isEmpty) {
-              return '닉네임은 필수 사항입니다.';
-            }
-            return null;
-          },
-          // focusNode: FocusNode(),
-          // autofocus: true,
+        child: Form(
+          key: _formKey, // form state 관리를 위해서는 Form 위젯을 사용한다. (validator)
+          child: TextFormField(
+            autocorrect: false, // 자동완성 되지 않도록 설정
+            decoration: const InputDecoration(
+                labelText: '닉네임',
+                // labelStyle: TextStyle(fontSize: 18),
+                hintText: "닉네임을 입력하세요.",
+                helperText: "* 필수 입력값입니다.",
+                contentPadding: EdgeInsets.zero),
+            keyboardType: TextInputType.text,
+            maxLength: 10, // 닉네임 길이 제한
+            validator: (String? val) {
+              if (val == null || val.isEmpty) {
+                return '닉네임은 필수 사항입니다.';
+              }
+              return null;
+            },
+            // focusNode: FocusNode(),
+            // autofocus: true,
+          ),
         ),
       ),
     );
@@ -113,7 +120,8 @@ class _NicknameSetState extends State<NicknameSet> {
             child: OutlinedButton(
               onPressed: () {
                 bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
-                if (nicknameoverlap == false) {
+                if (nicknameoverlap == false &&
+                    _formKey.currentState!.validate()) {
                   // 닉네임이 오버랩되지 않는다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
                   setState(() {
                     enablebutton = true;
@@ -135,11 +143,14 @@ class _NicknameSetState extends State<NicknameSet> {
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
                   ? () {
-                      Navigator.pop(context);
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return const App();
+                      }));
                     }
                   : null,
               child: const Text(
-                "닉네임 변경 완료",
+                "닉네임 설정 완료",
               ),
             ),
           )
