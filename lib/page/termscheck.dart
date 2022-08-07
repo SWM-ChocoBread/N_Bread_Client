@@ -1,11 +1,13 @@
 // import 'dart:html';
 
+import 'dart:convert';
+
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/terms.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import '../style/colorstyles.dart';
 import 'terms.dart';
 
@@ -19,6 +21,7 @@ class TermsCheck extends StatefulWidget {
 class _TermsCheckState extends State<TermsCheck> {
   bool isServiceChecked = false;
   bool isPersonalChecked = false;
+  late WebViewController _controller;
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -32,12 +35,43 @@ class _TermsCheckState extends State<TermsCheck> {
   }
 
   Widget _expansion() {
+    // _loadHtmlFromAssets() async {
+    //   String fileText = termsPersonal;
+    //   // await rootBundle.loadString('assets/help.html');
+    //   _controller.loadUrl(Uri.dataFromString(fileText,
+    //           mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
+    //       .toString());
+    // }
+
     final List<Map<String, dynamic>> _terms = [
       {
         'header': '이용약관',
-        'body': terms,
+        'body': const Text(terms),
       },
-      {'header': '개인정보처리방침', 'body': "how we deal with personal information"}
+      {
+        'header': '개인정보처리방침',
+        'body': const Text(termsPerson),
+
+        // FutureBuilder(
+        //     future: rootBundle.loadString("assets/markdown/termspersonal.md"),
+        //     builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        //       if (snapshot.hasData) {
+        //         return Markdown(data: snapshot.data!);
+        //       }
+
+        //       return const Center(
+        //         child: CircularProgressIndicator(),
+        //       );
+        //     }),
+
+        // WebView(
+        //   initialUrl: 'about:blank',
+        //   onWebViewCreated: (WebViewController webViewController) {
+        //     _controller = webViewController;
+        //     _loadHtmlFromAssets();
+        //   },
+        // ),
+      },
     ];
     final List<Map<String, dynamic>> _items = List.generate(
         _terms.length,
@@ -47,39 +81,44 @@ class _TermsCheckState extends State<TermsCheck> {
               'body': _terms[index]['body'],
             }));
 
-    return SingleChildScrollView(
-      child: ExpansionPanelList.radio(
-        dividerColor: ColorStyle.myGrey,
-        elevation: 0,
-        animationDuration: const Duration(milliseconds: 500),
-        expandedHeaderPadding: EdgeInsets.zero,
-        children: _items
-            .map((item) => ExpansionPanelRadio(
-                canTapOnHeader: true, // header 눌러도 열리도록 만들기
-                value: item['id'],
-                headerBuilder: (_, bool isExpanded) => Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 15),
-                    child: Text(
-                      item['header'],
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w500),
-                    )),
-                body: Container(
-                    height: 200,
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: SingleChildScrollView(child: Text(item['body'])))))
-            .toList(),
+    return Expanded(
+      // 차지할 수 있는 최대 부분 차지 > 동의 체크 부분 밀어내기
+      child: SingleChildScrollView(
+        child: ExpansionPanelList.radio(
+          dividerColor: ColorStyle.myGrey,
+          elevation: 0,
+          animationDuration: const Duration(milliseconds: 500),
+          expandedHeaderPadding: EdgeInsets.zero,
+          children: _items
+              .map((item) => ExpansionPanelRadio(
+                  canTapOnHeader: true, // header 눌러도 열리도록 만들기
+                  value: item['id'],
+                  headerBuilder: (_, bool isExpanded) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 15),
+                      child: Text(
+                        item['header'],
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      )),
+                  body: Container(
+                      height: 200,
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: SingleChildScrollView(
+                        child: item['body'],
+                      ))))
+              .toList(),
+        ),
       ),
     );
   }
 
-  Widget _termsContent() {
-    return Container(
-      height: displayHeight(context) - bottomNavigationBarWidth() * 5,
-      child: const SingleChildScrollView(child: Text(terms)),
-    );
-  }
+  // Widget _termsContent() {
+  //   return Container(
+  //     height: displayHeight(context) - bottomNavigationBarWidth() * 5,
+  //     child: const SingleChildScrollView(child: Text(terms)),
+  //   );
+  // }
 
   Widget _getServiceAgreement() {
     return Padding(
