@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/checkdeletecontents.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/policereport.dart';
@@ -117,6 +118,11 @@ class _DetailContentViewState extends State<DetailContentView> {
             }));
           } else {
             // 삭제하기를 누른 경우,
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckDeleteContents();
+                });
           }
         },
       );
