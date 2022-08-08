@@ -14,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../utils/price_utils.dart';
 import 'comments.dart';
 import 'done.dart';
+import 'dart:ui';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -27,7 +28,8 @@ class DetailContentView extends StatefulWidget {
 
 class _DetailContentViewState extends State<DetailContentView> {
   late CommentsRepository commentsRepository;
-  late Size size;
+  // late Size size;
+
   List<Map<String, String>> imgList = []; // imgList 선언
   late int _current; // _current 변수 선언
   double scrollPositionToAlpha = 0;
@@ -35,6 +37,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
   // bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
+  var logicalWidth = (window.physicalSize / window.devicePixelRatio)
+      .width; // 스크린 가로 사이즈 (context 없이 미디어쿼리 사용하기) (키보드때문에 rebuild 되는 것을 막기 위한 것)
 
   @override
   void dispose() {
@@ -71,11 +75,12 @@ class _DetailContentViewState extends State<DetailContentView> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     commentsRepository = CommentsRepository();
-    size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
+    // size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
     _current = 0; // _current 인덱스를 0으로 초기화
   }
 
   Widget _popupMenuButtonSelector() {
+    // print("this is popupmenubuttonselector");
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == "1") {
       return PopupMenuButton(
@@ -174,7 +179,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return imgList.map((map) {
         return Image.asset(
           map["_url"].toString(),
-          width: size.width,
+          width: double.infinity,
+          // size.width,
           fit: BoxFit.fill,
         );
       }).toList();
@@ -183,7 +189,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return [
         Container(
           color: const Color(0xfff0f0ef),
-          width: displayWidth(context),
+          width: double.infinity,
+          // width: size.width,
           // height: 100,
           child: const Icon(Icons.question_mark_rounded),
         )
@@ -210,7 +217,8 @@ class _DetailContentViewState extends State<DetailContentView> {
               // }).toList(),
               // carouselController: _controller,
               options: CarouselOptions(
-                  height: size.width,
+                  // height: size.width,
+                  height: logicalWidth,
                   initialPage: 0, //첫번째 페이지
                   enableInfiniteScroll: false, // 무한 스크롤 방지
                   viewportFraction: 1, // 전체 화면 사용
@@ -528,7 +536,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 25),
-                    width: displayWidth(context) - 80,
+                    width: logicalWidth - 80,
                     height: 1,
                     color: const Color(0xffF0EBE0),
                   ),
@@ -908,7 +916,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForNormal() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -971,7 +980,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   _bottomNavigationBarWidgetForParticipant() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1000,7 +1010,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   _bottomNavigationBarWidgetForSeller() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1021,7 +1032,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForRecruitmentComplete() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1040,7 +1052,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForRecruitmentFail() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1059,7 +1072,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForDealComplete() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       color: Colors.white,
@@ -1154,8 +1168,9 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
+    print("***detail.dart build***");
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
