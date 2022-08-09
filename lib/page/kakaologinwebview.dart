@@ -44,6 +44,11 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
           print("start");
+          final prefs = await SharedPreferences.getInstance();
+          if(cookie!=null){
+            prefs.setString("userToken", cookie.value);
+          }
+          
           print(cookie);
           print("end");
           if (cookie != null) {

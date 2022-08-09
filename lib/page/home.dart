@@ -77,7 +77,8 @@ class _HomeState extends State<Home> {
           onTap: () {
             print("click");
             setState(() {
-              currentLocation = ""; // 새로고침했을 때 받아오는 현재 위치
+              setUserLocation();
+              loadContents();
             });
           },
           child: Padding(

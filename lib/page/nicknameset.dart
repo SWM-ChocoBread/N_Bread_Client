@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:chocobread/page/app.dart';
 
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
 import '../style/colorstyles.dart';
 import 'app.dart';
@@ -18,6 +21,11 @@ class _NicknameSetState extends State<NicknameSet> {
   bool enablebutton = false;
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
+  TextEditingController nicknameSetController =
+      TextEditingController(); // 닉네임 설정에 붙는 controller
+
+  String nicknametocheck = "";
+  String nicknametosubmit = "";
 
   Future setNickname() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,6 +72,7 @@ class _NicknameSetState extends State<NicknameSet> {
         child: Form(
           key: _formKey, // form state 관리를 위해서는 Form 위젯을 사용한다. (validator)
           child: TextFormField(
+            controller: nicknameSetController,
             autocorrect: false, // 자동완성 되지 않도록 설정
             decoration: const InputDecoration(
                 labelText: '닉네임',
@@ -127,6 +136,8 @@ class _NicknameSetState extends State<NicknameSet> {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () {
+                nicknametocheck = nicknameSetController.text; // 현재 닉네임을 나타내는 변수
+                print("닉네임 중복을 확인하려는 닉네임은 " + nicknametocheck);
                 // *** 닉네임이 중복되는지 확인하는 API 넣기 ***
                 bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
                 // 닉네임이 오버랩되는지 여부를 나타내는 bool 값을 위 변수에 넣어주세요!
@@ -155,6 +166,9 @@ class _NicknameSetState extends State<NicknameSet> {
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
                   ? () {
+                      nicknametosubmit =
+                          nicknameSetController.text; // 현재 닉네임을 나타내는 변수
+                      print("닉네임 중복을 확인하려는 닉네임은 " + nicknametosubmit);
                       setNickname().then((_) {
                         Navigator.pushAndRemoveUntil(
                             context,
@@ -187,5 +201,26 @@ class _NicknameSetState extends State<NicknameSet> {
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidget(),
     );
+  }
+
+  void checkNickname() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId=payload['id'];
+
+      String tmpUrl =
+          'https://www.chocobread.shop/users/check' +userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+
+
+    }
   }
 }
