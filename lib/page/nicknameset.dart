@@ -1,9 +1,11 @@
 import 'package:chocobread/page/app.dart';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/sizes_helper.dart';
 import '../style/colorstyles.dart';
+import 'app.dart';
 
 class NicknameSet extends StatefulWidget {
   NicknameSet({Key? key}) : super(key: key);
@@ -126,6 +128,7 @@ class _NicknameSetState extends State<NicknameSet> {
             child: OutlinedButton(
               onPressed: () {
                 bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
+                // 닉네임이 중복되는지 확인하는 API 넣기 ***
                 if (nicknameoverlap == false &&
                     _formKey.currentState!.validate()) {
                   // 닉네임이 오버랩되지 않는다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경

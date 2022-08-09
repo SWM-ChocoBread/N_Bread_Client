@@ -1,3 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 class OngoingRepository {
   List<Map<String, dynamic>> dataOngoing = [
     {
@@ -97,8 +103,39 @@ class OngoingRepository {
     }
   ];
 
-  Future<List<Map<String, dynamic>>> loadOngoing() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    return dataOngoing;
-  }
+  // Future<List<Map<String, String>>> loadOngoing() async {
+  //   await Future.delayed(const Duration(milliseconds: 1000));
+  //   return dataOngoing;
+  // }
+
+
+//http://localhost:8080/users/deals/2
+  Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
+    String tmpUrl = 'https://www.chocobread.shop/users/deals/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+    if (userToken != null) {
+      var response = await http.get(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      if (list['code'] == 401) {
+        //로그인 안했을 경우 처리
+      } else {
+        for (int i = 0; i < list["result"].length; i++) {
+          tmp.add(list["result"][i]);
+        }
+      }
+    }
+    return tmp;
+    }
+
+
+    
 }

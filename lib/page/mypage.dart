@@ -1,4 +1,7 @@
 import 'package:chocobread/constants/sizes_helper.dart';
+
+import 'dart:convert';
+
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
@@ -6,11 +9,21 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'repository/contents_repository.dart' as cont;
+import 'repository/userInfo_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'accountdelete.dart';
 import 'detail.dart';
 import 'login.dart';
 import 'termslook.dart';
+
+String setUserNickName = "";
+String setUserLocation = "";
+UserInfoRepository userInfoRepository = UserInfoRepository();
 
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
@@ -147,7 +160,7 @@ class _MyPageState extends State<MyPage> {
       },
       child: Container(
         width: _textSize(
-                    "역삼동 은이님",
+                    setUserNickName,
                     const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -159,8 +172,8 @@ class _MyPageState extends State<MyPage> {
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
-            Icon(
+          children: [
+            const Icon(
               Icons.circle,
               color: ColorStyle.mainColor,
               // size: 30,
@@ -169,11 +182,12 @@ class _MyPageState extends State<MyPage> {
             //   width: 20,
             // ),
             Padding(
+              // ignore: prefer_const_constructors
               padding: EdgeInsets.all(15.0),
               child: Text(
                 // user nickname 이 들어와야 하는 공간
-                "역삼동 은이님",
-                style: TextStyle(
+                setUserNickName,
+                style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
@@ -259,8 +273,15 @@ class _MyPageState extends State<MyPage> {
     return const Text("데이터에 문제가 있습니다.");
   }
 
-  _loadOngoing() {
-    return ongoingRepository.loadOngoing();
+  _loadOngoing() async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      String userId = Jwt.parseJwt(userToken)['id'].toString();
+      print('loadOngoing called where userID is ${userId}');
+      return ongoingRepository.loadOngoing(userId);
+    }
   }
 
   _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
@@ -365,7 +386,7 @@ class _MyPageState extends State<MyPage> {
                         ),
                         Text(
                           MyDateUtils.formatMyDateTime(
-                              dataOngoing[index]["date"].toString()),
+                              dataOngoing[index]["dealDate"].toString()),
                           style: const TextStyle(
                             fontSize: 13,
                           ),
@@ -388,7 +409,7 @@ class _MyPageState extends State<MyPage> {
                           width: 6,
                         ),
                         Text(
-                          dataOngoing[index]["place"].toString(),
+                          dataOngoing[index]["dealPlace"].toString(),
                           style: const TextStyle(
                             fontSize: 13,
                           ),
@@ -456,9 +477,41 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
+    setUserNickname();
+    setUserLocation();
     return Scaffold(
       appBar: _appBarWidget(),
       body: _bodyWidget(),
     );
+  }
+
+  void setUserNickname() async {
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    print("setUserNick was called");
+    print(getTokenPayload['nick']);
+    setUserNickName = getTokenPayload['nick'];
+    print("setUserNickName is ${setUserNickName}");
+  }
+
+  void setUserLocation() async {
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    String userId = getTokenPayload['id'].toString();
+    print("setUserLocation on mypage, getTokenPayload is ${getTokenPayload}");
+    print("setUserLocation was called on mypage with userId is ${userId}");
+
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.post(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list.length == 0) {
+      print("length of list is 0");
+    } else {
+      print(list);
+    }
   }
 }

@@ -1,3 +1,16 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+void prefTest() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  //return prefs;
+}
+
 class ContentsRepository {
   Map<String, dynamic> data = {
     "yeoksam": [
@@ -217,9 +230,34 @@ class ContentsRepository {
 
   Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
+    //prefTest();
+    final prefs = await SharedPreferences.getInstance();
+    //토큰값 임의 삭제
+    //prefs.remove('userToken');
+
+    print("load content userToken is ${prefs.getString('userToken')}");
     // API 통신 location 값을 보내주면서
-    await Future.delayed(const Duration(milliseconds: 1000));
-    // print(data[location]);
-    return data[location];
+    print("loadContentsfrom location is ${location}");
+    String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      var response = await http.get(url, headers: {'Authorization': userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) print("length of list is 0");
+
+      for (int i = 0; i < list["result"]["capsule"].length; i++) {
+        tmp.add(list["result"]["capsule"][i]);
+      }
+      print("loadContents called");
+      print(tmp);
+    }
+    return tmp;
   }
 }

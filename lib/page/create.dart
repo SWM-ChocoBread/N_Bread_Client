@@ -49,7 +49,7 @@ class _CreateNewState extends State<CreateNew> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              imageUploader(),
+              // imageUploader(),
               customForm(),
             ],
           ),
