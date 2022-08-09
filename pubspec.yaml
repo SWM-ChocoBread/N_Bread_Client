@@ -56,16 +56,20 @@ dependencies:
   permission_handler: ^10.0.0
   flutter_secure_storage: ^5.0.2
   shared_preferences: ^2.0.15
+  # uni_links: ^0.5.1
+  # flutter_html: ^2.2.1
+  # flutter_markdown: ^0.6.10+3
+
+# flutter_native_splash:
+#   color: "#F0EBE0"
+#   image: assets/images/N빵.png
+#   fullscreen: true
+
   provider: ^6.0.3
   jwt_decode: ^0.3.1
   dio: ^4.0.6
   http_parser: ^4.0.1
   extended_image: ^6.0.1
-  
-flutter_native_splash:
-  color: "#F0EBE0"
-  image: assets/images/N빵.png
-  fullscreen: true
 
 dev_dependencies:
   flutter_test:

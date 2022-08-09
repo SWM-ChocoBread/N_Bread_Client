@@ -47,6 +47,8 @@ class _NaverLoginWebviewState extends State<NaverLoginWebview> {
             print(cookie.name + " " + cookie.value[0]);
             print(cookie);
           });
+          Navigator.pushNamedAndRemoveUntil(
+              context, "/termscheck", (r) => false);
         }
       },
     );

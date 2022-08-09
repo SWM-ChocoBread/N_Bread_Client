@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/checkdeletecontents.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/policereport.dart';
@@ -21,6 +22,7 @@ import '../utils/price_utils.dart';
 import 'checkdeletecomment.dart';
 import 'comments.dart';
 import 'done.dart';
+import 'dart:ui';
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -37,7 +39,8 @@ late UserInfoRepository userInfoRepository = UserInfoRepository();
 
 class _DetailContentViewState extends State<DetailContentView> {
   late CommentsRepository commentsRepository;
-  late Size size;
+  // late Size size;
+
   List<Map<String, String>> imgList = []; // imgList 선언
   late int _current; // _current 변수 선언
   String currentUserId = "";
@@ -47,6 +50,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
   // bool enablecommentsbox = false;
   FocusScopeNode currentfocusnode = FocusScopeNode();
+  var logicalWidth = (window.physicalSize / window.devicePixelRatio)
+      .width; // 스크린 가로 사이즈 (context 없이 미디어쿼리 사용하기) (키보드때문에 rebuild 되는 것을 막기 위한 것)
 
   @override
   void dispose() {
@@ -84,11 +89,12 @@ class _DetailContentViewState extends State<DetailContentView> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     commentsRepository = CommentsRepository();
-    size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
+    // size = MediaQuery.of(context).size; // 해당 기기의 가로 사이즈로 초기화
     _current = 0; // _current 인덱스를 0으로 초기화
   }
 
   Widget _popupMenuButtonSelector() {
+    // print("this is popupmenubuttonselector");
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
     currentuserstatus = "제안자";
     print("curr usrer stat ${widget.data['mystatus']}");
@@ -127,6 +133,12 @@ class _DetailContentViewState extends State<DetailContentView> {
               );
             }));
           } else {
+            // 삭제하기를 누른 경우,
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckDeleteContents();
+                });
             // 삭제하기를 누른 경우,api호출->정말 삭제하시겠습니까?하는 메시지가 떠야하지않을까?
             print("deleteDeal is called");
             print(widget.data['id']);
@@ -195,8 +207,9 @@ class _DetailContentViewState extends State<DetailContentView> {
       return imgList.map((map) {
         return ExtendedImage.network(
           map["_url"].toString(),
+          width: double.infinity,
+          // size.width,
           cache: true,
-          width: size.width,
           fit: BoxFit.fill,
         );
       }).toList();
@@ -205,7 +218,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return [
         Container(
           color: const Color(0xfff0f0ef),
-          width: displayWidth(context),
+          width: double.infinity,
+          // width: size.width,
           // height: 100,
           child: const Icon(Icons.question_mark_rounded),
         )
@@ -232,7 +246,8 @@ class _DetailContentViewState extends State<DetailContentView> {
               // }).toList(),
               // carouselController: _controller,
               options: CarouselOptions(
-                  height: size.width,
+                  // height: size.width,
+                  height: logicalWidth,
                   initialPage: 0, //첫번째 페이지
                   enableInfiniteScroll: false, // 무한 스크롤 방지
                   viewportFraction: 1, // 전체 화면 사용
@@ -404,7 +419,12 @@ class _DetailContentViewState extends State<DetailContentView> {
                     ),
                     Text(
                       "게시글 신고하기",
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                        decorationThickness: 0.5,
+                      ),
                     ),
                   ],
                 ),
@@ -633,7 +653,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 25),
-                    width: displayWidth(context) - 80,
+                    width: logicalWidth - 80,
                     height: 1,
                     color: const Color(0xffF0EBE0),
                   ),
@@ -769,7 +789,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _commentsWidget() {
-    return FutureBuilder(  
+    return FutureBuilder(
         future: _loadComments(),
         builder: ((context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
@@ -828,15 +848,17 @@ class _DetailContentViewState extends State<DetailContentView> {
           child: Row(
             children: [
               // icon name : attachment, link_rounded
-              const Icon(Icons.link_rounded),
-              const SizedBox(
-                width: 3,
-              ),
+              // const Icon(Icons.link_rounded),
+              // const SizedBox(
+              //   width: 3,
+              // ),
               Text(
                 widget.data["link"].toString(),
+                style: TextStyle(decoration: TextDecoration.underline),
                 softWrap: false,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+
                 // style: const TextStyle(
                 //     backgroundColor: Color.fromARGB(255, 254, 184, 207)),
               ),
@@ -888,19 +910,19 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text("1인당 가격"),
-                      const SizedBox(
-                        width: 7,
-                      ),
-                      IconButton(
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          iconSize: 17,
-                          icon: const Icon(
-                            Icons.help_outline,
-                          )),
+                    children: const [
+                      Text("1인당 가격"),
+                      // SizedBox(
+                      //   width: 7,
+                      // ),
+                      // IconButton(
+                      //     onPressed: () {},
+                      //     padding: EdgeInsets.zero,
+                      //     constraints: const BoxConstraints(),
+                      //     iconSize: 17,
+                      //     icon: const Icon(
+                      //       Icons.help_outline,
+                      //     )),
                     ]),
                 Text(
                   PriceUtils.calcStringToWon(
@@ -909,7 +931,33 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const Text("모집 인원"),
                 Text(
                     '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
-                const Text("모집 마감 일자"),
+                Row(
+                  children: const [
+                    Text("모집 마감 일자"),
+                    SizedBox(
+                      width: 7,
+                    ),
+                    Tooltip(
+                      triggerMode:
+                          TooltipTriggerMode.tap, // tap을 했을 때 tooltip이 나타나도록 함
+                      showDuration: Duration(milliseconds: 1),
+                      verticalOffset: 15,
+                      message: "모집 마감 일자는 거래 일시 4일 전입니다.",
+                      child: Icon(
+                        Icons.help_outline,
+                        size: 17,
+                      ),
+                      // child: IconButton(
+                      //     onPressed: () {},
+                      //     padding: EdgeInsets.zero,
+                      //     constraints: const BoxConstraints(),
+                      //     iconSize: 17,
+                      //     icon: const Icon(
+                      //       Icons.help_outline,
+                      //     )),
+                    ),
+                  ],
+                ),
                 Text(MyDateUtils.formatMyDateTimeDone(
                     widget.data["dealDate"].toString())), // TODO : 수정 필요함
                 const Text("거래 일시"),
@@ -999,7 +1047,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForNormal() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1062,7 +1111,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   _bottomNavigationBarWidgetForParticipant() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1091,7 +1141,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   _bottomNavigationBarWidgetForSeller() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1112,7 +1163,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForRecruitmentComplete() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1131,7 +1183,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForRecruitmentFail() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -1150,7 +1203,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _bottomNavigationBarWidgetForDealComplete() {
     return Container(
-      width: size.width,
+      // width: size.width,
+      width: double.infinity,
       height: bottomNavigationBarWidth(),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       color: Colors.white,
@@ -1245,9 +1299,9 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
-    print("***build***");
+    print("***detail.dart build***");
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),

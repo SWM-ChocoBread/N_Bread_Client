@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'accountdelete.dart';
 import 'detail.dart';
+import 'login.dart';
 import 'termslook.dart';
 
 String setUserNickName = "";
@@ -98,7 +99,7 @@ class _MyPageState extends State<MyPage> {
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
-                                  return TermsLook();
+                                  return Login();
                                 }));
                               },
                               child: const Text("로그아웃"),
@@ -115,11 +116,11 @@ class _MyPageState extends State<MyPage> {
                                   //     horizontal: 50)
                                   ),
                               onPressed: () {
-                                // 로그아웃을 하면 이동하는 페이지 넣기
-                                // Navigator.push(context, MaterialPageRoute(
-                                //     builder: (BuildContext context) {
-                                //   return AccountDelete();
-                                // }));
+                                // 탈퇴하기 버튼을 누르면 이동하는 페이지 넣기
+                                Navigator.push(context, MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                  return AccountDelete();
+                                }));
                               },
                               child: const Text("탈퇴하기"),
                             ),

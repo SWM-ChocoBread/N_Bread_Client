@@ -1,6 +1,8 @@
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:flutter/material.dart';
 
+import 'login.dart';
+
 enum Reason {
   toomuch,
 }
@@ -90,7 +92,12 @@ class _AccountDeleteState extends State<AccountDelete> {
         child: OutlinedButton(
             style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 50)),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return Login();
+              }));
+            },
             child: const Text("탈퇴하기")),
       ),
     );

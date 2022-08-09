@@ -46,22 +46,52 @@ class _OpenChattingState extends State<OpenChatting> {
     );
   }
 
-  // _launchURL(url) async {
-  //   if (await canLaunchUrl(url)) {
-  //     // url 자리에는 URi가 들어가야 한다.
-  //     await launchUrl(url);
-  //   } else {
-  //     throw 'Could not launch $url';
-  //   }
-  // }
-
   Widget _openchatting() {
-    return const WebView(
-      initialUrl: 'https://open.kakao.com/o/sa4gFgpe',
+    _launchURL(url) async {
+      if (await canLaunchUrl(Uri.parse("https://open.kakao.com/o/sa4gFgpe"))) {
+        await launchUrl(Uri.parse("https://open.kakao.com/o/sa4gFgpe"),
+            mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+
+    return WebView(
+      initialUrl: "https://open.kakao.com/o/sa4gFgpe",
       javascriptMode: JavascriptMode.unrestricted,
-      gestureNavigationEnabled: true, // 스와이프로 이전 페이지로 돌아가는 기능 활성화
+      // onWebViewCreated: (WebViewController webViewController) {
+      //   _controller.complete(webViewController);
+      // },
+      navigationDelegate: (NavigationRequest request) {
+        if (request.url.startsWith("https://website.com")) {
+          return NavigationDecision.navigate;
+        } else {
+          _launchURL(request.url);
+          return NavigationDecision.prevent;
+        }
+      },
     );
   }
+
+  // case : dev-in-gym.tistory.com/40 참고
+  // Widget _openchatting() {
+  //   bool isAppLink(String url) {
+  //     final appScheme = Uri.parse(url).scheme;
+
+  //     return appScheme != 'http' &&
+  //         appScheme != 'https' &&
+  //         appScheme != 'about:blank' &&
+  //         appScheme != 'data';
+  //   }
+
+  //   return WebviewScaffold(
+  //     url: _openChattingUrl,
+  //     ignoreSSLErrors: true,
+  //     invalidUrlRegex: Platform.isAndroid
+  //         ? '^(?!https://|http://|about:blank|data:).+'
+  //         : null,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -25,10 +25,15 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return NaverLoginWebview();
-        }));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => NaverLoginWebview()),
+            (route) => false);
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (BuildContext context) {
+        //   return NaverLoginWebview();
+        // }));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -57,10 +62,15 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return KakaoLoginWebview();
-        }));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => KakaoLoginWebview()),
+            (route) => false);
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (BuildContext context) {
+        //   return KakaoLoginWebview();
+        // }));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -90,10 +100,15 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return AppleLoginWebview();
-        }));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => AppleLoginWebview()),
+            (route) => false);
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (BuildContext context) {
+        //   return AppleLoginWebview();
+        // }));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
