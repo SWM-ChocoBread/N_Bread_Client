@@ -127,13 +127,16 @@ class _NicknameSetState extends State<NicknameSet> {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () {
+                // *** 닉네임이 중복되는지 확인하는 API 넣기 ***
                 bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
-                // 닉네임이 중복되는지 확인하는 API 넣기 ***
+                // 닉네임이 오버랩되는지 여부를 나타내는 bool 값을 위 변수에 넣어주세요!
+
                 if (nicknameoverlap == false &&
                     _formKey.currentState!.validate()) {
-                  // 닉네임이 오버랩되지 않는다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
+                  // 닉네임이 오버랩되지 않고 입력을 했다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
                   setState(() {
-                    enablebutton = true;
+                    enablebutton = true; // 닉네임 변경 완료 버튼 활성화 여부를 나타내는 변수
+                    // 위 변수에 false 가 들어가면, 닉네임 설정 완료 버튼이 활성화되지 않아요!
                   });
                 }
               },
