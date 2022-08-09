@@ -18,6 +18,11 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
   CookieManager _cookieManager = CookieManager.instance();
   final myurl = Uri.parse("https://chocobread.shop/auth/success");
 
+  Future setLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isLogin", true);
+  }
+
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       centerTitle: false,
@@ -37,7 +42,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
         return ServerTrustAuthResponse(
             action: ServerTrustAuthResponseAction.PROCEED);
       },
-      onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
+      onLoadStart: (InAppWebViewController controller, Uri? myurl) async {
         // 원래는 onLoadStop 이었다.
         if (myurl != null) {
           // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
@@ -47,8 +52,10 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
           print(cookie);
           print("end");
           if (cookie != null) {
-            Navigator.pushNamedAndRemoveUntil(
-                context, "/termscheck", (r) => false);
+            setLogin().then((_) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, "/termscheck", (r) => false);
+            });
           }
           // print("start");
           // print(cookies[0].value); // 카카오 액세스 토큰

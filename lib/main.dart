@@ -4,6 +4,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/splash/splash.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
@@ -23,11 +24,13 @@ Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   // This widget is the root of your application.
   @override
@@ -85,6 +88,9 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
       debugShowCheckedModeBanner: false, // Hide the debug banner
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ], // 화면 변경 추적을 위한 것
       home: const App(),
     );
   }
