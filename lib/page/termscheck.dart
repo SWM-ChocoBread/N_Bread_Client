@@ -7,6 +7,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/terms.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../style/colorstyles.dart';
 import 'terms.dart';
@@ -21,13 +22,31 @@ class TermsCheck extends StatefulWidget {
 class _TermsCheckState extends State<TermsCheck> {
   bool isServiceChecked = false;
   bool isPersonalChecked = false;
-  late WebViewController _controller;
+  // late WebViewController _controller;
+
+  Future setTerms() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isTerms", true);
+  }
+
+  //
+  // Future setTermsfalse() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   prefs.setBool("isTermsAgreed", false);
+  // }
+
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   setTermsfalse();
+  // }
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       title: const Text("약관"),
       centerTitle: false,
-      titleSpacing: 0,
+      titleSpacing: 30,
       elevation: 0,
       bottomOpacity: 0,
       backgroundColor: Colors.transparent,
@@ -146,7 +165,7 @@ class _TermsCheckState extends State<TermsCheck> {
               onChanged: (value) {
                 setState(() {
                   isServiceChecked = value!;
-                  print(isServiceChecked);
+                  print("isServiceChecked" + isServiceChecked.toString());
                 });
               })
         ],
@@ -180,7 +199,7 @@ class _TermsCheckState extends State<TermsCheck> {
               onChanged: (value) {
                 setState(() {
                   isPersonalChecked = value!;
-                  print(isPersonalChecked);
+                  print("isPersonalChecked" + isPersonalChecked.toString());
                 });
               })
         ],
@@ -249,8 +268,8 @@ class _TermsCheckState extends State<TermsCheck> {
   Future<bool> checkIfPermissionGranted() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.camera,
-      // Permission.location,
-      // Permission.locationAlways,
+      Permission.location,
+      Permission.locationAlways,
       Permission.locationWhenInUse
     ].request();
 
@@ -277,16 +296,34 @@ class _TermsCheckState extends State<TermsCheck> {
                 : const BorderSide(width: 1.0, color: Colors.grey),
           ),
           onPressed: (isServiceChecked && isPersonalChecked) // 모두 체크한 경우
-              ? () async {
-                  if (await checkIfPermissionGranted()) {
-                    // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return NicknameSet();
-                    }));
-                  } else {
-                    openAppSettings();
-                  }
+              ? () {
+                  setTerms().then((_) async {
+                    if (await checkIfPermissionGranted()) {
+                      // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
+                      // Navigator.push(context,
+                      //     MaterialPageRoute(builder: (BuildContext context) {
+                      //   return NicknameSet();
+                      // }));
+                      // 이전에 있던 stack 모두 비우고 NicknameSet() 으로 이동
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => NicknameSet()),
+                          (route) => false);
+                    } else {
+                      openAppSettings();
+                    }
+                  });
+                  // ? () async {
+                  // if (await checkIfPermissionGranted()) {
+                  //   // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
+                  //   Navigator.push(context,
+                  //       MaterialPageRoute(builder: (BuildContext context) {
+                  //     return NicknameSet();
+                  //   }));
+                  // } else {
+                  //   openAppSettings();
+                  // }
                   // requestLocationPermission();
                   // permission();
                 }

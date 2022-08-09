@@ -1,5 +1,8 @@
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/login.dart';
+import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/splash/splash.dart';
+import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
@@ -14,7 +17,8 @@ import 'firebase_options.dart';
 // }
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding
+      .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
@@ -63,8 +67,13 @@ class MyApp extends StatelessWidget {
         // primaryColor: Colors.white,
         // primarySwatch: Colors.green,
       ),
-      // initialRoute: Splash.routeName, // 앱에 첫 화면을 지정하는 속성
-      // routes: routeSplash, // navigation 화면들을 등록하는 부분
+      initialRoute: '/splash', // 앱에 첫 화면을 지정하는 속성
+      routes: {
+        '/splash': (context) => Splash(),
+        '/login': (context) => Login(),
+        '/termscheck': (context) => TermsCheck(),
+        '/nicknameset': (context) => NicknameSet(),
+      }, // navigation 화면들을 등록하는 부분
       // 영어로 된 time picker, date picker 한글로 변환
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

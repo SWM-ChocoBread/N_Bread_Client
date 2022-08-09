@@ -1,5 +1,6 @@
 import 'package:chocobread/page/app.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/sizes_helper.dart';
 import '../style/colorstyles.dart';
@@ -16,11 +17,16 @@ class _NicknameSetState extends State<NicknameSet> {
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
+  Future setNickname() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isNickname", true);
+  }
+
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
       title: const Text("닉네임 설정"),
       centerTitle: false,
-      titleSpacing: 0,
+      titleSpacing: 30,
       elevation: 0,
       bottomOpacity: 0,
       backgroundColor: Colors.transparent,
@@ -143,10 +149,21 @@ class _NicknameSetState extends State<NicknameSet> {
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
                   ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return const App();
-                      }));
+                      setNickname().then((_) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => const App()),
+                            (route) => false);
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (BuildContext context) {
+                        //   return const App();
+                        // }));
+                      });
+                      // Navigator.push(context,
+                      //     MaterialPageRoute(builder: (BuildContext context) {
+                      //   return const App();
+                      // }));
                     }
                   : null,
               child: const Text(

@@ -36,7 +36,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
         return ServerTrustAuthResponse(
             action: ServerTrustAuthResponseAction.PROCEED);
       },
-      onLoadStart: (InAppWebViewController controller, Uri? myurl) async {
+      onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
         // 원래는 onLoadStop 이었다.
         if (myurl != null) {
           List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
@@ -47,10 +47,12 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
             print(cookie.name + " " + cookie.value[0]);
             print(cookie);
           });
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) {
-            return TermsCheck();
-          }));
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (BuildContext context) {
+          //   return TermsCheck();
+          // }));
+          Navigator.pushNamedAndRemoveUntil(
+              context, "/termscheck", (r) => false);
         }
       },
     );

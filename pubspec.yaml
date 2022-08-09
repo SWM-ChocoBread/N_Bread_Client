@@ -60,10 +60,10 @@ dependencies:
   # flutter_html: ^2.2.1
   # flutter_markdown: ^0.6.10+3
 
-flutter_native_splash:
-  color: "#F0EBE0"
-  image: assets/images/N빵.png
-  fullscreen: true
+# flutter_native_splash:
+#   color: "#F0EBE0"
+#   image: assets/images/N빵.png
+#   fullscreen: true
 
 dev_dependencies:
   flutter_test:

@@ -43,6 +43,8 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
             print(cookie.name + " " + cookie.value);
             print(cookie);
           });
+          Navigator.pushNamedAndRemoveUntil(
+              context, "/termscheck", (r) => false);
         }
       },
     );
