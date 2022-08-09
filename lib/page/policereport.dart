@@ -6,6 +6,10 @@ import '../style/colorstyles.dart';
 
 enum ReportType { inappropriate, offensive, sexual, discriminative, scam }
 
+var jsonString =
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam"}';
+
+
 class PoliceReport extends StatefulWidget {
   String title;
   String nickName;
@@ -210,5 +214,9 @@ class _PoliceReportState extends State<PoliceReport> {
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidget(),
     );
+  }
+
+  void getApiTest(Map jsonbody) async{
+
   }
 }

@@ -108,36 +108,34 @@ class OngoingRepository {
   //   return dataOngoing;
   // }
 
-  Future<Map<String, dynamic>> _callAPI(String userId) async {
+
+//http://localhost:8080/users/deals/2
+  Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
     String tmpUrl = 'https://www.chocobread.shop/users/deals/' + userId;
     var url = Uri.parse(
       tmpUrl,
     );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-
-    //print(list);
-
-    return list;
-  }
-
-//http://localhost:8080/users/deals/2
-  Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
-    // API 통신 location 값을 보내주면서
-    Map<String, dynamic> getData = await _callAPI(userId);
-    print("getData value");
-    print(getData);
-    print(getData['result']);
-    await Future.delayed(const Duration(milliseconds: 1000));
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
-    if (getData['code'] == 401) {
-      //로그인 안했을 경우 처리
-    } else {
-      for (int i = 0; i < getData["result"].length; i++) {
-        tmp.add(getData["result"][i]);
+    if (userToken != null) {
+      var response = await http.get(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      if (list['code'] == 401) {
+        //로그인 안했을 경우 처리
+      } else {
+        for (int i = 0; i < list["result"].length; i++) {
+          tmp.add(list["result"][i]);
+        }
       }
     }
     return tmp;
-  }
+    }
+
+
+    
 }

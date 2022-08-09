@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,9 +39,6 @@ class _customFormChangeState extends State<customFormChange> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    // imageFileList = widget.data["DealImages"]; //
-
     productNameController.text = widget.data["title"];
     productLinkController.text = widget.data["link"];
     totalPriceController.text =
@@ -52,11 +50,15 @@ class _customFormChangeState extends State<customFormChange> {
     placeController.text = widget.data["place"].toString();
     extraController.text = widget.data["contents"].toString();
 
-    totalPrice = widget
-        .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    images = widget.data["DealImages"]; // detail에서 전달받은 이미지 리스트
+    print("formChange images");
+    print(images);
+
+    totalPrice = widget.data["totalPrice"]
+        .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
-    numOfParticipants = widget
-        .data["totalMember"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    numOfParticipants = widget.data["totalMember"]
+        .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(numOfParticipants);
     date = widget.data["dealDate"].substring(0, 10);
     print(date);
@@ -95,10 +97,17 @@ class _customFormChangeState extends State<customFormChange> {
   String extra = ""; // 추가 작성
   String productDate = "";
   String dateToSend = "";
+  List images = [];
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
+  // final ImagePicker imagePickerFromGallery =
+  //     ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  // final ImagePicker imagePickerFromCamera = ImagePicker();
+  // int? currentnumofimages = 0;
+
+  // List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
   void selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
@@ -133,19 +142,33 @@ class _customFormChangeState extends State<customFormChange> {
     }
   }
 
-  String _getNumberOfImages() {
-    int? numofimages = imageFileList?.length;
-    if (numofimages == 0) {
-      return "0";
-    } else if (numofimages! >= 3) {
-      return "3";
+  int _getNumberOfSelectedImages() {
+    int numofselectedimages = imageFileList!.length;
+    if (numofselectedimages == 0) {
+      return 0;
+    } else if (numofselectedimages >= 3) {
+      return 3;
     }
-    return "${imageFileList?.length}";
+    return (imageFileList!.length);
+  }
+
+  int _getNumberOfDeliveredImages() {
+    return images.length;
+  }
+
+  String _getFinalNumberOfImages() {
+    print("전달받은 이미지의 개수는 ${_getNumberOfDeliveredImages()}");
+    print("선택한 이미지의 개수는 ${_getNumberOfSelectedImages()}");
+    if (_getNumberOfDeliveredImages() > 0 &&
+        _getNumberOfSelectedImages() == 0) {
+      return _getNumberOfDeliveredImages().toString();
+    }
+    return _getNumberOfSelectedImages().toString();
   }
 
   Duration durationforsnackbar() {
-    int? numofimages = imageFileList?.length;
-    if (numofimages! > 3) {
+    int? numofselectedimages = imageFileList?.length;
+    if (numofselectedimages! > 3) {
       return const Duration(milliseconds: 5000);
     }
     return const Duration(milliseconds: 0);
@@ -251,9 +274,59 @@ class _customFormChangeState extends State<customFormChange> {
               Icons.camera_alt_rounded,
               size: 30,
             ),
-            Text("${_getNumberOfImages()}/3") // 0 자리에 사진의 개수가 들어간다.
+            Text("${_getFinalNumberOfImages()}/3") // 0 자리에 사진의 개수가 들어간다.
           ],
         ));
+  }
+
+  Widget _showPhotoGrid() {
+    print("images");
+    if (images != [] && imageFileList!.isEmpty) {
+      // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
+      return Flexible(
+        child: GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              images.length,
+              (index) => ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+                // decoration: const BoxDecoration(borderRadius:
+                //             BorderRadius.all(Radius.circular(25)),),
+                child: ExtendedImage.network(
+                  images[index]["dealImage"].toString(),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )),
+      );
+    } else {
+      // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
+      return Flexible(
+        child: GridView.count(
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              3,
+              (index) => Container(
+                decoration: index < imageFileList!.length
+                    ? BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(25)),
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(File(imageFileList![index].path))))
+                    : null,
+                child: _boxContents[index],
+              ),
+            )),
+      );
+    }
   }
 
 // 3개의 사진이 들어갈 공간
@@ -264,29 +337,30 @@ class _customFormChangeState extends State<customFormChange> {
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Row(children: [
           _getPhotoButton(),
-          Flexible(
-            child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 15,
-                padding: const EdgeInsets.all(15),
-                shrinkWrap: true,
-                children: List.generate(
-                  3,
-                  (index) => Container(
-                    decoration: index < imageFileList!.length
-                        ? BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(25)),
-                            color: Colors.grey,
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(
-                                    File(imageFileList![index].path))))
-                        : null,
-                    child: _boxContents[index],
-                  ),
-                )),
-          )
+          _showPhotoGrid(),
+          // Flexible(
+          //   child: GridView.count(
+          //       crossAxisCount: 3,
+          //       crossAxisSpacing: 15,
+          //       padding: const EdgeInsets.all(15),
+          //       shrinkWrap: true,
+          //       children: List.generate(
+          //         3,
+          //         (index) => Container(
+          //           decoration: index < imageFileList!.length
+          //               ? BoxDecoration(
+          //                   borderRadius:
+          //                       const BorderRadius.all(Radius.circular(25)),
+          //                   color: Colors.grey,
+          //                   image: DecorationImage(
+          //                       fit: BoxFit.cover,
+          //                       image: FileImage(
+          //                           File(imageFileList![index].path))))
+          //               : null,
+          //           child: _boxContents[index],
+          //         ),
+          //       )),
+          // )
         ]));
   }
 

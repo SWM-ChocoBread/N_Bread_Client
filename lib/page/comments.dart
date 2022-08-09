@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
@@ -463,7 +464,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
                             if (toWhom == "") {
                               // 댓글을 썼을 경우
-                              print("댓글을 썼을 경우");
+                              print("댓글을 썼을 경우 댓글 내용은 ${commentToServer}");
                               createComment(commentToServer);
                             } else {
                               // 대댓글을 썼을 경우, 서버에 보내는 API
@@ -472,6 +473,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             }
                             print(
                                 "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+                            // Navigator.push(context, MaterialPageRoute(
+                            //     builder: (BuildContext context) {
+                            //   return DetailContentView(data: {},);
+                            // }));
                             Navigator.pop(
                                 context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
                           }
@@ -512,7 +517,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   void createComment(String comment) async {
     print("create Comment called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('tmpUserToken');
+    String? userToken = prefs.getString('userToken');
 
     var jsonString = '{"content":""}';
     Map mapToSend = jsonDecode(jsonString);
@@ -528,6 +533,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
+      print("create comment functon's token is ${userToken}");
+
+      print("create comment functon's response is ${response.body}");
     } else {
       print('failed to create comment');
     }
@@ -536,7 +544,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   void createReply(String comment, String parId) async {
     print("createReply called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('tmpUserToken');
+    String? userToken = prefs.getString('userToken');
     print("create Reply usertoken is ${userToken}");
 
     var jsonString = '{"content": "", "parentId": ""}';
@@ -545,7 +553,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     mapToSend['parentId'] = parId;
 
     if (userToken != null) {
-      String tmpUrl = 'https://www.chocobread.shop/comments/reply/2';
+      //아래 링크 2 대신에 게시글 번호 (dealId가져올 수 있어?)
+      String tmpUrl = 'https://www.chocobread.shop/comments/reply/${widget.id}';
       var url = Uri.parse(tmpUrl);
       var response = await http.post(url,
           headers: {

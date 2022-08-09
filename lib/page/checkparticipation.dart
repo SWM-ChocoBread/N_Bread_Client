@@ -178,7 +178,7 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
     String userId = getTokenPayload['id'].toString();
 
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('tmpUserToken');
+    String? userToken = prefs.getString('userToken');
 
     if (userToken != null) {
       String tmpUrl =

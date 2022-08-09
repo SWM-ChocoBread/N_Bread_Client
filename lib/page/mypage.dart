@@ -9,6 +9,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
@@ -272,16 +273,14 @@ class _MyPageState extends State<MyPage> {
   }
 
   _loadOngoing() async {
-    final pref = await SharedPreferences.getInstance();
-    final userId = pref.getString("tmpUserId");
-    print("load ongoing");
-    print(userId);
-
-    if (userId != null) {
-      return ongoingRepository.loadOngoing("2");
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      String userId = Jwt.parseJwt(userToken)['id'].toString();
+      print('loadOngoing called where userID is ${userId}');
+      return ongoingRepository.loadOngoing(userId);
     }
-    return null;
-    //return ongoingRepository.loadOngoing(userId);
   }
 
   _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
@@ -495,10 +494,11 @@ class _MyPageState extends State<MyPage> {
   }
 
   void setUserLocation() async {
-    print("setUserLocation was called");
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     String userId = getTokenPayload['id'].toString();
+    print("setUserLocation on mypage, getTokenPayload is ${getTokenPayload}");
+    print("setUserLocation was called on mypage with userId is ${userId}");
 
     String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
     var url = Uri.parse(
