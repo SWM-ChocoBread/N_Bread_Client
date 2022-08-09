@@ -40,22 +40,41 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
         // 원래는 onLoadStop 이었다.
         if (myurl != null) {
-          List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
-          print("start");
-          print(cookies[0].value); // 카카오 액세스 토큰
+          // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
+          // print("start");
+          // print(cookies[0].value); // 카카오 액세스 토큰
+          // final prefs = await SharedPreferences.getInstance();
+          // prefs.setString("userToken", cookies[0].value);
+          // print(prefs.getString("userToken"));
+          // cookies.forEach((cookie) {
+          //   if(cookie.name=="accessToken"){
+          //     prefs.setString("userToken", cookie.value);
+          //   }
+          //   print(cookie.name + " " + cookie.value[0]);
+          //   print(cookie);
+          // });
           final prefs = await SharedPreferences.getInstance();
-          prefs.setString("userToken", cookies[0].value);
-          print(prefs.getString("userToken"));
-          cookies.forEach((cookie) {
-            print(cookie.name + " " + cookie.value[0]);
-            print(cookie);
-          });
+          Cookie? cookie =
+              await _cookieManager.getCookie(url: myurl, name: "accessToken");
+              if(cookie!=null){
+                prefs.setString("userToken", cookie.value);
+                print("userToken cookie value is ${prefs.getString("userToken")}");
+              }
+          print(cookie);
+          if (cookie != null) {
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/termscheck', (route) => false);
+          }
+          // if (prefs.getString("userToken") != null) {
+          //   Navigator.pushNamedAndRemoveUntil(
+          //       context, "/termscheck", (r) => false);
+          // }
           // Navigator.push(context,
           //     MaterialPageRoute(builder: (BuildContext context) {
           //   return TermsCheck();
           // }));
-          Navigator.pushNamedAndRemoveUntil(
-              context, "/termscheck", (r) => false);
+          // 만약 토큰이
+
         }
       },
     );
