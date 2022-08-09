@@ -769,7 +769,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _commentsWidget() {
-    return FutureBuilder(
+    return FutureBuilder(  
         future: _loadComments(),
         builder: ((context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {

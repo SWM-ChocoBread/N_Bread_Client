@@ -171,7 +171,8 @@ class _HomeState extends State<Home> {
         elevation: 0,
         bottomOpacity: 0,
         backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: false // 이전 버튼 자동 생성 막기 (닉네임 초기 설정 후 홈으로 돌아오는 경우 이전 버튼 없애기 위한 것)
+        automaticallyImplyLeading:
+            false // 이전 버튼 자동 생성 막기 (닉네임 초기 설정 후 홈으로 돌아오는 경우 이전 버튼 없애기 위한 것)
         // actions: [
         //   IconButton(onPressed: () {}, icon: Icon(Icons.search)),
         //   IconButton(onPressed: () {}, icon: Icon(Icons.tune)),
@@ -720,7 +721,7 @@ void setUserLocation() async {
   } else {
     String location = list['result']['location'];
     final tmp = location.split(" ");
-
+    print("setUserLocation is ${tmp[2]}");
     currentLocation = tmp[2];
     print(list['result']['location']);
   }

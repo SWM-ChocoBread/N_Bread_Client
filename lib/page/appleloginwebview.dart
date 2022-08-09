@@ -38,9 +38,9 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
         if (myurl != null) {
           List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           print("start");
-          print(cookies[1].value);
+          print(cookies[0].value);
           final prefs = await SharedPreferences.getInstance();
-          prefs.setString("userToken", cookies[1].value);
+          prefs.setString("userToken", cookies[0].value);
           print(prefs.getString("userToken"));
           print("object");
           cookies.forEach((cookie) {
