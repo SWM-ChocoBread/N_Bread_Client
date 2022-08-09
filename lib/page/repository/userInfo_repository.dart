@@ -4,11 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserInfoRepository {
   Future<Map<String, dynamic>> getUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-    print("userInfo function's token is ${token}");
+    String? token = prefs.getString("tmpUserToken");
 
+    
     if (token != null) {
-      print("tokenValue in getUserInfo is ${token}");
       Map<String, dynamic> payload = Jwt.parseJwt(token);
       return payload;
     } else {

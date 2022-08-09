@@ -1,8 +1,6 @@
 import 'package:chocobread/page/app.dart';
-import 'package:chocobread/page/termscheck.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'nicknameset.dart';
 
@@ -42,17 +40,15 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
         if (myurl != null) {
           List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           print("start");
-          print(cookies[0].value); // 카카오 액세스 토큰
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setString("userToken", cookies[0].value);
-          print(prefs.getString("userToken"));
+          // print(cookies[1].value);
+          print("object");
           cookies.forEach((cookie) {
             print(cookie.name + " " + cookie.value[0]);
             print(cookie);
           });
           Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
-            return TermsCheck();
+            return NicknameSet();
           }));
         }
       },

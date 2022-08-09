@@ -52,7 +52,7 @@ class _ModifyState extends State<Modify> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // imageUploader(),
+              imageUploader(),
               customFormChange(data: widget.data),
             ],
           ),

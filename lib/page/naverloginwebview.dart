@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NaverLoginWebview extends StatefulWidget {
   NaverLoginWebview({Key? key}) : super(key: key);
@@ -39,9 +38,6 @@ class _NaverLoginWebviewState extends State<NaverLoginWebview> {
           List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           print("start");
           // print(cookies[1].value);
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setString("userToken", cookies[1].value);
-          print(prefs.getString("userToken"));
           print("object");
           cookies.forEach((cookie) {
             print(cookie.name + " " + cookie.value[0]);

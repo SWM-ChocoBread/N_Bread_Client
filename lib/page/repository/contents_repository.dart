@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
   final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('tmpUserToken',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwibmljayI6Imt5Z2t0aDEyMzQ1Njc4NSIsInByb3ZpZGVyIjoibG9jYWwiLCJpYXQiOjE2NTk1MTEzNTksImlzcyI6ImNob2NvQnJlYWQifQ.tOYT6wL3oHnbaYyZZUi8vwmSNM4nNhuVBDvaGc4dGWc');
 
   //return prefs;
 }
@@ -230,22 +232,15 @@ class ContentsRepository {
 
   Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
-    //prefTest();
-    final prefs = await SharedPreferences.getInstance();
-    //토큰값 임의 삭제
-    //prefs.remove('userToken');
-
-    print("load content userToken is ${prefs.getString('userToken')}");
     // API 통신 location 값을 보내주면서
-    print("loadContentsfrom location is ${location}");
     String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,
     );
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
-
-    print(prefs.getString('userToken'));
-    String? userToken = prefs.getString('userToken');
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('tmpUserToken'));
+    String? userToken = prefs.getString('tmpUserToken');
     if (userToken != null) {
       var response = await http.get(url, headers: {'Authorization': userToken});
       String responseBody = utf8.decode(response.bodyBytes);

@@ -1,9 +1,7 @@
-import 'package:chocobread/page/home.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/sizes_helper.dart';
 import '../style/colorstyles.dart';
-import 'app.dart';
 
 class NicknameSet extends StatefulWidget {
   NicknameSet({Key? key}) : super(key: key);
@@ -115,7 +113,6 @@ class _NicknameSetState extends State<NicknameSet> {
             child: OutlinedButton(
               onPressed: () {
                 bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
-                // 닉네임이 중복되는지 확인하는 API 넣기 ***
                 if (nicknameoverlap == false) {
                   // 닉네임이 오버랩되지 않는다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
                   setState(() {
@@ -138,17 +135,11 @@ class _NicknameSetState extends State<NicknameSet> {
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
                   ? () {
-                      // 닉네임 설정 완료 버튼을 누르면, 홈 화면으로 이동한다.
-                      // enablebutton 이 활성화되어 닉네 홈 화면으로 이동한다.
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return Home();
-                      }));
-                      // Navigator.pop(context);
+                      Navigator.pop(context);
                     }
                   : null,
               child: const Text(
-                "닉네임 설정 완료",
+                "닉네임 변경 완료",
               ),
             ),
           )
