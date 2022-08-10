@@ -100,6 +100,7 @@ class _MyPageState extends State<MyPage> {
                                 final prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.remove('userToken');
+                                prefs.setBool("isLogin", false);
                                 print(
                                     "userToken deleted and userToken is ${prefs.getString('userToken')}");
 
