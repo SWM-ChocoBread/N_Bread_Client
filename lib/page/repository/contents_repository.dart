@@ -233,7 +233,7 @@ class ContentsRepository {
     //prefTest();
     final prefs = await SharedPreferences.getInstance();
     //토큰값 임의 삭제
-    //prefs.remove('userToken');
+    // prefs.remove('userToken');
 
     print("load content userToken is ${prefs.getString('userToken')}");
     // API 통신 location 값을 보내주면서

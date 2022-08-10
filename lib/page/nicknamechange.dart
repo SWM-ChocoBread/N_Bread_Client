@@ -52,6 +52,7 @@ class _NicknameChangeState extends State<NicknameChange> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 50.0),
         child: TextFormField(
+          autocorrect: false, // 자동완성 되지 않도록 설정
           initialValue: "역삼동 은이님", // 닉네임 입력 칸에 들어가 있는 초기값 // 유저 현재 닉네임 설정
           decoration: const InputDecoration(
             labelText: '닉네임',
