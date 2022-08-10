@@ -42,6 +42,9 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     //currentLocation = "yeoksam"; // 초기에 앱이 빌드될 때, 현재의 위치 받아오는 곳
+    // setState(() {
+    //   _bodyWidget();
+    // });
   }
 
   @override

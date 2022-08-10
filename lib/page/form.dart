@@ -269,6 +269,7 @@ class _customFormState extends State<customForm> {
 
   Widget _productNameTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
@@ -298,6 +299,7 @@ class _customFormState extends State<customForm> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
@@ -581,6 +583,7 @@ class _customFormState extends State<customForm> {
 
   Widget _placeTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
@@ -614,6 +617,7 @@ class _customFormState extends State<customForm> {
 
   Widget _extraTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: extraController,
       maxLines: null,
       decoration: InputDecoration(

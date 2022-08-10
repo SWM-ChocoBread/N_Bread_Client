@@ -37,28 +37,28 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
         return ServerTrustAuthResponse(
             action: ServerTrustAuthResponseAction.PROCEED);
       },
-      onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
+      onLoadStart: (InAppWebViewController controller, Uri? myurl) async {
         // 원래는 onLoadStop 이었다.
         if (myurl != null) {
           // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
-            if(cookie!=null){
-
-            }
+          if (cookie != null) {}
           print("start");
           final prefs = await SharedPreferences.getInstance();
           print(cookie);
           print("end");
           if (cookie != null) {
-             prefs.setString("userToken", cookie.value);
+            // prefs.setBool("isLogin", true);
+            // print(prefs.getBool("isLogin"));
+            prefs.setString("userToken", cookie.value);
             Navigator.pushNamedAndRemoveUntil(
                 context, "/termscheck", (r) => false);
           }
           // print("start");
           // print(cookies[0].value); // 카카오 액세스 토큰
           // print("end");
-          
+
           // print(prefs.getString("userToken"));
           // cookies.forEach((cookie) {
           //   // print(cookie.name + " " + cookie.vaxlue[0]);

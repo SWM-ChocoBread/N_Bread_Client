@@ -617,7 +617,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     replyToId: dataComments[firstIndex]["id"]
                                         .toString(),
                                     id: widget.data["id"].toString());
-                              }));
+                              })).then((_) => setState(() {
+                                    _commentsWidget();
+                                  }));
                             },
                             child: const Text("답글쓰기",
                                 style: TextStyle(
@@ -707,9 +709,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(
-                                height: 15,
-                              ),
+                              // const SizedBox(
+                              //   height: 15,
+                              // ),
                               _showDeletedButton(dataComments[firstIndex]
                                       ["Replies"][secondIndex]["content"])
                                   ? _deleteReply(
@@ -717,7 +719,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                           [secondIndex]["userId"],
                                       dataComments[firstIndex]["Replies"]
                                           [secondIndex]["id"])
-                                  : Container(),
+                                  : const SizedBox(
+                                      height: 15,
+                                    ),
                               // Padding(
                               //   padding: const EdgeInsets.only(left: 19.0),
                               //   child: TextButton(
