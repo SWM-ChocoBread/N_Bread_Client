@@ -36,17 +36,18 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       },
       onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
         if (myurl != null) {
-          List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
+          Cookie? cookie =
+              await _cookieManager.getCookie(url: myurl, name: "accessToken");
+          if (cookie != null) {}
           print("start");
-          print(cookies[0].value);
           final prefs = await SharedPreferences.getInstance();
-          prefs.setString("userToken", cookies[0].value);
-          print(prefs.getString("userToken"));
-          print("object");
-          cookies.forEach((cookie) {
-            print(cookie.name + " " + cookie.value);
-            print(cookie);
-          });
+          print(cookie);
+          print("end");
+          if (cookie != null) {
+            prefs.setString("userToken", cookie.value);
+            Navigator.pushNamedAndRemoveUntil(
+                context, "/termscheck", (r) => false);
+          }
         }
       },
     );
