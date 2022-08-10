@@ -49,8 +49,8 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
           print(cookie);
           print("end");
           if (cookie != null) {
-            prefs.setBool("isLogin", true);
-            print(prefs.getBool("isLogin"));
+            // prefs.setBool("isLogin", true);
+            // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
             Navigator.pushNamedAndRemoveUntil(
                 context, "/termscheck", (r) => false);

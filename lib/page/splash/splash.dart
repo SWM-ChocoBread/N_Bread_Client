@@ -23,6 +23,11 @@ class _SplashState extends State<Splash> {
     bool isTerms = prefs.getBool("isTerms") ?? false; // 약관에 모두 동의했는지 여부
     bool isNickname = prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
     String? userToken = prefs.getString("userToken");
+
+    if (userToken != null) {
+      prefs.setBool("isLogin", true);
+    }
+
     print("[*] 로그인 상태 : " + isLogin.toString());
     print("[*] 약관동의 상태 : " + isTerms.toString());
     print("[*] 닉네임 설정 상태 : " + isNickname.toString());
