@@ -488,8 +488,16 @@ class _MyPageState extends State<MyPage> {
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     print("setUserNick was called");
-    print(getTokenPayload['nick']);
-    setUserNickName = getTokenPayload['nick'];
+    String userId = getTokenPayload['id'].toString();
+    String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print("on setUserNick, response is ${list}");
+    setUserNickName = list['result']['nick'];
     print("setUserNickName is ${setUserNickName}");
   }
 
