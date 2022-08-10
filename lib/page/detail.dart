@@ -59,7 +59,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("getUserstatus called on initstate");
+    //print("getUserstatus called on initstate");
+    //getUserStatus();
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
@@ -76,7 +77,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         {"id": "0"}
       ];
     }
-    currentuserstatus = widget.data["mystatus"];
+    //currentuserstatus = widget.data["mystatus"];
   }
 
   @override
@@ -90,7 +91,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    currentuserstatus = "제안자";
+    //currentuserstatus = "제안자";
     print("curr usrer stat ${widget.data['mystatus']}");
 
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {

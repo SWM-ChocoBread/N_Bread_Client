@@ -3,6 +3,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -95,11 +96,19 @@ class _MyPageState extends State<MyPage> {
                                   // padding: const EdgeInsets.symmetric(
                                   //     horizontal: 50)
                                   ),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                  return TermsLook();
-                                }));
+                              onPressed: () async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.remove('userToken');
+                                print(
+                                    "userToken deleted and userToken is ${prefs.getString('userToken')}");
+
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            Login()),
+                                    (route) => false);
                               },
                               child: const Text("로그아웃"),
                             ),
@@ -488,8 +497,16 @@ class _MyPageState extends State<MyPage> {
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     print("setUserNick was called");
-    print(getTokenPayload['nick']);
-    setUserNickName = getTokenPayload['nick'];
+    String userId = getTokenPayload['id'].toString();
+    String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print("on setUserNick, response is ${list}");
+    setUserNickName = list['result']['nick'];
     print("setUserNickName is ${setUserNickName}");
   }
 
