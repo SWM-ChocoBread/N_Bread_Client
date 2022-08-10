@@ -3,6 +3,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -95,11 +96,19 @@ class _MyPageState extends State<MyPage> {
                                   // padding: const EdgeInsets.symmetric(
                                   //     horizontal: 50)
                                   ),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                  return TermsLook();
-                                }));
+                              onPressed: () async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.remove('userToken');
+                                print(
+                                    "userToken deleted and userToken is ${prefs.getString('userToken')}");
+
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            Login()),
+                                    (route) => false);
                               },
                               child: const Text("로그아웃"),
                             ),
