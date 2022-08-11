@@ -81,16 +81,17 @@ class _HomeState extends State<Home> {
         title: GestureDetector(
           onTap: () {
             print("click");
-            setState(() {
-              //혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
-              setUserLocation();
-              //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
-            });
+            // setState(() {
+            //   //혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
+            //   setUserLocation();
+            //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
+            // });
           },
           child: Padding(
             padding: const EdgeInsets.only(left: 15.0),
             child: Row(children: [
-              Text(location),
+              //혜연->채은 요청사항 : currentLocation에 값을 넣음에도 불구하고(loadcontents함수에서)화면에는 초기값인 ""만 보임.
+              Text(currentLocation),
               const SizedBox(
                 width: 10,
               ),
@@ -355,9 +356,14 @@ class _HomeState extends State<Home> {
 
   loadContents() async {
     //await setUserLocation();
-    currentLocation = "역삼1동";
-    print("loadContents 에서의 currentlocation = ${currentLocation}");
-    return contentsRepository.loadContentsFromLocation(currentLocation);
+    final prefs = await SharedPreferences.getInstance();
+    String? locate = prefs.getString("userLocation");
+    await Future.delayed(const Duration(seconds: 1), () {});
+    if (locate != null) {
+      currentLocation = locate;
+      print("loadContents 에서의 currentlocation = ${currentLocation}");
+      return contentsRepository.loadContentsFromLocation(currentLocation);
+    }
   }
 
   _makeDataList(List<Map<String, dynamic>> dataContents) {
@@ -690,12 +696,44 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print("***home.dart의 빌드 함수가 실행되었습니다.***");
+    loadContents();
     //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       floatingActionButton: _floatingActionButtonWidget(),
     );
+  }
+
+  Future<void> setUserLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        String tmpLocation = list['result']['location'].toString();
+        print("list value is ${list['result']}");
+        currentLocation = "역삼1동";
+        print(
+            'currnetLocation in setUserLocation Function is ${currentLocation}');
+        print(list);
+      }
+    }
   }
 }
 
@@ -714,27 +752,4 @@ class _HomeState extends State<Home> {
 //   //return list['result']['nick'];
 // }
 
-void setUserLocation() async {
-  final prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString("userToken");
-  if (token != null) {
-    Map<String, dynamic> payload = Jwt.parseJwt(token);
 
-    String userId = payload['id'].toString();
-    print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-    print("setUserLocation was called on mypage with userId is ${userId}");
-
-    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.post(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) {
-      print("length of list is 0");
-    } else {
-      print(list);
-    }
-  }
-}

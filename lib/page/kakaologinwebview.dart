@@ -55,7 +55,9 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
-            setUserLocation();
+            await setUserLocation();
+            print("getUserLocation called");
+            getUserLocation();
             Navigator.pushNamedAndRemoveUntil(
                 context, "/termscheck", (r) => false);
           }
@@ -91,7 +93,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
     );
   }
 
-  void setUserLocation() async {
+  Future<void> setUserLocation() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
@@ -108,6 +110,35 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       var response = await http.post(url);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        print(list);
+      }
+    }
+  }
+
+  void getUserLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(
+          "isSuccess의 값은 ${list['isSuccess']} & ${list['isSuccess'].runtimeType}");
+      if (list['isSuccess'] == true) {
+        prefs.setString("userLocation", list['result']['addr']);
+        print(
+            'set user location done and user location is ${prefs.getString('userLocation')}');
+      }
       if (list.length == 0) {
         print("length of list is 0");
       } else {

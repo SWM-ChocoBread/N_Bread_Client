@@ -231,6 +231,7 @@ class ContentsRepository {
   Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
     //prefTest();
+    await Future.delayed(const Duration(microseconds: 1), () {});
     final prefs = await SharedPreferences.getInstance();
     //토큰값 임의 삭제
     // prefs.remove('userToken');

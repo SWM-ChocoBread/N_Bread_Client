@@ -3,6 +3,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/home.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
@@ -22,7 +23,6 @@ import 'detail.dart';
 import 'termslook.dart';
 
 String setUserNickName = "";
-String setUserLocation = "";
 UserInfoRepository userInfoRepository = UserInfoRepository();
 
 class MyPage extends StatefulWidget {
@@ -487,7 +487,6 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     setUserNickname();
-    //setUserLocation();
     return Scaffold(
       appBar: _appBarWidget(),
       body: _bodyWidget(),
@@ -512,23 +511,27 @@ class _MyPageState extends State<MyPage> {
   }
 
   void setUserLocation() async {
-    Map<String, dynamic> getTokenPayload =
-        await userInfoRepository.getUserInfo();
-    String userId = getTokenPayload['id'].toString();
-    print("setUserLocation on mypage, getTokenPayload is ${getTokenPayload}");
-    print("setUserLocation was called on mypage with userId is ${userId}");
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
 
-    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.post(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) {
-      print("length of list is 0");
-    } else {
-      print(list);
+      String userId = payload['id'].toString();
+      print("setUserLocation on home, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        print(list);
+      }
     }
   }
 }
