@@ -79,11 +79,11 @@ class _HomeState extends State<Home> {
         //   // )
         // ), // logo, hamburger,
         title: GestureDetector(
-          onTap: () {
+          onTap: () async {
             print("click");
             // setState(() {
-            //   //혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
-            //   setUserLocation();
+
+            await setUserLocation("37.5037142", "127.0447821");
             //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
             // });
           },
@@ -355,7 +355,7 @@ class _HomeState extends State<Home> {
   }
 
   loadContents() async {
-    //await setUserLocation();
+    await setUserLocation("37.5037142", "127.0447821");
     final prefs = await SharedPreferences.getInstance();
     String? locate = prefs.getString("userLocation");
     await Future.delayed(const Duration(seconds: 1), () {});
@@ -706,7 +706,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<void> setUserLocation() async {
+  Future<void> setUserLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
@@ -716,7 +716,12 @@ class _HomeState extends State<Home> {
       print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
       print("setUserLocation was called on mypage with userId is ${userId}");
 
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
       var url = Uri.parse(
         tmpUrl,
       );
@@ -726,12 +731,16 @@ class _HomeState extends State<Home> {
       if (list.length == 0) {
         print("length of list is 0");
       } else {
-        String tmpLocation = list['result']['location'].toString();
-        print("list value is ${list['result']}");
-        currentLocation = "역삼1동";
-        print(
-            'currnetLocation in setUserLocation Function is ${currentLocation}');
-        print(list);
+        try {
+          currentLocation = list['result']['location3'].toString();
+          prefs.setString('userLocation', currentLocation);
+          print("list value is ${list['result']}");
+          print(
+              'currnetLocation in setUserLocation Function is ${currentLocation}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
       }
     }
   }

@@ -55,8 +55,8 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
-            await setUserLocation();
-            print("getUserLocation called");
+            await setUserLocation("37.5037142", "127.0447821");
+            print("getUserLocation called on 37.5037142,127.0447821");
             getUserLocation();
             Navigator.pushNamedAndRemoveUntil(
                 context, "/termscheck", (r) => false);
@@ -93,7 +93,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
     );
   }
 
-  Future<void> setUserLocation() async {
+  Future<void> setUserLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
@@ -103,7 +103,12 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
       print("setUserLocation was called on mypage with userId is ${userId}");
 
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
       var url = Uri.parse(
         tmpUrl,
       );
@@ -113,7 +118,16 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       if (list.length == 0) {
         print("length of list is 0");
       } else {
-        print(list);
+        try {
+          prefs.setString(
+              'userLocation', list['result']['location3'].toString());
+          print("list value is ${list['result']}");
+          print(
+              'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
       }
     }
   }
