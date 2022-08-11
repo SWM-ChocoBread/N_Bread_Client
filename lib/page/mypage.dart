@@ -487,7 +487,7 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     setUserNickname();
-    setUserLocation();
+    //setUserLocation();
     return Scaffold(
       appBar: _appBarWidget(),
       body: _bodyWidget(),

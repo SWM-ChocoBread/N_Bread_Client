@@ -14,6 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/datetime_utils.dart';
@@ -82,8 +83,8 @@ class _HomeState extends State<Home> {
             print("click");
             setState(() {
               //혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
-              //setUserLocation();
-              currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
+              setUserLocation();
+              //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
             });
           },
           child: Padding(
@@ -713,32 +714,27 @@ class _HomeState extends State<Home> {
 //   //return list['result']['nick'];
 // }
 
-//혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
-// Future<void> setUserLocation() async {
-//   currentLocation = "";
+void setUserLocation() async {
+  final prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  if (token != null) {
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
 
-//   Map<String, dynamic> getTokenPayload = await userInfoRepository.getUserInfo();
-//   print('getTokenPayload is ${getTokenPayload}');
-//   String userId = getTokenPayload['id'].toString();
-//   print("setUserLocation was called with userId is ${userId}");
+    String userId = payload['id'].toString();
+    print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+    print("setUserLocation was called on mypage with userId is ${userId}");
 
-//   String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-//   var url = Uri.parse(
-//     tmpUrl,
-//   );
-//   print('post start');
-//   var response = await http.post(url);
-//   String responseBody = utf8.decode(response.bodyBytes);
-//   Map<String, dynamic> list = jsonDecode(responseBody);
-//   if (list.length == 0) {
-//     print("length of list is 0");
-//   } else {
-//     String location2 = list['result']['location'];
-//     final tmp = location2.split(" ");
-//     print("setUserLocation is ${tmp[2]}");
-
-    
-//     //currentLocation = tmp[2];
-//     print(list['result']['location']);
-//   }
-// }
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.post(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list.length == 0) {
+      print("length of list is 0");
+    } else {
+      print(list);
+    }
+  }
+}

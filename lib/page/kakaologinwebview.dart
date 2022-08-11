@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'nicknameset.dart';
@@ -52,6 +55,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
+            setUserLocation();
             Navigator.pushNamedAndRemoveUntil(
                 context, "/termscheck", (r) => false);
           }
@@ -85,5 +89,30 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       appBar: _appBarWidget(),
       body: _kakaoLoginWebview(),
     );
+  }
+
+  void setUserLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        print(list);
+      }
+    }
   }
 }
