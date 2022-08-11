@@ -42,6 +42,10 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     currentLocation = "yeoksam";
+    contentsRepository = ContentsRepository();
+    setState(() {
+          loadContents();
+    });
   }
 
   @override

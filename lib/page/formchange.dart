@@ -2,18 +2,29 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:chocobread/page/imageuploader.dart' as imageFile;
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
-import 'package:chocobread/utils/datetime_utils.dart';
-import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart' as dio;
+
+import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:extended_image/extended_image.dart';
 
 import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
+import 'imageuploader.dart';
+
 
 class customFormChange extends StatefulWidget {
   Map<String, dynamic> data;
@@ -24,40 +35,60 @@ class customFormChange extends StatefulWidget {
 }
 
 var jsonString =
-    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam", "imageLink1":"assets/images/maltesers.png","imageLink2":"assets/images/maltesers.png","imageLink3":""}';
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam"}';
 
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
+  late DateTime tempPickedDate; // 임시로 datepicker로 선택된 날짜를 저장해주는 변수
+  late bool isOnTappedDate; // 수정하기 페이지에 들어와서 datepicker 로 값을 수정했는지 여부를 나타내는 bool
+  late TimeOfDay tempPickedTime; // 임시로 timepicker로 선택된 시간을 저장해주는 변수
+  late bool isOnTappedTime; // 수정하기 페이지에 들어와서 timepicker 로 값을 수정했는지 여부를 나타내는 bool
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(DateTime.parse("2022.08.14".replaceAll(".", "-"))); // 테스트
+    // print(DateTime.parse("03:45AM"));
+
     productNameController.text = widget.data["title"].toString();
     productLinkController.text = widget.data["link"].toString();
     totalPriceController.text =
         PriceUtils.calcStringToWonOnly(widget.data["totalPrice"].toString());
     numOfParticipantsController.text = widget.data["totalMember"].toString();
+    print("init date ${widget.data["dealDate"]}");
+    print("init place ${widget.data["dealPlace"]}");
     dateController.text = MyDateUtils.formatMyDate(
         widget.data["dealDate"]); // 서버에서 보내는 형식을 보고 수정할 것!
     timeController.text = MyDateUtils.formatMyTime(widget.data["dealDate"]);
-    placeController.text = widget.data["place"].toString();
-    extraController.text = widget.data["contents"].toString();
+    placeController.text = widget.data["dealPlace"].toString();
+    extraController.text = widget.data["content"].toString();
 
     images = widget.data["DealImages"]; // detail에서 전달받은 이미지 리스트
     print("formChange images");
     print(images);
 
+    contentsid = widget.data["id"].toString();
     totalPrice = widget
         .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
     numOfParticipants = widget
         .data["totalMember"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(numOfParticipants);
+
+    print(widget.data["dealDate"]); // 2022-08-18T09:08:00.000Z
     date = widget.data["dealDate"].substring(0, 10);
-    print(date);
+    print("홈 화면에서 전달받은 dealDate 중 날짜 : "+date); // 2022-08-18
     time = widget.data["dealDate"].substring(11, 16);
-    print(time);
+    print("홈 화면에서 전달받은 dealDate 중 시간 : "+time); // 09:08
+    print(DateTime.parse(widget.data["dealDate"])); // 2022-08-18 09:08:00.000Z
+    print(DateTime.parse(widget.data["dealDate"]).year); // 2022
+
+    tempPickedDate = DateTime.now();
+    tempPickedTime = TimeOfDay.now();
+
+    isOnTappedDate = false; // 처음에는 datepicker로 값을 변경하지 않음
+    isOnTappedTime = false; // 처음에는 timepicker로 값을 변경하지 않음
   }
 
   // 각각의 textfield에 붙는 controller
@@ -79,6 +110,8 @@ class _customFormChangeState extends State<customFormChange> {
       TextEditingController(); // 추가 작성에 붙는 controller
 
   // 서버에 보내기 위해 제안하기 버튼을 눌렀을 때 데이터 저장하기
+  
+  String contentsid = "";
   String productName = ""; // 제품명
   String productLink = ""; // 판매 링크
   String totalPrice = ""; // 총 가격
@@ -277,6 +310,7 @@ Widget _showPhotoGrid (){
   if (images != [] && imageFileList!.isEmpty) { // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
     return Flexible(
             child: GridView.count(
+              physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
                 crossAxisCount: 3,
                 crossAxisSpacing: 15,
                 padding: const EdgeInsets.all(15),
@@ -295,8 +329,10 @@ Widget _showPhotoGrid (){
                 )),
           );
   } else { // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
+    print("######## imageList : ${imageFileList?.length}");
     return Flexible(
             child: GridView.count(
+                physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
                 crossAxisCount: 3,
                 crossAxisSpacing: 15,
                 padding: const EdgeInsets.all(15),
@@ -545,6 +581,17 @@ Widget _showPhotoGrid (){
     );
   }
 
+  DateTime initialDateDeterminant (bool isOnTappedDate){
+    if (isOnTappedDate) {
+      // datepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
+      return tempPickedDate;
+    } else {
+      // datepicker로 값이 수정되지 않은 경우 : detail.dart 에서 받아온 정보를 그대로 initial value로 넣어준다.
+      return DateTime(DateTime.parse(widget.data["dealDate"]).year, DateTime.parse(widget.data["dealDate"]).month,
+                DateTime.parse(widget.data["dealDate"]).day);
+    }
+  }
+
   Widget _dateTextFormField() {
     return TextFormField(
       controller: dateController,
@@ -578,22 +625,28 @@ Widget _showPhotoGrid (){
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '거래 날짜를 입력해주세요.';
+        } else if (val.toString() == "0000-00-00 00:00:00"){
+          return '유효한 날짜를 선택해주세요.';
         }
         return null;
       },
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
             context: context,
-            initialDate: DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day + 4),
+            initialDate: initialDateDeterminant (isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
             firstDate: DateTime(DateTime.now().year, DateTime.now().month,
                 DateTime.now().day + 4),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
                 DateTime.now().day + 4));
         if (pickedDate != null) {
+          setState(() {
+          isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
+        });
+          tempPickedDate = pickedDate;
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
           String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
-          dateToSend += formattedDate2;
+          // dateToSend += formattedDate2;
+          // dateToSend += pickedDate.toString();
           String? weekday = {
             "Mon": "월",
             "Tue": "화",
@@ -605,11 +658,22 @@ Widget _showPhotoGrid (){
           }[DateFormat("E").format(pickedDate)];
           setState(() {
             dateController.text = "$formattedDate$weekday";
-            date = DateFormat("yyyy-MM-dd").format(pickedDate);
+            // date = DateFormat("yyyy-MM-dd").format(pickedDate);
           });
         }
       },
     );
+  }
+
+  TimeOfDay initialTimeDeterminant (bool isOnTappedTime){
+    if (isOnTappedTime) {
+      // timepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
+      return tempPickedTime;
+    } else {
+      // timepicker로 값이 수정되지 않은 경우 : detail.dart 에서 받아온 정보를 그대로 initial value로 넣어준다.
+      return TimeOfDay(hour:DateTime.parse(widget.data["dealDate"]).hour,
+                minute: DateTime.parse(widget.data["dealDate"]).minute);
+    }
   }
 
   Widget _timeTextFormField() {
@@ -650,9 +714,15 @@ Widget _showPhotoGrid (){
       },
       onTap: () async {
         TimeOfDay? pickedTime = await showTimePicker(
-            context: context, initialTime: TimeOfDay.now());
+            context: context, initialTime: initialTimeDeterminant (isOnTappedTime)
+            // TimeOfDay.now()
+            );
 
         if (pickedTime != null) {
+          setState(() {
+          isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
+        });
+          tempPickedTime = pickedTime;
           DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
               .format(context)
               .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
@@ -662,9 +732,9 @@ Widget _showPhotoGrid (){
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
           String formattedTime2 = DateFormat.Hm().format(parsedTime);
-          dateToSend += " ";
-          dateToSend += formattedTime2;
-
+          // dateToSend += " ";
+          // dateToSend += formattedTime2;
+          // dateToSend += pickedTime.toString();
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
             time = DateFormat("HH:mm").format(parsedTime);
@@ -906,14 +976,25 @@ Widget _showPhotoGrid (){
                             productName = productNameController.text; // 제품명
                             productLink = productLinkController.text; // 판매 링크
                             numOfParticipants =
-                                numOfParticipantsController.text; // 모집인원
-                            // date = dateController.text; // 거래 날짜
-                            // time = timeController.text; // 거래 시간
-                            dealDate =
-                                "$date $time"; // 거래 날짜 + 거래 시간 : 2022-07-19 16:43 형식
+                                numOfParticipantsController.text; //참여자 수
+                            print("numOfParticipants is ${numOfParticipants}");
+                            print(int.parse(numOfParticipants).runtimeType);
+                            print("totalPrice is ${totalPrice}");
+                            personalPrice = ((int.parse(totalPrice) /
+                                            int.parse(numOfParticipants) /
+                                            10)
+                                        .ceil() *
+                                    10)
+                                .toString();
+                            date = dateController.text; // 거래 날짜
+                            time = timeController.text; // 거래 시간
                             place = placeController.text; // 거래 장소
                             extra = extraController.text; // 추가 작성
-                          });
+                            print("*****date : "+date);
+                            print("*****time : " + time);
+                            dateToSend = MyDateUtils.sendMyDateTime(date, time);
+                            print(dateToSend);                          
+                            });
 
                           const snackBar = SnackBar(
                             content: Text(
@@ -933,15 +1014,43 @@ Widget _showPhotoGrid (){
 
                           // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                           if (_formKey.currentState!.validate()) {
-                            Navigator.push(context, MaterialPageRoute(
+                            // Navigator.push(context, MaterialPageRoute(
+                            //     builder: (BuildContext context) {
+                            //   return const App();
+                            // }));
+                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                                 builder: (BuildContext context) {
                               return const App();
-                            }));
+                            }), (route) => false);
+
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
+                            Map mapToSend = jsonDecode(jsonString);
+                            print(
+                                "value of date to send is ${dateToSend}"); //값 설정
+                            mapToSend['title'] = productName.toString();
+                            mapToSend['link'] = productLink.toString();
+                            mapToSend['totalPrice'] = totalPrice;
+                            mapToSend['personalPrice'] = personalPrice;
+                            mapToSend['totalMember'] = numOfParticipants;
+                            mapToSend['dealDate'] = dateToSend;
+                            mapToSend['place'] = place;
+                            mapToSend['content'] = extra;
+                            if(imageFileList!.length > 0){
+                              final List<dio.MultipartFile> _files = imageFileList!.map((img) => dio.MultipartFile.fromFileSync(img.path,  contentType: new MediaType("image", "jpg"))).toList();
+                              dio.FormData _formData = dio.FormData.fromMap({"img": _files});
+                              print("file length :  ${_files.length} ");
+                              print(mapToSend);
+                              print(jsonString);
+                              postFormChange(mapToSend, _formData, contentsid);
+                            }
+                            else{
+                              postFormChangeWithoutImage(mapToSend, contentsid);
+                            }
                           }
                           print(
                               "${productName} * ${productLink} * ${totalPrice} * ${numOfParticipants} * ${personalPrice} * ${dealDate} * ${date} * ${time} * ${place} * ${extra}");
+                              print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
                         },
                         child: const Text('제안하기'),
                       ),
@@ -960,5 +1069,77 @@ Widget _showPhotoGrid (){
         SuggestionFormChange(),
       ],
     );
+  }
+}
+
+void postFormChange(Map jsonbody, dio.FormData formdata, String contetnsid) async {
+  final prefs = await SharedPreferences.getInstance();
+  var dealChangeUrl = "https://www.chocobread.shop/deals/" + contetnsid;
+  var url = Uri.parse(
+    dealChangeUrl,
+  );
+  var body2 = json.encode(jsonbody);
+  var userToken = prefs.getString("tmpUserToken");
+  var map = new Map<String, dynamic>();
+  map['body'] = jsonbody;
+  print("value of map");
+  print(map);
+  print(map.toString());
+  if (userToken != null) {
+    var response = await http.put(url,
+        headers: {
+          "Authorization": userToken,
+        },
+        body: jsonbody);
+    print(response);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print(list);
+    print("Formdata.legnth : ${formdata.length}");
+    if(formdata.length > 0){
+      var dioInstance = dio.Dio();
+      var dioFormData = dio.FormData.fromMap(map);
+      dioInstance.options.contentType = 'multipart/form-data';
+      dioInstance.options.headers['Authorization'] = userToken;
+      //  list[result][id] 예외처리 ex) 404 안하면 crash
+      print("dealId : ${list['result']['id']} ");
+      var imgCreateUrl = "https://www.chocobread.shop/deals/${list['result']['id']}/img"; 
+      final dioResponse = await dioInstance.post(
+        imgCreateUrl,
+        data: formdata,
+      );
+    }
+  } else {
+    print("오류발생");
+  }
+}
+
+void postFormChangeWithoutImage(Map jsonbody, String contentsid) async {
+  final prefs = await SharedPreferences.getInstance();
+  var dealChangeUrl = "https://www.chocobread.shop/deals/" + contentsid;
+  var url = Uri.parse(
+    dealChangeUrl,
+  );
+  var body2 = json.encode(jsonbody);
+  var userToken = prefs.getString("tmpUserToken");
+
+  var map = new Map<String, dynamic>();
+  map['body'] = jsonbody;
+  print("value of map");
+  print(map);
+  print(map.toString());
+
+  if (userToken != null) {
+    var response = await http.put(url,
+        headers: {
+          "Authorization": userToken,
+        },
+        body: jsonbody);
+    print(response);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print(list);
+  } else {
+    print("오류발생");
   }
 }

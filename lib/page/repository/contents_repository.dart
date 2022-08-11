@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
+  await Future.delayed(const Duration(microseconds: 1), (){});
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('tmpUserToken',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6Iuq2jO2DnO2YhCIsInByb3ZpZGVyIjoibmF2ZXIiLCJpYXQiOjE2NTk1MzMwMDksImlzcyI6ImNob2NvQnJlYWQifQ.62aJpytwzazGIv9DlSEtXJv5C2QWb4jbdYLS282kA_E');
