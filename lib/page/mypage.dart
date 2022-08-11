@@ -125,6 +125,8 @@ class _MyPageState extends State<MyPage> {
                                   //     horizontal: 50)
                                   ),
                               onPressed: () {
+                                print("탈퇴하기 버튼이 눌렸습니다.");
+                                resign();
                                 // 로그아웃을 하면 이동하는 페이지 넣기
                                 // Navigator.push(context, MaterialPageRoute(
                                 //     builder: (BuildContext context) {
@@ -532,6 +534,66 @@ class _MyPageState extends State<MyPage> {
       } else {
         print(list);
       }
+    }
+  }
+
+  void kakaoLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on home, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl =
+          'https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout';
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      print(responseBody);
+      //Map<String, dynamic> list = jsonDecode(responseBody);
+      // if (list.length == 0) {
+      //   print("length of list is 0");
+      // } else {
+      //   print(list);
+      // }
+    }
+  }
+
+  //kakao apple resign api
+  void resign() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      print('payload value is ${payload}');
+
+      String provider = payload['provider'].toString();
+      print("provider is ${provider} on resign api");
+
+      String tmpUrl = 'https://www.chocobread.shop/auth/' + provider + '/signout';
+      print("tmpUrl value is ${tmpUrl}");
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url, headers: {
+        'Authorization': token,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      //Map<String, dynamic> list = jsonDecode(responseBody);
+      // if (list.length == 0) {
+      //   print("length of list is 0");
+      // } else {
+      //   print(list);
+      // }
     }
   }
 }
