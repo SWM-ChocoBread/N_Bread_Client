@@ -124,9 +124,15 @@ class _MyPageState extends State<MyPage> {
                                   // padding: const EdgeInsets.symmetric(
                                   //     horizontal: 50)
                                   ),
-                              onPressed: () {
+                              onPressed: () async {
                                 print("탈퇴하기 버튼이 눌렸습니다.");
-                                resign();
+                                await resign();
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            Login()),
+                                    (route) => false);
                                 // 로그아웃을 하면 이동하는 페이지 넣기
                                 // Navigator.push(context, MaterialPageRoute(
                                 //     builder: (BuildContext context) {
@@ -565,7 +571,7 @@ class _MyPageState extends State<MyPage> {
   }
 
   //kakao apple resign api
-  void resign() async {
+  Future<void> resign() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
 
@@ -576,7 +582,8 @@ class _MyPageState extends State<MyPage> {
       String provider = payload['provider'].toString();
       print("provider is ${provider} on resign api");
 
-      String tmpUrl = 'https://www.chocobread.shop/auth/' + provider + '/signout';
+      String tmpUrl =
+          'https://www.chocobread.shop/auth/' + provider + '/signout';
       print("tmpUrl value is ${tmpUrl}");
       var url = Uri.parse(
         tmpUrl,
@@ -587,6 +594,11 @@ class _MyPageState extends State<MyPage> {
       });
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
+      prefs.remove("userToken");
+      prefs.setBool("isTerms", true);
+      prefs.setBool("isLogin", false);
+      prefs.setBool("isNickname", true);
+      print("prefs setting done");
       print(list);
       //Map<String, dynamic> list = jsonDecode(responseBody);
       // if (list.length == 0) {
