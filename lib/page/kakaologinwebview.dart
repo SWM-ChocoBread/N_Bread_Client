@@ -36,14 +36,6 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       initialUrlRequest:
           URLRequest(url: Uri.parse("https://chocobread.shop/auth/kakao")),
       onReceivedServerTrustAuthRequest: (controller, challenge) async {
-        // final cookieManager = CookieManager();
-        // await cookieManager.deleteCookies(
-        //     url: Uri.parse("https://chocobread.shop/auth/success"));
-        // print("authkakao's cookie is deleted");
-        // List<Cookie> cookies = await cookieManager.getCookies(
-        //     url: Uri.parse("https://chocobread.shop/auth/success"));
-        // print('cookie value is');
-        // print(cookies);
         //Do some checks here to decide if CANCELS or PROCEEDS
         return ServerTrustAuthResponse(
             action: ServerTrustAuthResponseAction.PROCEED);
@@ -51,9 +43,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
         // 원래는 onLoadStop 이었다.
         if (myurl != null) {
-          print("myurl ${myurl}");
-          List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
-
+          // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
           if (cookie != null) {}
@@ -65,8 +55,9 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
+            await setUserLocation("37.5037142", "127.0447821");
             print("getUserLocation called on 37.5037142,127.0447821");
-            getUserLocation();
+            setUserLocation("37.5037142", "127.0447821");
             Navigator.pushNamedAndRemoveUntil(
                 context, "/termscheck", (r) => false);
           }
@@ -100,6 +91,45 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       appBar: _appBarWidget(),
       body: _kakaoLoginWebview(),
     );
+  }
+
+  Future<void> setUserLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        try {
+          prefs.setString(
+              'userLocation', list['result']['location3'].toString());
+          print("list value is ${list['result']}");
+          print(
+              'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
   }
 
   void getUserLocation() async {
