@@ -145,6 +145,7 @@ class CommentsRepository {
   Future<List<dynamic>> loadComments(String dealId) async {
     // API 통신 location 값을 보내주면서
     print("load comment called");
+    await Future.delayed(const Duration(microseconds: 100), () {});
     Map<String, dynamic> getData = await _callAPI(dealId);
 
     await Future.delayed(const Duration(milliseconds: 1000));

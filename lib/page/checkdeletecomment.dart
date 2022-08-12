@@ -8,7 +8,13 @@ import 'app.dart';
 
 class CheckDeleteComment extends StatefulWidget {
   String commentsIdString;
-  CheckDeleteComment({Key? key, required this.commentsIdString})
+  bool isComment;
+  bool fromDetail;
+  CheckDeleteComment(
+      {Key? key,
+      required this.commentsIdString,
+      required this.isComment,
+      required this.fromDetail})
       : super(key: key);
 
   @override
@@ -38,11 +44,17 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
               // int count = 0;
               // Navigator.of(context).popUntil((_) => count++ >= 2);
               // 삭제 함수 넣기 (삭제 API 호출)
-              deleteComment(widget.commentsIdString);
-              Navigator.of(context).pop();
-              // setState(() {
-              //   _commentsWidget();
-              // });
+              (widget.isComment)
+                  ? deleteComment(widget.commentsIdString)
+                  : deleteReply(widget.commentsIdString);
+              if (widget.fromDetail) {
+                // detail.dart 에서 삭제하기 버튼을 누른 경우, pop 1회
+                Navigator.of(context).pop();
+              } else {
+                // comment.dart 에서 삭제하기 버튼을 누른 경우, pop 2회
+                int count = 0;
+                Navigator.of(context).popUntil((_) => count++ >= 2);
+              }
             },
             child: const Text("확인"))
       ],
@@ -54,6 +66,24 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
     String? userToken = prefs.getString("userToken");
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/comments/" + commentId;
+
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      // await _loadComments();
+    }
+  }
+
+  void deleteReply(String replyId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString("userToken");
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/comments/reply/" + replyId;
 
       var url = Uri.parse(
         tmpUrl,

@@ -108,7 +108,6 @@ class OngoingRepository {
   //   return dataOngoing;
   // }
 
-
 //http://localhost:8080/users/deals/2
   Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
     String tmpUrl = 'https://www.chocobread.shop/users/deals/' + userId;
@@ -120,6 +119,7 @@ class OngoingRepository {
     String? userToken = prefs.getString('userToken');
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
     if (userToken != null) {
+      await Future.delayed(const Duration(microseconds: 1), () {});
       var response = await http.get(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
@@ -134,8 +134,5 @@ class OngoingRepository {
       }
     }
     return tmp;
-    }
-
-
-    
+  }
 }

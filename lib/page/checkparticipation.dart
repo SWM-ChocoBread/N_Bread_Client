@@ -108,7 +108,7 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
                 crossAxisCellCount: 8,
                 mainAxisCellCount: 1,
                 child: Text(
-                  widget.data["place"].toString(),
+                  widget.data["dealPlace"].toString(),
                   softWrap: true,
                   style: const TextStyle(
                     fontSize: 15,

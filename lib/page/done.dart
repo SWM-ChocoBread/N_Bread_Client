@@ -1,5 +1,6 @@
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -75,7 +76,7 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
             child: Hero(
               // 사진 확대되는 애니메이션
               tag: productContents["cid"].toString(),
-              child: Image.asset(
+              child: ExtendedImage.network(
                 productContents["DealImages"][0]["dealImage"].toString(),
                 width: 110,
                 height: 110,
@@ -93,12 +94,13 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-          color: _colorStatusDone(
-              widget.data["currentMember"].toString(), widget.data["totalMember"].toString())
+          color: _colorStatusDone(widget.data["currentMember"].toString(),
+              widget.data["totalMember"].toString())
           // const Color.fromARGB(255, 137, 82, 205)
           ),
       child: Text(
-        _resultStatus(widget.data["currentMember"].toString(), widget.data["totalMember"].toString()),
+        _resultStatus(widget.data["currentMember"].toString(),
+            widget.data["totalMember"].toString()),
         // '${widget.data["status"]}',
         style: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
@@ -275,7 +277,7 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                                 width: 6,
                               ),
                               Text(
-                                widget.data["place"].toString(),
+                                widget.data["dealPlace"].toString(),
                                 style: const TextStyle(fontSize: 13),
                               ),
                             ],
