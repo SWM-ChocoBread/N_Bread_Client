@@ -25,7 +25,6 @@ import '../utils/price_utils.dart';
 import 'app.dart';
 import 'imageuploader.dart';
 
-
 class customFormChange extends StatefulWidget {
   Map<String, dynamic> data;
   customFormChange({Key? key, required this.data}) : super(key: key);
@@ -35,21 +34,16 @@ class customFormChange extends StatefulWidget {
 }
 
 var jsonString =
-    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam"}';
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":""}';
 
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
-  final ImagePicker imagePickerFromGallery =
-      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
-  final ImagePicker imagePickerFromCamera = ImagePicker();
-  int? currentnumofimages = 0;
-
-  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
-
   late DateTime tempPickedDate; // 임시로 datepicker로 선택된 날짜를 저장해주는 변수
-  late bool isOnTappedDate; // 수정하기 페이지에 들어와서 datepicker 로 값을 수정했는지 여부를 나타내는 bool
+  late bool
+      isOnTappedDate; // 수정하기 페이지에 들어와서 datepicker 로 값을 수정했는지 여부를 나타내는 bool
   late TimeOfDay tempPickedTime; // 임시로 timepicker로 선택된 시간을 저장해주는 변수
-  late bool isOnTappedTime; // 수정하기 페이지에 들어와서 timepicker 로 값을 수정했는지 여부를 나타내는 bool
+  late bool
+      isOnTappedTime; // 수정하기 페이지에 들어와서 timepicker 로 값을 수정했는지 여부를 나타내는 bool
 
   @override
   void initState() {
@@ -74,9 +68,10 @@ class _customFormChangeState extends State<customFormChange> {
     images = widget.data["DealImages"]; // detail에서 전달받은 이미지 리스트
     print("formChange images");
     print(images);
+
     contentsid = widget.data["id"].toString();
-    totalPrice = widget
-        .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    totalPrice = widget.data["totalPrice"]
+        .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
     numOfParticipants = widget.data["totalMember"]
         .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
@@ -84,9 +79,9 @@ class _customFormChangeState extends State<customFormChange> {
 
     print(widget.data["dealDate"]); // 2022-08-18T09:08:00.000Z
     date = widget.data["dealDate"].substring(0, 10);
-    print("홈 화면에서 전달받은 dealDate 중 날짜 : "+date); // 2022-08-18
+    print("홈 화면에서 전달받은 dealDate 중 날짜 : " + date); // 2022-08-18
     time = widget.data["dealDate"].substring(11, 16);
-    print("홈 화면에서 전달받은 dealDate 중 시간 : "+time); // 09:08
+    print("홈 화면에서 전달받은 dealDate 중 시간 : " + time); // 09:08
     print(DateTime.parse(widget.data["dealDate"])); // 2022-08-18 09:08:00.000Z
     print(DateTime.parse(widget.data["dealDate"]).year); // 2022
 
@@ -116,7 +111,7 @@ class _customFormChangeState extends State<customFormChange> {
       TextEditingController(); // 추가 작성에 붙는 controller
 
   // 서버에 보내기 위해 제안하기 버튼을 눌렀을 때 데이터 저장하기
-  
+
   String contentsid = "";
   String productName = ""; // 제품명
   String productLink = ""; // 판매 링크
@@ -135,12 +130,13 @@ class _customFormChangeState extends State<customFormChange> {
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
-  // final ImagePicker imagePickerFromGallery =
-  //     ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
-  // final ImagePicker imagePickerFromCamera = ImagePicker();
-  // int? currentnumofimages = 0;
+  final ImagePicker imagePickerFromGallery =
+      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  final ImagePicker imagePickerFromCamera = ImagePicker();
+  int? currentnumofimages = 0;
 
-  // List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
+  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
+
   void selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
@@ -312,55 +308,57 @@ class _customFormChangeState extends State<customFormChange> {
         ));
   }
 
-Widget _showPhotoGrid (){
-  print("images");
-  if (images != [] && imageFileList!.isEmpty) { // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
-    return Flexible(
-            child: GridView.count(
-              physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
-                crossAxisCount: 3,
-                crossAxisSpacing: 15,
-                padding: const EdgeInsets.all(15),
-                shrinkWrap: true,
-                children: List.generate(
-                  images.length,
-                  (index) => ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(25)),
-                    // decoration: const BoxDecoration(borderRadius:
-                    //             BorderRadius.all(Radius.circular(25)),),
-                    child: ExtendedImage.network(
-                      images[index]["dealImage"].toString(),
-                      fit:BoxFit.cover,
-                    ),
-                  ),
-                )),
-          );
-  } else { // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
-    print("######## imageList : ${imageFileList?.length}");
-    return Flexible(
-            child: GridView.count(
-                physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
-                crossAxisCount: 3,
-                crossAxisSpacing: 15,
-                padding: const EdgeInsets.all(15),
-                shrinkWrap: true,
-                children: List.generate(
-                  3,
-                  (index) => Container(
-                    decoration: index < imageFileList!.length
-                        ? BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(25)),
-                            color: Colors.grey,
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(
-                                    File(imageFileList![index].path))))
-                        : null,
-                    child: _boxContents[index],
-                  ),
-                )),
-          );
+  Widget _showPhotoGrid() {
+    print("images");
+    if (images != [] && imageFileList!.isEmpty) {
+      // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
+      return Flexible(
+        child: GridView.count(
+            physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              images.length,
+              (index) => ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+                // decoration: const BoxDecoration(borderRadius:
+                //             BorderRadius.all(Radius.circular(25)),),
+                child: ExtendedImage.network(
+                  images[index]["dealImage"].toString(),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )),
+      );
+    } else {
+      // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
+      print("######## imageList : ${imageFileList?.length}");
+      return Flexible(
+        child: GridView.count(
+            physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              3,
+              (index) => Container(
+                decoration: index < imageFileList!.length
+                    ? BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(25)),
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(File(imageFileList![index].path))))
+                    : null,
+                child: _boxContents[index],
+              ),
+            )),
+      );
+    }
   }
 
 // 3개의 사진이 들어갈 공간
@@ -587,14 +585,16 @@ Widget _showPhotoGrid (){
     );
   }
 
-  DateTime initialDateDeterminant (bool isOnTappedDate){
+  DateTime initialDateDeterminant(bool isOnTappedDate) {
     if (isOnTappedDate) {
       // datepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
       return tempPickedDate;
     } else {
       // datepicker로 값이 수정되지 않은 경우 : detail.dart 에서 받아온 정보를 그대로 initial value로 넣어준다.
-      return DateTime(DateTime.parse(widget.data["dealDate"]).year, DateTime.parse(widget.data["dealDate"]).month,
-                DateTime.parse(widget.data["dealDate"]).day);
+      return DateTime(
+          DateTime.parse(widget.data["dealDate"]).year,
+          DateTime.parse(widget.data["dealDate"]).month,
+          DateTime.parse(widget.data["dealDate"]).day);
     }
   }
 
@@ -631,7 +631,7 @@ Widget _showPhotoGrid (){
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '거래 날짜를 입력해주세요.';
-        } else if (val.toString() == "0000-00-00 00:00:00"){
+        } else if (val.toString() == "0000-00-00 00:00:00") {
           return '유효한 날짜를 선택해주세요.';
         }
         return null;
@@ -639,15 +639,16 @@ Widget _showPhotoGrid (){
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
             context: context,
-            initialDate: initialDateDeterminant (isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
+            initialDate:
+                initialDateDeterminant(isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
             firstDate: DateTime(DateTime.now().year, DateTime.now().month,
                 DateTime.now().day + 4),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
                 DateTime.now().day + 4));
         if (pickedDate != null) {
           setState(() {
-          isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
-        });
+            isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
+          });
           tempPickedDate = pickedDate;
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
           String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
@@ -671,14 +672,15 @@ Widget _showPhotoGrid (){
     );
   }
 
-  TimeOfDay initialTimeDeterminant (bool isOnTappedTime){
+  TimeOfDay initialTimeDeterminant(bool isOnTappedTime) {
     if (isOnTappedTime) {
       // timepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
       return tempPickedTime;
     } else {
       // timepicker로 값이 수정되지 않은 경우 : detail.dart 에서 받아온 정보를 그대로 initial value로 넣어준다.
-      return TimeOfDay(hour:DateTime.parse(widget.data["dealDate"]).hour,
-                minute: DateTime.parse(widget.data["dealDate"]).minute);
+      return TimeOfDay(
+          hour: DateTime.parse(widget.data["dealDate"]).hour,
+          minute: DateTime.parse(widget.data["dealDate"]).minute);
     }
   }
 
@@ -720,14 +722,15 @@ Widget _showPhotoGrid (){
       },
       onTap: () async {
         TimeOfDay? pickedTime = await showTimePicker(
-            context: context, initialTime: initialTimeDeterminant (isOnTappedTime)
+            context: context,
+            initialTime: initialTimeDeterminant(isOnTappedTime)
             // TimeOfDay.now()
             );
 
         if (pickedTime != null) {
           setState(() {
-          isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
-        });
+            isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
+          });
           tempPickedTime = pickedTime;
           DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
               .format(context)
@@ -977,7 +980,7 @@ Widget _showPhotoGrid (){
                         //     );
                         //   }
                         // },
-                        onPressed: () {
+                        onPressed: () async {
                           setState(() {
                             productName = productNameController.text; // 제품명
                             productLink = productLinkController.text; // 판매 링크
@@ -996,11 +999,11 @@ Widget _showPhotoGrid (){
                             time = timeController.text; // 거래 시간
                             place = placeController.text; // 거래 장소
                             extra = extraController.text; // 추가 작성
-                            print("*****date : "+date);
+                            print("*****date : " + date);
                             print("*****time : " + time);
                             dateToSend = MyDateUtils.sendMyDateTime(date, time);
-                            print(dateToSend);                          
-                            });
+                            print(dateToSend);
+                          });
 
                           const snackBar = SnackBar(
                             content: Text(
@@ -1024,14 +1027,16 @@ Widget _showPhotoGrid (){
                             //     builder: (BuildContext context) {
                             //   return const App();
                             // }));
-                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                                builder: (BuildContext context) {
+                            Navigator.pushAndRemoveUntil(context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) {
                               return const App();
                             }), (route) => false);
 
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
                             Map mapToSend = jsonDecode(jsonString);
+                            final prefs = await SharedPreferences.getInstance();
                             print(
                                 "value of date to send is ${dateToSend}"); //값 설정
                             mapToSend['title'] = productName.toString();
@@ -1042,21 +1047,30 @@ Widget _showPhotoGrid (){
                             mapToSend['dealDate'] = dateToSend;
                             mapToSend['place'] = place;
                             mapToSend['content'] = extra;
-                            if(imageFileList!.length > 0){
-                              final List<dio.MultipartFile> _files = imageFileList!.map((img) => dio.MultipartFile.fromFileSync(img.path,  contentType: new MediaType("image", "jpg"))).toList();
-                              dio.FormData _formData = dio.FormData.fromMap({"img": _files});
+                            mapToSend['region'] =
+                                prefs.getString('userLocation');
+                            if (imageFileList!.length > 0) {
+                              final List<dio.MultipartFile> _files =
+                                  imageFileList!
+                                      .map((img) =>
+                                          dio.MultipartFile.fromFileSync(
+                                              img.path,
+                                              contentType: new MediaType(
+                                                  "image", "jpg")))
+                                      .toList();
+                              dio.FormData _formData =
+                                  dio.FormData.fromMap({"img": _files});
                               print("file length :  ${_files.length} ");
                               print(mapToSend);
                               print(jsonString);
                               postFormChange(mapToSend, _formData, contentsid);
-                            }
-                            else{
+                            } else {
                               postFormChangeWithoutImage(mapToSend, contentsid);
                             }
                           }
                           print(
                               "${productName} * ${productLink} * ${totalPrice} * ${numOfParticipants} * ${personalPrice} * ${dealDate} * ${date} * ${time} * ${place} * ${extra}");
-                              print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
+                          print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
                         },
                         child: const Text('제안하기'),
                       ),
@@ -1078,14 +1092,16 @@ Widget _showPhotoGrid (){
   }
 }
 
-void postFormChange(Map jsonbody, dio.FormData formdata, String contetnsid) async {
+void postFormChange(
+    Map jsonbody, dio.FormData formdata, String contetnsid) async {
   final prefs = await SharedPreferences.getInstance();
   var dealChangeUrl = "https://www.chocobread.shop/deals/" + contetnsid;
   var url = Uri.parse(
     dealChangeUrl,
   );
   var body2 = json.encode(jsonbody);
-  var userToken = prefs.getString("tmpUserToken");
+  var userToken = prefs.getString("userToken");
+  print('userToken on change is ${userToken}');
   var map = new Map<String, dynamic>();
   map['body'] = jsonbody;
   print("value of map");
@@ -1102,14 +1118,15 @@ void postFormChange(Map jsonbody, dio.FormData formdata, String contetnsid) asyn
     Map<String, dynamic> list = jsonDecode(responseBody);
     print(list);
     print("Formdata.legnth : ${formdata.length}");
-    if(formdata.length > 0){
+    if (formdata.length > 0) {
       var dioInstance = dio.Dio();
       var dioFormData = dio.FormData.fromMap(map);
       dioInstance.options.contentType = 'multipart/form-data';
       dioInstance.options.headers['Authorization'] = userToken;
       //  list[result][id] 예외처리 ex) 404 안하면 crash
       print("dealId : ${list['result']['id']} ");
-      var imgCreateUrl = "https://www.chocobread.shop/deals/${list['result']['id']}/img"; 
+      var imgCreateUrl =
+          "https://www.chocobread.shop/deals/${list['result']['id']}/img";
       final dioResponse = await dioInstance.post(
         imgCreateUrl,
         data: formdata,
@@ -1127,7 +1144,8 @@ void postFormChangeWithoutImage(Map jsonbody, String contentsid) async {
     dealChangeUrl,
   );
   var body2 = json.encode(jsonbody);
-  var userToken = prefs.getString("tmpUserToken");
+  var userToken = prefs.getString("userToken");
+  print('userToken on change is ${userToken}');
 
   var map = new Map<String, dynamic>();
   map['body'] = jsonbody;
