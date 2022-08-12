@@ -22,36 +22,80 @@ class _TermsLookState extends State<TermsLook> {
       titleSpacing: 0,
       elevation: 0,
       bottomOpacity: 0,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
     );
   }
 
   Widget _termsContent() {
     return Container(
+      padding: EdgeInsets.all(15),
       height: displayHeight(context) - bottomNavigationBarWidth() * 3,
       child: const SingleChildScrollView(child: Text(terms)),
     );
   }
 
   Widget _bodyWidget() {
-    return Container(
+    // return Container(
+    //   padding: const EdgeInsets.all(15.0),
+    //   height: displayHeight(context) - bottomNavigationBarWidth(),
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       const SizedBox(
+    //         height: 5,
+    //       ),
+    //       const Text(
+    //         "이용약관",
+    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    //       ),
+    //       const SizedBox(
+    //         height: 20,
+    //       ),
+    //       _termsContent(),
+    //     ],
+    //   ),
+    // );
+    final List<Map<String, dynamic>> _terms = [
+      {
+        'header': '이용약관',
+        'body': terms,
+      },
+      {'header': '개인정보처리방침', 'body': "how we deal with personal information"}
+    ];
+    final List<Map<String, dynamic>> _items = List.generate(
+        _terms.length,
+        ((index) => {
+              'id': index,
+              'header': _terms[index]['header'],
+              'body': _terms[index]['body'],
+            }));
+
+    return Padding(
       padding: const EdgeInsets.all(15.0),
-      height: displayHeight(context) - bottomNavigationBarWidth(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(
-            height: 5,
-          ),
-          const Text(
-            "개인정보처리방침",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          _termsContent(),
-        ],
+      child: SingleChildScrollView(
+        child: ExpansionPanelList.radio(
+          dividerColor: ColorStyle.myGrey,
+          elevation: 0,
+          animationDuration: const Duration(milliseconds: 500),
+          expandedHeaderPadding: EdgeInsets.zero,
+          children: _items
+              .map((item) => ExpansionPanelRadio(
+                  canTapOnHeader: true, // header 눌러도 열리도록 만들기
+                  value: item['id'],
+                  headerBuilder: (_, bool isExpanded) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 15),
+                      child: Text(
+                        item['header'],
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      )),
+                  body: Container(
+                      height: 200,
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: SingleChildScrollView(child: Text(item['body'])))))
+              .toList(),
+        ),
       ),
     );
   }

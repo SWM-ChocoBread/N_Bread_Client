@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:chocobread/page/done.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
-
+import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/price_utils.dart';
 
 class CheckParticipation extends StatefulWidget {
@@ -151,6 +154,8 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
         ),
         TextButton(
           onPressed: () {
+            // 여기서  호출
+            joinDeal();
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
               return ConfirmParticipation(
@@ -162,5 +167,30 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
         ),
       ],
     );
+  }
+
+  void joinDeal() async {
+//localhost:5005/deals/:dealId/join/:userId
+    String dealId = widget.data['id'].toString();
+    late UserInfoRepository userInfoRepository = UserInfoRepository();
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    String userId = getTokenPayload['id'].toString();
+
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      String tmpUrl =
+          'https://www.chocobread.shop/deals/' + dealId + '/join/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.post(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
   }
 }

@@ -45,7 +45,7 @@ class MyDateUtils {
 
   static String formatMyDateTimeDone(String dateString) {
     DateTime dt = DateTime.parse(dateString);
-    DateTime ddt = DateTime(dt.year, dt.month, dt.day - 4);
+    DateTime ddt = DateTime(dt.year, dt.month, dt.day - 3);
     String formattedDate = DateFormat('yy.MM.dd.').format(ddt);
     String? formattedWeekDay = {
       "Mon": "월",
@@ -91,11 +91,11 @@ class MyDateUtils {
     return "$dayNight $formattedTime";
   }
 
-  static String dateTimeDifference(String dateString) {
-    var newDateString =
-        '${dateString.substring(0, 10)} ${dateString.substring(11, 23)}';
+  static String dateTimeDifference(DateTime rightnow, String dateString) {
+    var newDateString = dateString;
+    // '${dateString.substring(0, 10)} ${dateString.substring(11, 23)}';
     DateTime dt = DateTime.parse(newDateString);
-    DateTime now = DateTime.now();
+    DateTime now = rightnow; // DateTime.now();
     final seconds = now.difference(dt).inSeconds;
     final minutes = now.difference(dt).inMinutes;
     final hours = now.difference(dt).inHours;

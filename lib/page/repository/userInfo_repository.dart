@@ -5,10 +5,11 @@ class UserInfoRepository {
   Future<Map<String, dynamic>> getUserInfo() async {
     await Future.delayed(const Duration(microseconds: 1), (){});
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("tmpUserToken");
+    String? token = prefs.getString("userToken");
+    print("userInfo function's token is ${token}");
 
-    
     if (token != null) {
+      print("tokenValue in getUserInfo is ${token}");
       Map<String, dynamic> payload = Jwt.parseJwt(token);
       return payload;
     } else {

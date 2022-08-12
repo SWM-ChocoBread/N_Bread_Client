@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppleLoginWebview extends StatefulWidget {
   AppleLoginWebview({Key? key}) : super(key: key);
@@ -35,14 +36,18 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       },
       onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
         if (myurl != null) {
-          List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
+          Cookie? cookie =
+              await _cookieManager.getCookie(url: myurl, name: "accessToken");
+          if (cookie != null) {}
           print("start");
-          print(cookies[1].value);
-          print("object");
-          cookies.forEach((cookie) {
-            print(cookie.name + " " + cookie.value);
-            print(cookie);
-          });
+          final prefs = await SharedPreferences.getInstance();
+          print(cookie);
+          print("end");
+          if (cookie != null) {
+            prefs.setString("userToken", cookie.value);
+            Navigator.pushNamedAndRemoveUntil(
+                context, "/termscheck", (r) => false);
+          }
         }
       },
     );

@@ -8,9 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 void prefTest() async {
   await Future.delayed(const Duration(microseconds: 1), (){});
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('tmpUserToken',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmljayI6Iuq2jO2DnO2YhCIsInByb3ZpZGVyIjoibmF2ZXIiLCJpYXQiOjE2NTk1MzMwMDksImlzcyI6ImNob2NvQnJlYWQifQ.62aJpytwzazGIv9DlSEtXJv5C2QWb4jbdYLS282kA_E');
-
 
   //return prefs;
 }
@@ -19,7 +16,7 @@ class ContentsRepository {
   Map<String, dynamic> data = {
     "yeoksam": [
       {
-        "cid": "0", //
+        "id": "0", //
         "DealImages": [
           {"dealImage": "assets/images/maltesers.png"}
         ],
@@ -28,7 +25,7 @@ class ContentsRepository {
         "link": "https://www.coupang.com",
         "totalPrice": "16490",
         "personalPrice": "5500",
-        "createdAt": "2022-07-30T21:30:12.000Z",
+        "createdAt": "2022-08-01T21:54:12.000Z",
         "currentMember": "1",
         "totalMember": "3",
         "status": "모집중",
@@ -39,7 +36,7 @@ class ContentsRepository {
         "contents": "몰티져스 소분 구매하실 분 찾습니다! \n매너 거래 원합니다!",
       },
       {
-        "cid": "1",
+        "id": "1",
         "DealImages": [
           {"dealImage": "assets/images/butter.png"}
         ],
@@ -59,7 +56,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "2",
+        "id": "2",
         "DealImages": [
           {"dealImage": "assets/images/flipflop.jpeg"}
         ],
@@ -80,7 +77,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "3",
+        "id": "3",
         "DealImages": [],
         "mystatus": "제안자",
         "title": "아키클래식 클라우드 리커버리 플립플랍",
@@ -99,7 +96,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "4",
+        "id": "4",
         "DealImages": [
           {"dealImage": "assets/images/otg.png"}
         ],
@@ -120,7 +117,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "5",
+        "id": "5",
         "DealImages": [],
         "mystatus": "참여자",
         "title": "모집이 실패된 케이스를 테스트하기 위한 경우",
@@ -140,7 +137,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "6",
+        "id": "6",
         "DealImages": [
           {"dealImage": "assets/images/xexymix.png"},
           {"dealImage": "assets/images/xexymix1.png"}
@@ -162,7 +159,7 @@ class ContentsRepository {
         "contents": "",
       },
       {
-        "cid": "7",
+        "id": "7",
         "DealImages": [],
         "mystatus": "user",
         "title": "머리끈 소분 판매",
@@ -182,7 +179,7 @@ class ContentsRepository {
     ],
     "bangbae": [
       {
-        "cid": "10",
+        "id": "10",
         "DealImages": [
           {"dealImage": "assets/images/maltesers.png"}
         ],
@@ -198,7 +195,7 @@ class ContentsRepository {
         "sellerAddress": "역삼 2동",
       },
       {
-        "cid": "11",
+        "id": "11",
         "DealImages": [
           {"dealImage": "assets/images/butter.png"}
         ],
@@ -214,7 +211,7 @@ class ContentsRepository {
         "sellerAddress": "역삼 2동",
       },
       {
-        "cid": "12",
+        "id": "12",
         "DealImages": [
           {"dealImage": "assets/images/flipflop.jpeg"}
         ],
@@ -232,37 +229,35 @@ class ContentsRepository {
     ],
   };
 
-  Future<Map<String, dynamic>> _callAPI(String location) async {
-    prefTest();
+  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
+      String location) async {
+    //prefTest();
+    await Future.delayed(const Duration(microseconds: 1), () {});
+    final prefs = await SharedPreferences.getInstance();
+    //토큰값 임의 삭제
+    // prefs.remove('userToken');
+    print("load content userToken is ${prefs.getString('userToken')}");
+    // API 통신 location 값을 보내주면서
+    print("loadContentsfrom location is ${location}");
     String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,
     );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) print("length of list is 0");
-    return list;
-  }
-
-  // void _callAPI2() async {
-  //   String uu = 'http://localhost:5005/auth/kakao';
-  //   var uu2 = Uri.parse(uu);
-  //   var res2 = await http.get(uu2);
-  //   //String responseBody2 = utf8.decode(res2.bodyBytes);
-  //   //Map<String, dynamic> tmp = jsonDecode(responseBody2);
-  // }
-
-  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
-      String location) async {
-    // API 통신 location 값을 보내주면서
-    Map<String, dynamic> getData = await _callAPI(location);
-
-    // _callAPI2();
-    await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
-    for (int i = 0; i < getData["result"]["capsule"].length; i++) {
-      tmp.add(getData["result"]["capsule"][i]);
+
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      var response = await http.get(url, headers: {'Authorization': userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) print("length of list is 0");
+
+      for (int i = 0; i < list["result"]["capsule"].length; i++) {
+        tmp.add(list["result"]["capsule"][i]);
+      }
+      print("loadContents called");
+      print(tmp);
     }
     return tmp;
   }

@@ -14,6 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/datetime_utils.dart';
@@ -21,6 +22,8 @@ import '../utils/price_utils.dart';
 import 'create.dart';
 
 // develop
+late String currentLocation = "";
+late String location = "";
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -30,7 +33,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late String currentLocation;
   final Map<String, String> locationTypeToString = {
     "yeoksam": "역삼동",
     "bangbae": "방배동",
@@ -39,13 +41,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    currentLocation = "yeoksam";
-    contentsRepository = ContentsRepository();
-    setState(() {
-          loadContents();
-    });
   }
 
   @override
@@ -57,104 +53,139 @@ class _HomeState extends State<Home> {
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
-      leading: IconButton(
-        onPressed: () {
-          print(DateTime.now());
-          print(MyDateUtils.dateTimeDifference('2022-07-30T20:37:12.000Z'));
-          print(MyDateUtils.dateTimeDifference('2022-07-30 20:37:12'));
-          print(DateFormat('hh: MM')
-              .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
-        },
-        icon: const FaIcon(FontAwesomeIcons.locationDot),
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(),
-        // SvgPicture.asset(
-        //   "assets/svg/logo.svg",
-        //   width: 100,
-        // )
-      ), // logo, hamburger,
-      title: GestureDetector(
-        onTap: () {
-          print("click");
-        },
-        child: Row(children: [
-          PopupMenuButton<String>(
-            offset: const Offset(-5, 30),
-            shape: ShapeBorder.lerp(
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                1),
-            onSelected: (String where) {
-              print(where);
-              setState(() {
-                currentLocation = where;
-              });
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem(value: "yeoksam", child: Text("역삼동")),
-                const PopupMenuItem(value: "bangbae", child: Text("방배동")),
-              ];
-            },
-            child: Row(
-              children: [
-                Text(locationTypeToString[currentLocation] ?? ""),
-                const Icon(Icons.arrow_drop_down_rounded),
-              ],
-            ),
+        // leading: IconButton(
+        //   onPressed: () {
+        //     print(DateTime.now());
+        //     print(MyDateUtils.dateTimeDifference(
+        //         DateTime.now(), '2022-07-30T20:37:12.000Z'));
+        //     print(MyDateUtils.dateTimeDifference(
+        //         DateTime.now(), '2022-07-30 20:37:12'));
+        //     print(DateFormat('hh: MM')
+        //         .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
+        //   },
+        //   icon: const FaIcon(
+        //     FontAwesomeIcons.locationDot,
+        //     size: 18,
+        //   ),
+        //   padding: EdgeInsets.zero,
+        //   constraints: const BoxConstraints(),
+        //   // SvgPicture.asset(
+        //   //   "assets/svg/logo.svg",
+        //   //   width: 100,
+        //   // )
+        // ), // logo, hamburger,
+        title: GestureDetector(
+          onTap: () async {
+            print("click");
+            // setState(() {
+            //채은 : 좌표넣기
+            await setUserLocation("37.5037142", "127.0447821");
+            //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
+            // });
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: Row(children: [
+              //혜연->채은 요청사항 : currentLocation에 값을 넣음에도 불구하고(loadcontents함수에서)화면에는 초기값인 ""만 보임.
+              Text(currentLocation),
+              const SizedBox(
+                width: 10,
+              ),
+              const FaIcon(
+                FontAwesomeIcons.rotateRight,
+                size: 17,
+              ),
+              // PopupMenuButton<String>(
+              //   offset: const Offset(-5, 30),
+              //   shape: ShapeBorder.lerp(
+              //       RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(10.0)),
+              //       RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(10.0)),
+              //       1),
+              //   onSelected: (String where) {
+              //     print(where);
+              //     setState(() {
+              //       currentLocation = where;
+              //     });
+              //   },
+              //   itemBuilder: (BuildContext context) {
+              //     return [
+              //       const PopupMenuItem(value: "yeoksam", child: Text("역삼동")),
+              //       const PopupMenuItem(value: "bangbae", child: Text("방배동")),
+              //     ];
+              //   },
+              //   child: Row(
+              //     children: [
+              //       Text(locationTypeToString[currentLocation] ?? ""),
+              //       const Icon(Icons.arrow_drop_down_rounded),
+              //     ],
+              //   ),
+              // ),
+              // IconButton(
+              //     onPressed: () {
+              //       // 새로고침 버튼을 눌렀을 때, 위치가 바뀌도록 처리
+              //       setState(() {
+              //         currentLocation = "bangbae";
+              //       });
+              //     },
+              //     icon: const FaIcon(
+              //       FontAwesomeIcons.rotateRight,
+              //       size: 18,
+              //     ))
+            ]),
           ),
-        ]),
-      ), // name of the app
-      actions: [
-        IconButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return NotionInfo();
-              }));
-            },
-            icon: const Icon(Icons.help_outline_rounded)),
-        IconButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return Login();
-              }));
-            },
-            icon: const Icon(Icons.mood)),
-        IconButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return NicknameSet();
-              }));
-            },
-            icon: const Icon(Icons.ac_unit)),
-        IconButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return TermsCheck();
-              }));
-            },
-            icon: const Icon(Icons.info_outline_rounded))
-      ],
-      centerTitle: false,
-      titleSpacing: 0,
-      elevation: 0,
-      bottomOpacity: 0,
-      backgroundColor: Colors.transparent,
-      // actions: [
-      //   IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-      //   IconButton(onPressed: () {}, icon: Icon(Icons.tune)),
-      //   IconButton(
-      //       onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
-      //   IconButton(
-      //       onPressed: () {}, icon: const Icon(Icons.border_color_rounded)),
-      // ], // buttons at the end
-    );
+        ), // name of the app
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return NotionInfo();
+                }));
+              },
+              icon: const Icon(Icons.help_outline_rounded)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return Login();
+                }));
+              },
+              icon: const Icon(Icons.mood)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return NicknameSet();
+                }));
+              },
+              icon: const Icon(Icons.ac_unit)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return TermsCheck();
+                }));
+              },
+              icon: const Icon(Icons.info_outline_rounded))
+        ],
+        centerTitle: false,
+        titleSpacing: 0,
+        elevation: 0,
+        bottomOpacity: 0,
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading:
+            false // 이전 버튼 자동 생성 막기 (닉네임 초기 설정 후 홈으로 돌아오는 경우 이전 버튼 없애기 위한 것)
+        // actions: [
+        //   IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+        //   IconButton(onPressed: () {}, icon: Icon(Icons.tune)),
+        //   IconButton(
+        //       onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
+        //   IconButton(
+        //       onPressed: () {}, icon: const Icon(Icons.border_color_rounded)),
+        // ], // buttons at the end
+        );
   }
 
   Color _colorStatus(String status) {
@@ -319,8 +350,16 @@ class _HomeState extends State<Home> {
     );
   }
 
-  loadContents() {
-    return contentsRepository.loadContentsFromLocation(currentLocation);
+  loadContents() async {
+    //await setUserLocation("37.5037142", "127.0447821");
+    final prefs = await SharedPreferences.getInstance();
+    String? locate = prefs.getString("userLocation");
+    await Future.delayed(const Duration(seconds: 1), () {});
+    if (locate != null) {
+      currentLocation = locate;
+      print("loadContents 에서의 currentlocation = ${currentLocation}");
+      return contentsRepository.loadContentsFromLocation(currentLocation);
+    }
   }
 
   _makeDataList(List<Map<String, dynamic>> dataContents) {
@@ -572,6 +611,7 @@ class _HomeState extends State<Home> {
                               children: [
                                 Text(
                                     MyDateUtils.dateTimeDifference(
+                                        DateTime.now(),
                                         dataContents[index]["createdAt"]),
                                     // "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
                                     style: TextStyle(
@@ -652,12 +692,53 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print("***home.dart의 빌드 함수가 실행되었습니다.***");
+    loadContents();
     //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       floatingActionButton: _floatingActionButtonWidget(),
     );
+  }
+
+  Future<void> setUserLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        try {
+          currentLocation = list['result']['location3'].toString();
+          prefs.setString('userLocation', currentLocation);
+          print("list value is ${list['result']}");
+          print(
+              'currnetLocation in setUserLocation Function is ${currentLocation}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
   }
 }
 
@@ -675,14 +756,5 @@ class _HomeState extends State<Home> {
 
 //   //return list['result']['nick'];
 // }
-void _getUserLocation()async{
-  final prefs = await SharedPreferences.getInstance();
-  print(prefs.getString('tmpUserToken'));
-  String? userToken = prefs.getString('tmpUserToken');
-  
-  if(userToken!=null){
-    
-  }
-  
 
-}
+

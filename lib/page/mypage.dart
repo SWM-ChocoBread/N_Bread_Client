@@ -3,12 +3,15 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/home.dart';
+import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
@@ -20,7 +23,6 @@ import 'detail.dart';
 import 'termslook.dart';
 
 String setUserNickName = "";
-String setUserLocation = "";
 UserInfoRepository userInfoRepository = UserInfoRepository();
 
 class MyPage extends StatefulWidget {
@@ -64,7 +66,7 @@ class _MyPageState extends State<MyPage> {
                   builder: (BuildContext context) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
-                      height: 200,
+                      height: 250,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -94,11 +96,69 @@ class _MyPageState extends State<MyPage> {
                                   // padding: const EdgeInsets.symmetric(
                                   //     horizontal: 50)
                                   ),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                  return AccountDelete();
-                                }));
+                              onPressed: () async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                String? token = prefs.getString("userToken");
+
+                                if (token != null) {
+                                  Map<String, dynamic> payload =
+                                      Jwt.parseJwt(token);
+                                  print('payload value is ${payload}');
+                                  if (payload['provider'] == 'kakao') {
+                                    print(
+                                        'logout provider is ${payload['provider']}');
+                                    prefs.remove('userToken');
+                                    prefs.setBool("isLogin", false);
+                                    kakaoLogout();
+                                  } else if (payload['provider'] == 'apple') {
+                                    print(
+                                        'logout provider is ${payload['provider']}');
+                                    prefs.remove('userToken');
+                                    prefs.setBool("isLogin", false);
+                                  } else {
+                                    print(
+                                        'payload value is ${payload['provoder']}');
+                                  }
+                                }
+
+                                print(
+                                    "userToken deleted and userToken is ${prefs.getString('userToken')}");
+
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            Login()),
+                                    (route) => false);
+                              },
+                              child: const Text("로그아웃"),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 50)
+                                  ),
+                              onPressed: () async {
+                                print("탈퇴하기 버튼이 눌렸습니다.");
+                                await resign();
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            Login()),
+                                    (route) => false);
+                                // 로그아웃을 하면 이동하는 페이지 넣기
+                                // Navigator.push(context, MaterialPageRoute(
+                                //     builder: (BuildContext context) {
+                                //   return AccountDelete();
+                                // }));
                               },
                               child: const Text("탈퇴하기"),
                             ),
@@ -252,16 +312,14 @@ class _MyPageState extends State<MyPage> {
   }
 
   _loadOngoing() async {
-    final pref = await SharedPreferences.getInstance();
-    final userId = pref.getString("tmpUserId");
-    print("load ongoing");
-    print(userId);
-
-    if (userId != null) {
-      return ongoingRepository.loadOngoing("2");
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      String userId = Jwt.parseJwt(userToken)['id'].toString();
+      print('loadOngoing called where userID is ${userId}');
+      return ongoingRepository.loadOngoing(userId);
     }
-    return null;
-    //return ongoingRepository.loadOngoing(userId);
   }
 
   _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
@@ -295,12 +353,16 @@ class _MyPageState extends State<MyPage> {
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(
-                                  dataOngoing[index]["mystatus"].toString()),
+                              color: _colorMyStatus(dataOngoing[index]
+                                      ["mystatus"]
+                                  .toString()
+                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
                             ),
                             // const Color.fromARGB(255, 137, 82, 205)),
                             child: Text(
-                              dataOngoing[index]["mystatus"].toString(),
+                              dataOngoing[index]["mystatus"]
+                                  .toString()
+                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
                               style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -454,7 +516,6 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     setUserNickname();
-    setUserLocation();
     return Scaffold(
       appBar: _appBarWidget(),
       body: _bodyWidget(),
@@ -465,28 +526,107 @@ class _MyPageState extends State<MyPage> {
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     print("setUserNick was called");
-    print(getTokenPayload['nick']);
-    setUserNickName = getTokenPayload['nick'];
+    String userId = getTokenPayload['id'].toString();
+    String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print("on setUserNick, response is ${list}");
+    setUserNickName = list['result']['nick'];
     print("setUserNickName is ${setUserNickName}");
   }
 
   void setUserLocation() async {
-    print("setUserLocation was called");
-    Map<String, dynamic> getTokenPayload =
-        await userInfoRepository.getUserInfo();
-    String userId = getTokenPayload['id'].toString();
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
 
-    String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.post(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) {
-      print("length of list is 0");
-    } else {
+      String userId = payload['id'].toString();
+      print("setUserLocation on home, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        print(list);
+      }
+    }
+  }
+
+  void kakaoLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on home, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl =
+          'https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout';
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      print(responseBody);
+      //Map<String, dynamic> list = jsonDecode(responseBody);
+      // if (list.length == 0) {
+      //   print("length of list is 0");
+      // } else {
+      //   print(list);
+      // }
+    }
+  }
+
+  //kakao apple resign api
+  Future<void> resign() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      print('payload value is ${payload}');
+
+      String provider = payload['provider'].toString();
+      print("provider is ${provider} on resign api");
+
+      String tmpUrl =
+          'https://www.chocobread.shop/auth/' + provider + '/signout';
+      print("tmpUrl value is ${tmpUrl}");
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url, headers: {
+        'Authorization': token,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      prefs.remove("userToken");
+      prefs.setBool("isTerms", true);
+      prefs.setBool("isLogin", false);
+      prefs.setBool("isNickname", true);
+      print("prefs setting done");
       print(list);
+      //Map<String, dynamic> list = jsonDecode(responseBody);
+      // if (list.length == 0) {
+      //   print("length of list is 0");
+      // } else {
+      //   print(list);
+      // }
     }
   }
 }

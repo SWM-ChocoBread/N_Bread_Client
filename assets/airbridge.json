@@ -1,0 +1,9 @@
+{
+    "sessionTimeoutSeconds": 300,
+    "autoStartTrackingEnabled": true,
+    "userInfoHashEnabled": true,
+    "trackAirbridgeLinkOnly": false,
+    "facebookDeferredAppLinkEnabled": false,
+    "locationCollectionEnabled": false,
+    "trackingAuthorizeTimeoutSeconds": 0
+}

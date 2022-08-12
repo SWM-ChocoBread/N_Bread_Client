@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/price_utils.dart';
+import 'checkdeletecomment.dart';
 import 'comments.dart';
 import 'done.dart';
 
@@ -39,6 +40,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   late Size size;
   List<Map<String, String>> imgList = []; // imgList 선언
   late int _current; // _current 변수 선언
+  String currentUserId = "";
+
   double scrollPositionToAlpha = 0;
   ScrollController _scrollControllerForAppBar = ScrollController();
   String currentuserstatus = ""; // 해당 상품에 대한 유저의 상태 : 제안자, 참여자, 지나가는 사람
@@ -56,7 +59,10 @@ class _DetailContentViewState extends State<DetailContentView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("getUserstatus called on initstate");
+
+    //getUserStatus();
+    // print(
+    //     "getUserstatus called on initstate and userStatus is ${currentuserstatus}");
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
@@ -87,8 +93,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    currentuserstatus = "제안자";
-    print("curr usrer stat ${widget.data['mystatus']}");
+
+    print("curr usrer stat ${currentuserstatus}");
 
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
       return PopupMenuButton(
@@ -155,11 +161,11 @@ class _DetailContentViewState extends State<DetailContentView> {
       leading: IconButton(
         // Navigator 사용시 보통 자동으로 생성되나, 기타 처리 필요하므로 따로 생성
         onPressed: () {
-          Navigator.pop(context);
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (BuildContext context) {
-          //   return const App();
-          // }));
+          // Navigator.pop(context);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const App();
+          }));
         },
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
@@ -330,7 +336,10 @@ class _DetailContentViewState extends State<DetailContentView> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           Text(
-            MyDateUtils.dateTimeDifference(widget.data["createdAt"]),
+            MyDateUtils.dateTimeDifference(
+                DateTime.now(), widget.data["createdAt"]),
+            // "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}", //
+
             style: const TextStyle(fontSize: 12),
           ),
           const SizedBox(
@@ -426,9 +435,13 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _userStatusChip(String userstatus) {
-    if (userstatus == "user") {
-      return Container();
-    } else {
+    // if (userstatus == "user") {
+    //   return Container(
+    //     width: 0,
+    //     height: 0,
+    //   );
+    // } else {
+    if (userstatus != "user") {
       return Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
           decoration: BoxDecoration(
@@ -442,9 +455,79 @@ class _DetailContentViewState extends State<DetailContentView> {
                 fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
           ));
     }
+    return const SizedBox.shrink();
   }
 
-  _loadComments() {
+  bool _showDeletedButton(String contents) {
+    if (contents == "삭제된 댓글입니다.") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Widget _deleteComments(int userId, int commentsId) {
+    if (userId.toString() == currentUserId) {
+      // 만약 현재 유저가 해당 댓글을 쓴 사람인 경우
+      return TextButton(
+          onPressed: () {
+            // 삭제하기 버튼을 눌렀을 경우 : 댓글을 삭제하시겠습니까? alert 창 > 댓글 삭제API
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckDeleteComment(
+                      commentsIdString: commentsId.toString());
+                }).then((_) => setState(() {
+                  _commentsWidget();
+                }));
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: (BuildContext context) {
+            //   return CheckDeleteComment(
+            //       commentsIdString: commentsId.toString());
+            // })).then((_) => setState(() {
+            //       _commentsWidget();
+            //     }));
+            // deleteComment(commentsId.toString());
+            // setState(() {
+            //   _commentsWidget();
+            // });
+            print(commentsId);
+          },
+          child: const Text("삭제하기",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              )));
+    }
+
+    return Container();
+  }
+
+  Widget _deleteReply(int repliesUserId, int repliesId) {
+    if (repliesUserId.toString() == currentUserId) {
+      // 만약 현재 유저가 해당 대댓글을 쓴 사람인 경우
+      return TextButton(
+          onPressed: () {
+            // 삭제하기 버튼을 눌렀을 경우 대댓글삭제API
+            deleteReply(repliesId.toString());
+            setState(() {
+              _commentsWidget();
+            });
+          },
+          child: const Text("삭제하기",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              )));
+    }
+    return Container();
+  }
+
+  _loadComments() async {
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    currentUserId = getTokenPayload['id'].toString();
+
     return CommentsRepository().loadComments(widget.data['id'].toString());
   }
 
@@ -489,8 +572,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                         width: 5,
                       ),
                       Text(
-                        MyDateUtils.dateTimeDifference(
+                        MyDateUtils.dateTimeDifference(DateTime.now(),
                             dataComments[firstIndex]["createdAt"]),
+                        // "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
                         style:
                             const TextStyle(color: Colors.grey, fontSize: 12),
                       )
@@ -515,32 +599,42 @@ class _DetailContentViewState extends State<DetailContentView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 19.0),
-                    child: TextButton(
-                        onPressed: () {
-                          // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
-                          // setState(() {
-                          //   enablecommentsbox = true;
-                          // });
-                          // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
+                    child: Row(
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
+                              // setState(() {
+                              //   enablecommentsbox = true;
+                              // });
+                              // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
 
-                          // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return DetailCommentsView(
-                                data: dataComments,
-                                replyTo: dataComments[firstIndex]["User"]
-                                    ["nick"],
-                                replyToId:
-                                    dataComments[firstIndex]["id"].toString(),
-
-                                id: widget.data["id"].toString());
-                          }));
-                        },
-                        child: const Text("답글쓰기",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ))),
+                              // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                return DetailCommentsView(
+                                    data: dataComments,
+                                    replyTo: dataComments[firstIndex]["User"]
+                                        ["nick"],
+                                    replyToId: dataComments[firstIndex]["id"]
+                                        .toString(),
+                                    id: widget.data["id"].toString());
+                              })).then((_) => setState(() {
+                                    _commentsWidget();
+                                  }));
+                            },
+                            child: const Text("답글쓰기",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ))),
+                        _showDeletedButton(dataComments[firstIndex]["content"])
+                            ? _deleteComments(
+                                dataComments[firstIndex]["userId"],
+                                dataComments[firstIndex]["id"])
+                            : Container(),
+                      ],
+                    ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 25),
@@ -591,8 +685,10 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   ),
                                   Text(
                                     MyDateUtils.dateTimeDifference(
+                                        DateTime.now(),
                                         dataComments[firstIndex]["Replies"]
                                             [secondIndex]["createdAt"]),
+                                    // "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
                                     style: const TextStyle(
                                         color: Colors.grey, fontSize: 12),
                                   )
@@ -615,9 +711,19 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(
-                                height: 15,
-                              )
+                              // const SizedBox(
+                              //   height: 15,
+                              // ),
+                              _showDeletedButton(dataComments[firstIndex]
+                                      ["Replies"][secondIndex]["content"])
+                                  ? _deleteReply(
+                                      dataComments[firstIndex]["Replies"]
+                                          [secondIndex]["userId"],
+                                      dataComments[firstIndex]["Replies"]
+                                          [secondIndex]["id"])
+                                  : const SizedBox(
+                                      height: 15,
+                                    ),
                               // Padding(
                               //   padding: const EdgeInsets.only(left: 19.0),
                               //   child: TextButton(
@@ -862,7 +968,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                     replyToId: "",
                     id: widget.data["id"].toString(),
                   );
-                }));
+                })).then((_) => setState(() {
+                      _commentsWidget();
+                    })); // 댓글 상세 페이지(comments.dart)로 넘어갔다가 돌아올 때 다시 댓글 로드
               },
               decoration: InputDecoration(
                 hintText: "댓글을 입력해주세요.",
@@ -1144,6 +1252,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   @override
   Widget build(BuildContext context) {
+    print("***build***");
     return Scaffold(
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -1156,31 +1265,31 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  Future getUserStatus() async {
-    String dealId = widget.data['id'].toString();
-    Map<String, dynamic> getTokenPayload =
-        await userInfoRepository.getUserInfo();
-    String userId = getTokenPayload['id'].toString();
-    String tmpUrl =
-        'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) {
-      print("length of list is 0");
-    } else {
-      print('getuserStatus function ${list['result']['description']}');
-      currentuserstatus = list['result']['description'];
-    }
-  }
+  // Future getUserStatus() async {
+  //   String dealId = widget.data['id'].toString();
+  //   Map<String, dynamic> getTokenPayload =
+  //       await userInfoRepository.getUserInfo();
+  //   String userId = getTokenPayload['id'].toString();
+  //   String tmpUrl =
+  //       'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
+  //   var url = Uri.parse(
+  //     tmpUrl,
+  //   );
+  //   var response = await http.get(url);
+  //   String responseBody = utf8.decode(response.bodyBytes);
+  //   Map<String, dynamic> list = jsonDecode(responseBody);
+  //   if (list.length == 0) {
+  //     print("length of list is 0");
+  //   } else {
+  //     print('getuserStatus function ${list['result']['description']}');
+  //     currentuserstatus = list['result']['description'];
+  //   }
+  // }
 
   void deleteDeal(String dealId) async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('tmpUserToken'));
-    String? userToken = prefs.getString('tmpUserToken');
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
 
     if (userToken != null) {
       var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
@@ -1192,6 +1301,42 @@ class _DetailContentViewState extends State<DetailContentView> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
+    }
+  }
+
+  void deleteComment(String commentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString("userToken");
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/comments/" + commentId;
+
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      // await _loadComments();
+    }
+  }
+
+  void deleteReply(String replyId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString("userToken");
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/comments/reply/" + replyId;
+
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      // await _loadComments();
     }
   }
 }

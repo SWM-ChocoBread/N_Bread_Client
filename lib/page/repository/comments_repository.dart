@@ -111,8 +111,8 @@ class CommentsRepository {
       "id": 2,
       "content": "시간 조정 가능한가요?",
       "isDeleted": null,
-      "createdAt": "2022-07-17T05:22:33.000Z",
-      "updatedAt": "2022-07-17T05:22:33.000Z",
+      "createdAt": "2022-08-02T12:34:30.000Z",
+      "updatedAt": "2022-07-17T05:23:37.000Z",
       "deletedAt": null,
       "fromThen": "7분 전",
       "dealId": 1,
@@ -146,6 +146,7 @@ class CommentsRepository {
   Future<List<dynamic>> loadComments(String dealId) async {
     // API 통신 location 값을 보내주면서
     print("load comment called");
+    await Future.delayed(const Duration(microseconds: 1), () {});
     Map<String, dynamic> getData = await _callAPI(dealId);
 
     await Future.delayed(const Duration(milliseconds: 1000));

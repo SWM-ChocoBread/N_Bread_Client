@@ -39,6 +39,13 @@ var jsonString =
 
 class _customFormChangeState extends State<customFormChange> {
   final now = DateTime.now();
+  final ImagePicker imagePickerFromGallery =
+      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  final ImagePicker imagePickerFromCamera = ImagePicker();
+  int? currentnumofimages = 0;
+
+  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
+
   late DateTime tempPickedDate; // 임시로 datepicker로 선택된 날짜를 저장해주는 변수
   late bool isOnTappedDate; // 수정하기 페이지에 들어와서 datepicker 로 값을 수정했는지 여부를 나타내는 bool
   late TimeOfDay tempPickedTime; // 임시로 timepicker로 선택된 시간을 저장해주는 변수
@@ -67,13 +74,12 @@ class _customFormChangeState extends State<customFormChange> {
     images = widget.data["DealImages"]; // detail에서 전달받은 이미지 리스트
     print("formChange images");
     print(images);
-
     contentsid = widget.data["id"].toString();
     totalPrice = widget
         .data["totalPrice"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(totalPrice);
-    numOfParticipants = widget
-        .data["totalMember"].toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
+    numOfParticipants = widget.data["totalMember"]
+        .toString(); // 수정하거나 제안하지 않아도 해당 값이 있어야 1인당 부담 가격을 표시할 수 있다.
     print(numOfParticipants);
 
     print(widget.data["dealDate"]); // 2022-08-18T09:08:00.000Z
@@ -129,13 +135,12 @@ class _customFormChangeState extends State<customFormChange> {
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
-  final ImagePicker imagePickerFromGallery =
-      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
-  final ImagePicker imagePickerFromCamera = ImagePicker();
-  int? currentnumofimages = 0;
+  // final ImagePicker imagePickerFromGallery =
+  //     ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  // final ImagePicker imagePickerFromCamera = ImagePicker();
+  // int? currentnumofimages = 0;
 
-  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
-
+  // List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
   void selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
@@ -184,12 +189,14 @@ class _customFormChangeState extends State<customFormChange> {
     return images.length;
   }
 
-  String _getFinalNumberOfImages (){
+  String _getFinalNumberOfImages() {
     print("전달받은 이미지의 개수는 ${_getNumberOfDeliveredImages()}");
     print("선택한 이미지의 개수는 ${_getNumberOfSelectedImages()}");
-    if (_getNumberOfDeliveredImages() > 0 && _getNumberOfSelectedImages() == 0) {
+    if (_getNumberOfDeliveredImages() > 0 &&
+        _getNumberOfSelectedImages() == 0) {
       return _getNumberOfDeliveredImages().toString();
-    } return _getNumberOfSelectedImages().toString();
+    }
+    return _getNumberOfSelectedImages().toString();
   }
 
   Duration durationforsnackbar() {
@@ -355,7 +362,6 @@ Widget _showPhotoGrid (){
                 )),
           );
   }
-}
 
 // 3개의 사진이 들어갈 공간
   final List _boxContents = [Container(), Container(), Container()];
