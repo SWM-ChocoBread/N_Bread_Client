@@ -22,7 +22,7 @@ import 'app.dart';
 import 'imageuploader.dart';
 
 var jsonString =
-    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"역삼1동"}';
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":""}';
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -269,7 +269,6 @@ class _customFormState extends State<customForm> {
 
   Widget _productNameTextFormField() {
     return TextFormField(
-      autocorrect: false,
       controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
@@ -299,7 +298,6 @@ class _customFormState extends State<customForm> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
-      autocorrect: false,
       controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
@@ -583,7 +581,6 @@ class _customFormState extends State<customForm> {
 
   Widget _placeTextFormField() {
     return TextFormField(
-      autocorrect: false,
       controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
@@ -617,7 +614,6 @@ class _customFormState extends State<customForm> {
 
   Widget _extraTextFormField() {
     return TextFormField(
-      autocorrect: false,
       controller: extraController,
       minLines: 5,
       maxLines: null,
@@ -800,7 +796,7 @@ class _customFormState extends State<customForm> {
                       SizedBox(
                         width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
                         child: OutlinedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             setState(() {
                               productName = productNameController.text; // 제품명
                               productLink = productLinkController.text; // 판매 링크
@@ -851,6 +847,8 @@ class _customFormState extends State<customForm> {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
                               Map mapToSend = jsonDecode(jsonString);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
                               print(
                                   "value of date to send is ${dateToSend}"); //값 설정
                               mapToSend['title'] = productName.toString();
@@ -861,6 +859,8 @@ class _customFormState extends State<customForm> {
                               mapToSend['dealDate'] = dateToSend;
                               mapToSend['place'] = place;
                               mapToSend['content'] = extra;
+                              mapToSend['region'] =
+                                  prefs.getString('userLocation');
                               //region,imageLink123은 우선 디폴트값
                               //print(imageFileList?[0]);
                               final List<MultipartFile> _files = imageFileList!

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
+  await Future.delayed(const Duration(microseconds: 1), (){});
   final prefs = await SharedPreferences.getInstance();
 
   //return prefs;
@@ -231,10 +232,10 @@ class ContentsRepository {
   Future<List<Map<String, dynamic>>> loadContentsFromLocation(
       String location) async {
     //prefTest();
+    await Future.delayed(const Duration(microseconds: 1), () {});
     final prefs = await SharedPreferences.getInstance();
     //토큰값 임의 삭제
     // prefs.remove('userToken');
-
     print("load content userToken is ${prefs.getString('userToken')}");
     // API 통신 location 값을 보내주면서
     print("loadContentsfrom location is ${location}");

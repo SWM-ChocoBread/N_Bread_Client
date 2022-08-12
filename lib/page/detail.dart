@@ -61,8 +61,10 @@ class _DetailContentViewState extends State<DetailContentView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    //print("getUserstatus called on initstate");
+
     //getUserStatus();
+    // print(
+    //     "getUserstatus called on initstate and userStatus is ${currentuserstatus}");
     _scrollControllerForAppBar.addListener(() {
       print(_scrollControllerForAppBar.offset);
     });
@@ -79,7 +81,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         {"id": "0"}
       ];
     }
-    //currentuserstatus = widget.data["mystatus"];
+    currentuserstatus = widget.data["mystatus"];
   }
 
   @override
@@ -93,8 +95,8 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   Widget _popupMenuButtonSelector() {
     // 모집중인 거래의 제안자이고, 해당 거래의 참여자가 거래 제안자 외에는 없는 경우에만 수정하기, 삭제하기 popupmenuitem을 누를 수 있는 popupmenubutton 이 표시된다.
-    //currentuserstatus = "제안자";
-    print("curr usrer stat ${widget.data['mystatus']}");
+
+    print("curr usrer stat ${currentuserstatus}");
 
     if (currentuserstatus == "제안자" && widget.data["currentMember"] == 1) {
       return PopupMenuButton(
@@ -354,10 +356,10 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _contentsDetail() {
-    if (widget.data["contents"]?.isEmpty ?? true) {
+    if (widget.data["content"]?.isEmpty ?? true) {
       // contents 가 아예 없거나 빈 string 을 받을 경우
       // isEmpty 는 empty string 을 체크하기 위한 것
-      // widget.data["contents"]가 null이라면, isEmpty는 null에 대해 적용 불가능
+      // widget.data["content"]가 null이라면, isEmpty는 null에 대해 적용 불가능
       // ?. 는 앞의 것이 null 이 아니라면, 뒤의 연산 수행
       // ?? 는 앞의 것이 null이면 ?? 뒤에 것을 반환
       return Container();
@@ -368,7 +370,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.data["contents"].toString(),
+            widget.data["content"].toString(),
             style:
                 const TextStyle(fontSize: 15, height: 1.5), // height 는 줄간격 사이
           ),
@@ -1339,26 +1341,26 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  Future getUserStatus() async {
-    String dealId = widget.data['id'].toString();
-    Map<String, dynamic> getTokenPayload =
-        await userInfoRepository.getUserInfo();
-    String userId = getTokenPayload['id'].toString();
-    String tmpUrl =
-        'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
-    var url = Uri.parse(
-      tmpUrl,
-    );
-    var response = await http.get(url);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    if (list.length == 0) {
-      print("length of list is 0");
-    } else {
-      print('getuserStatus function ${list['result']['description']}');
-      currentuserstatus = list['result']['description'];
-    }
-  }
+  // Future getUserStatus() async {
+  //   String dealId = widget.data['id'].toString();
+  //   Map<String, dynamic> getTokenPayload =
+  //       await userInfoRepository.getUserInfo();
+  //   String userId = getTokenPayload['id'].toString();
+  //   String tmpUrl =
+  //       'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
+  //   var url = Uri.parse(
+  //     tmpUrl,
+  //   );
+  //   var response = await http.get(url);
+  //   String responseBody = utf8.decode(response.bodyBytes);
+  //   Map<String, dynamic> list = jsonDecode(responseBody);
+  //   if (list.length == 0) {
+  //     print("length of list is 0");
+  //   } else {
+  //     print('getuserStatus function ${list['result']['description']}');
+  //     currentuserstatus = list['result']['description'];
+  //   }
+  // }
 
   void deleteDeal(String dealId) async {
     final prefs = await SharedPreferences.getInstance();

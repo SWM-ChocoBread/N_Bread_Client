@@ -171,12 +171,14 @@ class _NicknameSetState extends State<NicknameSet> {
                     : const BorderSide(width: 1.0, color: Colors.grey),
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
-                  ? () {
+                  ? () async {
                       nicknametosubmit =
                           nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                       print("닉네임 제출하려는 닉네임은 " + nicknametosubmit);
                       //SET NICKNAME API CALL
                       nicknameSet(nicknametosubmit);
+                      //채은 : 좌표넣기
+                      await setUserLocation("37.5037142", "127.0447821");
                       setNickname().then((_) {
                         Navigator.pushAndRemoveUntil(
                             context,
@@ -263,6 +265,45 @@ class _NicknameSetState extends State<NicknameSet> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
+    }
+  }
+
+  Future<void> setUserLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        try {
+          prefs.setString(
+              'userLocation', list['result']['location3'].toString());
+          print("list value is ${list['result']}");
+          print(
+              'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
+      }
     }
   }
 }

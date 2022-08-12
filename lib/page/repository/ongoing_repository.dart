@@ -110,6 +110,7 @@ class OngoingRepository {
 
 //http://localhost:8080/users/deals/2
   Future<List<Map<String, dynamic>>> loadOngoing(String userId) async {
+    await Future.delayed(const Duration(microseconds: 1), () {});
     String tmpUrl = 'https://www.chocobread.shop/users/deals/' + userId;
     var url = Uri.parse(
       tmpUrl,

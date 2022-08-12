@@ -18,6 +18,8 @@ class _SplashState extends State<Splash> {
   Future<bool> checkStatus() async {
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
+
+    //prefs.clear();
     bool isLogin = prefs.getBool("isLogin") ??
         false; // 처음 앱을 설치했을 때, isLogin 값 자체가 저장되어 있지 않아 null일 것이므로, 이 경우 false로 가져온다.
     bool isTerms = prefs.getBool("isTerms") ?? false; // 약관에 모두 동의했는지 여부
