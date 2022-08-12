@@ -1,15 +1,22 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../style/colorstyles.dart';
 import 'app.dart';
 
-class CheckQuit extends StatefulWidget {
-  CheckQuit({Key? key}) : super(key: key);
+class CheckDeleteContent extends StatefulWidget {
+  String contentIdString;
+  CheckDeleteContent({Key? key, required this.contentIdString})
+      : super(key: key);
 
   @override
-  State<CheckQuit> createState() => _CheckQuitState();
+  State<CheckDeleteContent> createState() => _CheckDeleteContentState();
 }
 
-class _CheckQuitState extends State<CheckQuit> {
+class _CheckDeleteContentState extends State<CheckDeleteContent> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -23,20 +30,50 @@ class _CheckQuitState extends State<CheckQuit> {
             child: const Text("취소")),
         TextButton(
             onPressed: () {
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (BuildContext context) {
-              //   return const App();
-              // }));
+              deleteDeal(
+                widget.contentIdString,
+              );
+
+              // 게시글이 성공적으로 삭제되었음을 알려주는 snackbar
+              const snackBar = SnackBar(
+                content: Text(
+                  "성공적으로 삭제되었습니다!",
+                  style: TextStyle(color: Colors.white),
+                ),
+                backgroundColor: ColorStyle.darkMainColor,
+                duration: Duration(milliseconds: 2000),
+                // behavior: SnackBarBehavior.floating,
+                elevation: 50,
+                shape: StadiumBorder(),
+              );
+
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                       builder: (BuildContext context) => const App()),
                   (route) => false);
-              int count = 0;
-              Navigator.of(context).popUntil((_) => count++ >= 2);
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
             },
             child: const Text("확인"))
       ],
     );
+  }
+
+  void deleteDeal(String dealId) async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userToken'));
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      var tmpUrl = "https://www.chocobread.shop/deals/" + dealId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.delete(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
   }
 }

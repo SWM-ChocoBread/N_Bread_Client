@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/price_utils.dart';
 import 'checkdeletecomment.dart';
+import 'checkdeletecontents.dart';
 import 'comments.dart';
 import 'done.dart';
 
@@ -133,11 +134,18 @@ class _DetailContentViewState extends State<DetailContentView> {
             }));
           } else {
             // 삭제하기를 누른 경우,api호출->정말 삭제하시겠습니까?하는 메시지가 떠야하지않을까?
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckDeleteContent(
+                    contentIdString: widget.data['id'].toString(),
+                  );
+                });
             print("deleteDeal is called");
             print(widget.data['id']);
-            deleteDeal(
-              widget.data['id'].toString(),
-            );
+            // deleteDeal(
+            //   widget.data['id'].toString(),
+            // );
           }
         },
       );
