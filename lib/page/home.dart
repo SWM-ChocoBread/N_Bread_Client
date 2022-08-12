@@ -82,7 +82,7 @@ class _HomeState extends State<Home> {
           onTap: () async {
             print("click");
             // setState(() {
-
+            //채은 : 좌표넣기
             await setUserLocation("37.5037142", "127.0447821");
             //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
             // });
@@ -355,7 +355,7 @@ class _HomeState extends State<Home> {
   }
 
   loadContents() async {
-    await setUserLocation("37.5037142", "127.0447821");
+    //await setUserLocation("37.5037142", "127.0447821");
     final prefs = await SharedPreferences.getInstance();
     String? locate = prefs.getString("userLocation");
     await Future.delayed(const Duration(seconds: 1), () {});

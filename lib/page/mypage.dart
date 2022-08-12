@@ -99,8 +99,29 @@ class _MyPageState extends State<MyPage> {
                               onPressed: () async {
                                 final prefs =
                                     await SharedPreferences.getInstance();
-                                prefs.remove('userToken');
-                                prefs.setBool("isLogin", false);
+                                String? token = prefs.getString("userToken");
+
+                                if (token != null) {
+                                  Map<String, dynamic> payload =
+                                      Jwt.parseJwt(token);
+                                  print('payload value is ${payload}');
+                                  if (payload['provider'] == 'kakao') {
+                                    print(
+                                        'logout provider is ${payload['provider']}');
+                                    prefs.remove('userToken');
+                                    prefs.setBool("isLogin", false);
+                                    kakaoLogout();
+                                  } else if (payload['provider'] == 'apple') {
+                                    print(
+                                        'logout provider is ${payload['provider']}');
+                                    prefs.remove('userToken');
+                                    prefs.setBool("isLogin", false);
+                                  } else {
+                                    print(
+                                        'payload value is ${payload['provoder']}');
+                                  }
+                                }
+
                                 print(
                                     "userToken deleted and userToken is ${prefs.getString('userToken')}");
 
