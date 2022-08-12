@@ -62,7 +62,7 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
     Timer(Duration(seconds: 2), () {
-      clearSharedPreferences(); // sharedPreferences 초기화 위해 사용하는 함수
+      // clearSharedPreferences(); // sharedPreferences 초기화 위해 사용하는 함수
       moveScreen();
     });
   }
