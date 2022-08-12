@@ -19,7 +19,7 @@ class KakaoLoginWebview extends StatefulWidget {
 class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
   late InAppWebViewController _webViewController;
   CookieManager _cookieManager = CookieManager.instance();
-  final myurl = Uri.parse("https://chocobread.shop/auth/success");
+  final myurl = Uri.parse("");
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -78,7 +78,6 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
           // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
-          if (cookie != null) {}
           print("start");
           final prefs = await SharedPreferences.getInstance();
           print(cookie);

@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/home.dart';
+import 'package:chocobread/page/kakaoLogout.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
@@ -110,12 +111,25 @@ class _MyPageState extends State<MyPage> {
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
                                     prefs.setBool("isLogin", false);
-                                    kakaoLogout();
+                                    print("move to kakao logout webviewPage");
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                KakaoLogoutWebview()),
+                                        (route) => false);
+                                    // kakaoLogout();
                                   } else if (payload['provider'] == 'apple') {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
                                     prefs.setBool("isLogin", false);
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                Login()),
+                                        (route) => false);
                                   } else {
                                     print(
                                         'payload value is ${payload['provoder']}');
@@ -124,13 +138,6 @@ class _MyPageState extends State<MyPage> {
 
                                 print(
                                     "userToken deleted and userToken is ${prefs.getString('userToken')}");
-
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            Login()),
-                                    (route) => false);
                               },
                               child: const Text("로그아웃"),
                             ),
@@ -617,9 +624,9 @@ class _MyPageState extends State<MyPage> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       prefs.remove("userToken");
+      prefs.setBool("isTerms", true);
       prefs.setBool("isLogin", false);
-      prefs.setBool("isTerms", false);
-      prefs.setBool("isNickname", false);
+      prefs.setBool("isNickname", true);
       print("prefs setting done");
       print(list);
       //Map<String, dynamic> list = jsonDecode(responseBody);
