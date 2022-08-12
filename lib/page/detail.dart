@@ -351,10 +351,10 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _contentsDetail() {
-    if (widget.data["contents"]?.isEmpty ?? true) {
+    if (widget.data["content"]?.isEmpty ?? true) {
       // contents 가 아예 없거나 빈 string 을 받을 경우
       // isEmpty 는 empty string 을 체크하기 위한 것
-      // widget.data["contents"]가 null이라면, isEmpty는 null에 대해 적용 불가능
+      // widget.data["content"]가 null이라면, isEmpty는 null에 대해 적용 불가능
       // ?. 는 앞의 것이 null 이 아니라면, 뒤의 연산 수행
       // ?? 는 앞의 것이 null이면 ?? 뒤에 것을 반환
       return Container();
@@ -365,7 +365,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.data["contents"].toString(),
+            widget.data["content"].toString(),
             style:
                 const TextStyle(fontSize: 15, height: 1.5), // height 는 줄간격 사이
           ),

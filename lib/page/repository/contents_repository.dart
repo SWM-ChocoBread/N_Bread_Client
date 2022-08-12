@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
+  await Future.delayed(const Duration(microseconds: 1), (){});
   final prefs = await SharedPreferences.getInstance();
 
   //return prefs;
