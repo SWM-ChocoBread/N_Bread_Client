@@ -26,8 +26,10 @@ class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
   String replyTo = "";
   String replyToId = "";
+  bool isFromHome;
 
-  DetailContentView({Key? key, required this.data}) : super(key: key);
+  DetailContentView({Key? key, required this.data, required this.isFromHome})
+      : super(key: key);
 
   @override
   State<DetailContentView> createState() => _DetailContentViewState();
@@ -162,10 +164,13 @@ class _DetailContentViewState extends State<DetailContentView> {
         // Navigator 사용시 보통 자동으로 생성되나, 기타 처리 필요하므로 따로 생성
         onPressed: () {
           // Navigator.pop(context);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) {
-            return const App();
-          }));
+          (widget.isFromHome) // 홈에서 detail로 온 거면, 이전을 눌렀을 때 홈 화면으로 이동
+              ? Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                  return const App();
+                }), (route) => false)
+              : Navigator.pop(
+                  context); // 마이페이지에서 detail로 온 거면, 이전을 눌렀을 때 마이페이지로 이동
         },
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
@@ -407,7 +412,12 @@ class _DetailContentViewState extends State<DetailContentView> {
                     ),
                     Text(
                       "게시글 신고하기",
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                        decorationThickness: 0.5,
+                      ),
                     ),
                   ],
                 ),
@@ -476,7 +486,10 @@ class _DetailContentViewState extends State<DetailContentView> {
                 context: context,
                 builder: (BuildContext context) {
                   return CheckDeleteComment(
-                      commentsIdString: commentsId.toString());
+                    commentsIdString: commentsId.toString(),
+                    isComment: true,
+                    fromDetail: true,
+                  );
                 }).then((_) => setState(() {
                   _commentsWidget();
                 }));
@@ -509,10 +522,21 @@ class _DetailContentViewState extends State<DetailContentView> {
       return TextButton(
           onPressed: () {
             // 삭제하기 버튼을 눌렀을 경우 대댓글삭제API
-            deleteReply(repliesId.toString());
-            setState(() {
-              _commentsWidget();
-            });
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckDeleteComment(
+                    commentsIdString: repliesId.toString(),
+                    isComment: false,
+                    fromDetail: true,
+                  );
+                }).then((_) => setState(() {
+                  _commentsWidget();
+                }));
+            // deleteReply(repliesId.toString());
+            // setState(() {
+            //   _commentsWidget();
+            // });
           },
           child: const Text("삭제하기",
               style: TextStyle(
@@ -521,6 +545,13 @@ class _DetailContentViewState extends State<DetailContentView> {
               )));
     }
     return Container();
+  }
+
+  Color _commentColorDeterminant(String comment) {
+    if (comment == "삭제된 댓글입니다.") {
+      return Colors.grey;
+    }
+    return Colors.black;
   }
 
   _loadComments() async {
@@ -553,7 +584,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                         Icons.circle,
                         color: _colorUserStatus(
                             dataComments[firstIndex]['User']["userStatus"]),
-                        size: 30,
+                        // size: 30,
                       ),
                       const SizedBox(
                         width: 5,
@@ -591,6 +622,10 @@ class _DetailContentViewState extends State<DetailContentView> {
                         Flexible(
                           child: Text(
                             "${dataComments[firstIndex]["content"]}",
+                            style: TextStyle(
+                                color: _commentColorDeterminant(dataComments[
+                                        firstIndex]
+                                    ["content"])), // 삭제된 댓글인 경우, 글씨 회색으로 처리하기
                             // softWrap: true,
                           ),
                         )
@@ -613,12 +648,14 @@ class _DetailContentViewState extends State<DetailContentView> {
                               Navigator.push(context, MaterialPageRoute(
                                   builder: (BuildContext context) {
                                 return DetailCommentsView(
-                                    data: dataComments,
-                                    replyTo: dataComments[firstIndex]["User"]
-                                        ["nick"],
-                                    replyToId: dataComments[firstIndex]["id"]
-                                        .toString(),
-                                    id: widget.data["id"].toString());
+                                  data: dataComments,
+                                  replyTo: dataComments[firstIndex]["User"]
+                                      ["nick"],
+                                  replyToId:
+                                      dataComments[firstIndex]["id"].toString(),
+                                  id: widget.data["id"].toString(),
+                                  currentUserId: currentUserId,
+                                );
                               })).then((_) => setState(() {
                                     _commentsWidget();
                                   }));
@@ -705,6 +742,12 @@ class _DetailContentViewState extends State<DetailContentView> {
                                     Flexible(
                                       child: Text(
                                         "${dataComments[firstIndex]["Replies"][secondIndex]["content"]}",
+                                        style: TextStyle(
+                                            color: _commentColorDeterminant(
+                                                dataComments[firstIndex]
+                                                        ["Replies"][secondIndex]
+                                                    [
+                                                    "content"])), // 삭제된 댓글인 경우, 글씨 회색으로 처리하기
                                         // softWrap: true,
                                       ),
                                     )
@@ -827,7 +870,9 @@ class _DetailContentViewState extends State<DetailContentView> {
             // can launch function checks whether the device can launch url before invoking the launch function
             await launchUrl(url);
           } else {
-            throw "could not launch $url";
+            // throw "could not launch $url";
+            // url을 열 수 없는 경우, url을 눌러도 반응하지 않는다.
+            return null;
           }
         },
         child: SingleChildScrollView(
@@ -835,12 +880,14 @@ class _DetailContentViewState extends State<DetailContentView> {
           child: Row(
             children: [
               // icon name : attachment, link_rounded
-              const Icon(Icons.link_rounded),
-              const SizedBox(
-                width: 3,
-              ),
+              // const Icon(Icons.link_rounded),
+              // const SizedBox(
+              //   width: 3,
+              // ),
               Text(
                 widget.data["link"].toString(),
+                style: TextStyle(decoration: TextDecoration.underline),
+
                 softWrap: false,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -897,17 +944,17 @@ class _DetailContentViewState extends State<DetailContentView> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text("1인당 가격"),
-                      const SizedBox(
-                        width: 7,
-                      ),
-                      IconButton(
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          iconSize: 17,
-                          icon: const Icon(
-                            Icons.help_outline,
-                          )),
+                      // const SizedBox(
+                      //   width: 7,
+                      // ),
+                      // IconButton(
+                      //     onPressed: () {},
+                      //     padding: EdgeInsets.zero,
+                      //     constraints: const BoxConstraints(),
+                      //     iconSize: 17,
+                      //     icon: const Icon(
+                      //       Icons.help_outline,
+                      //     )),
                     ]),
                 Text(
                   PriceUtils.calcStringToWon(
@@ -916,7 +963,34 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const Text("모집 인원"),
                 Text(
                     '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
-                const Text("모집 마감 일자"),
+                // const Text("모집 마감 일자"),
+                Row(
+                  children: const [
+                    Text("모집 마감 일자"),
+                    SizedBox(
+                      width: 7,
+                    ),
+                    Tooltip(
+                      triggerMode:
+                          TooltipTriggerMode.tap, // tap을 했을 때 tooltip이 나타나도록 함
+                      showDuration: Duration(milliseconds: 1),
+                      verticalOffset: 15,
+                      message: "모집 마감 일자는 거래 일시 4일 전입니다.",
+                      child: Icon(
+                        Icons.help_outline,
+                        size: 17,
+                      ),
+                      // child: IconButton(
+                      //     onPressed: () {},
+                      //     padding: EdgeInsets.zero,
+                      //     constraints: const BoxConstraints(),
+                      //     iconSize: 17,
+                      //     icon: const Icon(
+                      //       Icons.help_outline,
+                      //     )),
+                    ),
+                  ],
+                ),
                 Text(MyDateUtils.formatMyDateTimeDone(
                     widget.data["dealDate"].toString())), // TODO : 수정 필요함
                 const Text("거래 일시"),
@@ -956,6 +1030,7 @@ class _DetailContentViewState extends State<DetailContentView> {
           Expanded(
             child: TextFormField(
               // focusNode: currentfocusnode,
+              autocorrect: false,
               minLines: 1,
               maxLines: 2,
               onTap: () {
@@ -967,6 +1042,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     replyTo: "",
                     replyToId: "",
                     id: widget.data["id"].toString(),
+                    currentUserId: currentUserId,
                   );
                 })).then((_) => setState(() {
                       _commentsWidget();

@@ -13,8 +13,8 @@ class _CheckQuitState extends State<CheckQuit> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("글 작성을 취소하시겠습니까?"),
-      content: const Text("지금까지 작성하신 글이 저장되지 않습니다."),
+      title: const Text("글을 삭제하시겠습니까?"),
+      content: const Text("제안하신 글이 삭제됩니다."),
       actions: [
         TextButton(
             onPressed: () {
@@ -27,6 +27,11 @@ class _CheckQuitState extends State<CheckQuit> {
               //     MaterialPageRoute(builder: (BuildContext context) {
               //   return const App();
               // }));
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => const App()),
+                  (route) => false);
               int count = 0;
               Navigator.of(context).popUntil((_) => count++ >= 2);
             },

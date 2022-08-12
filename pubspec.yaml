@@ -61,6 +61,7 @@ dependencies:
   dio: ^4.0.6
   http_parser: ^4.0.1
   extended_image: ^6.0.1
+  geolocator: ^9.0.1
   
 flutter_native_splash:
   color: "#F0EBE0"

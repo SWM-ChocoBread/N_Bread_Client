@@ -337,6 +337,7 @@ class _MyPageState extends State<MyPage> {
                   MaterialPageRoute(builder: (BuildContext context) {
                 return DetailContentView(
                   data: dataOngoing[index],
+                  isFromHome: false,
                 );
               }));
             },

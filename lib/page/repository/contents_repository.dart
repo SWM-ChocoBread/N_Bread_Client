@@ -248,6 +248,7 @@ class ContentsRepository {
     print(prefs.getString('userToken'));
     String? userToken = prefs.getString('userToken');
     if (userToken != null) {
+      await Future.delayed(const Duration(milliseconds: 30), () {});
       var response = await http.get(url, headers: {'Authorization': userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);

@@ -9,6 +9,7 @@ class UserInfoRepository {
     print("userInfo function's token is ${token}");
 
     if (token != null) {
+      await Future.delayed(const Duration(microseconds: 1), () {});
       print("tokenValue in getUserInfo is ${token}");
       Map<String, dynamic> payload = Jwt.parseJwt(token);
       return payload;

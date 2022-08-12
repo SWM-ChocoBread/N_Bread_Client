@@ -615,6 +615,7 @@ class _customFormState extends State<customForm> {
   Widget _extraTextFormField() {
     return TextFormField(
       controller: extraController,
+      minLines: 5,
       maxLines: null,
       decoration: InputDecoration(
         hintText: "추가적으로 덧붙이고 싶은 내용이 있다면 알려주세요.",

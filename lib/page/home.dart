@@ -374,6 +374,7 @@ class _HomeState extends State<Home> {
                 MaterialPageRoute(builder: (BuildContext context) {
               return DetailContentView(
                 data: dataContents[index],
+                isFromHome: true,
               );
             }));
           },
@@ -678,7 +679,9 @@ class _HomeState extends State<Home> {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return CreateNew();
-        }));
+        })).then((_) => setState(() {
+              _bodyWidget();
+            }));
       }, // 새로운 제안 글을 쓰는 페이지로 이동
       backgroundColor: ColorStyle.mainColor, // floactingactionbutton의 색
       splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
