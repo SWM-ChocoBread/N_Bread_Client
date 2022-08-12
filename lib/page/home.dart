@@ -371,6 +371,7 @@ class _HomeState extends State<Home> {
                 MaterialPageRoute(builder: (BuildContext context) {
               return DetailContentView(
                 data: dataContents[index],
+                isFromHome: true,
               );
             }));
           },

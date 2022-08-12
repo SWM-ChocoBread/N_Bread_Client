@@ -26,8 +26,10 @@ class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
   String replyTo = "";
   String replyToId = "";
+  bool isFromHome;
 
-  DetailContentView({Key? key, required this.data}) : super(key: key);
+  DetailContentView({Key? key, required this.data, required this.isFromHome})
+      : super(key: key);
 
   @override
   State<DetailContentView> createState() => _DetailContentViewState();
@@ -160,10 +162,13 @@ class _DetailContentViewState extends State<DetailContentView> {
         // Navigator 사용시 보통 자동으로 생성되나, 기타 처리 필요하므로 따로 생성
         onPressed: () {
           // Navigator.pop(context);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) {
-            return const App();
-          }));
+          (widget.isFromHome) // 홈에서 detail로 온 거면, 이전을 눌렀을 때 홈 화면으로 이동
+              ? Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                  return const App();
+                }), (route) => false)
+              : Navigator.pop(
+                  context); // 마이페이지에서 detail로 온 거면, 이전을 눌렀을 때 마이페이지로 이동
         },
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
