@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
@@ -71,12 +72,16 @@ class _SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     return Container(
         color: ColorStyle.mainColor,
-        child: const Center(
-            child: Text(
-          "응",
-          style: TextStyle(color: Colors.white),
-        )
-            // Image.asset("assets/images/N빵.png"),
-            ));
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "assets/logo/mylogo.jpeg",
+              width: 200,
+              height: 200,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ));
   }
 }
