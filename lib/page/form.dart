@@ -841,12 +841,13 @@ class _customFormState extends State<customForm> {
 
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {
-                              // api호출
+
 
                               Navigator.push(context, MaterialPageRoute(
                                   builder: (BuildContext context) {
                                 return const App();
-                              }));
+                              })).then((_) => setState(() {}));
+                          
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
                               Map mapToSend = jsonDecode(jsonString);

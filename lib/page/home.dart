@@ -14,6 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/datetime_utils.dart';
@@ -78,18 +79,19 @@ class _HomeState extends State<Home> {
         //   // )
         // ), // logo, hamburger,
         title: GestureDetector(
-          onTap: () {
+          onTap: () async {
             print("click");
-            setState(() {
-              //혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
-              //setUserLocation();
-              currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
-            });
+            // setState(() {
+            //채은 : 좌표넣기
+            await setUserLocation("37.5037142", "127.0447821");
+            //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
+            // });
           },
           child: Padding(
             padding: const EdgeInsets.only(left: 15.0),
             child: Row(children: [
-              Text(location),
+              //혜연->채은 요청사항 : currentLocation에 값을 넣음에도 불구하고(loadcontents함수에서)화면에는 초기값인 ""만 보임.
+              Text(currentLocation),
               const SizedBox(
                 width: 10,
               ),
@@ -353,10 +355,15 @@ class _HomeState extends State<Home> {
   }
 
   loadContents() async {
-    //await setUserLocation();
-    currentLocation = "역삼1동";
-    print("loadContents 에서의 currentlocation = ${currentLocation}");
-    return contentsRepository.loadContentsFromLocation(currentLocation);
+    //await setUserLocation("37.5037142", "127.0447821");
+    final prefs = await SharedPreferences.getInstance();
+    String? locate = prefs.getString("userLocation");
+    await Future.delayed(const Duration(seconds: 1), () {});
+    if (locate != null) {
+      currentLocation = locate;
+      print("loadContents 에서의 currentlocation = ${currentLocation}");
+      return contentsRepository.loadContentsFromLocation(currentLocation);
+    }
   }
 
   _makeDataList(List<Map<String, dynamic>> dataContents) {
@@ -689,12 +696,53 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print("***home.dart의 빌드 함수가 실행되었습니다.***");
+    loadContents();
     //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       floatingActionButton: _floatingActionButtonWidget(),
     );
+  }
+
+  Future<void> setUserLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        try {
+          currentLocation = list['result']['location3'].toString();
+          prefs.setString('userLocation', currentLocation);
+          print("list value is ${list['result']}");
+          print(
+              'currnetLocation in setUserLocation Function is ${currentLocation}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
   }
 }
 
@@ -713,32 +761,4 @@ class _HomeState extends State<Home> {
 //   //return list['result']['nick'];
 // }
 
-//혜연 : 갑작스러운 api오류로 임시로 역삼1동으로 두고 진행
-// Future<void> setUserLocation() async {
-//   currentLocation = "";
 
-//   Map<String, dynamic> getTokenPayload = await userInfoRepository.getUserInfo();
-//   print('getTokenPayload is ${getTokenPayload}');
-//   String userId = getTokenPayload['id'].toString();
-//   print("setUserLocation was called with userId is ${userId}");
-
-//   String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-//   var url = Uri.parse(
-//     tmpUrl,
-//   );
-//   print('post start');
-//   var response = await http.post(url);
-//   String responseBody = utf8.decode(response.bodyBytes);
-//   Map<String, dynamic> list = jsonDecode(responseBody);
-//   if (list.length == 0) {
-//     print("length of list is 0");
-//   } else {
-//     String location2 = list['result']['location'];
-//     final tmp = location2.split(" ");
-//     print("setUserLocation is ${tmp[2]}");
-
-    
-//     //currentLocation = tmp[2];
-//     print(list['result']['location']);
-//   }
-// }
