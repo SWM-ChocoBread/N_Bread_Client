@@ -1,14 +1,17 @@
+import 'dart:convert';
+
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../style/colorstyles.dart';
 
 enum ReportType { inappropriate, offensive, sexual, discriminative, scam }
 
 var jsonString =
     '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam"}';
-
 
 class PoliceReport extends StatefulWidget {
   String title;
@@ -197,6 +200,7 @@ class _PoliceReportState extends State<PoliceReport> {
             if (selected != -1) {
               // 신고 사유를 선택했을 때만 신고하기 버튼을 눌렀을 때 작동한다.
               // 신고하기 버튼을 눌렀을 때의 POST API
+
               print(
                   selected); // selected : inappropriate(0), offensive(1), sexual(2), discriminative(3), scam(4)
               Navigator.pop(context); // 이전 화면인 상세 페이지로 넘어간다.
@@ -216,7 +220,24 @@ class _PoliceReportState extends State<PoliceReport> {
     );
   }
 
-  void getApiTest(Map jsonbody) async{
+  Future<void> setUserLocation(String dealId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
 
+      String tmpUrl = 'https://www.chocobread.shop/deals/' + dealId + '/report';
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url, headers: {'Authorization': token});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        print(list);
+      }
+    }
   }
 }
