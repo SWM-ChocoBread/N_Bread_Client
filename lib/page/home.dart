@@ -145,30 +145,30 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return Login();
-                }));
-              },
-              icon: const Icon(Icons.mood)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return NicknameSet();
-                }));
-              },
-              icon: const Icon(Icons.ac_unit)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return TermsCheck();
-                }));
-              },
-              icon: const Icon(Icons.info_outline_rounded))
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return Login();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.mood)),
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return NicknameSet();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.ac_unit)),
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return TermsCheck();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.info_outline_rounded))
         ],
         centerTitle: false,
         titleSpacing: 0,
