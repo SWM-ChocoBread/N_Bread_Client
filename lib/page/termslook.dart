@@ -60,7 +60,7 @@ class _TermsLookState extends State<TermsLook> {
         'header': '이용약관',
         'body': terms,
       },
-      {'header': '개인정보처리방침', 'body': "how we deal with personal information"}
+      {'header': '개인정보처리방침', 'body': termsPerson}
     ];
     final List<Map<String, dynamic>> _items = List.generate(
         _terms.length,

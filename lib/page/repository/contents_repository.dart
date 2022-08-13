@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
-  await Future.delayed(const Duration(microseconds: 1), (){});
+  await Future.delayed(const Duration(microseconds: 1), () {});
   final prefs = await SharedPreferences.getInstance();
 
   //return prefs;
@@ -236,16 +236,19 @@ class ContentsRepository {
     final prefs = await SharedPreferences.getInstance();
     //토큰값 임의 삭제
     // prefs.remove('userToken');
-    print("load content userToken is ${prefs.getString('userToken')}");
+    print(
+        "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 userToken : ${prefs.getString('userToken')}");
     // API 통신 location 값을 보내주면서
-    print("loadContentsfrom location is ${location}");
+    print(
+        "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 location : ${location}");
     String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
     var url = Uri.parse(
       tmpUrl,
     );
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
 
-    print(prefs.getString('userToken'));
+    print(
+        "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 prefs['userToken'] : ${prefs.getString('userToken')}");
     String? userToken = prefs.getString('userToken');
     if (userToken != null) {
       await Future.delayed(const Duration(milliseconds: 30), () {});
@@ -258,7 +261,7 @@ class ContentsRepository {
         tmp.add(list["result"]["capsule"][i]);
       }
       print("loadContents called");
-      print(tmp);
+      print("tmp : ${tmp}");
     }
     return tmp;
   }
