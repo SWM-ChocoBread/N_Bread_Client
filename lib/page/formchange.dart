@@ -326,6 +326,8 @@ class _customFormChangeState extends State<customFormChange> {
                 // decoration: const BoxDecoration(borderRadius:
                 //             BorderRadius.all(Radius.circular(25)),),
                 child: ExtendedImage.network(
+                  cache:true,
+                  enableLoadState:true,
                   images[index]["dealImage"].toString(),
                   fit: BoxFit.cover,
                 ),

@@ -11,12 +11,13 @@ import '../style/colorstyles.dart';
 enum ReportType { inappropriate, offensive, sexual, discriminative, scam }
 
 var jsonString =
-    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":"yeoksam"}';
+    '{"title": "","content" : ""}';
 
 class PoliceReport extends StatefulWidget {
   String title;
   String nickName;
-  PoliceReport({Key? key, required this.title, required this.nickName})
+  int dealId;
+  PoliceReport({Key? key, required this.title, required this.nickName, required this.dealId})
       : super(key: key);
 
   @override
@@ -202,7 +203,13 @@ class _PoliceReportState extends State<PoliceReport> {
               // 신고하기 버튼을 눌렀을 때의 POST API
 
               print(
-                  selected); // selected : inappropriate(0), offensive(1), sexual(2), discriminative(3), scam(4)
+                   selected); // selected : inappropriate(0), offensive(1), sexual(2), discriminative(3), scam(4)
+              print("dealID : ${widget.dealId.toString()}");
+              Map mapToSend = jsonDecode(jsonString);
+              mapToSend['title'] = selected.toString();
+              mapToSend['reporterId'] = selected.toString();
+
+              postReportDeal(mapToSend, widget.dealId.toString());
               Navigator.pop(context); // 이전 화면인 상세 페이지로 넘어간다.
             }
           },
@@ -220,17 +227,19 @@ class _PoliceReportState extends State<PoliceReport> {
     );
   }
 
-  Future<void> setUserLocation(String dealId) async {
+  Future<void> postReportDeal(Map jsonBody, String dealId) async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
+    var body2 = json.encode(jsonBody);
     if (token != null) {
+      var userToken = prefs.getString("userToken");
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String tmpUrl = 'https://www.chocobread.shop/deals/' + dealId + '/report';
       var url = Uri.parse(
         tmpUrl,
       );
-      var response = await http.post(url, headers: {'Authorization': token});
+      var response = await http.post(url, headers: {'Authorization': token}, body: jsonBody);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       if (list.length == 0) {

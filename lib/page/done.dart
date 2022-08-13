@@ -77,6 +77,8 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
               // 사진 확대되는 애니메이션
               tag: productContents["cid"].toString(),
               child: ExtendedImage.network(
+                cache:true,
+                enableLoadState:true,
                 productContents["DealImages"][0]["dealImage"].toString(),
                 width: 110,
                 height: 110,

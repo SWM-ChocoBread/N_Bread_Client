@@ -203,7 +203,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return imgList.map((map) {
         return ExtendedImage.network(
           map["_url"].toString(),
-          cache: true,
+          cache:true,
+          enableLoadState:true,
           width: size.width,
           fit: BoxFit.fill,
         );
@@ -397,7 +398,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                       MaterialPageRoute(builder: (BuildContext context) {
                     return PoliceReport(
                         title: widget.data["title"],
-                        nickName: widget.data["User"]["nick"]);
+                        nickName: widget.data["User"]["nick"], 
+                        dealId: widget.data["id"],);
                   }));
                 },
                 child: Row(
