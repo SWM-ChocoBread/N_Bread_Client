@@ -23,7 +23,7 @@ import '../utils/price_utils.dart';
 import 'create.dart';
 
 // develop
-late String currentLocation = "";
+// late String currentLocation;
 late String location = "";
 
 class Home extends StatefulWidget {
@@ -44,9 +44,19 @@ class _HomeState extends State<Home> {
   String basicLatitude = "37.5037142";
   String basicLongitude = "127.0447821";
 
+  getCurrentLocationFromNickname() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentLocation = prefs.getString("userLocation")!;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    print("&&& home 화면에서 currentLocation은 " + currentLocation);
+    getCurrentLocationFromNickname();
+    print("&&& home 화면에서 currentLocation은 " + currentLocation);
     // _getCurrentPosition().then((value) {
     //   _currentPosition = value;
     //   print("### init position : ${_currentPosition}");
@@ -470,9 +480,9 @@ class _HomeState extends State<Home> {
     //await setUserLocation("37.5037142", "127.0447821");
     final prefs = await SharedPreferences.getInstance();
     String? locate = prefs.getString("userLocation");
-    await Future.delayed(const Duration(seconds: 1), () {});
+    await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
-      currentLocation = locate;
+      // currentLocation = locate;
       print("loadContents 에서의 currentlocation = ${currentLocation}");
       return contentsRepository.loadContentsFromLocation(currentLocation);
     }
