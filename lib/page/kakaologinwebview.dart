@@ -86,11 +86,8 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
-            await setUserLocation("37.5037142", "127.0447821");
-            print("getUserLocation called on 37.5037142,127.0447821");
-            setUserLocation("37.5037142", "127.0447821");
             moveScreen();
-            // Navigator.pushNamedAndRemoveUntil(
+            // Navigator.pushNamedAndRemoveUntil(x
             //     context, "/termscheck", (r) => false);
           }
           // print("start");

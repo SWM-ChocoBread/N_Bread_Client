@@ -459,6 +459,6 @@ class _NicknameSetState extends State<NicknameSet> {
           print(e);
         }
       }
-    }
+    } 
   }
 }

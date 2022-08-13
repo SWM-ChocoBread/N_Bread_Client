@@ -25,6 +25,7 @@ import 'create.dart';
 // develop
 // late String currentLocation;
 late String location = "";
+var location2;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -195,16 +196,23 @@ class _HomeState extends State<Home> {
           onTap: () async {
             print("click");
             //채은 : 새로고침 버튼을 눌렀을 때, 좌표넣기
-            setState(() {
-              _getCurrentPosition().then(((value) {
-                _currentPosition = value;
-                print(_currentPosition);
-                print("latitude: ${_currentPosition?.latitude ?? ""}");
-                print("longitude: ${_currentPosition?.longitude ?? ""}");
-                var latitude = _currentPosition?.latitude ?? basicLatitude;
-                var longitude = _currentPosition?.longitude ?? basicLongitude;
-                setUserLocation(latitude.toString(), longitude.toString());
-              }));
+
+            _getCurrentPosition().then(((value) {
+              _currentPosition = value;
+              print(_currentPosition);
+              print("latitude: ${_currentPosition?.latitude ?? ""}");
+              print("longitude: ${_currentPosition?.longitude ?? ""}");
+            })).then((value) {
+              var latitude = _currentPosition?.latitude ?? basicLatitude;
+              var longitude = _currentPosition?.longitude ?? basicLongitude;
+              print("setstate latitude: ${_currentPosition?.latitude ?? ""}");
+              print("setstate longitude: ${_currentPosition?.longitude ?? ""}");
+              setUserLocation(latitude.toString(), longitude.toString());
+              // .then((String val) => setState(() {
+              //       print(
+              //           'currentlocation 값 변경 및 setState실행, val의 값은 ${val}');
+              //       currentLocation = val;
+              //     }));
             });
             // await setUserLocation("37.5037142", "127.0447821");
             //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
@@ -394,16 +402,15 @@ class _HomeState extends State<Home> {
                 // 사진 확대되는 애니메이션
                 tag: productContents["id"].toString(),
                 child: ExtendedImage.network(
-                  productContents["DealImages"][0]["dealImage"].toString(),
-                  width: 110,
-                  height: 110,
-                  fit: BoxFit.fill,
-                  cache:true, 
-                  enableLoadState:true,
-                  retries: 10,
-                  timeLimit: const Duration(seconds: 100),
-                  timeRetry: const Duration(seconds: 5)
-                ),
+                    productContents["DealImages"][0]["dealImage"].toString(),
+                    width: 110,
+                    height: 110,
+                    fit: BoxFit.fill,
+                    cache: true,
+                    enableLoadState: true,
+                    retries: 10,
+                    timeLimit: const Duration(seconds: 100),
+                    timeRetry: const Duration(seconds: 5)),
               )),
           _statusChip(productContents),
         ]);
@@ -416,11 +423,11 @@ class _HomeState extends State<Home> {
                 // 사진 확대되는 애니메이션
                 tag: productContents["id"].toString(),
                 child: ExtendedImage.network(
-                  cache:true,
-                  enableLoadState:true,
+                  cache: true,
+                  enableLoadState: true,
                   retries: 10,
                   timeLimit: Duration(seconds: 100),
-                  timeRetry:  Duration(seconds: 5),
+                  timeRetry: Duration(seconds: 5),
                   productContents["DealImages"][0]["dealImage"].toString(),
                   width: 110,
                   height: 110,
@@ -493,7 +500,7 @@ class _HomeState extends State<Home> {
     await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
       // currentLocation = locate;
-      print("loadContents 에서의 currentlocation = ${currentLocation}");
+      print("loadContents 에서의 location = ${currentLocation}");
       return contentsRepository.loadContentsFromLocation(currentLocation);
     }
   }
@@ -832,7 +839,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     print("***home.dart의 빌드 함수가 실행되었습니다.***");
-    loadContents();
+    currentLocation = "역삼1동";
     //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
@@ -841,15 +848,15 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<void> setUserLocation(String latitude, String longitude) async {
+  Future<String> setUserLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
+      print("setUserLocation on home, latitude : ${latitude}");
+      print("setUserLocation on home longitude :  ${longitude}");
 
       String tmpUrl = 'https://www.chocobread.shop/users/location/' +
           userId +
@@ -867,17 +874,20 @@ class _HomeState extends State<Home> {
         print("length of list is 0");
       } else {
         try {
-          currentLocation = list['result']['location3'].toString();
+          String tmpLocation = list['result']['location3'].toString();
           prefs.setString('userLocation', currentLocation);
           print("list value is ${list['result']}");
           print(
               'currnetLocation in setUserLocation Function is ${currentLocation}');
           print(list);
+          return tmpLocation;
         } catch (e) {
           print(e);
         }
       }
     }
+    print("위치를 가져오지 못했습니다.");
+    return "역삼1동";
   }
 }
 
