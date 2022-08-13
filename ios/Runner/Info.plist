@@ -8,17 +8,18 @@
 		<string>This app needs access to location when in the background.</string>
 		<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 		<dict>
-  			<key>YourPurposeKey</key>
-  			<string>The example App requires temporary access to the device&apos;s precise location.</string>
+			<key>YourPurposeKey</key>
+			<string>The example App requires temporary access to the device's precise location.</string>
 		</dict>
-
 		<key>io.flutter.embedded_views_preview</key>
 		<string>YES</string>
 		<key>NSAppTransportSecurity</key>
-			<dict>
-  				<key>NSAllowsArbitraryLoads</key> <true/>
-  				<key>NSAllowsArbitraryLoadsInWebContent</key> <true/>
-			</dict>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+			<key>NSAllowsArbitraryLoadsInWebContent</key>
+			<true/>
+		</dict>
 		<!-- Permission options for the `location` group -->
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Need location when in use</string>
@@ -28,15 +29,12 @@
 		<string>Older devices need location.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>Can I have location always?</string>
-
 		<!-- Permission options for the `camera` group -->
 		<key>NSCameraUsageDescription</key>
 		<string>camera</string>
-
 		<!-- Permission options for the `photos` group -->
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>photos</string>
-	
 		<key>NSCameraUsageDescription</key>
 		<string>Used to demonstrate image picker plugin</string>
 		<key>NSMicrophoneUsageDescription</key>
@@ -46,7 +44,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Chocobread</string>
+		<string>N빵</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -54,7 +52,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>chocobread</string>
+		<string>N빵</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -87,21 +85,20 @@
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>UIStatusBarHidden</key>
-		<true/>
+		<false/>
 		<key>CFBundleURLTypes</key>
-			<array>
-				<dict>
-					<key>CFBundleTypeRole</key>
-					<string>Editor</string>
-					<key>CFBundleURLSchemes</key>
-					<array>
-						<string>ShareMedia</string>
-					</array>
-				</dict>
-				<dict/>
-			</array>
-<key>NSPhotoLibraryUsageDescription</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>ShareMedia</string>
+				</array>
+			</dict>
+			<dict/>
+		</array>
+		<key>NSPhotoLibraryUsageDescription</key>
 		<string>To upload photos, please allow permission to access your photo library.</string>
-
 	</dict>
 </plist>

@@ -12,6 +12,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
@@ -22,7 +23,7 @@ import '../utils/price_utils.dart';
 import 'create.dart';
 
 // develop
-late String currentLocation = "";
+// late String currentLocation;
 late String location = "";
 
 class Home extends StatefulWidget {
@@ -38,10 +39,126 @@ class _HomeState extends State<Home> {
     "bangbae": "방배동",
   };
   late ContentsRepository contentsRepository;
+  late Geolocator _geolocator;
+  Position? _currentPosition;
+  String basicLatitude = "37.5037142";
+  String basicLongitude = "127.0447821";
+
+  getCurrentLocationFromNickname() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentLocation = prefs.getString("userLocation")!;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    print("&&& home 화면에서 currentLocation은 " + currentLocation);
+    getCurrentLocationFromNickname();
+    print("&&& home 화면에서 currentLocation은 " + currentLocation);
+    // _getCurrentPosition().then((value) {
+    //   _currentPosition = value;
+    //   print("### init position : ${_currentPosition}");
+    //   print(
+    //       "### init latitude: ${_currentPosition?.latitude ?? basicLatitude}");
+    //   print(
+    //       "### init longitude: ${_currentPosition?.longitude ?? basicLongitude}");
+    //   var latitude = _currentPosition?.latitude ?? "";
+    //   var longitude = _currentPosition?.longitude ?? "";
+
+    //   setState(() {
+    //     setUserLocation(latitude.toString(), longitude.toString());
+    //   });
+    // });
+  }
+
+  Future<bool> checkLocationPermission() async {
+    // 위지 권한을 받았는지 확인하는 함수
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          // behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: StadiumBorder(),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 영구적으로 거부됐습니다! 권한을 요청할 수 없습니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error('Location permissions are permanently denied, we cannot request permissions');
+    }
+
+    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
+    // 현재 device의 position 을 return 한다.
+    return true;
+    // return await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+
+    // var currentPosition = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+    // var lastPosition = await Geolocator.getLastKnownPosition();
+    // print("currentPosition : " + currentPosition.toString());
+    // print("lastPosition : " + lastPosition.toString());
+    // print(currentPosition.latitude);
+    // print(currentPosition.longitude);
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasPermission = await checkLocationPermission();
+
+    if (hasPermission) {
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+    }
+
+    print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
   }
 
   @override
@@ -77,11 +194,20 @@ class _HomeState extends State<Home> {
         title: GestureDetector(
           onTap: () async {
             print("click");
-            // setState(() {
-            //채은 : 좌표넣기
-            await setUserLocation("37.5037142", "127.0447821");
+            //채은 : 새로고침 버튼을 눌렀을 때, 좌표넣기
+            setState(() {
+              _getCurrentPosition().then(((value) {
+                _currentPosition = value;
+                print(_currentPosition);
+                print("latitude: ${_currentPosition?.latitude ?? ""}");
+                print("longitude: ${_currentPosition?.longitude ?? ""}");
+                var latitude = _currentPosition?.latitude ?? basicLatitude;
+                var longitude = _currentPosition?.longitude ?? basicLongitude;
+                setUserLocation(latitude.toString(), longitude.toString());
+              }));
+            });
+            // await setUserLocation("37.5037142", "127.0447821");
             //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
-            // });
           },
           child: Padding(
             padding: const EdgeInsets.only(left: 15.0),
@@ -145,30 +271,30 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return Login();
-                }));
-              },
-              icon: const Icon(Icons.mood)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return NicknameSet();
-                }));
-              },
-              icon: const Icon(Icons.ac_unit)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return TermsCheck();
-                }));
-              },
-              icon: const Icon(Icons.info_outline_rounded))
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return Login();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.mood)),
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return NicknameSet();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.ac_unit)),
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return TermsCheck();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.info_outline_rounded))
         ],
         centerTitle: false,
         titleSpacing: 0,
@@ -364,9 +490,9 @@ class _HomeState extends State<Home> {
     //await setUserLocation("37.5037142", "127.0447821");
     final prefs = await SharedPreferences.getInstance();
     String? locate = prefs.getString("userLocation");
-    await Future.delayed(const Duration(seconds: 1), () {});
+    await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
-      currentLocation = locate;
+      // currentLocation = locate;
       print("loadContents 에서의 currentlocation = ${currentLocation}");
       return contentsRepository.loadContentsFromLocation(currentLocation);
     }
@@ -769,5 +895,3 @@ class _HomeState extends State<Home> {
 
 //   //return list['result']['nick'];
 // }
-
-

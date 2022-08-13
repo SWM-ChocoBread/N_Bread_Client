@@ -16,7 +16,7 @@
      <!-- Permissions options for the `accessMediaLocation` group -->
      <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
    <application
-        android:label="chocobread"
+        android:label="N빵"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

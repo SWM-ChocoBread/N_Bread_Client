@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:chocobread/page/app.dart';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -12,6 +13,7 @@ import '../style/colorstyles.dart';
 import 'app.dart';
 
 bool nicknameoverlap = true;
+late String currentLocation = "";
 
 class NicknameSet extends StatefulWidget {
   NicknameSet({Key? key}) : super(key: key);
@@ -21,6 +23,11 @@ class NicknameSet extends StatefulWidget {
 }
 
 class _NicknameSetState extends State<NicknameSet> {
+  late Geolocator _geolocator;
+  Position? _currentPosition;
+  String basicLatitude = "37.5037142";
+  String basicLongitude = "127.0447821";
+
   bool enablebutton = false;
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
@@ -29,6 +36,94 @@ class _NicknameSetState extends State<NicknameSet> {
 
   String nicknametocheck = "";
   String nicknametosubmit = "";
+
+  Future<bool> checkLocationPermission() async {
+    // 위지 권한을 받았는지 확인하는 함수
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          // behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: StadiumBorder(),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 영구적으로 거부됐습니다! 권한을 요청할 수 없습니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error('Location permissions are permanently denied, we cannot request permissions');
+    }
+
+    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
+    // 현재 device의 position 을 return 한다.
+    return true;
+    // return await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+
+    // var currentPosition = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+    // var lastPosition = await Geolocator.getLastKnownPosition();
+    // print("currentPosition : " + currentPosition.toString());
+    // print("lastPosition : " + lastPosition.toString());
+    // print(currentPosition.latitude);
+    // print(currentPosition.longitude);
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasPermission = await checkLocationPermission();
+
+    if (hasPermission) {
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+    }
+
+    print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
+  }
 
   Future setNickname() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -178,8 +273,66 @@ class _NicknameSetState extends State<NicknameSet> {
                       //SET NICKNAME API CALL
                       nicknameSet(nicknametosubmit);
                       //채은 : 좌표넣기
-                      await setUserLocation("37.5037142", "127.0447821");
+                      // await setUserLocation("37.5037142", "127.0447821");
+                      // setState(() {
+                      //   _getCurrentPosition().then(((value) async {
+                      //     _currentPosition = value;
+                      //     print(_currentPosition);
+                      //     print(
+                      //         "latitude: ${_currentPosition?.latitude ?? ""}");
+                      //     print(
+                      //         "longitude: ${_currentPosition?.longitude ?? ""}");
+                      //     var latitude =
+                      //         _currentPosition?.latitude ?? basicLatitude;
+                      //     var longitude =
+                      //         _currentPosition?.longitude ?? basicLongitude;
+                      //     print("닉네임 설정하기 버튼을 눌렀을 때의 위도 : " +
+                      //         latitude.toString());
+                      //     print("닉네임 설정하기 버튼을 눌렀을 때의 경도 : " +
+                      //         longitude.toString());
+                      //     await setUserLocation(
+                      //         latitude.toString(), longitude.toString());
+                      //     final prefs = await SharedPreferences.getInstance();
+                      //     var temp = prefs.getString("userLocation");
+                      //     print(
+                      //         "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
+                      //             temp.toString());
+                      //     currentLocation = temp!;
+                      //     print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
+                      //         currentLocation);
+                      //     // prefs.setString("userLocation", currentLocation);
+                      //   }));
+                      // });
                       setNickname().then((_) {
+                        // setState(() {
+                        //   _getCurrentPosition().then(((value) async {
+                        //     _currentPosition = value;
+                        //     print(_currentPosition);
+                        //     print(
+                        //         "latitude: ${_currentPosition?.latitude ?? ""}");
+                        //     print(
+                        //         "longitude: ${_currentPosition?.longitude ?? ""}");
+                        //     var latitude =
+                        //         _currentPosition?.latitude ?? basicLatitude;
+                        //     var longitude =
+                        //         _currentPosition?.longitude ?? basicLongitude;
+                        //     print("닉네임 설정하기 버튼을 눌렀을 때의 위도 : " +
+                        //         latitude.toString());
+                        //     print("닉네임 설정하기 버튼을 눌렀을 때의 경도 : " +
+                        //         longitude.toString());
+                        //     await setUserLocation(
+                        //         latitude.toString(), longitude.toString());
+                        //     final prefs = await SharedPreferences.getInstance();
+                        //     var temp = prefs.getString("userLocation");
+                        //     print(
+                        //         "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
+                        //             temp.toString());
+                        //     currentLocation = temp!;
+                        //     print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
+                        //         currentLocation);
+                        //     // prefs.setString("userLocation", currentLocation);
+                        //   }));
+                        // });
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
@@ -269,6 +422,8 @@ class _NicknameSetState extends State<NicknameSet> {
   }
 
   Future<void> setUserLocation(String latitude, String longitude) async {
+    print("setUserLocation으로 전달된 latitude : " + latitude);
+    print("setUserLocation으로 전달된 longitude : " + longitude);
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
@@ -296,9 +451,9 @@ class _NicknameSetState extends State<NicknameSet> {
         try {
           prefs.setString(
               'userLocation', list['result']['location3'].toString());
-          print("list value is ${list['result']}");
+          print("nicknameset : list value is ${list['result']}");
           print(
-              'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
+              'nicknameset : currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
           print(list);
         } catch (e) {
           print(e);

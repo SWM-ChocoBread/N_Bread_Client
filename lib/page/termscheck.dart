@@ -6,11 +6,14 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/terms.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../style/colorstyles.dart';
 import 'terms.dart';
+import 'package:http/http.dart' as http;
 
 class TermsCheck extends StatefulWidget {
   TermsCheck({Key? key}) : super(key: key);
@@ -23,6 +26,99 @@ class _TermsCheckState extends State<TermsCheck> {
   bool isServiceChecked = false;
   bool isPersonalChecked = false;
   // late WebViewController _controller;
+
+  late Geolocator _geolocator;
+  Position? _currentPosition;
+  String basicLatitude = "37.5037142";
+  String basicLongitude = "127.0447821";
+
+  Future<bool> checkLocationPermission() async {
+    // 위지 권한을 받았는지 확인하는 함수
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          // behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: StadiumBorder(),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 영구적으로 거부됐습니다! 권한을 요청할 수 없습니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error('Location permissions are permanently denied, we cannot request permissions');
+    }
+
+    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
+    // 현재 device의 position 을 return 한다.
+    return true;
+    // return await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+
+    // var currentPosition = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
+    // var lastPosition = await Geolocator.getLastKnownPosition();
+    // print("currentPosition : " + currentPosition.toString());
+    // print("lastPosition : " + lastPosition.toString());
+    // print(currentPosition.latitude);
+    // print(currentPosition.longitude);
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasPermission = await checkLocationPermission();
+
+    if (hasPermission) {
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+    }
+
+    print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
+  }
 
   Future setTerms() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -305,6 +401,35 @@ class _TermsCheckState extends State<TermsCheck> {
                       //   return NicknameSet();
                       // }));
                       // 이전에 있던 stack 모두 비우고 NicknameSet() 으로 이동
+                      setState(() {
+                        _getCurrentPosition().then(((value) async {
+                          _currentPosition = value;
+                          print(_currentPosition);
+                          print(
+                              "latitude: ${_currentPosition?.latitude ?? ""}");
+                          print(
+                              "longitude: ${_currentPosition?.longitude ?? ""}");
+                          var latitude =
+                              _currentPosition?.latitude ?? basicLatitude;
+                          var longitude =
+                              _currentPosition?.longitude ?? basicLongitude;
+                          print("닉네임 설정하기 버튼을 눌렀을 때의 위도 : " +
+                              latitude.toString());
+                          print("닉네임 설정하기 버튼을 눌렀을 때의 경도 : " +
+                              longitude.toString());
+                          await setUserLocation(
+                              latitude.toString(), longitude.toString());
+                          final prefs = await SharedPreferences.getInstance();
+                          var temp = prefs.getString("userLocation");
+                          print(
+                              "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
+                                  temp.toString());
+                          currentLocation = temp!;
+                          print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
+                              currentLocation);
+                          // prefs.setString("userLocation", currentLocation);
+                        }));
+                      });
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
@@ -339,5 +464,46 @@ class _TermsCheckState extends State<TermsCheck> {
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBar(),
     );
+  }
+
+  Future<void> setUserLocation(String latitude, String longitude) async {
+    print("setUserLocation으로 전달된 latitude : " + latitude);
+    print("setUserLocation으로 전달된 longitude : " + longitude);
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+
+      String userId = payload['id'].toString();
+      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("setUserLocation was called on mypage with userId is ${userId}");
+
+      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          latitude +
+          '/' +
+          longitude;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      if (list.length == 0) {
+        print("length of list is 0");
+      } else {
+        try {
+          prefs.setString(
+              'userLocation', list['result']['location3'].toString());
+          print("nicknameset : list value is ${list['result']}");
+          print(
+              'nicknameset : currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
+          print(list);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
   }
 }

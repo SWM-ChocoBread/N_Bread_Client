@@ -1,3 +1,4 @@
+import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -14,7 +15,14 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   PreferredSizeWidget _appbarWidget() {
-    return AppBar();
+    return AppBar(
+      centerTitle: false,
+      titleSpacing: 23,
+      elevation: 0,
+      bottomOpacity: 0,
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false, // 자동으로 생성되는 뒤로가기 버튼 제거하기
+    );
   }
 
   Widget _naverlogin() {
@@ -31,18 +39,18 @@ class _LoginState extends State<Login> {
         }));
       },
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
             "assets/logo/naver.svg",
             color: Colors.white,
           ),
-          const SizedBox(
-            width: 13,
-          ),
-          const Text(
-            "네이버 로그인",
-            style: TextStyle(color: Colors.white),
+          const Expanded(
+            child: Center(
+              child: Text(
+                "네이버 로그인",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
         ],
       ),
@@ -70,12 +78,14 @@ class _LoginState extends State<Login> {
             color: const Color(0xff000000),
             width: 18,
           ),
-          const SizedBox(
-            width: 13,
-          ),
-          Text(
-            "카카오 로그인",
-            style: TextStyle(color: const Color(0xff000000).withOpacity(0.85)),
+          Expanded(
+            child: Center(
+              child: Text(
+                "카카오 로그인",
+                style:
+                    TextStyle(color: const Color(0xff000000).withOpacity(0.85)),
+              ),
+            ),
           ),
         ],
       ),
@@ -85,8 +95,8 @@ class _LoginState extends State<Login> {
   Widget _applelogin() {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.black,
-          side: const BorderSide(width: 1.0, color: Colors.black),
+          backgroundColor: Colors.white,
+          side: const BorderSide(width: 1.0, color: Colors.white),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
@@ -99,15 +109,17 @@ class _LoginState extends State<Login> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            "assets/logo/apple.svg",
-            width: 20,
+            "assets/svg/apple_logo.svg",
+            width: 17,
+            // color: Colors.black,
           ),
-          const SizedBox(
-            width: 10,
-          ),
-          const Text(
-            "Apple로 로그인",
-            style: TextStyle(color: Colors.white),
+          const Expanded(
+            child: Center(
+              child: Text(
+                "Apple로 로그인",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
           ),
         ],
       ),
@@ -115,24 +127,46 @@ class _LoginState extends State<Login> {
   }
 
   Widget _bodyWidget() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Center(
-        child: Column(
-          children: [
-            Container(
-              height: 200,
-            ),
-            _naverlogin(),
-            const SizedBox(
-              height: 10,
-            ),
-            _kakaologin(),
-            const SizedBox(
-              height: 10,
-            ),
-            _applelogin(),
-          ],
+    return Container(
+      color: ColorStyle.mainColor,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/logo/mylogo.jpeg",
+                width: 200,
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              const Text(
+                "간편하게 SNS 회원 가입",
+                style: TextStyle(color: Colors.white),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                color: Colors.white,
+                height: 0.5,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              // _naverlogin(),
+              // const SizedBox(
+              //   height: 10,
+              // ),
+              _kakaologin(),
+              const SizedBox(
+                height: 10,
+              ),
+              _applelogin(),
+            ],
+          ),
         ),
       ),
     );
@@ -141,6 +175,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
     );
