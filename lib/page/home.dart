@@ -47,20 +47,20 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _getCurrentPosition().then((value) {
-      _currentPosition = value;
-      print("### init position : ${_currentPosition}");
-      print(
-          "### init latitude: ${_currentPosition?.latitude ?? basicLatitude}");
-      print(
-          "### init longitude: ${_currentPosition?.longitude ?? basicLongitude}");
-      var latitude = _currentPosition?.latitude ?? "";
-      var longitude = _currentPosition?.longitude ?? "";
+    // _getCurrentPosition().then((value) {
+    //   _currentPosition = value;
+    //   print("### init position : ${_currentPosition}");
+    //   print(
+    //       "### init latitude: ${_currentPosition?.latitude ?? basicLatitude}");
+    //   print(
+    //       "### init longitude: ${_currentPosition?.longitude ?? basicLongitude}");
+    //   var latitude = _currentPosition?.latitude ?? "";
+    //   var longitude = _currentPosition?.longitude ?? "";
 
-      setState(() {
-        setUserLocation(latitude.toString(), longitude.toString());
-      });
-    });
+    //   setState(() {
+    //     setUserLocation(latitude.toString(), longitude.toString());
+    //   });
+    // });
   }
 
   Future<bool> checkLocationPermission() async {
@@ -184,15 +184,15 @@ class _HomeState extends State<Home> {
         title: GestureDetector(
           onTap: () async {
             print("click");
-            //채은 : 좌표넣기
+            //채은 : 새로고침 버튼을 눌렀을 때, 좌표넣기
             setState(() {
               _getCurrentPosition().then(((value) {
                 _currentPosition = value;
                 print(_currentPosition);
                 print("latitude: ${_currentPosition?.latitude ?? ""}");
                 print("longitude: ${_currentPosition?.longitude ?? ""}");
-                var latitude = _currentPosition?.latitude ?? "";
-                var longitude = _currentPosition?.longitude ?? "";
+                var latitude = _currentPosition?.latitude ?? basicLatitude;
+                var longitude = _currentPosition?.longitude ?? basicLongitude;
                 setUserLocation(latitude.toString(), longitude.toString());
               }));
             });
