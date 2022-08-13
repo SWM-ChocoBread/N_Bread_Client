@@ -489,10 +489,10 @@ class _HomeState extends State<Home> {
   loadContents() async {
     //await setUserLocation("37.5037142", "127.0447821");
     final prefs = await SharedPreferences.getInstance();
-    String? locate = prefs.getString("userLocation");
+    String ?locate = prefs.getString("userLocation");
     await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
-      // currentLocation = locate;
+      currentLocation = locate;
       print("loadContents 에서의 currentlocation = ${currentLocation}");
       return contentsRepository.loadContentsFromLocation(currentLocation);
     }
