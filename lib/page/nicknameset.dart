@@ -186,6 +186,14 @@ class _NicknameSetState extends State<NicknameSet> {
               }
               return null;
             },
+            onChanged: (String livenickname) {
+              setState(() {
+                if (nicknametocheck != livenickname) {
+                  // 닉네임 중복 확인 버튼을 눌러서 확인 받은 뒤, 닉네임 변경 완료 버튼을 활성화시킨 후, 다시 닉네임을 변경하면 닉네임 변경 완료 버튼이 비활성화된다.
+                  enablebutton = false;
+                }
+              });
+            },
             // focusNode: FocusNode(),
             // autofocus: true,
           ),

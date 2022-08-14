@@ -1,5 +1,7 @@
 import 'package:chocobread/constants/sizes_helper.dart';
+import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
 import 'checknicknameoverlap.dart';
@@ -12,7 +14,38 @@ class NicknameChange extends StatefulWidget {
 }
 
 class _NicknameChangeState extends State<NicknameChange> {
-  bool enablebutton = false;
+  bool enablebutton = false; // 닉네임 변경 완료 버튼의 활성화 여부를 결정하는 변수
+  String currentNickname = ""; // 원래 닉네임이 저장되는 변수
+  String nicknametocheck = ""; // 닉네임 중복 확인 버튼을 눌렀을 때의 값을 받는 변수
+  String nicknametosubmit = ""; // 서버에 최종적으로 전달할 닉네임
+
+  final GlobalKey<FormState> _formKey = GlobalKey<
+      FormState>(); // added to form widget to identify the state of form
+  TextEditingController nicknameChangeController = TextEditingController();
+
+  @override
+  void initState() {
+    print("*** [nicknamechange.dart] initState 함수가 실행되었습니다! ***");
+    // TODO: implement initState
+    super.initState();
+    getUserNickname();
+  }
+
+  getUserNickname() async {
+    print("[nicknamechange.dart] getUserNickname 함수가 실행되었습니다! ***");
+    await SharedPreferences.getInstance().then((prefs) {
+      print("[nicknamechange.dart] getUserNickname 함수 안에서 prefs를 가져왔습니다!");
+      setState(() {
+        print(
+            "[nicknamechange.dart] getUserNickname 함수 안에서 prefs를 가져온 뒤 setState 가 실행됐습니다!");
+        currentNickname = prefs.getString("userNickname")!;
+        nicknameChangeController.text = currentNickname;
+        print(
+            "[nicknamechange.dart] getUserNickname 함수 안에서 prefs로 가져온 userNickname : " +
+                nicknameChangeController.text);
+      });
+    });
+  }
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -51,25 +84,38 @@ class _NicknameChangeState extends State<NicknameChange> {
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 50.0),
-        child: TextFormField(
-          autocorrect: false, // 자동완성 되지 않도록 설정
-          initialValue: "역삼동 은이님", // 닉네임 입력 칸에 들어가 있는 초기값 // 유저 현재 닉네임 설정
-          decoration: const InputDecoration(
-            labelText: '닉네임',
-            // labelStyle: TextStyle(fontSize: 18),
-            hintText: "변경할 닉네임을 입력하세요.",
-            helperText: "* 필수 입력값입니다.",
+        child: Form(
+          key: _formKey, // form state 관리를 위해서는 Form 위젯을 사용한다. (validator)
+          child: TextFormField(
+            autocorrect: false, // 자동완성 되지 않도록 설정
+            controller: nicknameChangeController,
+            // initialValue:
+            //     mycurrentnickname, // 닉네임 입력 칸에 들어가 있는 초기값 // 유저 현재 닉네임 설정
+            decoration: const InputDecoration(
+              labelText: '닉네임',
+              // labelStyle: TextStyle(fontSize: 18),
+              hintText: "변경할 닉네임을 입력하세요.",
+              helperText: "* 필수 입력값입니다.",
+            ),
+            keyboardType: TextInputType.text,
+            maxLength: 10, // 닉네임 길이 제한
+            validator: (String? val) {
+              if (val == null || val.isEmpty) {
+                return '닉네임은 필수 사항입니다.';
+              }
+              return null;
+            },
+            onChanged: (String livenickname) {
+              setState(() {
+                if (nicknametocheck != livenickname) {
+                  // 닉네임 중복 확인 버튼을 눌러서 확인 받은 뒤, 닉네임 변경 완료 버튼을 활성화시킨 후, 다시 닉네임을 변경하면 닉네임 변경 완료 버튼이 비활성화된다.
+                  enablebutton = false;
+                }
+              });
+            },
+            // focusNode: FocusNode(),
+            // autofocus: true,
           ),
-          keyboardType: TextInputType.text,
-          maxLength: 10, // 닉네임 길이 제한
-          validator: (String? val) {
-            if (val == null || val.isEmpty) {
-              return '닉네임은 필수 사항입니다.';
-            }
-            return null;
-          },
-          // focusNode: FocusNode(),
-          // autofocus: true,
         ),
       ),
     );
@@ -115,9 +161,17 @@ class _NicknameChangeState extends State<NicknameChange> {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () {
+                nicknametocheck = nicknameChangeController.text; // 중복 확인하려는 닉네임
+                // 혜연 : 닉네임이 overlap 되는지 확인하는 API 호출! 오버랩 여부를 nicknameoverlap에 넣어주세요!
+                print("중복을 확인할 닉네임 : " + nicknametocheck);
                 bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
-                if (nicknameoverlap == false) {
-                  // 닉네임이 오버랩되지 않는다면, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
+                if (currentNickname == nicknametocheck) {
+                  // 원래 닉네임과 바꾼 중복 확인하는 닉네임이 동일한 경우 : nickname은 overlap 되지 않는다.
+                  nicknameoverlap = false;
+                }
+                if (nicknameoverlap == false &&
+                    _formKey.currentState!.validate()) {
+                  // 닉네임이 오버랩되지 않고, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
                   setState(() {
                     enablebutton = true;
                   });
@@ -138,6 +192,9 @@ class _NicknameChangeState extends State<NicknameChange> {
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
                   ? () {
+                      nicknametosubmit =
+                          nicknameChangeController.text; // 현재 닉네임을 나타내는 변수
+                      print("제출하려는 닉네임 : " + nicknametosubmit);
                       Navigator.pop(context);
                     }
                   : null,
