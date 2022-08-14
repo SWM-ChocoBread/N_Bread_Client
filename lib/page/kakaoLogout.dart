@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/login.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/page/app.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,15 @@ class KakaoLogoutWebview extends StatefulWidget {
 class _KakaoLogoutWebviewState extends State<KakaoLogoutWebview> {
   late InAppWebViewController _webViewController;
   CookieManager _cookieManager = CookieManager.instance();
-  final myurl = Uri.parse("https://www.chocobread.shop/auth/kakao/logout");
+  final myurl = Uri.parse(""); // https://www.chocobread.shop/auth/kakao/logout
+  late int count;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    count = 0;
+  }
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -49,9 +59,9 @@ class _KakaoLogoutWebviewState extends State<KakaoLogoutWebview> {
   Widget _kakaoLogoutWebview() {
     checkStatus();
     return InAppWebView(
-        initialUrlRequest: URLRequest(
-            url: Uri.parse(
-                "https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout")),
+        initialUrlRequest: URLRequest(url: Uri.parse(
+            // "https://www.chocobread.shop/auth/kakao/logout"
+            "https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout")),
         onReceivedServerTrustAuthRequest: (controller, challenge) async {
           //Do some checks here to decide if CANCELS or PROCEEDS
           return ServerTrustAuthResponse(
@@ -67,19 +77,21 @@ class _KakaoLogoutWebviewState extends State<KakaoLogoutWebview> {
             print("[kakaoLogout.dart] prefs 받아오기 start");
             final prefs = await SharedPreferences.getInstance();
             print(cookie);
+            count += 1;
             print("[kakaoLogout.dart] prefs 받아오기 end");
-            if (cookie != null) {
+            if (cookie != null || count == 2) {
               print("[kakaoLogout.dart] 받아온 cookie 는 null 이 아닙니다.");
               // Navigator.push(context,
               //     MaterialPageRoute(builder: (BuildContext context) {
               //   return Login();
               // }));
-              moveScreen();
-              // await Navigator.pushAndRemoveUntil(
-              //     context,
-              //     MaterialPageRoute(
-              //         builder: (BuildContext context) => Login()),
-              //     (route) => false);
+              // SystemNavigator.pop();
+              // exit(0);
+              // moveScreen();
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => Login()),
+                  (route) => false);
               print("[kakaoLogout.dart] 로그인 화면으로 이동했을까요?");
             }
           }
