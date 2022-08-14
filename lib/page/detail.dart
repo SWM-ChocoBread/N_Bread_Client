@@ -211,8 +211,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       return imgList.map((map) {
         return ExtendedImage.network(
           map["_url"].toString(),
-          cache:true,
-          enableLoadState:true,
+          cache: true,
+          enableLoadState: true,
           width: size.width,
           fit: BoxFit.fill,
         );
@@ -405,9 +405,10 @@ class _DetailContentViewState extends State<DetailContentView> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (BuildContext context) {
                     return PoliceReport(
-                        title: widget.data["title"],
-                        nickName: widget.data["User"]["nick"], 
-                        dealId: widget.data["id"],);
+                      title: widget.data["title"],
+                      nickName: widget.data["User"]["nick"],
+                      dealId: widget.data["id"],
+                    );
                   }));
                 },
                 child: Row(
@@ -985,7 +986,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                           TooltipTriggerMode.tap, // tap을 했을 때 tooltip이 나타나도록 함
                       showDuration: Duration(milliseconds: 1),
                       verticalOffset: 15,
-                      message: "모집 마감 일자는 거래 일시 4일 전입니다.",
+                      message: "모집 마감 일자는 거래 일시 3일 전입니다.",
                       child: Icon(
                         Icons.help_outline,
                         size: 17,

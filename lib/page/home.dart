@@ -41,8 +41,8 @@ class _HomeState extends State<Home> {
   late ContentsRepository contentsRepository;
   late Geolocator _geolocator;
   Position? _currentPosition;
-  String basicLatitude = "33.4506810661721"; // "37.5037142";
-  String basicLongitude = "ㅋ"; // "127.0447821";
+  String basicLatitude = "37.5037142"; // "37.5037142";
+  String basicLongitude = "127.0447821"; // "127.0447821";
 
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
