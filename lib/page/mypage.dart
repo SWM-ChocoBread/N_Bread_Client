@@ -201,7 +201,7 @@ class _MyPageState extends State<MyPage> {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return NicknameChange();
-        }));
+        })).then((value) => setState(() {}));
       },
       child: Container(
         width: _textSize(

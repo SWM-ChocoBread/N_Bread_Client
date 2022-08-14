@@ -1,10 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
 import 'checknicknameoverlap.dart';
+
+bool nicknameoverlap = false;
 
 class NicknameChange extends StatefulWidget {
   NicknameChange({Key? key}) : super(key: key);
@@ -160,7 +166,7 @@ class _NicknameChangeState extends State<NicknameChange> {
             // 닉네임 중복 확인 버튼 width 조정
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {
+              onPressed: () async {
                 // 닉네임이 중복되지 않음을 알려주는 snackbar
                 const snackBarAvailableNick = SnackBar(
                   content: Text(
@@ -195,8 +201,11 @@ class _NicknameChangeState extends State<NicknameChange> {
 
                 nicknametocheck = nicknameChangeController.text; // 중복 확인하려는 닉네임
                 // 혜연 : 닉네임이 overlap 되는지 확인하는 API 호출! 오버랩 여부를 nicknameoverlap에 넣어주세요!
+                await checkNickname(nicknametocheck);
                 print("중복을 확인할 닉네임 : " + nicknametocheck);
-                bool nicknameoverlap = false; // 닉네임이 오버랩되는지 확인하기 위한 변수
+                print(
+                    "${nicknametocheck}의 checknickname실행 결과 nicknameoverlap : ${nicknameoverlap}");
+                // 닉네임이 오버랩되는지 확인하기 위한 변수
                 if (currentNickname == nicknametocheck) {
                   // 원래 닉네임과 바꾼 중복 확인하는 닉네임이 동일한 경우 : nickname은 overlap 되지 않는다.
                   nicknameoverlap = false;
@@ -229,10 +238,13 @@ class _NicknameChangeState extends State<NicknameChange> {
                     : const BorderSide(width: 1.0, color: Colors.grey),
               ),
               onPressed: enablebutton // enablebutton에 따라 버튼 기능 활성화/비활성화
-                  ? () {
+                  ? () async {
                       nicknametosubmit =
                           nicknameChangeController.text; // 현재 닉네임을 나타내는 변수
+                      await nicknameSet(nicknametosubmit);
                       print("제출하려는 닉네임 : " + nicknametosubmit);
+                      print(
+                          "nicknameSet함수가 실행되고 닉네임이 ${nicknametosubmit}으로 변경되었습니다.");
                       Navigator.pop(context);
                     }
                   : null,
@@ -251,5 +263,60 @@ class _NicknameChangeState extends State<NicknameChange> {
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidget(),
     );
+  }
+
+  Future<void> nicknameSet(String nick) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      print("userId on checknickname is ${userId}");
+
+      final body = {'nick': nick};
+      final jsonString = json.encode(body);
+
+      String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      final headerss = {HttpHeaders.contentTypeHeader: 'application/json'};
+      var response = await http.put(url, headers: headerss, body: jsonString);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
+  }
+
+  Future<void> checkNickname(String nick) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      print("userId on checknickname is ${userId}");
+
+      String tmpUrl =
+          'https://www.chocobread.shop/users/check/' + userId + '/' + nick;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      if (list['code'] == 200) {
+        print("사용가능한 닉네임입니다!");
+        setState(() {
+          nicknameoverlap = false;
+        });
+      } else {
+        setState(() {
+          nicknameoverlap = true;
+        });
+      }
+    }
   }
 }
