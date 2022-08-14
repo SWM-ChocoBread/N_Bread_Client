@@ -894,7 +894,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     // 2. home.dart에서 두번째로 실행되는 곳
     print("*** [home.dart] Home의 빌드 함수가 실행되었습니다.***");
-    loadContents(); // 혜연 : 여기 왜 loadContents() 를 실행했을까? appbarWidget 빌드 이전에 userLocation을 loadContents 안에서 받아오려고?
+    //loadContents(); // 혜연 : 여기 왜 loadContents() 를 실행했을까? appbarWidget 빌드 이전에 userLocation을 loadContents 안에서 받아오려고?
     //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
