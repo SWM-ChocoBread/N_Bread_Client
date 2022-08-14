@@ -160,9 +160,13 @@ class _customFormState extends State<customForm> {
                                 ),
                                 // backgroundColor: Colors.black,
                                 duration: Duration(milliseconds: 2000),
-                                // behavior: SnackBarBehavior.floating,
+                                behavior: SnackBarBehavior.floating,
                                 elevation: 50,
-                                shape: StadiumBorder(),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                  Radius.circular(5),
+                                )),
+                                // StadiumBorder(),
                                 // RoundedRectangleBorder(
                                 //     borderRadius: BorderRadius.only(
                                 //         topLeft: Radius.circular(30),
@@ -243,6 +247,7 @@ class _customFormState extends State<customForm> {
           _getPhotoButton(),
           Flexible(
             child: GridView.count(
+                physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 3,
                 crossAxisSpacing: 15,
                 padding: const EdgeInsets.all(15),
@@ -269,6 +274,7 @@ class _customFormState extends State<customForm> {
 
   Widget _productNameTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
@@ -298,6 +304,7 @@ class _customFormState extends State<customForm> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
@@ -327,6 +334,7 @@ class _customFormState extends State<customForm> {
 
   Widget _totalPriceTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: totalPriceController
         ..selection = TextSelection.fromPosition(TextPosition(
             offset: totalPriceController.text
@@ -381,6 +389,7 @@ class _customFormState extends State<customForm> {
 
   Widget _participantsTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
@@ -581,6 +590,7 @@ class _customFormState extends State<customForm> {
 
   Widget _placeTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
@@ -614,6 +624,7 @@ class _customFormState extends State<customForm> {
 
   Widget _extraTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: extraController,
       minLines: 5,
       maxLines: null,
@@ -741,10 +752,37 @@ class _customFormState extends State<customForm> {
                         height: 30,
                       ),
                       // 거래 날짜
-                      const Text(
-                        "거래 날짜",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            "거래 날짜",
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            width: 7,
+                          ),
+                          Tooltip(
+                            triggerMode: TooltipTriggerMode
+                                .tap, // tap을 했을 때 tooltip이 나타나도록 함
+                            showDuration: Duration(milliseconds: 1),
+                            verticalOffset: 15,
+                            message: "모집 마감 일자는 거래 일시 3일 전입니다.",
+                            child: Icon(
+                              Icons.help_outline,
+                              size: 17,
+                            ),
+                            // child: IconButton(
+                            //     onPressed: () {},
+                            //     padding: EdgeInsets.zero,
+                            //     constraints: const BoxConstraints(),
+                            //     iconSize: 17,
+                            //     icon: const Icon(
+                            //       Icons.help_outline,
+                            //     )),
+                          ),
+                        ],
                       ),
                       const SizedBox(
                         height: 5,
@@ -827,13 +865,12 @@ class _customFormState extends State<customForm> {
                               ),
                               backgroundColor: ColorStyle.darkMainColor,
                               duration: Duration(milliseconds: 2000),
-                              // behavior: SnackBarBehavior.floating,
+                              behavior: SnackBarBehavior.floating,
                               elevation: 50,
-                              shape: StadiumBorder(),
-                              // RoundedRectangleBorder(
-                              //     borderRadius: BorderRadius.only(
-                              //         topLeft: Radius.circular(30),
-                              //         topRight: Radius.circular(30))),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                Radius.circular(5),
+                              )),
                             );
 
                             // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.

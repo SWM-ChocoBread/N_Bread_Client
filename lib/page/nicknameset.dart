@@ -186,6 +186,14 @@ class _NicknameSetState extends State<NicknameSet> {
               }
               return null;
             },
+            onChanged: (String livenickname) {
+              setState(() {
+                if (nicknametocheck != livenickname) {
+                  // 닉네임 중복 확인 버튼을 눌러서 확인 받은 뒤, 닉네임 변경 완료 버튼을 활성화시킨 후, 다시 닉네임을 변경하면 닉네임 변경 완료 버튼이 비활성화된다.
+                  enablebutton = false;
+                }
+              });
+            },
             // focusNode: FocusNode(),
             // autofocus: true,
           ),
@@ -234,6 +242,38 @@ class _NicknameSetState extends State<NicknameSet> {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () async {
+                // 닉네임이 중복되지 않음을 알려주는 snackbar
+                const snackBarAvailableNick = SnackBar(
+                  content: Text(
+                    "사용 가능한 닉네임입니다!",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: ColorStyle.darkMainColor,
+                  duration: Duration(milliseconds: 2000),
+                  behavior: SnackBarBehavior.floating,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                    Radius.circular(5),
+                  )),
+                );
+
+                // 닉네임이 중복됨을 알려주는 snackbar
+                const snackBarUnAvailableNick = SnackBar(
+                  content: Text(
+                    "중복된 닉네임입니다!",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: ColorStyle.darkMainColor,
+                  duration: Duration(milliseconds: 2000),
+                  behavior: SnackBarBehavior.floating,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                    Radius.circular(5),
+                  )),
+                );
+
                 nicknametocheck = nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                 print("닉네임 중복을 확인하려는 닉네임은 " + nicknametocheck);
                 print("nickname checker called");
@@ -249,7 +289,13 @@ class _NicknameSetState extends State<NicknameSet> {
                   setState(() {
                     enablebutton = true; // 닉네임 변경 완료 버튼 활성화 여부를 나타내는 변수
                     // 위 변수에 false 가 들어가면, 닉네임 설정 완료 버튼이 활성화되지 않아요!
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        snackBarAvailableNick); // 사용가능한 닉네임이라고 알려주는 snackbar
                   });
+                } else {
+                  // 중복된 닉네임이라고 알려주는 snackbar
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(snackBarUnAvailableNick);
                 }
               },
               child: const Text("닉네임 중복 확인"),

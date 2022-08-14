@@ -39,38 +39,51 @@ class _KakaoLogoutWebviewState extends State<KakaoLogoutWebview> {
         false); // 처음 앱을 설치했을 때, isLogin 값 자체가 저장되어 있지 않아 null일 것이므로, 이 경우 false로 가져온다.
   }
 
+  void moveScreen() async {
+    await Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => Login()),
+        (route) => false);
+  }
+
   Widget _kakaoLogoutWebview() {
     checkStatus();
-    return Stack(
-      children: [InAppWebView(
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(
-                  "https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout")),
-          onReceivedServerTrustAuthRequest: (controller, challenge) async {
-            //Do some checks here to decide if CANCELS or PROCEEDS
-            return ServerTrustAuthResponse(
-                action: ServerTrustAuthResponseAction.PROCEED);
-          },
-          onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
-            // 원래는 onLoadStop 이었다.
-            if (myurl != null) {
-              Cookie? cookie =
-                  await _cookieManager.getCookie(url: myurl, name: "accessToken");
-              print("start");
-              final prefs = await SharedPreferences.getInstance();
-              print(cookie);
-              print("end");
-              if (cookie != null) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return Login();
-                }));
-              }
+    return InAppWebView(
+        initialUrlRequest: URLRequest(
+            url: Uri.parse(
+                "https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout")),
+        onReceivedServerTrustAuthRequest: (controller, challenge) async {
+          //Do some checks here to decide if CANCELS or PROCEEDS
+          return ServerTrustAuthResponse(
+              action: ServerTrustAuthResponseAction.PROCEED);
+        },
+        onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
+          // 원래는 onLoadStop 이었다.
+          print("[kakaoLogout.dart] onLoadStop으로 들어왔습니다!");
+          if (myurl != null) {
+            print("[kakaoLogout.dart] myurl은 null 이 아닙니다.");
+            Cookie? cookie =
+                await _cookieManager.getCookie(url: myurl, name: "accessToken");
+            print("[kakaoLogout.dart] prefs 받아오기 start");
+            final prefs = await SharedPreferences.getInstance();
+            print(cookie);
+            print("[kakaoLogout.dart] prefs 받아오기 end");
+            if (cookie != null) {
+              print("[kakaoLogout.dart] 받아온 cookie 는 null 이 아닙니다.");
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (BuildContext context) {
+              //   return Login();
+              // }));
+              moveScreen();
+              // await Navigator.pushAndRemoveUntil(
+              //     context,
+              //     MaterialPageRoute(
+              //         builder: (BuildContext context) => Login()),
+              //     (route) => false);
+              print("[kakaoLogout.dart] 로그인 화면으로 이동했을까요?");
             }
-          }),
-          Positioned(child: Container(width: displayWidth(context), height: 30,))
-          ]
-    );
+          }
+        });
   }
 
   @override
