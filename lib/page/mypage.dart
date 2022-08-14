@@ -138,6 +138,8 @@ class _MyPageState extends State<MyPage> {
 
                                 print(
                                     "userToken deleted and userToken is ${prefs.getString('userToken')}");
+                                print("isTerm : ${prefs.getBool("isTerms")}");
+                                print("isNickname : ${prefs.getBool("isNickname")}");
                               },
                               child: const Text("로그아웃"),
                             ),
