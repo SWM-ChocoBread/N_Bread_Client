@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
@@ -251,5 +255,60 @@ class _NicknameChangeState extends State<NicknameChange> {
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidget(),
     );
+  }
+
+  Future<void> nicknameSet(String nick) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      print("userId on checknickname is ${userId}");
+
+      final body = {'nick': nick};
+      final jsonString = json.encode(body);
+
+      String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      final headerss = {HttpHeaders.contentTypeHeader: 'application/json'};
+      var response = await http.put(url, headers: headerss, body: jsonString);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+    }
+  }
+  
+  Future<void> checkNickname(String nick) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      print("userId on checknickname is ${userId}");
+
+      String tmpUrl =
+          'https://www.chocobread.shop/users/check/' + userId + '/' + nick;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      if (list['code'] == 200) {
+        print("사용가능한 닉네임입니다!");
+        setState(() {
+          nicknameoverlap = false;
+        });
+      } else {
+        setState(() {
+          nicknameoverlap = true;
+        });
+      }
+    }
   }
 }
