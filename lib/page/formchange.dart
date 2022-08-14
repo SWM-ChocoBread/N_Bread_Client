@@ -326,8 +326,8 @@ class _customFormChangeState extends State<customFormChange> {
                 // decoration: const BoxDecoration(borderRadius:
                 //             BorderRadius.all(Radius.circular(25)),),
                 child: ExtendedImage.network(
-                  cache:true,
-                  enableLoadState:true,
+                  cache: true,
+                  enableLoadState: true,
                   images[index]["dealImage"].toString(),
                   fit: BoxFit.cover,
                 ),
@@ -400,6 +400,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _productNameTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
@@ -429,6 +430,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
@@ -458,6 +460,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _totalPriceTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: totalPriceController
         ..selection = TextSelection.fromPosition(TextPosition(
             offset: totalPriceController.text
@@ -513,6 +516,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _participantsTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
@@ -757,6 +761,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _placeTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
@@ -790,6 +795,7 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _extraTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: extraController,
       minLines: 5,
       maxLines: null,
