@@ -74,15 +74,18 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
       },
       onLoadStop: (InAppWebViewController controller, Uri? myurl) async {
         // 원래는 onLoadStop 이었다.
+        print("[kakaoLoinWebview.dart] onLoadStop으로 들어왔습니다!");
         if (myurl != null) {
+          print("[kakaoLoginWeview.dart] myurl은 null 이 아닙니다.");
           // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
-          print("start");
+          print("[kakaoLoginWebview.dart] prefs 받아오기 start");
           final prefs = await SharedPreferences.getInstance();
           print(cookie);
-          print("end");
+          print("[kakaoLoginWebview.dart] prefs 받아오기 end");
           if (cookie != null) {
+            print("[kakaoLoginWebview.dart] 받아온 cookie 는 null 이 아닙니다.");
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
