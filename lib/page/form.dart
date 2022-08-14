@@ -243,6 +243,7 @@ class _customFormState extends State<customForm> {
           _getPhotoButton(),
           Flexible(
             child: GridView.count(
+                physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 3,
                 crossAxisSpacing: 15,
                 padding: const EdgeInsets.all(15),
