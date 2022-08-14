@@ -41,18 +41,28 @@ class _HomeState extends State<Home> {
   late ContentsRepository contentsRepository;
   late Geolocator _geolocator;
   Position? _currentPosition;
-  String basicLatitude = "37.5037142";
-  String basicLongitude = "127.0447821";
+  String basicLatitude = "33.4506810661721"; // "37.5037142";
+  String basicLongitude = "ㅋ"; // "127.0447821";
 
-  getCurrentLocationFromPref() {
+  getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
     // SharedPreferences prefs = await SharedPreferences.getInstance();
-    SharedPreferences.getInstance().then(
+    await SharedPreferences.getInstance().then(
       (prefs) {
-        currentLocation = prefs.getString("userLocation")!;
+        setState(() {
+          print(
+              "*** [home.dart] getCurrentLocationFromPref 함수 안에서 setState 함수가 실행되었습니다! ***");
+          currentLocation = prefs.getString("userLocation")!;
+          print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
+        });
       },
-    );
-    print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
+    ).then((value) => {
+          setState(() {
+            print(
+                "*** init 에서 prefs로 userLocation을 가져온 다음에 setState가 실행되었습니다! ***");
+          })
+        });
+
     // currentLocation = prefs.getString("userLocation")!;
     print(
         "[home.dart] getCurrentLocationFromPref 함수 안에서 prefs로 가져온 currentLocation : " +
@@ -236,8 +246,13 @@ class _HomeState extends State<Home> {
             }).then((curposition) {
               setUserLocation(curposition!.latitude.toString(),
                   curposition.longitude.toString());
+              print("새로고침 버튼을 누른 결과로 얻은 currentLocation : " + currentLocation);
+            }).then((value) {
+              setState(() {
+                print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
+              });
             });
-            print("새로고침 버튼을 누른 결과로 얻은 currentLocation : " + currentLocation);
+
             // setState(() {
             //   _getCurrentPosition().then(((value) {
             //     _currentPosition = value;
