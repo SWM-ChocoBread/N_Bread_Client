@@ -531,6 +531,7 @@ class _MyPageState extends State<MyPage> {
   }
 
   void setUserNickname() async {
+    final prefs = await SharedPreferences.getInstance();
     Map<String, dynamic> getTokenPayload =
         await userInfoRepository.getUserInfo();
     print("setUserNick was called");
@@ -544,6 +545,8 @@ class _MyPageState extends State<MyPage> {
     Map<String, dynamic> list = jsonDecode(responseBody);
     print("on setUserNick, response is ${list}");
     setUserNickName = list['result']['nick'];
+    prefs.setString("userNickname", setUserNickName);
+    print('localstorage Nickname : ${prefs.getString("userNickname")}');
     print("setUserNickName is ${setUserNickName}");
   }
 

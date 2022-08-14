@@ -394,16 +394,15 @@ class _HomeState extends State<Home> {
                 // 사진 확대되는 애니메이션
                 tag: productContents["id"].toString(),
                 child: ExtendedImage.network(
-                  productContents["DealImages"][0]["dealImage"].toString(),
-                  width: 110,
-                  height: 110,
-                  fit: BoxFit.fill,
-                  cache:true, 
-                  enableLoadState:true,
-                  retries: 10,
-                  timeLimit: const Duration(seconds: 100),
-                  timeRetry: const Duration(seconds: 5)
-                ),
+                    productContents["DealImages"][0]["dealImage"].toString(),
+                    width: 110,
+                    height: 110,
+                    fit: BoxFit.fill,
+                    cache: true,
+                    enableLoadState: true,
+                    retries: 10,
+                    timeLimit: const Duration(seconds: 100),
+                    timeRetry: const Duration(seconds: 5)),
               )),
           _statusChip(productContents),
         ]);
@@ -416,11 +415,11 @@ class _HomeState extends State<Home> {
                 // 사진 확대되는 애니메이션
                 tag: productContents["id"].toString(),
                 child: ExtendedImage.network(
-                  cache:true,
-                  enableLoadState:true,
+                  cache: true,
+                  enableLoadState: true,
                   retries: 10,
                   timeLimit: Duration(seconds: 100),
-                  timeRetry:  Duration(seconds: 5),
+                  timeRetry: Duration(seconds: 5),
                   productContents["DealImages"][0]["dealImage"].toString(),
                   width: 110,
                   height: 110,
@@ -489,7 +488,7 @@ class _HomeState extends State<Home> {
   loadContents() async {
     //await setUserLocation("37.5037142", "127.0447821");
     final prefs = await SharedPreferences.getInstance();
-    String ?locate = prefs.getString("userLocation");
+    String? locate = prefs.getString("userLocation");
     await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
       currentLocation = locate;
@@ -832,6 +831,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     print("***home.dart의 빌드 함수가 실행되었습니다.***");
+    //currentLocation = "역삼1동";
     loadContents();
     //_getUserNick("1");
     return Scaffold(
