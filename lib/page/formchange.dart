@@ -235,13 +235,12 @@ class _customFormChangeState extends State<customFormChange> {
                                 ),
                                 // backgroundColor: Colors.black,
                                 duration: Duration(milliseconds: 2000),
-                                // behavior: SnackBarBehavior.floating,
+                                behavior: SnackBarBehavior.floating,
                                 elevation: 50,
-                                shape: StadiumBorder(),
-                                // RoundedRectangleBorder(
-                                //     borderRadius: BorderRadius.only(
-                                //         topLeft: Radius.circular(30),
-                                //         topRight: Radius.circular(30))),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                  Radius.circular(5),
+                                )),
                               );
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
@@ -1048,13 +1047,12 @@ class _customFormChangeState extends State<customFormChange> {
                             ),
                             backgroundColor: ColorStyle.darkMainColor,
                             duration: Duration(milliseconds: 2000),
-                            // behavior: SnackBarBehavior.floating,
+                            behavior: SnackBarBehavior.floating,
                             elevation: 50,
-                            shape: StadiumBorder(),
-                            // RoundedRectangleBorder(
-                            //     borderRadius: BorderRadius.only(
-                            //         topLeft: Radius.circular(30),
-                            //         topRight: Radius.circular(30))),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            )),
                           );
 
                           // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.

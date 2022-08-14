@@ -42,9 +42,12 @@ class _CheckDeleteContentState extends State<CheckDeleteContent> {
                 ),
                 backgroundColor: ColorStyle.darkMainColor,
                 duration: Duration(milliseconds: 2000),
-                // behavior: SnackBarBehavior.floating,
+                behavior: SnackBarBehavior.floating,
                 elevation: 50,
-                shape: StadiumBorder(),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                  Radius.circular(5),
+                )),
               );
 
               Navigator.pushAndRemoveUntil(

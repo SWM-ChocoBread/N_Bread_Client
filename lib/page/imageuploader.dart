@@ -102,9 +102,12 @@ class _imageUploaderState extends State<imageUploader> {
                                 ),
                                 // backgroundColor: Colors.black,
                                 duration: Duration(milliseconds: 2000),
-                                // behavior: SnackBarBehavior.floating,
+                                behavior: SnackBarBehavior.floating,
                                 elevation: 50,
-                                shape: StadiumBorder(),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                  Radius.circular(5),
+                                )),
                                 // RoundedRectangleBorder(
                                 //     borderRadius: BorderRadius.only(
                                 //         topLeft: Radius.circular(30),
