@@ -749,6 +749,7 @@ class _customFormState extends State<customForm> {
                       ),
                       // 거래 날짜
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: const [
                           Text(
                             "거래 날짜",
