@@ -41,22 +41,49 @@ class _HomeState extends State<Home> {
   late ContentsRepository contentsRepository;
   late Geolocator _geolocator;
   Position? _currentPosition;
-  String basicLatitude = "37.5037142";
-  String basicLongitude = "127.0447821";
+  String basicLatitude = "33.4506810661721"; // "37.5037142";
+  String basicLongitude = "ㅋ"; // "127.0447821";
 
-  getCurrentLocationFromNickname() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      currentLocation = prefs.getString("userLocation")!;
-    });
+  getCurrentLocationFromPref() async {
+    print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    await SharedPreferences.getInstance().then(
+      (prefs) {
+        setState(() {
+          print(
+              "*** [home.dart] getCurrentLocationFromPref 함수 안에서 setState 함수가 실행되었습니다! ***");
+          currentLocation = prefs.getString("userLocation")!;
+          print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
+        });
+      },
+    ).then((value) => {
+          setState(() {
+            print(
+                "*** init 에서 prefs로 userLocation을 가져온 다음에 setState가 실행되었습니다! ***");
+          })
+        });
+
+    // currentLocation = prefs.getString("userLocation")!;
+    print(
+        "[home.dart] getCurrentLocationFromPref 함수 안에서 prefs로 가져온 currentLocation : " +
+            currentLocation);
+    // setState(() {
+    //   print(
+    //       "*** [home.dart] getCurrentLocationFromPref 함수 안의 setState가 실행되었습니다! ***");
+    //   currentLocation = prefs.getString("userLocation")!;
+    //   print(
+    //       "[home.dart] getCurrentLocationFromPref 함수로 가져온 prefs[userLocation] : " +
+    //           currentLocation);
+    // });
   }
 
   @override
   void initState() {
     super.initState();
-    print("&&& home 화면에서 currentLocation은 " + currentLocation);
-    getCurrentLocationFromNickname();
-    print("&&& home 화면에서 currentLocation은 " + currentLocation);
+    // 1. home.dart에서 처음으로 실행되는 곳
+    print("[home.dart] initState 에서의 currentLocation은 " + currentLocation);
+    getCurrentLocationFromPref();
+    print("[home.dart] initState 에서의 currentLocation은 " + currentLocation);
     // _getCurrentPosition().then((value) {
     //   _currentPosition = value;
     //   print("### init position : ${_currentPosition}");
@@ -74,11 +101,17 @@ class _HomeState extends State<Home> {
   }
 
   Future<bool> checkLocationPermission() async {
-    // 위지 권한을 받았는지 확인하는 함수
+    // 위치 권한을 받았는지 확인하는 함수
+    print("*** checkLocationPermission 함수가 실행되었습니다! ***");
     bool serviceEnabled;
     LocationPermission permission;
 
+    // 1. Location Service 가 enable 되었는지 확인하는 과정
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 serviceEnabled : " +
+        serviceEnabled.toString());
+
+    // serviceEnabled 가 false인 경우 : snackbar 보여줌
     if (!serviceEnabled) {
       await Geolocator.openLocationSettings();
       const snackBar = SnackBar(
@@ -97,7 +130,10 @@ class _HomeState extends State<Home> {
       // Future.error("Location services are disabled");
     }
 
+    // 2. permission 을 받았는지 확인하는 과정
     permission = await Geolocator.checkPermission();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 permission : " +
+        permission.toString());
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -151,14 +187,17 @@ class _HomeState extends State<Home> {
   }
 
   Future<Position?> _getCurrentPosition() async {
+    print("*** _getCurrentPosition 함수가 실행되었습니다! ***");
     final hasPermission = await checkLocationPermission();
+    print("[home.dart] _getCurrentPosition 함수 안에서의 hasPermission : " +
+        hasPermission.toString());
 
     if (hasPermission) {
+      print("[home.dart] _getCurrentPosition 함수 내에서 위치를 가져오기 전까지의 현재 위치는 " +
+          _currentPosition.toString());
       return await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
     }
-
-    print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
   }
 
   @override
@@ -169,6 +208,7 @@ class _HomeState extends State<Home> {
   }
 
   PreferredSizeWidget _appbarWidget() {
+    print("[home.dart] appbarWidget 빌드 시작");
     return AppBar(
         // leading: IconButton(
         //   onPressed: () {
@@ -192,20 +232,38 @@ class _HomeState extends State<Home> {
         //   // )
         // ), // logo, hamburger,
         title: GestureDetector(
-          onTap: () async {
-            print("click");
+          onTap: () {
+            print("### 새로고침 버튼이 눌러졌습니다. : click! ###");
             //채은 : 새로고침 버튼을 눌렀을 때, 좌표넣기
-            setState(() {
-              _getCurrentPosition().then(((value) {
-                _currentPosition = value;
-                print(_currentPosition);
-                print("latitude: ${_currentPosition?.latitude ?? ""}");
-                print("longitude: ${_currentPosition?.longitude ?? ""}");
-                var latitude = _currentPosition?.latitude ?? basicLatitude;
-                var longitude = _currentPosition?.longitude ?? basicLongitude;
-                setUserLocation(latitude.toString(), longitude.toString());
-              }));
+            // _getCurrentPosition();
+            // print("새로고침 버튼을 눌렀을 때 _getCurrentPosition 의 결과 : " +
+            //     _getCurrentPosition().toString());
+            _getCurrentPosition().then((value) {
+              _currentPosition = value;
+              print("_getCurrentPosition의 결과를 저장한 _currentPosition : " +
+                  _currentPosition.toString());
+              return _currentPosition;
+            }).then((curposition) {
+              setUserLocation(curposition!.latitude.toString(),
+                  curposition.longitude.toString());
+              print("새로고침 버튼을 누른 결과로 얻은 currentLocation : " + currentLocation);
+            }).then((value) {
+              setState(() {
+                print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
+              });
             });
+
+            // setState(() {
+            //   _getCurrentPosition().then(((value) {
+            //     _currentPosition = value;
+            //     print(_currentPosition);
+            //     print("latitude: ${_currentPosition?.latitude ?? ""}");
+            //     print("longitude: ${_currentPosition?.longitude ?? ""}");
+            //     var latitude = _currentPosition?.latitude ?? basicLatitude;
+            //     var longitude = _currentPosition?.longitude ?? basicLongitude;
+            //     setUserLocation(latitude.toString(), longitude.toString());
+            //   }));
+            // });
             // await setUserLocation("37.5037142", "127.0447821");
             //   //currentLocation = "역삼1동"; // 새로고침했을 때 받아오는 현재 위치
           },
@@ -487,17 +545,20 @@ class _HomeState extends State<Home> {
 
   loadContents() async {
     //await setUserLocation("37.5037142", "127.0447821");
+    print("*** [home.dart] loadContents 가 실행되었습니다! ***");
     final prefs = await SharedPreferences.getInstance();
     String? locate = prefs.getString("userLocation");
     await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
       currentLocation = locate;
-      print("loadContents 에서의 currentlocation = ${currentLocation}");
+      print(
+          "[home.dart] loadContents 에서의 currentlocation = ${currentLocation}");
       return contentsRepository.loadContentsFromLocation(currentLocation);
     }
   }
 
   _makeDataList(List<Map<String, dynamic>> dataContents) {
+    print("*** [home.dart] _makeDataList 가 실행되었습니다! ***");
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
@@ -783,6 +844,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _bodyWidget() {
+    print("[home.dart] _bodyWidget 빌드 시작");
     return FutureBuilder(
         future: loadContents(),
         builder: (context, snapshot) {
@@ -830,9 +892,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print("***home.dart의 빌드 함수가 실행되었습니다.***");
-    //currentLocation = "역삼1동";
-    loadContents();
+    // 2. home.dart에서 두번째로 실행되는 곳
+    print("*** [home.dart] Home의 빌드 함수가 실행되었습니다.***");
+    //loadContents(); // 혜연 : 여기 왜 loadContents() 를 실행했을까? appbarWidget 빌드 이전에 userLocation을 loadContents 안에서 받아오려고?
     //_getUserNick("1");
     return Scaffold(
       appBar: _appbarWidget(),
@@ -842,14 +904,18 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> setUserLocation(String latitude, String longitude) async {
+    print("*** setUserLocation 함수가 실행되었습니다! ***");
+    print("[home.dart] setUserLocation 함수로 전달된 latitude : " + latitude);
+    print("[home.dart] setUserLocation 함수로 전달된 longitude : " + longitude);
+
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
+      // print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      // print("setUserLocation was called on homepage with userId is ${userId}");
 
       String tmpUrl = 'https://www.chocobread.shop/users/location/' +
           userId +
@@ -869,10 +935,15 @@ class _HomeState extends State<Home> {
         try {
           currentLocation = list['result']['location3'].toString();
           prefs.setString('userLocation', currentLocation);
-          print("list value is ${list['result']}");
           print(
-              'currnetLocation in setUserLocation Function is ${currentLocation}');
+              "[home.dart] setUserLocation 함수 안에서의 list value : ${list['result']}");
+          // print(
+          //     'currentLocation in setUserLocation Function is ${currentLocation}');
+          print(
+              '[home.dart] setUserLocation 함수 안에서의 currentLocation : ${currentLocation}');
+          print("=== [home.dart] setUserLocation 함수 안에서의 list 시작 ===");
           print(list);
+          print("=== [home.dart] setUserLocation 함수 안에서의 list 끝 ===");
         } catch (e) {
           print(e);
         }

@@ -45,10 +45,10 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
           if (cookie != null) {}
-          print("start");
+          // print("start");
           final prefs = await SharedPreferences.getInstance();
-          print(cookie);
-          print("end");
+          // print(cookie);
+          // print("end");
           if (cookie != null) {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
@@ -80,7 +80,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
 
   @override
   Widget build(BuildContext context) {
-    print(myurl.runtimeType);
+    // print(myurl.runtimeType);
 
     return Scaffold(
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
@@ -96,8 +96,8 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
+      // print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
+      // print("setUserLocation was called on mypage with userId is ${userId}");
 
       String tmpUrl = 'https://www.chocobread.shop/users/location/' +
           userId +
@@ -112,15 +112,15 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       if (list.length == 0) {
-        print("length of list is 0");
+        // print("length of list is 0");
       } else {
         try {
           prefs.setString(
               'userLocation', list['result']['location3'].toString());
-          print("list value is ${list['result']}");
-          print(
-              'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
-          print(list);
+          // print("list value is ${list['result']}");
+          // print(
+              // 'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
+          // print(list);
         } catch (e) {
           print(e);
         }

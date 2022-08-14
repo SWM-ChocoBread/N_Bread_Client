@@ -627,9 +627,9 @@ class _MyPageState extends State<MyPage> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       prefs.remove("userToken");
-      prefs.setBool("isTerms", true);
       prefs.setBool("isLogin", false);
-      prefs.setBool("isNickname", true);
+      prefs.setBool("isTerms", false);
+      prefs.setBool("isNickname", false);
       print("prefs setting done");
       print(list);
       //Map<String, dynamic> list = jsonDecode(responseBody);

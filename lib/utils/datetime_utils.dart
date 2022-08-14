@@ -2,9 +2,9 @@ import 'package:intl/intl.dart';
 
 class MyDateUtils {
   static String formatMyDateTime(String dateString) {
-    print("DATE : ${dateString}" );
+    // print("DATE : ${dateString}" );
     DateTime dt = DateTime.parse(dateString);
-    print("dt : " +dt.toString());
+    // print("dt : " +dt.toString());
     String formattedDate = DateFormat('yy.MM.dd.').format(dt);
     String? formattedWeekDay = {
       "Mon": "월",
@@ -18,7 +18,7 @@ class MyDateUtils {
     String formattedTime = DateFormat.jm() // 5:08 PM
     .format(dt)
     .split(' ')[0]; // 5:08
-    print("formattedTime: "+  formattedTime);
+    // print("formattedTime: "+  formattedTime);
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
     return "$formattedDate$formattedWeekDay  $dayNight $formattedTime"; // "22.08.01.월  오후 2:29"
   }
