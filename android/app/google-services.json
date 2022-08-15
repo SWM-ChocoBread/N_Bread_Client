@@ -1,41 +1,34 @@
 {
   "project_info": {
-    "project_number": "854125889261",
-    "project_id": "chocobread-23074",
-    "storage_bucket": "chocobread-23074.appspot.com"
+    "project_number": "543088373808",
+    "project_id": "chocobread-48cd7",
+    "storage_bucket": "chocobread-48cd7.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:854125889261:android:fcbe221a6233a4f092eee4",
+        "mobilesdk_app_id": "1:543088373808:android:c4ace0bdc624c32efdfdf5",
         "android_client_info": {
-          "package_name": "com.example.chocobread"
+          "package_name": "com.chocobread.nbread"
         }
       },
       "oauth_client": [
         {
-          "client_id": "854125889261-l3vp5n1q9topet8jq8ebp7bp45ohfpfb.apps.googleusercontent.com",
+          "client_id": "543088373808-7lieo984g2q9gl0tdq9f58cuh4eus13v.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD8NggAO1TsqfwxKgcv2LhAnyGGS6jHvdY"
+          "current_key": "AIzaSyCGOvLxcnCYlpZV3GOvID_DmelL58guiNo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "854125889261-l3vp5n1q9topet8jq8ebp7bp45ohfpfb.apps.googleusercontent.com",
+              "client_id": "543088373808-7lieo984g2q9gl0tdq9f58cuh4eus13v.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "854125889261-f71tj9hpkgarn4bh5j7ost5evq22apnv.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.chocobread"
-              }
             }
           ]
         }
