@@ -12,6 +12,7 @@ import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
@@ -23,6 +24,8 @@ import 'checkdeletecomment.dart';
 import 'checkdeletecontents.dart';
 import 'comments.dart';
 import 'done.dart';
+
+int userId = 0;
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -1498,6 +1501,17 @@ class _DetailContentViewState extends State<DetailContentView> {
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
       // await _loadComments();
+    }
+  }
+
+  Future<void> getUserIdFromToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      var userToken = prefs.getString("userToken");
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      userId = payload['id'];
+      print("userId : " + userId.toString());
     }
   }
 }
