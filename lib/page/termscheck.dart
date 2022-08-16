@@ -373,8 +373,9 @@ class _TermsCheckState extends State<TermsCheck> {
   Future<bool> checkIfPermissionGranted() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.camera,
+      Permission.storage,
       Permission.location,
-      Permission.locationAlways,
+      // Permission.locationAlways,
       Permission.locationWhenInUse
     ].request();
 

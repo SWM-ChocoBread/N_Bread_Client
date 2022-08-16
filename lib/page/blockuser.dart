@@ -210,9 +210,8 @@ class _PoliceReportState extends State<BlockUser> {
               // print("dealID : ${widget.dealId.toString()}");
               Map mapToSend = jsonDecode(jsonString);
               mapToSend['title'] = selected.toString();
-              mapToSend['reporterId'] = selected.toString();
-
-              // postReportDeal(mapToSend, widget.dealId.toString());
+              print("userid ${widget.userid.toString()}");
+              postReportUser(mapToSend, widget.userid.toString());
               if (widget.isfromdetail) {
                 Navigator.pop(context); // 이전 화면인 상세 페이지로 넘어간다.
               } else {
@@ -235,7 +234,7 @@ class _PoliceReportState extends State<BlockUser> {
     );
   }
 
-  Future<void> postReportDeal(Map jsonBody, String dealId) async {
+  Future<void> postReportUser(Map jsonBody, String userId) async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     var body2 = json.encode(jsonBody);
@@ -243,7 +242,7 @@ class _PoliceReportState extends State<BlockUser> {
       var userToken = prefs.getString("userToken");
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
-      String tmpUrl = 'https://www.chocobread.shop/deals/' + dealId + '/report';
+      String tmpUrl = 'https://www.chocobread.shop/users/report/' + userId;
       var url = Uri.parse(
         tmpUrl,
       );
