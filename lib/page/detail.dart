@@ -190,12 +190,12 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
       ),
       actions: [
-        IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.share,
-              color: Colors.white,
-            )),
+        // IconButton(
+        //     onPressed: () {},
+        //     icon: const Icon(
+        //       Icons.share,
+        //       color: Colors.white,
+        //     )),
         _popupMenuButtonSelector(),
         // IconButton(
         //     onPressed: () {},
