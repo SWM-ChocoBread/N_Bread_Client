@@ -12,16 +12,20 @@ import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/price_utils.dart';
+import 'blockuser.dart';
 import 'checkdeletecomment.dart';
 import 'checkdeletecontents.dart';
 import 'comments.dart';
 import 'done.dart';
+
+int userId = 0;
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -203,6 +207,43 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  Widget _blockUserButton(int userid, String usernickname) {
+    // 유저 신고하기 팝업 버튼
+    return PopupMenuButton(
+      // 신고하기가 나오는 팝업메뉴버튼
+      icon: const Icon(
+        Icons.more_vert,
+        color: Colors.grey,
+      ),
+      offset: const Offset(-5, 50),
+      shape: ShapeBorder.lerp(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          1),
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem(
+            value: "block",
+            child: Text("차단하기"),
+          ),
+        ];
+      },
+      onSelected: (String val) {
+        if (val == "block") {
+          // 차단하기를 누른 경우, 해당 detail page 에 있는 정보 중 유저의 정보를 그대로 blockuser에 전달해서 navigator
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return BlockUser(
+              userid: userid,
+              usernickname: usernickname,
+              isfromdetail: true,
+            );
+          }));
+        }
+      },
+    );
+  }
+
   List<Widget> _itemsForSliderImage() {
     if ( // 이미지가 있는 경우에는 이미지를 보여준다.
         // widget.data["image"] != null ||
@@ -295,33 +336,40 @@ class _DetailContentViewState extends State<DetailContentView> {
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 15),
       child: Row(
         children: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.circle,
-                color: ColorStyle.seller,
-                // size: 30,
-              )),
-          const SizedBox(
-            width: 7,
+          Expanded(
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.circle,
+                      color: ColorStyle.seller,
+                      // size: 30,
+                    )),
+                const SizedBox(
+                  width: 7,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.data["User"]["nick"].toString(),
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 3,
+                    ),
+                    Text(
+                      widget.data["User"]['curLocation3'].toString(),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.data["User"]["nick"].toString(),
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 3,
-              ),
-              Text(
-                widget.data["User"]['curLocation3'].toString(),
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          )
+          _blockUserButton(widget.data["userId"], widget.data["User"]["nick"])
         ],
       ),
     );
@@ -591,35 +639,44 @@ class _DetailContentViewState extends State<DetailContentView> {
                   ),
                   Row(
                     children: [
-                      Icon(
-                        Icons.circle,
-                        color: _colorUserStatus(
-                            dataComments[firstIndex]['User']["userStatus"]),
-                        // size: 30,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.circle,
+                              color: _colorUserStatus(dataComments[firstIndex]
+                                  ['User']["userStatus"]),
+                              // size: 30,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "${dataComments[firstIndex]["User"]["nick"]}",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            _userStatusChip(dataComments[firstIndex]['User']
+                                    ["userStatus"]
+                                .toString()),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              MyDateUtils.dateTimeDifference(DateTime.now(),
+                                  dataComments[firstIndex]["createdAt"]),
+                              // "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 12),
+                            )
+                          ],
+                        ),
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        "${dataComments[firstIndex]["User"]["nick"]}",
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      _userStatusChip(dataComments[firstIndex]['User']
-                              ["userStatus"]
-                          .toString()),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        MyDateUtils.dateTimeDifference(DateTime.now(),
-                            dataComments[firstIndex]["createdAt"]),
-                        // "${widget.data["createdAt"].toString().substring(5, 7)}.${widget.data["createdAt"].toString().substring(8, 10)} ${widget.data["createdAt"].toString().substring(11, 16)}",
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12),
-                      )
+                      _blockUserButton(dataComments[firstIndex]["userId"],
+                          dataComments[firstIndex]["User"]["nick"])
                     ],
                   ),
                   const SizedBox(
@@ -642,6 +699,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                         )
                       ],
                     ),
+                  ),
+                  const SizedBox(
+                    height: 10,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 19.0),
@@ -686,14 +746,14 @@ class _DetailContentViewState extends State<DetailContentView> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 25),
-                    width: displayWidth(context) - 80,
+                    width: displayWidth(context) - 60,
                     height: 1,
                     color: const Color(0xffF0EBE0),
                   ),
                   // 대댓글
                   ListView.separated(
                       physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      padding: const EdgeInsets.only(left: 25),
                       shrinkWrap: true,
                       itemBuilder: (BuildContext context, int secondIndex) {
                         return Container(
@@ -705,41 +765,53 @@ class _DetailContentViewState extends State<DetailContentView> {
                               ),
                               Row(
                                 children: [
-                                  Icon(
-                                    Icons.circle,
-                                    color: _colorUserStatus(
-                                        dataComments[firstIndex]["Replies"]
-                                                [secondIndex]["User"]
-                                            ["userStatus"]),
-                                    // size: 30,
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.circle,
+                                          color: _colorUserStatus(
+                                              dataComments[firstIndex]
+                                                      ["Replies"][secondIndex]
+                                                  ["User"]["userStatus"]),
+                                          // size: 30,
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          "${dataComments[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        _userStatusChip(dataComments[firstIndex]
+                                                    ["Replies"][secondIndex]
+                                                ["User"]["userStatus"]
+                                            .toString()),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          MyDateUtils.dateTimeDifference(
+                                              DateTime.now(),
+                                              dataComments[firstIndex]
+                                                      ["Replies"][secondIndex]
+                                                  ["createdAt"]),
+                                          // "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    "${dataComments[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  _userStatusChip(dataComments[firstIndex]
-                                              ["Replies"][secondIndex]["User"]
-                                          ["userStatus"]
-                                      .toString()),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    MyDateUtils.dateTimeDifference(
-                                        DateTime.now(),
-                                        dataComments[firstIndex]["Replies"]
-                                            [secondIndex]["createdAt"]),
-                                    // "${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(5, 7)}.${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(8, 10)} ${dataComments[firstIndex]["Replies"][secondIndex]["createdAt"].toString().substring(11, 16)} ",
-                                    style: const TextStyle(
-                                        color: Colors.grey, fontSize: 12),
-                                  )
+                                  _blockUserButton(
+                                      dataComments[firstIndex]["Replies"]
+                                          [secondIndex]["userId"],
+                                      dataComments[firstIndex]["Replies"]
+                                          [secondIndex]["User"]["nick"])
                                 ],
                               ),
                               const SizedBox(
@@ -765,19 +837,23 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   ],
                                 ),
                               ),
-                              // const SizedBox(
-                              //   height: 15,
-                              // ),
-                              _showDeletedButton(dataComments[firstIndex]
-                                      ["Replies"][secondIndex]["content"])
-                                  ? _deleteReply(
-                                      dataComments[firstIndex]["Replies"]
-                                          [secondIndex]["userId"],
-                                      dataComments[firstIndex]["Replies"]
-                                          [secondIndex]["id"])
-                                  : const SizedBox(
-                                      height: 15,
-                                    ),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 22.0),
+                                child: _showDeletedButton(
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["content"])
+                                    ? _deleteReply(
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["userId"],
+                                        dataComments[firstIndex]["Replies"]
+                                            [secondIndex]["id"])
+                                    : const SizedBox(
+                                        // height: 15,
+                                        ),
+                              ),
                               // Padding(
                               //   padding: const EdgeInsets.only(left: 19.0),
                               //   child: TextButton(
@@ -1035,6 +1111,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   Widget _commentsTextField(List<Map<String, dynamic>> dataComments) {
     return Container(
       height: bottomNavigationBarWidth(),
+      margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
       child: Row(
         children: [
@@ -1424,6 +1501,17 @@ class _DetailContentViewState extends State<DetailContentView> {
       Map<String, dynamic> list = jsonDecode(responseBody);
       print(list);
       // await _loadComments();
+    }
+  }
+
+  Future<void> getUserIdFromToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      var userToken = prefs.getString("userToken");
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      userId = payload['id'];
+      print("userId : " + userId.toString());
     }
   }
 }

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
+import 'blockuser.dart';
 import 'checkdeletecomment.dart';
 
 var jsonString = '{"content":""}';
@@ -84,6 +85,43 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
           ));
     }
+  }
+
+  Widget _blockUserButton(int userid, String usernickname) {
+    // 유저 신고하기 팝업 버튼
+    return PopupMenuButton(
+      // 신고하기가 나오는 팝업메뉴버튼
+      icon: const Icon(
+        Icons.more_vert,
+        color: Colors.grey,
+      ),
+      offset: const Offset(-5, 50),
+      shape: ShapeBorder.lerp(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          1),
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem(
+            value: "block",
+            child: Text("차단하기"),
+          ),
+        ];
+      },
+      onSelected: (String val) {
+        if (val == "block") {
+          // 차단하기를 누른 경우, 해당 detail page 에 있는 정보 중 유저의 정보를 그대로 blockuser에 전달해서 navigator
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return BlockUser(
+              userid: userid,
+              usernickname: usernickname,
+              isfromdetail: false,
+            );
+          }));
+        }
+      },
+    );
   }
 
   Color _commentColorDeterminant(String comment) {
@@ -197,36 +235,45 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                     ),
                     Row(
                       children: [
-                        Icon(
-                          Icons.circle,
-                          color: _colorUserStatus(
-                              widget.data[firstIndex]["User"]["userStatus"]),
-                          // size: 30,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                color: _colorUserStatus(widget.data[firstIndex]
+                                    ["User"]["userStatus"]),
+                                // size: 30,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "${widget.data[firstIndex]["User"]["nick"]}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              _userStatusChip(widget.data[firstIndex]["User"]
+                                      ["userStatus"]
+                                  .toString()),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                MyDateUtils.dateTimeDifference(
+                                    DateTime.now(),
+                                    widget.data[firstIndex][
+                                        "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                              )
+                            ],
+                          ),
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "${widget.data[firstIndex]["User"]["nick"]}",
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        _userStatusChip(widget.data[firstIndex]["User"]
-                                ["userStatus"]
-                            .toString()),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          MyDateUtils.dateTimeDifference(
-                              DateTime.now(),
-                              widget.data[firstIndex][
-                                  "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 12),
-                        )
+                        _blockUserButton(widget.data[firstIndex]["userId"],
+                            widget.data[firstIndex]["User"]["nick"])
                       ],
                     ),
                     const SizedBox(
@@ -249,6 +296,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           )
                         ],
                       ),
+                    ),
+                    const SizedBox(
+                      height: 10,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 19.0),
@@ -307,14 +357,14 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                     ),
                     Container(
                       margin: const EdgeInsets.only(left: 25),
-                      width: displayWidth(context) - 80,
+                      width: displayWidth(context) - 60,
                       height: 1,
                       color: const Color(0xffF0EBE0),
                     ),
                     // 대댓글
                     ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.only(left: 25),
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context, int secondIndex) {
                           return Container(
@@ -326,38 +376,54 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(
-                                      Icons.circle,
-                                      color: _colorUserStatus(widget
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.circle,
+                                            color: _colorUserStatus(
+                                                widget.data[firstIndex]
+                                                        ["Replies"][secondIndex]
+                                                    ["User"]["userStatus"]),
+                                            // size: 30,
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            "${widget.data[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          _userStatusChip(widget
                                               .data[firstIndex]["Replies"]
-                                          [secondIndex]["User"]["userStatus"]),
-                                      // size: 30,
+                                                  [secondIndex]["User"]
+                                                  ["userStatus"]
+                                              .toString()),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            MyDateUtils.dateTimeDifference(
+                                                DateTime.now(),
+                                                widget.data[firstIndex]
+                                                        ["Replies"][secondIndex]
+                                                    ["createdAt"]),
+                                            style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    _userStatusChip(widget.data[firstIndex]
-                                            ["Replies"][secondIndex]["User"]
-                                            ["userStatus"]
-                                        .toString()),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      MyDateUtils.dateTimeDifference(
-                                          DateTime.now(),
-                                          widget.data[firstIndex]["Replies"]
-                                              [secondIndex]["createdAt"]),
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 12),
+                                    _blockUserButton(
+                                      widget.data[firstIndex]["Replies"]
+                                          [secondIndex]["userId"],
+                                      widget.data[firstIndex]["Replies"]
+                                          [secondIndex]["User"]["nick"],
                                     )
                                   ],
                                 ),
@@ -383,19 +449,23 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                     ],
                                   ),
                                 ),
-                                // const SizedBox(
-                                //   height: 15,
-                                // ),
-                                _showDeletedButton(widget.data[firstIndex]
-                                        ["Replies"][secondIndex]["content"])
-                                    ? _deleteReply(
-                                        widget.data[firstIndex]["Replies"]
-                                            [secondIndex]["userId"],
-                                        widget.data[firstIndex]["Replies"]
-                                            [secondIndex]["id"])
-                                    : const SizedBox(
-                                        height: 15,
-                                      ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 22.0),
+                                  child: _showDeletedButton(
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["content"])
+                                      ? _deleteReply(
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["userId"],
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["id"])
+                                      : const SizedBox(
+                                          // height: 15,
+                                          ),
+                                ),
                                 // Padding(
                                 //   padding: const EdgeInsets.only(left: 19.0),
                                 //   child: TextButton(
