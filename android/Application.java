@@ -5,6 +5,6 @@ public class MainApplication extends FlutterApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        AirbridgeFlutter.init(this, "YOUR_APP_NAME", "YOUR_APP_TOKEN");
+        AirbridgeFlutter.init(this, "nbreadab", "c79bec17356745faabccb845fe6f8039");
     }
 }

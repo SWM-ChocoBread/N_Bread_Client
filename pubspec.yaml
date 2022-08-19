@@ -31,6 +31,7 @@ dependencies:
     sdk: flutter
   flutter_localizations: 
     sdk: flutter
+  airbridge_flutter_sdk: ^2.0.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -102,6 +103,7 @@ flutter:
     - assets/svg/
     - assets/images/
     - assets/logo/
+    - assets/airbridge.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

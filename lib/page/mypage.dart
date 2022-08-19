@@ -1,3 +1,4 @@
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 
 import 'dart:convert';
@@ -154,6 +155,7 @@ class _MyPageState extends State<MyPage> {
                                   ),
                               onPressed: () async {
                                 print("탈퇴하기 버튼이 눌렸습니다.");
+                                Airbridge.event.send(SignOutEvent());
                                 await resign();
                                 Navigator.pushAndRemoveUntil(
                                     context,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -88,6 +89,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
             // prefs.setBool("isLogin", true);
             // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
+            sendSignupToAirbridge();
             moveScreen();
             // Navigator.pushNamedAndRemoveUntil(
             //     context, "/termscheck", (r) => false);
@@ -125,38 +127,38 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
     );
   }
 
-  Future<void> setUserLocation(String latitude, String longitude) async {
+  Future<void> sendSignupToAirbridge() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      // print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      // print("setUserLocation was called on mypage with userId is ${userId}");
 
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
-          userId +
-          '/' +
-          latitude +
-          '/' +
-          longitude;
+      String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
       var url = Uri.parse(
         tmpUrl,
       );
-      var response = await http.post(url);
+      var response = await http.get(url);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       if (list.length == 0) {
-        // print("length of list is 0");
+        print(list);
+        print("length of list is 0");
       } else {
         try {
-          prefs.setString(
-              'userLocation', list['result']['location3'].toString());
-          // print("list value is ${list['result']}");
-          // print(
-          // 'currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
-          // print(list);
+          String email = list['result']['email'].toString();
+          String id = list['result']['id'].toString();
+
+          print("email = ${email}");
+          print("id : ${id}");
+
+          Airbridge.event.send(SignUpEvent(
+              user: User(
+            id: id,
+            email: email,
+            phone: null,
+          )));
         } catch (e) {
           print(e);
         }

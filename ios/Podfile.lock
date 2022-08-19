@@ -1,4 +1,8 @@
 PODS:
+  - AirBridge (1.17.0)
+  - airbridge_flutter_sdk (2.0.1):
+    - AirBridge (= 1.17.0)
+    - Flutter
   - Firebase/Analytics (9.3.0):
     - Firebase/Core
   - Firebase/Core (9.3.0):
@@ -130,6 +134,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - airbridge_flutter_sdk (from `.symlinks/plugins/airbridge_flutter_sdk/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
@@ -148,6 +153,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AirBridge
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -162,6 +168,8 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
+  airbridge_flutter_sdk:
+    :path: ".symlinks/plugins/airbridge_flutter_sdk/ios"
   firebase_analytics:
     :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_core:
@@ -194,6 +202,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
+  AirBridge: b51301402c62d9ca87e046f8a5381141cc7e9e6f
+  airbridge_flutter_sdk: d155434ffb7f81dd67f0462facdc1565d213987c
   Firebase: ef75abb1cdbc746d5a38f4e26c422c807b189b8c
   firebase_analytics: 8f772ccb3dad1e8968019a158823f99e63069d2b
   firebase_core: 96214f90497b808a2cf2a24517084c5f6de37b53
@@ -222,6 +232,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 
-PODFILE CHECKSUM: 8e4a71956dae70fd73f9771726888ee440514e1d
+PODFILE CHECKSUM: 6e85f0e02010e323a57c4b7cd14932f3bf32951f
 
 COCOAPODS: 1.11.3
