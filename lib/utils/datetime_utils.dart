@@ -14,32 +14,38 @@ class MyDateUtils {
       "Fri": "금",
       "Sat": "토",
       "Sun": "일"
-    }[DateFormat("E").format(dt)];  
+    }[DateFormat("E").format(dt)];
     String formattedTime = DateFormat.jm() // 5:08 PM
-    .format(dt)
-    .split(' ')[0]; // 5:08
+        .format(dt)
+        .split(' ')[0]; // 5:08
     // print("formattedTime: "+  formattedTime);
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
     return "$formattedDate$formattedWeekDay  $dayNight $formattedTime"; // "22.08.01.월  오후 2:29"
   }
 
-  static String sendMyDateTime(String dateString, String timeString){
-    print("sendMyDateTime 으로 전달된 dateString은 : "+dateString);
-    print("sendMyDateTime 으로 전달된 timeString은 : "+timeString);
+  static String sendMyDateTime(String dateString, String timeString) {
+    print("sendMyDateTime 으로 전달된 dateString은 : " + dateString);
+    print("sendMyDateTime 으로 전달된 timeString은 : " + timeString);
     // dateString 의 형식 : "22.08.14.일"
     // timeString 의 형식 : "오후 3:45"
     String? dayNight = timeString.split(' ')[0]; // 오전, 오후
-    String? dayNightEnglish = {"오전": "AM", "오후": "PM"}[timeString.split(' ')[0]]; // AM, PM
-    String formattedTime = timeString.split(' ')[1]; // 오전인 경우(+ 오후 12시인 경우), 그 값 그대로 전달
-    if (dayNight ==   "오후") { // 오후인 경우, 시간에 12시간 더해서 처리
+    String? dayNightEnglish =
+        {"오전": "AM", "오후": "PM"}[timeString.split(' ')[0]]; // AM, PM
+    String formattedTime =
+        timeString.split(' ')[1]; // 오전인 경우(+ 오후 12시인 경우), 그 값 그대로 전달
+    if (dayNight == "오후") {
+      // 오후인 경우, 시간에 12시간 더해서 처리
       var hour = formattedTime.split(":")[0]; // 시
       var minute = formattedTime.split(":")[1]; // 분
       if (hour != "12") {
-        formattedTime = (int.parse(hour) + 12).toString()+":" + minute;
+        formattedTime = (int.parse(hour) + 12).toString() + ":" + minute;
       }
     }
-    String tempDateTime = "20"+ dateString.substring(0, 8).replaceAll(".", "-") + " "+ formattedTime; // tempDate의 형식 : "2022-08-14"
-    
+    String tempDateTime = "20" +
+        dateString.substring(0, 8).replaceAll(".", "-") +
+        " " +
+        formattedTime; // tempDate의 형식 : "2022-08-14"
+
     return tempDateTime;
   }
 
@@ -55,11 +61,11 @@ class MyDateUtils {
       "Fri": "금",
       "Sat": "토",
       "Sun": "일"
-    }[DateFormat("E").format(dt)];
+    }[DateFormat("E").format(ddt)];
     String formattedTime = DateFormat.jm() // 5:08 PM
-    .format(dt)
-    .split(' ')[0];    
-    String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
+        .format(ddt)
+        .split(' ')[0];
+    String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(ddt)];
     return "$formattedDate$formattedWeekDay  $dayNight $formattedTime";
   }
 
@@ -76,8 +82,8 @@ class MyDateUtils {
       "Sun": "일",
     }[DateFormat("E").format(dt)];
     String formattedTime = DateFormat.jm() // 5:08 PM
-    .format(dt)
-    .split(' ')[0];    
+        .format(dt)
+        .split(' ')[0];
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
     return "$formattedDate$formattedWeekDay";
   }
@@ -85,8 +91,8 @@ class MyDateUtils {
   static String formatMyTime(String dateString) {
     DateTime dt = DateTime.parse(dateString);
     String formattedTime = DateFormat.jm() // 5:08 PM
-    .format(dt)
-    .split(' ')[0];    
+        .format(dt)
+        .split(' ')[0];
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
     return "$dayNight $formattedTime";
   }
