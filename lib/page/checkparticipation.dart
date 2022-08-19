@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/done.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:chocobread/page/repository/userInfo_repository.dart';
@@ -158,6 +159,19 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
             joinDeal();
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
+                  Airbridge.event.send(PurchaseEvent(
+              products: [
+                Product(
+                  id: widget.data["id"].toString(),
+                  name: widget.data["title"].toString(),
+                  price: widget.data["totalPrice"],
+                  currency: 'KRW',
+                  quantity: num.parse(widget.data['totalMember'].toString()),
+                ),
+              ],
+              isInAppPurchase: true,
+              currency: 'KRW',
+            ));
               return ConfirmParticipation(
                 data: widget.data,
               );

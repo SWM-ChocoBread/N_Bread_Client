@@ -349,23 +349,23 @@ class _DetailContentViewState extends State<DetailContentView> {
                 const SizedBox(
                   width: 7,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
                     Text(
                       widget.data["User"]["nick"].toString(),
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(
-                      height: 3,
-                    ),
-                    Text(
-                      widget.data["User"]['curLocation3'].toString(),
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ],
-                ),
+                //     const SizedBox(
+                //       height: 3,
+                //     ),
+                //     Text(
+                //       widget.data["User"]['curLocation3'].toString(),
+                //       style: const TextStyle(fontSize: 13),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

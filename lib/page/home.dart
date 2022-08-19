@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
@@ -575,13 +576,28 @@ class _HomeState extends State<Home> {
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () {
             // 페이지 전환
+            print("type of id is ${dataContents[index]["id"].toString().runtimeType}");
+              print("type of TOTAL is ${dataContents[index]["totalPrice"].runtimeType}");
+
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
+                   Airbridge.event.send(ViewProductDetailEvent(
+              products: [
+                Product(
+                  id: dataContents[index]["id"].toString(),
+                  name: dataContents[index]["title"].toString(),
+                  price: dataContents[index]["totalPrice"],
+                  currency: 'KRW',
+                  quantity: num.parse(dataContents[index]['totalMember'].toString()),
+                ),
+              ],
+            ));
               return DetailContentView(
                 data: dataContents[index],
                 isFromHome: true,
               );
             }));
+           
           },
           child: Container(
             padding: const EdgeInsets.symmetric(

@@ -2,9 +2,11 @@ import 'package:chocobread/page/notionreview.dart';
 import 'package:chocobread/page/openchatting.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 
 class NotionInfo extends StatefulWidget {
   NotionInfo({Key? key}) : super(key: key);
@@ -24,13 +26,22 @@ class _NotionInfoState extends State<NotionInfo> {
     );
   }
 
-  Widget _notioninfo() {
-    return const WebView(
-      initialUrl:
-          "https://freezing-bass-423.notion.site/ChocoBread-e11e8558cdc94676bfce4c279fe2774b",
-      javascriptMode: JavascriptMode.unrestricted,
-      gestureNavigationEnabled: true, // 스와이프로 이전 페이지로 돌아가는 기능 활성화
-    );
+  // Widget _notioninfo() {
+  //   return const WebView(
+  //     initialUrl:
+  //         "https://freezing-bass-423.notion.site/ChocoBread-e11e8558cdc94676bfce4c279fe2774b",
+  //     javascriptMode: JavascriptMode.unrestricted,
+  //     gestureNavigationEnabled: true, // 스와이프로 이전 페이지로 돌아가는 기능 활성화
+  //   );
+  // }
+
+  Widget _bodyWidget (){
+    return FutureBuilder(future: rootBundle.loadString("assets/markdown/notioninfo.md"), builder: (BuildContext context, AsyncSnapshot<String> snapshot){
+      if (snapshot.hasData) {
+        return Markdown(data: snapshot.data!);
+      }
+      return const Center(child: CircularProgressIndicator(),);
+    });
   }
 
   Widget _speeddial() {
@@ -72,9 +83,10 @@ class _NotionInfoState extends State<NotionInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      // extendBodyBehindAppBar: true,
       appBar: _appBarWidget(),
-      body: _notioninfo(),
+      body: _bodyWidget(), 
+      // _notioninfo(),
       floatingActionButton: _speeddial(),
     );
   }

@@ -63,6 +63,7 @@ dependencies:
   extended_image: ^6.0.1
   geolocator: ^9.0.1
   flutter_native_splash: ^2.2.7
+  flutter_markdown: ^0.6.10+3
 
 flutter_native_splash:
  color: “#ffffff”
@@ -104,6 +105,7 @@ flutter:
     - assets/images/
     - assets/logo/
     - assets/airbridge.json
+    - assets/markdown/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

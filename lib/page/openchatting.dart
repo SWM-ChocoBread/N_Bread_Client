@@ -22,6 +22,7 @@ class _OpenChattingState extends State<OpenChatting> {
       elevation: 0,
       bottomOpacity: 0,
       backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false,
       flexibleSpace: Container(
         // appbar에 그래디언트 추가해서 아이콘 명확하게 보이도록 처리
         decoration: BoxDecoration(

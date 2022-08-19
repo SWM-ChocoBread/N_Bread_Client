@@ -72,7 +72,7 @@ class _AppState extends State<App> {
           _currentPageIndex = newPageIndex;
         });
       },
-      children: [NotionInfo(), const Home(), MyPage()],
+      children: [const OpenChatting(), const Home(), MyPage()],
     );
     //   switch (_currentPageIndex) {
     //     case 0:
