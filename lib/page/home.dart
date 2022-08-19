@@ -839,7 +839,7 @@ class _HomeState extends State<Home> {
       },
       separatorBuilder: (BuildContext context, int index) {
         return Container(
-          height: 10,
+          height: 1,
           color:
               // ColorStyle.myGrey,
               // const Color(0xffF0EBE0),

@@ -332,154 +332,158 @@ class _MyPageState extends State<MyPage> {
   }
 
   _makeOngoingList(List<Map<String, dynamic>> dataOngoing) {
-    return Expanded(
-      child: ListView.separated(
-        shrinkWrap:
-            true, // Listview widget 이 children's size 까지 shrink down 하도록 함
-        padding: const EdgeInsets.symmetric(horizontal: 0),
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭 가능하도록 만든다.
-            onTap: () {
-              // 페이지 전환
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return DetailContentView(
-                  data: dataOngoing[index],
-                  isFromHome: false,
-                );
-              }));
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+    return Row(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            shrinkWrap:
+                true, // Listview widget 이 children's size 까지 shrink down 하도록 함
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭 가능하도록 만든다.
+                onTap: () {
+                  // 페이지 전환
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return DetailContentView(
+                      data: dataOngoing[index],
+                      isFromHome: false,
+                    );
+                  }));
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  child: Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(dataOngoing[index]
-                                      ["mystatus"]
-                                  .toString()
-                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
+                        Row(
+                          children: [
+                            Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 3),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: _colorMyStatus(dataOngoing[index]
+                                          ["mystatus"]
+                                      .toString()
+                                      .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
+                                ),
+                                // const Color.fromARGB(255, 137, 82, 205)),
+                                child: Text(
+                                  dataOngoing[index]["mystatus"]
+                                      .toString()
+                                      .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                )),
+                            const SizedBox(
+                              width: 5,
                             ),
-                            // const Color.fromARGB(255, 137, 82, 205)),
-                            child: Text(
-                              dataOngoing[index]["mystatus"]
-                                  .toString()
-                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: _colorStatus(
+                                    dataOngoing[index]["status"].toString()),
+                              ),
+                              // const Color.fromARGB(255, 137, 82, 205)),
+                              child: _currentTotal(dataOngoing[index]),
+                              // Text(
+                              //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
+                              //   style: const TextStyle(
+                              //       fontSize: 12,
+                              //       fontWeight: FontWeight.w500,
+                              //       color: Colors.white),
+                              // )
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            // Text(
+                            //   dataOngoing[index]["date"].toString(),
+                            //   style: const TextStyle(
+                            //       fontSize: 18, fontWeight: FontWeight.w500),
+                            // ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 7,
+                        ),
+                        Text(
+                          dataOngoing[index]["title"].toString(),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                              child: FaIcon(
+                                FontAwesomeIcons.calendar,
+                                size: 12,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                              MyDateUtils.formatMyDateTime(
+                                  dataOngoing[index]["dealDate"].toString()),
                               style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
-                            )),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: _colorStatus(
-                                dataOngoing[index]["status"].toString()),
-                          ),
-                          // const Color.fromARGB(255, 137, 82, 205)),
-                          child: _currentTotal(dataOngoing[index]),
-                          // Text(
-                          //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
-                          //   style: const TextStyle(
-                          //       fontSize: 12,
-                          //       fontWeight: FontWeight.w500,
-                          //       color: Colors.white),
-                          // )
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(
-                          width: 5,
+                          height: 5,
                         ),
-                        // Text(
-                        //   dataOngoing[index]["date"].toString(),
-                        //   style: const TextStyle(
-                        //       fontSize: 18, fontWeight: FontWeight.w500),
-                        // ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    Text(
-                      dataOngoing[index]["title"].toString(),
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
-                          child: FaIcon(
-                            FontAwesomeIcons.calendar,
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 6,
-                        ),
-                        Text(
-                          MyDateUtils.formatMyDateTime(
-                              dataOngoing[index]["dealDate"].toString()),
-                          style: const TextStyle(
-                            fontSize: 13,
-                          ),
+                        Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                              child: FaIcon(
+                                FontAwesomeIcons.locationDot,
+                                size: 12,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 6,
+                            ),
+                            Text(
+                              dataOngoing[index]["dealPlace"].toString(),
+                              style: const TextStyle(
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
-                          child: FaIcon(
-                            FontAwesomeIcons.locationDot,
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 6,
-                        ),
-                        Text(
-                          dataOngoing[index]["dealPlace"].toString(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return Container(
-            height: 10,
-            color:
-                // const Color(0xffF0EBE0),
-                const Color(0xfff0f0ef),
-          );
-        },
-        itemCount: dataOngoing.length,
-      ),
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return Container(
+                height: 1,
+                color:
+                    // const Color(0xffF0EBE0),
+                    const Color(0xfff0f0ef),
+              );
+            },
+            itemCount: dataOngoing.length,
+          ),
+        ),
+      ],
     );
   }
 
