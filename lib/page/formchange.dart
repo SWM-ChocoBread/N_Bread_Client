@@ -814,7 +814,8 @@ class _customFormChangeState extends State<customFormChange> {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.newline,
+      keyboardType: TextInputType.multiline,
     );
   }
 
