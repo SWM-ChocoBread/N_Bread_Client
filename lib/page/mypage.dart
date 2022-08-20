@@ -352,120 +352,118 @@ class _MyPageState extends State<MyPage> {
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: _colorMyStatus(dataOngoing[index]
-                                      ["mystatus"]
-                                  .toString()
-                                  .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
-                            ),
-                            // const Color.fromARGB(255, 137, 82, 205)),
-                            child: Text(
-                              dataOngoing[index]["mystatus"]
-                                  .toString()
-                                  .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
-                            )),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: _colorStatus(
-                                dataOngoing[index]["status"].toString()),
+                            color: _colorMyStatus(dataOngoing[index]
+                                    ["mystatus"]
+                                .toString()
+                                .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
                           ),
                           // const Color.fromARGB(255, 137, 82, 205)),
-                          child: _currentTotal(dataOngoing[index]),
-                          // Text(
-                          //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
-                          //   style: const TextStyle(
-                          //       fontSize: 12,
-                          //       fontWeight: FontWeight.w500,
-                          //       color: Colors.white),
-                          // )
+                          child: Text(
+                            dataOngoing[index]["mystatus"]
+                                .toString()
+                                .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          )),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 3),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: _colorStatus(
+                              dataOngoing[index]["status"].toString()),
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
+                        // const Color.fromARGB(255, 137, 82, 205)),
+                        child: _currentTotal(dataOngoing[index]),
                         // Text(
-                        //   dataOngoing[index]["date"].toString(),
+                        //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
                         //   style: const TextStyle(
-                        //       fontSize: 18, fontWeight: FontWeight.w500),
-                        // ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    Text(
-                      dataOngoing[index]["title"].toString(),
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
-                          child: FaIcon(
-                            FontAwesomeIcons.calendar,
-                            size: 12,
-                          ),
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //       color: Colors.white),
+                        // )
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      // Text(
+                      //   dataOngoing[index]["date"].toString(),
+                      //   style: const TextStyle(
+                      //       fontSize: 18, fontWeight: FontWeight.w500),
+                      // ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 7,
+                  ),
+                  Text(
+                    dataOngoing[index]["title"].toString(),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                        child: FaIcon(
+                          FontAwesomeIcons.calendar,
+                          size: 12,
                         ),
-                        const SizedBox(
-                          width: 6,
+                      ),
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      Text(
+                        MyDateUtils.formatMyDateTime(
+                            dataOngoing[index]["dealDate"].toString()),
+                        style: const TextStyle(
+                          fontSize: 13,
                         ),
-                        Text(
-                          MyDateUtils.formatMyDateTime(
-                              dataOngoing[index]["dealDate"].toString()),
-                          style: const TextStyle(
-                            fontSize: 13,
-                          ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
+                        child: FaIcon(
+                          FontAwesomeIcons.locationDot,
+                          size: 12,
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
-                          child: FaIcon(
-                            FontAwesomeIcons.locationDot,
-                            size: 12,
-                          ),
+                      ),
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      Text(
+                        dataOngoing[index]["dealPlace"].toString(),
+                        style: const TextStyle(
+                          fontSize: 13,
                         ),
-                        const SizedBox(
-                          width: 6,
-                        ),
-                        Text(
-                          dataOngoing[index]["dealPlace"].toString(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           );
@@ -500,20 +498,17 @@ class _MyPageState extends State<MyPage> {
           }
 
           if (snapshot.hasData) {
-            return Container(
-              // margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  _nickname(),
-                  _line(),
-                  _ongoingTitle(),
-                  _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
-                ],
-              ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                _nickname(),
+                _line(),
+                _ongoingTitle(),
+                _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
+              ],
             );
           }
 
@@ -527,7 +522,7 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     setUserNickname();
     return Scaffold(
-      resizeToAvoidBottomInset:false,
+      resizeToAvoidBottomInset: false,
       appBar: _appBarWidget(),
       body: _bodyWidget(),
     );
