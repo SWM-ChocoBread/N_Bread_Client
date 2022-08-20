@@ -10,14 +10,17 @@ import '../style/colorstyles.dart';
 
 enum ReportType { inappropriate, offensive, sexual, discriminative, scam }
 
-var jsonString =
-    '{"title": "","content" : ""}';
+var jsonString = '{"title": "","content" : ""}';
 
 class PoliceReport extends StatefulWidget {
   String title;
   String nickName;
   int dealId;
-  PoliceReport({Key? key, required this.title, required this.nickName, required this.dealId})
+  PoliceReport(
+      {Key? key,
+      required this.title,
+      required this.nickName,
+      required this.dealId})
       : super(key: key);
 
   @override
@@ -148,7 +151,10 @@ class _PoliceReportState extends State<PoliceReport> {
               StaggeredGridTile.count(
                   crossAxisCellCount: 10,
                   mainAxisCellCount: 1,
-                  child: Text(widget.title)),
+                  child: Text(
+                    widget.title,
+                    overflow: TextOverflow.ellipsis,
+                  )),
               const StaggeredGridTile.count(
                   crossAxisCellCount: 2,
                   mainAxisCellCount: 1,
@@ -203,7 +209,7 @@ class _PoliceReportState extends State<PoliceReport> {
               // 신고하기 버튼을 눌렀을 때의 POST API
 
               print(
-                   selected); // selected : inappropriate(0), offensive(1), sexual(2), discriminative(3), scam(4)
+                  selected); // selected : inappropriate(0), offensive(1), sexual(2), discriminative(3), scam(4)
               print("dealID : ${widget.dealId.toString()}");
               Map mapToSend = jsonDecode(jsonString);
               mapToSend['title'] = selected.toString();
@@ -239,7 +245,8 @@ class _PoliceReportState extends State<PoliceReport> {
       var url = Uri.parse(
         tmpUrl,
       );
-      var response = await http.post(url, headers: {'Authorization': token}, body: jsonBody);
+      var response = await http.post(url,
+          headers: {'Authorization': token}, body: jsonBody);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       if (list.length == 0) {
