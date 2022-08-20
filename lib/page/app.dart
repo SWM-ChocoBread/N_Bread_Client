@@ -1,3 +1,4 @@
+import 'package:chocobread/page/customerservice.dart';
 import 'package:chocobread/page/mypage.dart';
 import 'package:chocobread/page/openchatting.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -72,7 +73,7 @@ class _AppState extends State<App> {
           _currentPageIndex = newPageIndex;
         });
       },
-      children: [const OpenChatting(), const Home(), MyPage()],
+      children: [CustomerService(), const Home(), MyPage()],
     );
     //   switch (_currentPageIndex) {
     //     case 0:

@@ -35,13 +35,17 @@ class _NotionInfoState extends State<NotionInfo> {
   //   );
   // }
 
-  Widget _bodyWidget (){
-    return FutureBuilder(future: rootBundle.loadString("assets/markdown/notioninfo.md"), builder: (BuildContext context, AsyncSnapshot<String> snapshot){
-      if (snapshot.hasData) {
-        return Markdown(data: snapshot.data!);
-      }
-      return const Center(child: CircularProgressIndicator(),);
-    });
+  Widget _bodyWidget() {
+    return FutureBuilder(
+        future: rootBundle.loadString("assets/markdown/notioninfo.md"),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.hasData) {
+            return Markdown(data: snapshot.data!);
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        });
   }
 
   Widget _speeddial() {
@@ -85,9 +89,9 @@ class _NotionInfoState extends State<NotionInfo> {
     return Scaffold(
       // extendBodyBehindAppBar: true,
       appBar: _appBarWidget(),
-      body: _bodyWidget(), 
+      body: _bodyWidget(),
       // _notioninfo(),
-      floatingActionButton: _speeddial(),
+      // floatingActionButton: _speeddial(),
     );
   }
 }
