@@ -155,6 +155,8 @@ class _AppState extends State<App> {
         ]);
   }
 
+  DateTime preBackpress = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -162,18 +164,31 @@ class _AppState extends State<App> {
         // appBar: _appbarWidget(),
         body: _bodyWidget(),
         bottomNavigationBar: _bottomNavigationBarWidget(),
-        // bottomNavigationBar: BottomNavigationBar(
-        //   items: [
-        //     BottomNavigationBarItem(
-        //       icon: Icon(Icons.home_outlined),
-        //       activeIcon: Icon(Icons.home),
-        //       label: 'home',
-        //     ),
-        //   ],
-        // ),
       ),
       onWillPop: () async {
-        return false;
+        final timegap = DateTime.now().difference(preBackpress);
+        final cantExit = timegap >= const Duration(seconds: 2);
+        preBackpress = DateTime.now();
+        if (cantExit) {
+          const snack = SnackBar(
+            content: Text(
+              '앱을 종료합니다.',
+              style: TextStyle(color: Colors.white),
+            ),
+            duration: Duration(seconds: 2),
+            backgroundColor: ColorStyle.darkMainColor,
+            behavior: SnackBarBehavior.floating,
+            elevation: 50,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+              Radius.circular(5),
+            )),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snack);
+          return false;
+        } else {
+          return true;
+        }
       },
     );
   }
