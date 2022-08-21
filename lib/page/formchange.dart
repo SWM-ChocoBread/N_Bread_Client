@@ -551,6 +551,8 @@ class _customFormChangeState extends State<customFormChange> {
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '모집인원을 입력해주세요.';
+        } else if (val == "0") {
+          return '0은 들어갈 수 없습니다.';
         }
         return null;
       },
@@ -565,21 +567,36 @@ class _customFormChangeState extends State<customFormChange> {
 
   Widget _pricePerPerson(String totalprice, String numofparticipants) {
     if (totalprice.isNotEmpty & numofparticipants.isNotEmpty) {
-      personalPrice =
-          ((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() *
-                  10)
-              .toString();
-      String formattedPersonalPrice = PriceUtils.calcStringToWonOnly(
-          ((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() *
-                  10)
-              .toString());
-      return Padding(
-        padding: const EdgeInsets.only(left: 3),
-        child: Text(
-          "1인당 부담 가격: $formattedPersonalPrice 원",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      );
+      // 총 가격과 모집인원이 비어있지 않은 경우
+      if ((int.parse(totalprice) > int.parse(numofparticipants)) &
+          (int.parse(numofparticipants) > 0)) {
+        // 총 가격보다는 모집인원이 적은 경우에만
+        personalPrice =
+            ((int.parse(totalprice) / int.parse(numofparticipants) / 10)
+                        .ceil() *
+                    10)
+                .toString();
+        String formattedPersonalPrice = PriceUtils.calcStringToWonOnly(
+            ((int.parse(totalprice) / int.parse(numofparticipants) / 10)
+                        .ceil() *
+                    10)
+                .toString());
+        return Padding(
+          padding: const EdgeInsets.only(left: 3),
+          child: Text(
+            "1인당 부담 가격: $formattedPersonalPrice 원",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        );
+      } else if ((int.parse(totalprice) == int.parse(numofparticipants))) {
+        return const Padding(
+          padding: EdgeInsets.only(left: 3),
+          child: Text(
+            "1인당 부담 가격: 1 원",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        );
+      }
     }
     return const Padding(
       padding: EdgeInsets.only(left: 3),
@@ -647,9 +664,9 @@ class _customFormChangeState extends State<customFormChange> {
             initialDate:
                 initialDateDeterminant(isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
             firstDate: DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day + 4),
+                DateTime.now().day + 3),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
-                DateTime.now().day + 4));
+                DateTime.now().day + 3));
         if (pickedDate != null) {
           setState(() {
             isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
@@ -1025,12 +1042,26 @@ class _customFormChangeState extends State<customFormChange> {
                             print("numOfParticipants is ${numOfParticipants}");
                             print(int.parse(numOfParticipants).runtimeType);
                             print("totalPrice is ${totalPrice}");
-                            personalPrice = ((int.parse(totalPrice) /
-                                            int.parse(numOfParticipants) /
-                                            10)
-                                        .ceil() *
-                                    10)
-                                .toString();
+                            if (totalPrice.isNotEmpty &
+                                numOfParticipants.isNotEmpty) {
+                              // 총가격과 모집인원이 비어있지 않은 경우
+                              if ((int.parse(totalPrice) >
+                                      int.parse(numOfParticipants)) &
+                                  (int.parse(numOfParticipants) > 0)) {
+                                // 총 가격보다는 모집인원이 적은 경우에만
+                                // 모집인원이 양수인 경우에만
+                                personalPrice = ((int.parse(totalPrice) /
+                                                int.parse(numOfParticipants) /
+                                                10)
+                                            .ceil() *
+                                        10)
+                                    .toString();
+                              } else if ((int.parse(totalPrice) ==
+                                  int.parse(numOfParticipants))) {
+                                personalPrice = "1";
+                              }
+                            }
+
                             date = dateController.text; // 거래 날짜
                             time = timeController.text; // 거래 시간
                             place = placeController.text; // 거래 장소
@@ -1056,51 +1087,75 @@ class _customFormChangeState extends State<customFormChange> {
                             )),
                           );
 
+                          const snackBarCorrect = SnackBar(
+                            content: Text(
+                              "총가격은 모집인원보다 커야 합니다!",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorStyle.darkMainColor,
+                            duration: Duration(milliseconds: 2000),
+                            behavior: SnackBarBehavior.floating,
+                            elevation: 50,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            )),
+                          );
+
                           // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                           if (_formKey.currentState!.validate()) {
                             // Navigator.push(context, MaterialPageRoute(
                             //     builder: (BuildContext context) {
                             //   return const App();
                             // }));
-                            Navigator.pushAndRemoveUntil(context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                              return const App();
-                            }), (route) => false);
+                            if (int.parse(totalPrice) >=
+                                int.parse(numOfParticipants)) {
+                              Navigator.pushAndRemoveUntil(context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                return const App();
+                              }), (route) => false);
 
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                            Map mapToSend = jsonDecode(jsonString);
-                            final prefs = await SharedPreferences.getInstance();
-                            print(
-                                "value of date to send is ${dateToSend}"); //값 설정
-                            mapToSend['title'] = productName.toString();
-                            mapToSend['link'] = productLink.toString();
-                            mapToSend['totalPrice'] = totalPrice;
-                            mapToSend['personalPrice'] = personalPrice;
-                            mapToSend['totalMember'] = numOfParticipants;
-                            mapToSend['dealDate'] = dateToSend;
-                            mapToSend['place'] = place;
-                            mapToSend['content'] = extra;
-                            mapToSend['region'] =
-                                prefs.getString('userLocation');
-                            if (imageFileList!.length > 0) {
-                              final List<dio.MultipartFile> _files =
-                                  imageFileList!
-                                      .map((img) =>
-                                          dio.MultipartFile.fromFileSync(
-                                              img.path,
-                                              contentType: new MediaType(
-                                                  "image", "jpg")))
-                                      .toList();
-                              dio.FormData _formData =
-                                  dio.FormData.fromMap({"img": _files});
-                              print("file length :  ${_files.length} ");
-                              print(mapToSend);
-                              print(jsonString);
-                              postFormChange(mapToSend, _formData, contentsid);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                              Map mapToSend = jsonDecode(jsonString);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              print(
+                                  "value of date to send is ${dateToSend}"); //값 설정
+                              mapToSend['title'] = productName.toString();
+                              mapToSend['link'] = productLink.toString();
+                              mapToSend['totalPrice'] = totalPrice;
+                              mapToSend['personalPrice'] = personalPrice;
+                              mapToSend['totalMember'] = numOfParticipants;
+                              mapToSend['dealDate'] = dateToSend;
+                              mapToSend['place'] = place;
+                              mapToSend['content'] = extra;
+                              mapToSend['region'] =
+                                  prefs.getString('userLocation');
+                              if (imageFileList!.length > 0) {
+                                final List<dio.MultipartFile> _files =
+                                    imageFileList!
+                                        .map((img) =>
+                                            dio.MultipartFile.fromFileSync(
+                                                img.path,
+                                                contentType: new MediaType(
+                                                    "image", "jpg")))
+                                        .toList();
+                                dio.FormData _formData =
+                                    dio.FormData.fromMap({"img": _files});
+                                print("file length :  ${_files.length} ");
+                                print(mapToSend);
+                                print(jsonString);
+                                postFormChange(
+                                    mapToSend, _formData, contentsid);
+                              } else {
+                                postFormChangeWithoutImage(
+                                    mapToSend, contentsid);
+                              }
                             } else {
-                              postFormChangeWithoutImage(mapToSend, contentsid);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBarCorrect);
                             }
                           }
                           print(

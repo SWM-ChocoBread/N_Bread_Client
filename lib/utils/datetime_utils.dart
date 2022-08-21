@@ -33,10 +33,15 @@ class MyDateUtils {
         {"오전": "AM", "오후": "PM"}[timeString.split(' ')[0]]; // AM, PM
     String formattedTime =
         timeString.split(' ')[1]; // 오전인 경우(+ 오후 12시인 경우), 그 값 그대로 전달
-    if (dayNight == "오후") {
+    var hour = formattedTime.split(":")[0]; // 시
+    var minute = formattedTime.split(":")[1]; // 분
+    if (dayNight == "오전") {
+      // 오전인 경우, 그 중에서도 시간이 12시인 경우 : 시간에서 12시간을 빼서 처리
+      if (hour == "12") {
+        formattedTime = (int.parse(hour) - 12).toString() + ":" + minute;
+      }
+    } else if (dayNight == "오후") {
       // 오후인 경우, 시간에 12시간 더해서 처리
-      var hour = formattedTime.split(":")[0]; // 시
-      var minute = formattedTime.split(":")[1]; // 분
       if (hour != "12") {
         formattedTime = (int.parse(hour) + 12).toString() + ":" + minute;
       }
