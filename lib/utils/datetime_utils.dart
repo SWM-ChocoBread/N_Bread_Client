@@ -68,7 +68,7 @@ class MyDateUtils {
       "Sun": "일"
     }[DateFormat("E").format(ddt)];
     String formattedTime = DateFormat.jm() // 5:08 PM
-        .format(ddt)
+        .format(dt)
         .split(' ')[0];
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(ddt)];
     return "$formattedDate$formattedWeekDay  $dayNight $formattedTime";
