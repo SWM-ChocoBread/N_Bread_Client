@@ -443,7 +443,7 @@ class _customFormState extends State<customForm> {
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '모집인원을 입력해주세요.';
-        } else if (val == "0") {
+        } else if (int.parse(val) == 0) {
           return '0은 들어갈 수 없습니다.';
         }
         return null;

@@ -34,7 +34,7 @@ class _ModifyState extends State<Modify> {
           color: Colors.black,
         ),
       ),
-      title: const Text("소분 거래 제안하기"),
+      title: const Text("소분 거래 수정하기"),
       centerTitle: false,
       titleSpacing: 0,
       elevation: 0,

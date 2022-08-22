@@ -551,7 +551,7 @@ class _customFormChangeState extends State<customFormChange> {
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '모집인원을 입력해주세요.';
-        } else if (val == "0") {
+        } else if (int.parse(val) == 0) {
           return '0은 들어갈 수 없습니다.';
         }
         return null;
@@ -1074,7 +1074,7 @@ class _customFormChangeState extends State<customFormChange> {
 
                           const snackBar = SnackBar(
                             content: Text(
-                              "성공적으로 제안되었습니다!",
+                              "성공적으로 수정되었습니다!",
                               style: TextStyle(color: Colors.white),
                             ),
                             backgroundColor: ColorStyle.darkMainColor,
