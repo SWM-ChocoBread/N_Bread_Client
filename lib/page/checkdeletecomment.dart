@@ -34,7 +34,7 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
             },
             child: const Text("취소")),
         TextButton(
-            onPressed: () {
+            onPressed: () async {
               // 특정 페이지로 이동하기
               // Navigator.push(context,
               //     MaterialPageRoute(builder: (BuildContext context) {
@@ -45,8 +45,8 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
               // Navigator.of(context).popUntil((_) => count++ >= 2);
               // 삭제 함수 넣기 (삭제 API 호출)
               (widget.isComment)
-                  ? deleteComment(widget.commentsIdString)
-                  : deleteReply(widget.commentsIdString);
+                  ? await deleteComment(widget.commentsIdString)
+                  : await deleteReply(widget.commentsIdString);
               if (widget.fromDetail) {
                 // detail.dart 에서 삭제하기 버튼을 누른 경우, pop 1회
                 Navigator.of(context).pop();
@@ -61,7 +61,7 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
     );
   }
 
-  void deleteComment(String commentId) async {
+  Future deleteComment(String commentId) async {
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString("userToken");
     if (userToken != null) {
@@ -79,7 +79,7 @@ class _CheckDeleteCommentState extends State<CheckDeleteComment> {
     }
   }
 
-  void deleteReply(String replyId) async {
+  Future deleteReply(String replyId) async {
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString("userToken");
     if (userToken != null) {

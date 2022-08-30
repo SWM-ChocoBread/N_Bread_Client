@@ -642,7 +642,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                   IconButton(
                     // enableSend 가 false이면, 댓글창에 아무것도 없으면, send 버튼 비활성화 (send 버튼 눌러도 변화 없음)
                     onPressed: enableSend
-                        ? () {
+                        ? () async{
                             // send 버튼을 누르면 작동한다.
                             // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
                             print(commentToServer + " 2"); //
@@ -660,11 +660,11 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             if (toWhom == "") {
                               // 댓글을 썼을 경우
                               print("댓글을 썼을 경우 댓글 내용은 ${commentToServer}");
-                              createComment(commentToServer);
+                              await createComment(commentToServer);
                             } else {
                               // 대댓글을 썼을 경우, 서버에 보내는 API
                               print("답글을 썼을 경우");
-                              createReply(commentToServer, toWhom);
+                              await createReply(commentToServer, toWhom);
                             }
                             print(
                                 "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
@@ -709,7 +709,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   }
 
   //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
-  void createComment(String comment) async {
+  Future createComment(String comment) async {
     print("create Comment called");
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString('userToken');
@@ -717,6 +717,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     var jsonString = '{"content":""}';
     Map mapToSend = jsonDecode(jsonString);
     mapToSend['content'] = comment;
+    print("SharedPreferences await finished");
 
     if (userToken != null) {
       print("id is ${widget.id}");
@@ -736,7 +737,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     }
   }
 
-  void createReply(String comment, String parId) async {
+  Future createReply(String comment, String parId) async {
     print("createReply called");
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString('userToken');
