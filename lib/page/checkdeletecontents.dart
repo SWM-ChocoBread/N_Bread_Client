@@ -29,8 +29,8 @@ class _CheckDeleteContentState extends State<CheckDeleteContent> {
             },
             child: const Text("취소")),
         TextButton(
-            onPressed: () {
-              deleteDeal(
+            onPressed: () async {
+              await deleteDeal(
                 widget.contentIdString,
               );
 
@@ -62,7 +62,7 @@ class _CheckDeleteContentState extends State<CheckDeleteContent> {
     );
   }
 
-  void deleteDeal(String dealId) async {
+  Future deleteDeal(String dealId) async {
     final prefs = await SharedPreferences.getInstance();
     print(prefs.getString('userToken'));
     String? userToken = prefs.getString('userToken');
