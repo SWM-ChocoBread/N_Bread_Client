@@ -1110,12 +1110,6 @@ class _customFormChangeState extends State<customFormChange> {
                             // }));
                             if (int.parse(totalPrice) >=
                                 int.parse(numOfParticipants)) {
-                              Navigator.pushAndRemoveUntil(context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) {
-                                return const App();
-                              }), (route) => false);
-
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
                               Map mapToSend = jsonDecode(jsonString);
@@ -1147,12 +1141,17 @@ class _customFormChangeState extends State<customFormChange> {
                                 print("file length :  ${_files.length} ");
                                 print(mapToSend);
                                 print(jsonString);
-                                postFormChange(
+                                await postFormChange(
                                     mapToSend, _formData, contentsid);
                               } else {
-                                postFormChangeWithoutImage(
+                                await postFormChangeWithoutImage(
                                     mapToSend, contentsid);
                               }
+                              Navigator.pushAndRemoveUntil(context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                return const App();
+                              }), (route) => false);
                             } else {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBarCorrect);
@@ -1162,7 +1161,7 @@ class _customFormChangeState extends State<customFormChange> {
                               "${productName} * ${productLink} * ${totalPrice} * ${numOfParticipants} * ${personalPrice} * ${dealDate} * ${date} * ${time} * ${place} * ${extra}");
                           print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
                         },
-                        child: const Text('제안하기'),
+                        child: const Text('수정하기'),
                       ),
                     )
                   ],
@@ -1182,7 +1181,7 @@ class _customFormChangeState extends State<customFormChange> {
   }
 }
 
-void postFormChange(
+Future postFormChange(
     Map jsonbody, dio.FormData formdata, String contetnsid) async {
   final prefs = await SharedPreferences.getInstance();
   var dealChangeUrl = "https://www.chocobread.shop/deals/" + contetnsid;
@@ -1227,7 +1226,7 @@ void postFormChange(
   }
 }
 
-void postFormChangeWithoutImage(Map jsonbody, String contentsid) async {
+Future postFormChangeWithoutImage(Map jsonbody, String contentsid) async {
   final prefs = await SharedPreferences.getInstance();
   var dealChangeUrl = "https://www.chocobread.shop/deals/" + contentsid;
   var url = Uri.parse(

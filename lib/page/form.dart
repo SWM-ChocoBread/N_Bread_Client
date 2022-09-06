@@ -975,10 +975,11 @@ class _customFormState extends State<customForm> {
                               // api호출
                               if (int.parse(totalPrice) >=
                                   int.parse(numOfParticipants)) {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                  return const App();
-                                }));
+                                // 원래 navigator의 위치
+                                // Navigator.push(context, MaterialPageRoute(
+                                //     builder: (BuildContext context) {
+                                //   return const App();
+                                // }));
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(snackBar);
                                 Map mapToSend = jsonDecode(jsonString);
@@ -1013,11 +1014,16 @@ class _customFormState extends State<customForm> {
 
                                 print(mapToSend);
                                 print(jsonString);
-                                getApiTest(mapToSend, _formData);
+                                await getApiTest(mapToSend, _formData);
 
                                 print(
                                     "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
                                 print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
+
+                                Navigator.push(context, MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                  return const App();
+                                }));
                               } else {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(snackBarCorrect);
@@ -1043,7 +1049,7 @@ class _customFormState extends State<customForm> {
   }
 }
 
-void getApiTest(Map jsonbody, FormData formData) async {
+Future getApiTest(Map jsonbody, FormData formData) async {
   final prefs = await SharedPreferences.getInstance();
   var dealCreateUrl = "https://www.chocobread.shop/deals/create";
   var url = Uri.parse(
