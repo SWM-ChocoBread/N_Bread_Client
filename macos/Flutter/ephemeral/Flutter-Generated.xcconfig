@@ -2,12 +2,10 @@
 FLUTTER_ROOT=/Users/chaeeunseo/Downloads/flutter
 FLUTTER_APPLICATION_PATH=/Users/chaeeunseo/swm_projects/n-bread/frontend
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/chaeeunseo/swm_projects/n-bread/frontend/lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
 FLUTTER_BUILD_NUMBER=2
-DART_DEFINES=RkxVVFRFUl9XRUJfQVVUT19ERVRFQ1Q9dHJ1ZQ==
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=/Users/chaeeunseo/swm_projects/n-bread/frontend/.dart_tool/package_config.json
+PACKAGE_CONFIG=.dart_tool/package_config.json

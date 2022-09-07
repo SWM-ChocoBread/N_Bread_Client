@@ -1,3 +1,4 @@
+import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,10 +84,18 @@ class _LoginState extends State<Login> {
             bool isNickname =
                 prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
             if (isTerms && isNickname) {
+              // 카카오 SDK로 로그인
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                       builder: (BuildContext context) => const App()),
+                  (route) => false);
+            } else {
+              // 카카오 SDK로 로그인을 하고 난 후, 약관 동의와 닉네임 설정 과정을 완료하지 않고 앱을 나간 경우
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => TermsCheck()),
                   (route) => false);
             }
           } catch (error) {
@@ -101,11 +110,35 @@ class _LoginState extends State<Login> {
               // 카카오 계정으로 로그인
               OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
               print('로그인 성공 ${token.accessToken}');
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => const App()),
-                  (route) => false);
+              try {
+                User user = await UserApi.instance.me();
+                print('사용자 정보 요청 성공, 이 유저는 이전에 닉네임 설정까지 모두 완료한 사람입니다.'
+                    '\n회원번호: ${user.id}'
+                    '\n닉네임: ${user.kakaoAccount?.profile?.nickname}'
+                    '\n이메일: ${user.kakaoAccount?.email}');
+              } catch (error) {
+                print('사용자 정보 요청 실패 $error');
+              }
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              bool isTerms =
+                  prefs.getBool("isTerms") ?? false; // 약관에 모두 동의했는지 여부
+              bool isNickname =
+                  prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
+              if (isTerms && isNickname) {
+                // 로그인에 성공하고,
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => const App()),
+                    (route) => false);
+              } else {
+                // 카카오 SDK로 로그인을 하고 난 후, 약관 동의와 닉네임 설정 과정을 완료하지 않고 앱을 나간 경우
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => TermsCheck()),
+                    (route) => false);
+              }
             } catch (error) {
               print('로그인 실패 $error');
             }
@@ -122,6 +155,15 @@ class _LoginState extends State<Login> {
               OAuthToken token = await UserApi.instance.loginWithKakaoTalk();
               print('카카오톡으로 로그인 성공 : ${token.accessToken}');
               // 이전에 로그인한 기록이 없다면, 회원가입 프로세스인 약관 동의로 이동 (이전 stack 비우기)
+              try {
+                User user = await UserApi.instance.me();
+                print('사용자 정보 요청 성공/ 이 유저는 새로 sdk를 이용해 로그인하는 사람입니다.'
+                    '\n회원번호: ${user.id}'
+                    '\n닉네임: ${user.kakaoAccount?.profile?.nickname}'
+                    '\n이메일: ${user.kakaoAccount?.email}');
+              } catch (error) {
+                print('사용자 정보 요청 실패 $error');
+              }
               Navigator.pushNamedAndRemoveUntil(
                   context, '/termscheck', (route) => false);
             } catch (error) {
