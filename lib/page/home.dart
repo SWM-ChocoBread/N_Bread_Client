@@ -558,7 +558,7 @@ class _HomeState extends State<Home> {
     print("*** [home.dart] loadContents 가 실행되었습니다! ***");
     final prefs = await SharedPreferences.getInstance();
     String? locate = prefs.getString("userLocation");
-    await Future.delayed(const Duration(milliseconds: 1), () {});
+    // await Future.delayed(const Duration(milliseconds: 1), () {});
     if (locate != null) {
       currentLocation = locate;
       print(

@@ -120,11 +120,11 @@ class OngoingRepository {
     String? userToken = prefs.getString('userToken');
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
     if (userToken != null) {
-      await Future.delayed(const Duration(microseconds: 1), () {});
+      // await Future.delayed(const Duration(microseconds: 1), () {});
       var response = await http.get(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
-      await Future.delayed(const Duration(milliseconds: 1000));
+      // await Future.delayed(const Duration(milliseconds: 1000));
 
       if (list['code'] == 401) {
         //로그인 안했을 경우 처리

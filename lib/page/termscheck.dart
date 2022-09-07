@@ -479,11 +479,11 @@ class _TermsCheckState extends State<TermsCheck> {
   Future<void> setUserLocation(String latitude, String longitude) async {
     print("setUserLocation으로 전달된 latitude : " + latitude);
     print("setUserLocation으로 전달된 longitude : " + longitude);
+    
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
-
       String userId = payload['id'].toString();
       print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
       print("setUserLocation was called on mypage with userId is ${userId}");

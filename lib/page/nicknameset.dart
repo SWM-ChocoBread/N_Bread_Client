@@ -413,6 +413,7 @@ class _NicknameSetState extends State<NicknameSet> {
   }
 
   Future<void> checkNickname(String nick) async {
+    print("checkNickname 함수가 실행되었습니다!");
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString('userToken');
 
@@ -436,6 +437,7 @@ class _NicknameSetState extends State<NicknameSet> {
           nicknameoverlap = false;
         });
       } else {
+        print("사용불가능한 닉네임입니다!");
         setState(() {
           nicknameoverlap = true;
         });

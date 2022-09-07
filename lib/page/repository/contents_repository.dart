@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void prefTest() async {
-  await Future.delayed(const Duration(microseconds: 1), () {});
+  // await Future.delayed(const Duration(microseconds: 1), () {});
   final prefs = await SharedPreferences.getInstance();
 
   //return prefs;
@@ -251,7 +251,7 @@ class ContentsRepository {
         "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 prefs['userToken'] : ${prefs.getString('userToken')}");
     String? userToken = prefs.getString('userToken');
     if (userToken != null) {
-      await Future.delayed(const Duration(milliseconds: 30), () {});
+      // await Future.delayed(const Duration(milliseconds: 30), () {});
       var response = await http.get(url, headers: {'Authorization': userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 import 'firebase_options.dart';
 
@@ -20,6 +21,7 @@ import 'firebase_options.dart';
 // }
 
 Future<void> main() async {
+  KakaoSdk.init(nativeAppKey: 'cfd53361fe092dba3d8960f5697f97b4');
   WidgetsFlutterBinding
       .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

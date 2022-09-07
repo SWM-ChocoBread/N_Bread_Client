@@ -129,7 +129,7 @@ class CommentsRepository {
   // }
 
   Future<Map<String, dynamic>> _callAPI(String dealId) async {
-    await Future.delayed(const Duration(microseconds: 1), (){});
+    // await Future.delayed(const Duration(microseconds: 1), (){});
     String tmpUrl = 'https://www.chocobread.shop/comments/' + dealId;
     var url = Uri.parse(
       tmpUrl,
@@ -146,10 +146,10 @@ class CommentsRepository {
   Future<List<dynamic>> loadComments(String dealId) async {
     // API 통신 location 값을 보내주면서
     print("load comment called");
-    await Future.delayed(const Duration(microseconds: 100), () {});
+    // await Future.delayed(const Duration(microseconds: 100), () {});
     Map<String, dynamic> getData = await _callAPI(dealId);
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    // await Future.delayed(const Duration(milliseconds: 1000));
     var tmp = List<Map<String, dynamic>>.empty(growable: true);
 
     if (getData['result']['comments'].length != 0) {
