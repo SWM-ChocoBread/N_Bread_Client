@@ -663,10 +663,10 @@ class _customFormChangeState extends State<customFormChange> {
             context: context,
             initialDate:
                 initialDateDeterminant(isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
-            firstDate: DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day + 3),
+            firstDate: DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
-                DateTime.now().day + 3));
+                DateTime.now().day));
         if (pickedDate != null) {
           setState(() {
             isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
