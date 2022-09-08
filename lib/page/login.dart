@@ -79,12 +79,13 @@ class _LoginState extends State<Login> {
             print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
             // (자동 로그인) 유효한 토큰이 이미 있는 경우, 홈 화면으로 navigator
             // 이전에 로그인한 기록이 있다면, 홈 화면으로 이동 (이전 stack 비우기)
+            // TODO : (추가해야 할 사항) 닉네임 설정 여부를 확인하는 API 호출 추가하기
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            bool isTerms = prefs.getBool("isTerms") ?? false; // 약관에 모두 동의했는지 여부
             bool isNickname =
                 prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
-            if (isTerms && isNickname) {
-              // 카카오 SDK로 로그인
+            if (isNickname) {
+              // 카카오 SDK로 로그인을 하고 난 후, 이전에 약관 동의와 닉네임 설정을 했었다면,
+              // TODO : (수정해야 할 사항) 카카오 SDK로 로그인을 하고 난 후, 이전에 닉네임 설정까지 완료했다면(회원가입 과정을 모두 다 거쳤다면) 홈으로 이동
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
@@ -119,13 +120,12 @@ class _LoginState extends State<Login> {
               } catch (error) {
                 print('사용자 정보 요청 실패 $error');
               }
+              // TODO : (추가해야 할 사항) 닉네임 설정 여부를 확인하는 API 호출 추가하기
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              bool isTerms =
-                  prefs.getBool("isTerms") ?? false; // 약관에 모두 동의했는지 여부
               bool isNickname =
                   prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
-              if (isTerms && isNickname) {
-                // 로그인에 성공하고,
+              if (isNickname) {
+                // 카카오 계정으로 로그인에 성공하고, 이전에 회원가입 절차를 수행했던 사람이라면(닉네임 설정까지 완료했다면) 홈 화면으로 이동하기
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
@@ -329,6 +329,21 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Widget _home() {
+    return TextButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const App();
+          }));
+        },
+        child: const Text(
+          "회원가입 하지 않고 둘러보기",
+          style: TextStyle(
+              color: Colors.white, decoration: TextDecoration.underline),
+        ));
+  }
+
   Widget _bodyWidget() {
     return Container(
       color: ColorStyle.mainColor,
@@ -376,6 +391,10 @@ class _LoginState extends State<Login> {
                 height: 10,
               ),
               _applelogin(),
+              const SizedBox(
+                height: 10,
+              ),
+              _home(),
             ],
           ),
         ),

@@ -111,7 +111,6 @@ class _MyPageState extends State<MyPage> {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
-                                    prefs.setBool("isLogin", false);
                                     print("move to kakao logout webviewPage");
                                     Navigator.pushAndRemoveUntil(
                                         context,
@@ -124,7 +123,6 @@ class _MyPageState extends State<MyPage> {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
-                                    prefs.setBool("isLogin", false);
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
@@ -625,9 +623,6 @@ class _MyPageState extends State<MyPage> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       prefs.remove("userToken");
-      prefs.setBool("isLogin", false);
-      prefs.setBool("isTerms", false);
-      prefs.setBool("isNickname", false);
       print("prefs setting done");
       print(list);
       //Map<String, dynamic> list = jsonDecode(responseBody);

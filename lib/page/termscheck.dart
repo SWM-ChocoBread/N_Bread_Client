@@ -129,17 +129,6 @@ class _TermsCheckState extends State<TermsCheck> {
     print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
   }
 
-  Future setTerms() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("isTerms", true);
-  }
-
-  //
-  // Future setTermsfalse() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   prefs.setBool("isTermsAgreed", false);
-  // }
-
   @override
   initState() {
     // TODO: implement initState
@@ -429,7 +418,6 @@ class _TermsCheckState extends State<TermsCheck> {
           ),
           onPressed: (isServiceChecked && isPersonalChecked) // 모두 체크한 경우
               ? () {
-                  setTerms();
                   // .then((_) async {
                   //   if (await checkIfPermissionGranted()) {
                   //     // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
