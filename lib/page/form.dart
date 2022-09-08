@@ -495,9 +495,9 @@ class _customFormState extends State<customForm> {
       // datepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
       return tempPickedDate;
     } else {
-      // datepicker로 값이 수정되지 않은 경우 : 오늘로부터 3일 후부터 initial value로 넣어준다.
+      // datepicker로 값이 수정되지 않은 경우 : 오늘을 처음 시작일로 지정한다.
       return DateTime(
-          DateTime.now().year, DateTime.now().month, DateTime.now().day + 3);
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
     }
   }
 
@@ -544,10 +544,10 @@ class _customFormState extends State<customForm> {
             context: context,
             initialDate:
                 initialDateDeterminant(isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
-            firstDate: DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day + 3),
+            firstDate: DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
-                DateTime.now().day + 3));
+                DateTime.now().day));
         if (pickedDate != null) {
           setState(() {
             isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
