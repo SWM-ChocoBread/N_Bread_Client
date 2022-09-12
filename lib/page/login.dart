@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart' as Airbridge;
 
 import 'app.dart';
 import 'appleloginwebview.dart';
@@ -38,6 +39,8 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
+        print("눌림");
+        
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return NaverLoginWebview();
@@ -303,6 +306,7 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
+        Airbridge.Airbridge.event.send(Airbridge.SignOutEvent());
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return AppleLoginWebview();
