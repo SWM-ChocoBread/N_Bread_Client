@@ -6,6 +6,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart' as Airbridge;
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import 'app.dart';
 import 'appleloginwebview.dart';
@@ -271,6 +273,8 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
+        Amplitude.getInstance().logEvent('BUTTON_CLICKED');
+        exampleForAmplitude();
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return KakaoLoginWebview();
@@ -305,7 +309,8 @@ class _LoginState extends State<Login> {
           side: const BorderSide(width: 1.0, color: Colors.white),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
-      onPressed: () {
+      onPressed: () async {
+        await exampleForAmplitude();
         Airbridge.Airbridge.event.send(Airbridge.SignOutEvent());
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
@@ -394,5 +399,19 @@ class _LoginState extends State<Login> {
       appBar: _appbarWidget(),
       body: _bodyWidget(),
     );
+  }
+
+  Future<void> exampleForAmplitude() async {
+    // Create the instance
+    final Amplitude analytics = Amplitude.getInstance(instanceName: "chocobread");
+
+    // Initialize SDK
+    analytics.init("85f89c7ec257835fd0e2bc4d83428f4f");
+
+    // Log an event
+    analytics.logEvent('MyApp startup', eventProperties: {
+      'friend_num': 10,
+      'is_heavy_user': true
+    });
   }
 }
