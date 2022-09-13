@@ -548,12 +548,15 @@ class _customFormState extends State<customForm> {
                 DateTime.now().year, DateTime.now().month, DateTime.now().day),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
                 DateTime.now().day));
+        print("pickedDate : " + pickedDate.toString());
         if (pickedDate != null) {
+          // 만약 날짜를 선택했다면
           setState(() {
-            isOnTappedDate = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
+            isOnTappedDate =
+                true; // 거래 날짜를 선택했었던(수정) 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedDate = pickedDate;
-          String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
+          // String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
           // dateToSend += formattedDate2;
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
           String? weekday = {
@@ -567,6 +570,11 @@ class _customFormState extends State<customForm> {
           }[DateFormat("E").format(pickedDate)];
           setState(() {
             dateController.text = "$formattedDate$weekday";
+          });
+        } else {
+          // 날짜를 선택하지 않았다면
+          setState(() {
+            dateController.text = "";
           });
         }
       },
@@ -908,7 +916,7 @@ class _customFormState extends State<customForm> {
                                   numOfParticipantsController.text; //참여자 수
                               print(
                                   "numOfParticipants is ${numOfParticipants}");
-                              print(int.parse(numOfParticipants).runtimeType);
+                              // print(int.parse(numOfParticipants).runtimeType);
                               print("totalPrice is ${totalPrice}");
                               if (totalPrice.isNotEmpty &
                                   numOfParticipants.isNotEmpty) {
@@ -916,7 +924,7 @@ class _customFormState extends State<customForm> {
                                 if ((int.parse(totalPrice) >
                                         int.parse(numOfParticipants)) &
                                     (int.parse(numOfParticipants) > 0)) {
-                                  // 총 가격보다는 모집인원이 적은 경우에만
+                                  // 총 가격보다는 모집인원이 적은 경우에만a
                                   // 모집인원이 양수인 경우에만
                                   personalPrice = ((int.parse(totalPrice) /
                                                   int.parse(numOfParticipants) /
