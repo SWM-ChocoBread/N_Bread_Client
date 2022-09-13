@@ -2,6 +2,7 @@ import 'dart:convert';
 // import 'dart:ffi';
 import 'dart:io';
 import 'package:chocobread/page/imageuploader.dart' as imageFile;
+import 'package:chocobread/page/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -457,35 +458,48 @@ class _customFormState extends State<customForm> {
     );
   }
 
-  Widget _pricePerPerson(String totalprice, String numofparticipants) {
+  _pricePerPersonText(String totalprice, String numofparticipants) {
     if (totalprice.isNotEmpty & numofparticipants.isNotEmpty) {
       // 총가격과 모집인원이 비어있지 않은 경우
-      if ((int.parse(totalprice) > int.parse(numofparticipants)) &
-          (int.parse(numofparticipants) > 0)) {
-        // 총 가격보다는 모집인원이 적은 경우에만
-        // 모집인원이 양수인 경우에만
-        return Padding(
-          padding: const EdgeInsets.only(left: 3),
-          child: Text(
-            "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() * 10).toString())} 원",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        );
-      } else if ((int.parse(totalprice) == int.parse(numofparticipants))) {
-        return const Padding(
-          padding: EdgeInsets.only(left: 3),
-          child: Text(
-            "1인당 부담 가격: 1 원",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        );
+      if (int.parse(numofparticipants) > 0) {
+        // 모집 인원이 양수인 경우
+        if (totalprice == "0") {
+          // 총가격 = 0, 모집인원 = 양수 : 무료 나눔 ("1인당 부담 가격: 0원")
+          personalPrice = "0";
+        } else if (int.parse(totalprice) < int.parse(numofparticipants)) {
+          // 총가격 < 모집인원 : ("1인당 부담 가격: ")
+          personalPrice = "";
+        } else if (int.parse(totalprice) == int.parse(numofparticipants)) {
+          // 총가격 == 모집인원 : ("1인당 부담 가격: 1 원")
+          personalPrice = "1";
+        } else if (int.parse(totalprice) > int.parse(numofparticipants)) {
+          // 총가격 > 모집인원 : ("1인당 부담 가격: $나눈결과 원")
+          personalPrice =
+              ((int.parse(totalprice) / int.parse(numofparticipants) / 10)
+                          .ceil() *
+                      10)
+                  .toString();
+        }
+      } else {
+        personalPrice = "";
       }
+    } else {
+      personalPrice = "";
     }
-    return const Padding(
-      padding: EdgeInsets.only(left: 3),
+
+    if (personalPrice == "") {
+      return "1인당 부담 가격: ";
+    } else {
+      return "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(personalPrice)} 원";
+    }
+  }
+
+  Widget _pricePerPerson(String totalprice, String numofparticipants) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 3),
       child: Text(
-        "1인당 부담 가격: ",
-        style: TextStyle(fontWeight: FontWeight.bold),
+        _pricePerPersonText(totalprice, numofparticipants),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -548,16 +562,16 @@ class _customFormState extends State<customForm> {
                 DateTime.now().year, DateTime.now().month, DateTime.now().day),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
                 DateTime.now().day));
-        print("pickedDate : " + pickedDate.toString());
         if (pickedDate != null) {
           // 만약 날짜를 선택했다면
+          print("[***] datepicker에서 날짜를 선택했을 때의 pickedDate : " +
+              pickedDate.toString());
           setState(() {
             isOnTappedDate =
                 true; // 거래 날짜를 선택했었던(수정) 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedDate = pickedDate;
-          // String formattedDate2 = DateFormat('yyyy-MM-dd').format(pickedDate);
-          // dateToSend += formattedDate2;
+          date = pickedDate.toString(); // 서버에 보낼 거래 날짜를 저장한다.
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
           String? weekday = {
             "Mon": "월",
@@ -572,10 +586,17 @@ class _customFormState extends State<customForm> {
             dateController.text = "$formattedDate$weekday";
           });
         } else {
-          // 날짜를 선택하지 않았다면
-          setState(() {
-            dateController.text = "";
-          });
+          // 날짜를 선택하지 않고 취소를 눌렀다면
+          if (isOnTappedDate) {
+            // 이전에 날짜를 선택한 적이 없다면,
+            setState(() {
+              dateController.text = dateController.text;
+            });
+          } else {
+            setState(() {
+              dateController.text = "";
+            });
+          }
         }
       },
     );
@@ -631,12 +652,13 @@ class _customFormState extends State<customForm> {
         TimeOfDay? pickedTime = await showTimePicker(
             context: context,
             initialTime: initialTimeDeterminant(isOnTappedTime));
-
         if (pickedTime != null) {
           // var df = DateFormat("h:mm a");
           // var dt = df.parse(pickedTime.format(context));
           // var saveTime = DateFormat('HH:mm').format(dt);
           // print(saveTime);
+          print("[***] timepicker에서 시간을 선택했을 때의 pickedTime : " +
+              pickedTime.toString());
           setState(() {
             isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
           });
@@ -645,17 +667,28 @@ class _customFormState extends State<customForm> {
               .format(context)
               .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
           String formattedTime = DateFormat("h:mm").format(parsedTime);
-          String formattedTime2 = DateFormat.Hm().format(parsedTime);
-          // dateToSend += " ";
-          // dateToSend += formattedTime2;
           String? dayNight = {
             "AM": "오전",
             "PM": "오후"
           }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
-          print(formattedTime2);
+          time = DateFormat("HH:mm")
+              .format(parsedTime)
+              .toString(); // 서버에 보낼 거래 시간을 저장한다.
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
           });
+        } else {
+          // 날짜를 선택하지 않고 취소를 눌렀다면
+          if (isOnTappedTime) {
+            // 이전에 날짜를 선택한 적이 없다면,
+            setState(() {
+              timeController.text = timeController.text;
+            });
+          } else {
+            setState(() {
+              timeController.text = "";
+            });
+          }
         }
       },
     );
@@ -909,92 +942,32 @@ class _customFormState extends State<customForm> {
                         width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
                         child: OutlinedButton(
                           onPressed: () async {
-                            setState(() {
-                              productName = productNameController.text; // 제품명
-                              productLink = productLinkController.text; // 판매 링크
-                              numOfParticipants =
-                                  numOfParticipantsController.text; //참여자 수
-                              print(
-                                  "numOfParticipants is ${numOfParticipants}");
-                              // print(int.parse(numOfParticipants).runtimeType);
-                              print("totalPrice is ${totalPrice}");
-                              if (totalPrice.isNotEmpty &
-                                  numOfParticipants.isNotEmpty) {
-                                // 총가격과 모집인원이 비어있지 않은 경우
-                                if ((int.parse(totalPrice) >
-                                        int.parse(numOfParticipants)) &
-                                    (int.parse(numOfParticipants) > 0)) {
-                                  // 총 가격보다는 모집인원이 적은 경우에만a
-                                  // 모집인원이 양수인 경우에만
-                                  personalPrice = ((int.parse(totalPrice) /
-                                                  int.parse(numOfParticipants) /
-                                                  10)
-                                              .ceil() *
-                                          10)
-                                      .toString();
-                                } else if ((int.parse(totalPrice) ==
-                                    int.parse(numOfParticipants))) {
-                                  personalPrice = "1";
-                                }
-                              }
-
-                              date = dateController.text; // 거래 날짜
-                              time = timeController.text; // 거래 시간
-                              place = placeController.text; // 거래 장소
-                              extra = extraController.text; // 추가 작성
-                              // finalImageFileList = imageUploader().getImageFileList;
-                              dateToSend =
-                                  MyDateUtils.sendMyDateTime(date, time);
-                              print("#####${dateToSend}#####");
-                            });
-
-                            const snackBar = SnackBar(
-                              content: Text(
-                                "성공적으로 제안되었습니다!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorStyle.darkMainColor,
-                              duration: Duration(milliseconds: 2000),
-                              behavior: SnackBarBehavior.floating,
-                              elevation: 50,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              )),
-                            );
-
-                            const snackBarCorrect = SnackBar(
-                              content: Text(
-                                "총가격은 모집인원보다 커야 합니다!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorStyle.darkMainColor,
-                              duration: Duration(milliseconds: 2000),
-                              behavior: SnackBarBehavior.floating,
-                              elevation: 50,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              )),
-                            );
-
-                            // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                             if (_formKey.currentState!.validate()) {
-                              // api호출
-                              if (int.parse(totalPrice) >=
-                                  int.parse(numOfParticipants)) {
-                                // 원래 navigator의 위치
-                                // Navigator.push(context, MaterialPageRoute(
-                                //     builder: (BuildContext context) {
-                                //   return const App();
-                                // }));
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                                Map mapToSend = jsonDecode(jsonString);
+                              // form 이 모두 validate 하면
+                              // controller로 서버에 보낼 데이터들을 가져와서 변수에 저장한다.
+                              setState(() {
+                                productName = productNameController.text; // 제품명
+                                productLink =
+                                    productLinkController.text; // 판매 링크
+                                // 총가격과 모집인원은 onChanged로 받아와진다.
+                                // personalPrice는 유효한 총가격과 모집인원이 입력되자마자 위에서 정해진다.
+                                // date = dateController.text; // 거래 날짜
+                                // time = timeController.text; // 거래 시간
+                                place = placeController.text; // 거래 장소
+                                extra = extraController.text; // 추가 작성
+                              });
+                              if ((int.parse(totalPrice) >=
+                                      int.parse(numOfParticipants)) ||
+                                  (int.parse(totalPrice) == 0)) {
+                                // 서버에 보낼 수 있는 형식으로 정리하기
+                                dateToSend = MyDateUtils.sendMyDateTime(
+                                    date, time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
+                                print(
+                                    "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
+                                print("서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
                                 final prefs =
                                     await SharedPreferences.getInstance();
-                                print(
-                                    "value of date to send is ${dateToSend}"); //값 설정
+                                Map mapToSend = jsonDecode(jsonString);
                                 mapToSend['title'] = productName.toString();
                                 mapToSend['link'] = productLink.toString();
                                 mapToSend['totalPrice'] = totalPrice;
@@ -1016,27 +989,32 @@ class _customFormState extends State<customForm> {
                                         .toList();
                                 print("files: ### ");
                                 print(_files);
+                                print("file length :  ${_files.length} ");
                                 FormData _formData =
                                     FormData.fromMap({"img": _files});
-                                print("file length :  ${_files.length} ");
-
                                 print(mapToSend);
                                 print(jsonString);
+
+                                // 서버에 보내기
                                 await getApiTest(mapToSend, _formData);
 
-                                print(
-                                    "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
-                                print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
-
+                                // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
                                   return const App();
                                 }));
-                              } else {
                                 ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBarCorrect);
+                                    .showSnackBar(MySnackBar("성공적으로 제안되었습니다!"));
+                              } else {
+                                // form 이 유효하지 않은 경우
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    MySnackBar("총가격은 모집인원보다 커야 합니다!"));
                               }
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(MySnackBar("필수 입력 칸을 채워주세요."));
                             }
+                            // finalImageFileList = imageUploader().getImageFileList;
                           },
                           child: const Text('제안하기'),
                         ),
