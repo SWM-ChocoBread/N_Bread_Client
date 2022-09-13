@@ -14,6 +14,7 @@ import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
@@ -111,13 +112,15 @@ class _MyPageState extends State<MyPage> {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
-                                    print("move to kakao logout webviewPage");
-                                    Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                KakaoLogoutWebview()),
-                                        (route) => false);
+                                    try {
+                                      await UserApi.instance.logout();
+                                      print('로그아웃 성공, SDK에서 토큰 삭제');
+                                    } catch (error) {
+                                      print('로그아웃 실패, SDK에서 토큰 삭제 $error');
+                                    }
+                                    print("move to loginPage");
+                                     Navigator.pushNamedAndRemoveUntil(
+                                        context, '/login', (route) => false);
                                     // kakaoLogout();
                                   } else if (payload['provider'] == 'apple') {
                                     print(
@@ -609,6 +612,8 @@ class _MyPageState extends State<MyPage> {
 
       String provider = payload['provider'].toString();
       print("provider is ${provider} on resign api");
+      
+      
 
       String tmpUrl =
           'https://www.chocobread.shop/auth/' + provider + '/signout';
