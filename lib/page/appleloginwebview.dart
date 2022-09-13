@@ -33,29 +33,68 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
     );
   }
 
-  Future<bool> checkStatus() async {
-    //prefs.clear();
-    // TODO : 닉네임을 설정 완료 했는지 여부를 확인하는 API 호출
-    bool isNickname = true;
-    print("[*] 닉네임 설정 상태 : " + isNickname.toString());
-    return isNickname;
-  }
+  void checkStatus() async {
+    SharedPreferences prefs = await SharedPreferences
+        .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
-  void moveScreen() async {
-    await checkStatus().then((wasUser) {
-      if (wasUser) {
-        // 이전에 로그인한 기록이 있다면, 홈 화면으로 이동 (이전 stack 비우기)
+    //prefs.clear();
+    // TODO : 닉네임 설정 완료 여부를 확인하는 API를 호출하는 부분
+    bool hasToken = false;
+    String? userToken = prefs.getString("userToken");
+
+    if (userToken != null) {
+      hasToken = true;
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+
+      String userId = payload['id'].toString();
+
+      String tmpUrl = 'https://www.chocobread.shop/users/check/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response = await http.get(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print("splash에서의 list : ${list}");
+      if (list['code'] == 200) {
+        print("코드가 200입니다. 홈화면으로 리다이렉트합니다.");
+        //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (BuildContext context) => const App()),
             (route) => false);
-      } else {
-        // 이전에 로그인한 기록이 없다면, 로그인 화면으로 이동 (이전 stack 비우기)
+      } else if (list['code'] == 300 || list['code'] == 404) {
+        print("코드가 ${list['code']}입니다. 약관동의 화면으로 리다이렉트합니다.");
         Navigator.pushNamedAndRemoveUntil(
             context, '/termscheck', (route) => false);
+      } else {
+        print("서버 에러가 발생하였습니다. 로그인 화면으로 리다이렉트합니다.");
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
-    });
+    } else {
+      //토큰이 로컬 스토리지에 없으면 로그인 화면으로 이동.
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+    print("[*] 유저 토큰 : " + userToken.toString());
   }
+
+  // void moveScreen() async {
+  //   await checkStatus().then((wasUser) {
+  //     if (wasUser) {
+  //       // 이전에 로그인한 기록이 있다면, 홈 화면으로 이동 (이전 stack 비우기)
+  //       //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
+  //       Navigator.pushAndRemoveUntil(
+  //           context,
+  //           MaterialPageRoute(builder: (BuildContext context) => const App()),
+  //           (route) => false);
+  //     } else {
+  //       // 이전에 로그인한 기록이 없다면, 로그인 화면으로 이동 (이전 stack 비우기)
+  //       Navigator.pushNamedAndRemoveUntil(
+  //         //태현 : 애플 신규 회원가입
+  //           context, '/termscheck', (route) => false);
+  //     }
+  //   });
+  // }
 
   Widget _appleLoginWebview() {
     return InAppWebView(
@@ -72,17 +111,11 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
           // List<Cookie> cookies = await _cookieManager.getCookies(url: myurl);
           Cookie? cookie =
               await _cookieManager.getCookie(url: myurl, name: "accessToken");
-          if (cookie != null) {}
-          // print("start");
           final prefs = await SharedPreferences.getInstance();
-          // print(cookie);
-          // print("end");
           if (cookie != null) {
-            // prefs.setBool("isLogin", true);
-            // print(prefs.getBool("isLogin"));
             prefs.setString("userToken", cookie.value);
             sendSignupToAirbridge();
-            moveScreen();
+            checkStatus();
             // Navigator.pushNamedAndRemoveUntil(
             //     context, "/termscheck", (r) => false);
           }

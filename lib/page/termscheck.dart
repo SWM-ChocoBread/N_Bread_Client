@@ -418,7 +418,7 @@ class _TermsCheckState extends State<TermsCheck> {
           ),
           onPressed: (isServiceChecked && isPersonalChecked) // 모두 체크한 경우
               ? () {
-                //임시로 추가한 nickname set 페이지 이동 코드
+                //혜연 : 임시로 추가한 nickname set 페이지 이동 코드
                 Navigator.push(context,
                           MaterialPageRoute(builder: (BuildContext context) {
                         return NicknameSet();
