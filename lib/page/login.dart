@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
@@ -5,11 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import 'app.dart';
 import 'appleloginwebview.dart';
 import 'kakaologinwebview.dart';
 import 'naverloginwebview.dart';
+
+//혜연
+//아래 코드는 300일 경우 약관 동의 화면으로, 200일 경우 홈 화면으로 리다이렉트 시켜줘야합니다.
+int code = 0;
 
 class Login extends StatefulWidget {
   Login({Key? key}) : super(key: key);
@@ -80,6 +87,19 @@ class _LoginState extends State<Login> {
             // (자동 로그인) 유효한 토큰이 이미 있는 경우, 홈 화면으로 navigator
             // 이전에 로그인한 기록이 있다면, 홈 화면으로 이동 (이전 stack 비우기)
             // TODO : (추가해야 할 사항) 닉네임 설정 여부를 확인하는 API 호출 추가하기
+            //혜연 : 카카오 sdk 버튼 클릭시 호출되는 api 호출하기
+
+            try {
+              User user = await UserApi.instance.me();
+              print('사용자 정보 요청 성공, 이 유저는 이전에 카카오 SDK로 로그인 한 사람입니다.'
+                  '\n회원번호: ${user.id}'
+                  '\n이메일: ${user.kakaoAccount?.email}');
+              print("kakaoSdkLogin함수가 호출되었습니다.");
+              kakaoSdkLogin(user.id.toString(), user.kakaoAccount?.email);
+            } catch (error) {
+              print('사용자 정보 요청 실패 $error');
+            }
+
             SharedPreferences prefs = await SharedPreferences.getInstance();
             bool isNickname =
                 prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
@@ -409,5 +429,27 @@ class _LoginState extends State<Login> {
       appBar: _appbarWidget(),
       body: _bodyWidget(),
     );
+  }
+
+  //카카오SDK api 연결 함수
+  Future<Map<String, dynamic>> kakaoSdkLogin(
+      String kakaoNumber, String? email) async {
+    String tmpUrl = 'https://www.chocobread.shop/auth/kakaosdk/signup';
+    var url = Uri.parse(
+      tmpUrl,
+    );
+
+    Map data = {"kakaoNumber": kakaoNumber, "email": email};
+    var body = json.encode(data);
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: body);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+    print("kakaoSdkLogin의 response : ${list}");
+    code=list['code'];
+
+    return list;
   }
 }
