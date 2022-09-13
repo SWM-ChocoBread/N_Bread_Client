@@ -256,11 +256,10 @@ class _LoginState extends State<Login> {
         }
         if (code == 200) {
           print("code가 200입니다. 홈 화면으로 리다이렉트합니다.");
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => const App()),
-                (route) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (BuildContext context) => const App()),
+              (route) => false);
         } else if (code == 300) {
           print("code가 300입니다. 약관 동의 화면으로 리다이렉트합니다.");
           Navigator.pushNamedAndRemoveUntil(
@@ -497,6 +496,8 @@ class _LoginState extends State<Login> {
     if (list['code'] != 500) {
       print("code : ${list['code']}");
       print("result의 accessToken값 : ${list['result']['accessToken']}");
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('userToken', list['result']['accessToken']);
     }
     code = list['code'];
 
