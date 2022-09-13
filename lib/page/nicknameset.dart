@@ -342,7 +342,7 @@ class _NicknameSetState extends State<NicknameSet> {
                           nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                       print("닉네임 제출하려는 닉네임은 " + nicknametosubmit);
                       //SET NICKNAME API CALL
-                      nicknameSet(nicknametosubmit);
+                      nicknameSet(nicknametosubmit);  //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
                       //채은 : 좌표넣기
                       // await setUserLocation("37.5037142", "127.0447821");
                       // setState(() {

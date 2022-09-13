@@ -45,6 +45,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
     await checkStatus().then((wasUser) {
       if (wasUser) {
         // 이전에 로그인한 기록이 있다면, 홈 화면으로 이동 (이전 stack 비우기)
+        //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (BuildContext context) => const App()),
@@ -52,6 +53,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       } else {
         // 이전에 로그인한 기록이 없다면, 로그인 화면으로 이동 (이전 stack 비우기)
         Navigator.pushNamedAndRemoveUntil(
+          //태현 : 애플 신규 회원가입
             context, '/termscheck', (route) => false);
       }
     });

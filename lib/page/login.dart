@@ -256,6 +256,7 @@ class _LoginState extends State<Login> {
         }
         if (code == 200) {
           print("code가 200입니다. 홈 화면으로 리다이렉트합니다.");
+          //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (BuildContext context) => const App()),
