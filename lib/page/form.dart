@@ -870,25 +870,6 @@ class _customFormState extends State<customForm> {
                           SizedBox(
                             width: 7,
                           ),
-                          Tooltip(
-                            triggerMode: TooltipTriggerMode
-                                .tap, // tap을 했을 때 tooltip이 나타나도록 함
-                            // showDuration: Duration(milliseconds: 1),
-                            verticalOffset: 15,
-                            message: "모집 마감 일자는 거래 일시 3일 전입니다.",
-                            child: Icon(
-                              Icons.help_outline,
-                              size: 17,
-                            ),
-                            // child: IconButton(
-                            //     onPressed: () {},
-                            //     padding: EdgeInsets.zero,
-                            //     constraints: const BoxConstraints(),
-                            //     iconSize: 17,
-                            //     icon: const Icon(
-                            //       Icons.help_outline,
-                            //     )),
-                          ),
                         ],
                       ),
                       const SizedBox(
