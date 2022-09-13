@@ -119,7 +119,7 @@ class _MyPageState extends State<MyPage> {
                                       print('로그아웃 실패, SDK에서 토큰 삭제 $error');
                                     }
                                     print("move to loginPage");
-                                     Navigator.pushNamedAndRemoveUntil(
+                                    Navigator.pushNamedAndRemoveUntil(
                                         context, '/login', (route) => false);
                                     // kakaoLogout();
                                   } else if (payload['provider'] == 'apple') {
@@ -363,8 +363,7 @@ class _MyPageState extends State<MyPage> {
                               horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: _colorMyStatus(dataOngoing[index]
-                                    ["mystatus"]
+                            color: _colorMyStatus(dataOngoing[index]["mystatus"]
                                 .toString()
                                 .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
                           ),
@@ -612,8 +611,16 @@ class _MyPageState extends State<MyPage> {
 
       String provider = payload['provider'].toString();
       print("provider is ${provider} on resign api");
-      
-      
+
+      if (provider == "kakao") {
+        provider = "kakaosdk";
+        try {
+          await UserApi.instance.unlink();
+          print('연결 끊기 성공, SDK에서 토큰 삭제');
+        } catch (error) {
+          print('연결 끊기 실패 $error');
+        }
+      }
 
       String tmpUrl =
           'https://www.chocobread.shop/auth/' + provider + '/signout';
@@ -621,7 +628,7 @@ class _MyPageState extends State<MyPage> {
       var url = Uri.parse(
         tmpUrl,
       );
-      var response = await http.get(url, headers: {
+      var response = await http.delete(url, headers: {
         'Authorization': token,
         'Content-Type': 'application/x-www-form-urlencoded'
       });
