@@ -275,14 +275,36 @@ class _NicknameSetState extends State<NicknameSet> {
                   )),
                 );
 
+                const snackBarNullNick = SnackBar(
+                  content: Text(
+                    "닉네임을 입력해주세요!",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: ColorStyle.darkMainColor,
+                  duration: Duration(milliseconds: 2000),
+                  behavior: SnackBarBehavior.floating,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                    Radius.circular(5),
+                  )),
+                );
+
                 nicknametocheck = nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                 print("닉네임 중복을 확인하려는 닉네임은 " + nicknametocheck);
-                print("nickname checker called");
-                await checkNickname(nicknametocheck);
-                print("nicknameoverlap is ${nicknameoverlap}");
-                // *** 닉네임이 중복되는지 확인하는 API 넣기 ***
-                // 닉네임이 오버랩되는지 확인하기 위한 변수
-                // 닉네임이 오버랩되는지 여부를 나타내는 bool 값을 위 변수에 넣어주세요!
+                if(nicknametocheck==""){
+                  print("닉네임을 입력하지 않았습니다.");
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(snackBarNullNick);
+                }
+                else{
+                  await checkNickname(nicknametocheck);
+                  print("nicknameoverlap is ${nicknameoverlap}");
+                  // *** 닉네임이 중복되는지 확인하는 API 넣기 ***
+                  // 닉네임이 오버랩되는지 확인하기 위한 변수
+                  // 닉네임이 오버랩되는지 여부를 나타내는 bool 값을 위 변수에 넣어주세요!
+                }
+                
 
                 if (nicknameoverlap == false &&
                     _formKey.currentState!.validate()) {
@@ -295,8 +317,10 @@ class _NicknameSetState extends State<NicknameSet> {
                   });
                 } else {
                   // 중복된 닉네임이라고 알려주는 snackbar
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(snackBarUnAvailableNick);
+                  if (nicknametocheck != "") {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(snackBarUnAvailableNick);
+                  }
                 }
               },
               child: const Text("닉네임 중복 확인"),
