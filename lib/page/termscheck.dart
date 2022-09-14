@@ -139,27 +139,18 @@ class _TermsCheckState extends State<TermsCheck> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await checkIfPermissionGranted()) {
-        setState(() {
-          _getCurrentPosition().then(((value) async {
-            _currentPosition = value;
-            print(_currentPosition);
-            print("latitude: ${_currentPosition?.latitude ?? ""}");
-            print("longitude: ${_currentPosition?.longitude ?? ""}");
-            var latitude = _currentPosition?.latitude ?? basicLatitude;
-            var longitude = _currentPosition?.longitude ?? basicLongitude;
-            print("닉네임 설정하기 버튼을 눌렀을 때의 위도 : " + latitude.toString());
-            print("닉네임 설정하기 버튼을 눌렀을 때의 경도 : " + longitude.toString());
-            await setUserLocation(latitude.toString(), longitude.toString());
-            final prefs = await SharedPreferences.getInstance();
-            var temp = prefs.getString("userLocation");
-            print(
-                "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
-                    temp.toString());
-            currentLocation = temp!;
-            print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " + currentLocation);
-            // prefs.setString("userLocation", currentLocation);
-          }));
-        });
+        // setState(() {
+        //   _getCurrentPosition().then(((value) async {
+        //     _currentPosition = value;
+        //     var latitude = _currentPosition?.latitude ?? basicLatitude;
+        //     var longitude = _currentPosition?.longitude ?? basicLongitude;
+        //     await setUserLocation(latitude.toString(), longitude.toString());
+        //     final prefs = await SharedPreferences.getInstance();
+        //     var temp = prefs.getString("userLocation");
+        //     currentLocation = temp!;
+        //     // prefs.setString("userLocation", currentLocation);
+        //   }));
+        // });
       } else {
         openAppSettings();
       }
@@ -499,45 +490,5 @@ class _TermsCheckState extends State<TermsCheck> {
       bottomNavigationBar: _bottomNavigationBar(),
     );
   }
-
-  Future<void> setUserLocation(String latitude, String longitude) async {
-    print("setUserLocation으로 전달된 latitude : " + latitude);
-    print("setUserLocation으로 전달된 longitude : " + longitude);
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-    if (token != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-
-      String userId = payload['id'].toString();
-      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
-
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
-          userId +
-          '/' +
-          latitude +
-          '/' +
-          longitude;
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var response = await http.post(url);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      if (list.length == 0) {
-        print("length of list is 0");
-      } else {
-        try {
-          prefs.setString(
-              'userLocation', list['result']['location3'].toString());
-          print("nicknameset : list value is ${list['result']}");
-          print(
-              'nicknameset : currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
-          print(list);
-        } catch (e) {
-          print(e);
-        }
-      }
-    }
-  }
+   
 }
