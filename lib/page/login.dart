@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart' as Airbridge;
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 
 import 'app.dart';
 import 'appleloginwebview.dart';
@@ -310,6 +312,7 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () async {
+        await firebaseTest();
         await exampleForAmplitude();
         Airbridge.Airbridge.event.send(Airbridge.SignOutEvent());
         Navigator.push(context,
@@ -413,5 +416,13 @@ class _LoginState extends State<Login> {
       'friend_num': 10,
       'is_heavy_user': true
     });
+  }
+  Future<void> firebaseTest() async {
+    // Create the instance
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+    await FirebaseAnalytics.instance.logSelectContent(
+    contentType: "image",
+    itemId: "123"
+    );
   }
 }

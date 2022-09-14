@@ -2,6 +2,7 @@ import 'dart:convert';
 // import 'dart:ffi';
 import 'dart:io';
 import 'package:chocobread/page/imageuploader.dart' as imageFile;
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -16,6 +17,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/datetime_utils.dart';
 import 'repository/contents_repository.dart' as contents;
 import 'package:dio/dio.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
@@ -633,6 +637,7 @@ class _customFormState extends State<customForm> {
             isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedTime = pickedTime;
+          print(pickedTime);
           DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
               .format(context)
               .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
@@ -908,7 +913,7 @@ class _customFormState extends State<customForm> {
                                   numOfParticipantsController.text; //참여자 수
                               print(
                                   "numOfParticipants is ${numOfParticipants}");
-                              print(int.parse(numOfParticipants).runtimeType);
+                              // print(int.parse(numOfParticipants).runtimeType);
                               print("totalPrice is ${totalPrice}");
                               if (totalPrice.isNotEmpty &
                                   numOfParticipants.isNotEmpty) {
@@ -1020,6 +1025,7 @@ class _customFormState extends State<customForm> {
                                     "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
                                 print("보내는 날짜는 다음과 같습니다 : " + dateToSend);
 
+
                                 Navigator.push(context, MaterialPageRoute(
                                     builder: (BuildContext context) {
                                   return const App();
@@ -1088,7 +1094,47 @@ Future getApiTest(Map jsonbody, FormData formData) async {
       imgCreateUrl,
       data: formData,
     );
+
+    await FirebaseAnalytics.instance.logSelectContent(
+    contentType: "image",
+    itemId: 'TEST',
+    );
+
+
+    await FirebaseAnalytics.instance.logEvent(
+      name: "dealCreate",
+      parameters: {
+        "id" : list['result']['id'].toString(),
+        "title" : list['result']['title'].toString()
+        // productLink : productLink,
+        // totalPrice : totalPrice,
+        // numOfParticipants : numOfParticipants,
+        // personalPrice : personalPrice,
+        // dateToSend : dateToSend,
+        // place : place,
+        // extra : extra
+      }
+    );
+
+    Airbridge.event.send(Event(
+      'dealCreateEvent',
+      option: EventOption(
+        semantics: {
+          'transactionID': list['result']['id'].toString(),
+          'products': [
+              {
+                'productID': jsonbody['id'],
+                'name': list['result']['title'].toString(),
+                "price": 1000,
+                "currency": 'KRW',
+                "quantity": 1,
+              }
+            ]
+        },
+      ),
+    ));
   } else {
     print("오류발생");
   }
 }
+

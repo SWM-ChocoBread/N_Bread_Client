@@ -754,6 +754,7 @@ class _customFormChangeState extends State<customFormChange> {
             isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedTime = pickedTime;
+          print(pickedTime);
           DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
               .format(context)
               .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
