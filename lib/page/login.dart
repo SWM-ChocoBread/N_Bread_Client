@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
         print("눌림");
-        
+
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return NaverLoginWebview();
@@ -490,49 +490,49 @@ class _LoginState extends State<Login> {
 
   Future<void> exampleForAmplitude() async {
     // Create the instance
-    final Amplitude analytics = Amplitude.getInstance(instanceName: "chocobread");
+    final Amplitude analytics =
+        Amplitude.getInstance(instanceName: "chocobread");
 
     // Initialize SDK
     analytics.init("85f89c7ec257835fd0e2bc4d83428f4f");
 
     // Log an event
-    analytics.logEvent('MyApp startup', eventProperties: {
-      'friend_num': 10,
-      'is_heavy_user': true
-    });
+    analytics.logEvent('MyApp startup',
+        eventProperties: {'friend_num': 10, 'is_heavy_user': true});
   }
+
   Future<void> firebaseTest() async {
     // Create the instance
     FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-    await FirebaseAnalytics.instance.logSelectContent(
-    contentType: "image",
-    itemId: "123"
-    );
-  //카카오SDK api 연결 함수
-  Future<Map<String, dynamic>> kakaoSdkLogin(
-      String kakaoNumber, String? email) async {
-    String tmpUrl = 'https://www.chocobread.shop/auth/kakaosdk/signup';
-    var url = Uri.parse(
-      tmpUrl,
-    );
-
-    Map data = {"kakaoNumber": kakaoNumber, "email": email};
-    var body = json.encode(data);
-    var response = await http.post(url,
-        headers: {"Content-Type": "application/json"}, body: body);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-
-    var tmp = List<Map<String, dynamic>>.empty(growable: true);
-    print("kakaoSdkLogin의 response : ${list}");
-    if (list['code'] != 500) {
-      print("code : ${list['code']}");
-      print("result의 accessToken값 : ${list['result']['accessToken']}");
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('userToken', list['result']['accessToken']);
-    }
-    code = list['code'];
-
-    return list;
+    await FirebaseAnalytics.instance
+        .logSelectContent(contentType: "image", itemId: "123");
   }
-}
+    //카카오SDK api 연결 함수
+    Future<Map<String, dynamic>> kakaoSdkLogin(
+        String kakaoNumber, String? email) async {
+      String tmpUrl = 'https://www.chocobread.shop/auth/kakaosdk/signup';
+      var url = Uri.parse(
+        tmpUrl,
+      );
+
+      Map data = {"kakaoNumber": kakaoNumber, "email": email};
+      var body = json.encode(data);
+      var response = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: body);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+
+      var tmp = List<Map<String, dynamic>>.empty(growable: true);
+      print("kakaoSdkLogin의 response : ${list}");
+      if (list['code'] != 500) {
+        print("code : ${list['code']}");
+        print("result의 accessToken값 : ${list['result']['accessToken']}");
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('userToken', list['result']['accessToken']);
+      }
+      code = list['code'];
+
+      return list;
+    }
+  }
+
