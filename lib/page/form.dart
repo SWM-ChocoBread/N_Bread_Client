@@ -661,23 +661,35 @@ class _customFormState extends State<customForm> {
           // var dt = df.parse(pickedTime.format(context));
           // var saveTime = DateFormat('HH:mm').format(dt);
           // print(saveTime);
-          print("[***] timepicker에서 시간을 선택했을 때의 pickedTime : " +
-              pickedTime.toString());
+
+          final now = new DateTime.now();
+          DateTime newparsedTime = new DateTime(
+              now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          print(
+              "[***] newDatetime으로 생성한 newparsedTime : ${newparsedTime.toString()}");
           setState(() {
             isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedTime = pickedTime;
           print(pickedTime);
-          DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
-              .format(context)
-              .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
-          String formattedTime = DateFormat("h:mm").format(parsedTime);
+          print("***********시간 설정 부분 에러 확인을 위한 작업***************");
+          // print("DateFormat : ${DateFormat}");
+          // print("DateFormat.jm('ko_KR') : ${DateFormat.jm('ko_KR')}");
+          // print(
+          //     "DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString()) : ${DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString())}");
+          //print("parseTime에 dateTime 넣기 시도");
+          // DateTime parsedTime = new DateTime(
+          //     now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
+          //print("parseTime에 dateTime 넣기 완료. parsedTime을 출력합니다.");
+          print("newparsedTime : ${newparsedTime}");
+          String formattedTime = DateFormat("h:mm").format(newparsedTime);
           String? dayNight = {
             "AM": "오전",
             "PM": "오후"
-          }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          }[DateFormat("a").format(newparsedTime)]; // AM, PM을 한글 오전, 오후로 변환
           time = DateFormat("HH:mm")
-              .format(parsedTime)
+              .format(newparsedTime)
               .toString(); // 서버에 보낼 거래 시간을 저장한다.
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
@@ -1062,25 +1074,21 @@ Future getApiTest(Map jsonbody, FormData formData) async {
     );
 
     await FirebaseAnalytics.instance.logSelectContent(
-    contentType: "image",
-    itemId: 'TEST',
+      contentType: "image",
+      itemId: 'TEST',
     );
 
-
-    await FirebaseAnalytics.instance.logEvent(
-      name: "dealCreate",
-      parameters: {
-        "id" : list['result']['id'].toString(),
-        "title" : list['result']['title'].toString()
-        // productLink : productLink,
-        // totalPrice : totalPrice,
-        // numOfParticipants : numOfParticipants,
-        // personalPrice : personalPrice,
-        // dateToSend : dateToSend,
-        // place : place,
-        // extra : extra
-      }
-    );
+    await FirebaseAnalytics.instance.logEvent(name: "dealCreate", parameters: {
+      "id": list['result']['id'].toString(),
+      "title": list['result']['title'].toString()
+      // productLink : productLink,
+      // totalPrice : totalPrice,
+      // numOfParticipants : numOfParticipants,
+      // personalPrice : personalPrice,
+      // dateToSend : dateToSend,
+      // place : place,
+      // extra : extra
+    });
 
     Airbridge.event.send(Event(
       'dealCreateEvent',
@@ -1088,14 +1096,14 @@ Future getApiTest(Map jsonbody, FormData formData) async {
         semantics: {
           'transactionID': list['result']['id'].toString(),
           'products': [
-              {
-                'productID': jsonbody['id'],
-                'name': list['result']['title'].toString(),
-                "price": 1000,
-                "currency": 'KRW',
-                "quantity": 1,
-              }
-            ]
+            {
+              'productID': jsonbody['id'],
+              'name': list['result']['title'].toString(),
+              "price": 1000,
+              "currency": 'KRW',
+              "quantity": 1,
+            }
+          ]
         },
       ),
     ));
@@ -1103,4 +1111,3 @@ Future getApiTest(Map jsonbody, FormData formData) async {
     print("오류발생");
   }
 }
-
