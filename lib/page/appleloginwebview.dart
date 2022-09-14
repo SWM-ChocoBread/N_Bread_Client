@@ -61,6 +61,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
     return InAppWebView(
       initialUrlRequest:
           URLRequest(url: Uri.parse("https://chocobread.shop/auth/apple")),
+          
       onReceivedServerTrustAuthRequest: (controller, challenge) async {
         //Do some checks here to decide if CANCELS or PROCEEDS
         return ServerTrustAuthResponse(

@@ -13,10 +13,16 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_template.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 
 import '../utils/price_utils.dart';
 import 'blockuser.dart';
@@ -1176,7 +1182,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: OutlinedButton(
-        onPressed: () {
+        onPressed: () async {
           showDialog(
               context: context,
               builder: (BuildContext context) {

@@ -8,6 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 import '../utils/price_utils.dart';
 
 class CheckParticipation extends StatefulWidget {
@@ -154,7 +159,7 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
           child: const Text("취소하기"),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             // 여기서  호출
             joinDeal();
             Navigator.push(context,
@@ -172,6 +177,8 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
               isInAppPurchase: true,
               currency: 'KRW',
             ));
+            
+
               return ConfirmParticipation(
                 data: widget.data,
               );
@@ -204,7 +211,20 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
           await http.post(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
+      await faPurchase('KRW', widget.data["id"].toString(), widget.data["totalPrice"].toDouble());
       print(list);
+      print("RESPONSE BODY");
+      print(responseBody);
     }
   }
+}
+
+Future<void> faPurchase(String currency, String transactionId, double value) async {
+  // Create the instance
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  await FirebaseAnalytics.instance.logPurchase(
+    currency: currency,
+    transactionId: transactionId,
+    value : value
+  );
 }
