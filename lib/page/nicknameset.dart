@@ -126,6 +126,7 @@ class _NicknameSetState extends State<NicknameSet> {
   }
 
   Future setNickname() async {
+    // TODO : setNickname 함수에 API로 보내는 부분 추가해야 함
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("isNickname", true);
   }

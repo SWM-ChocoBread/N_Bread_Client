@@ -172,7 +172,7 @@ class _AppState extends State<App> {
         if (cantExit) {
           const snack = SnackBar(
             content: Text(
-              '앱을 종료합니다.',
+              '뒤로가기를 한 번 더 누르면 앱을 종료합니다.',
               style: TextStyle(color: Colors.white),
             ),
             duration: Duration(seconds: 2),
