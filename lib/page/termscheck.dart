@@ -14,6 +14,10 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../style/colorstyles.dart';
 import 'terms.dart';
 import 'package:http/http.dart' as http;
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class TermsCheck extends StatefulWidget {
   TermsCheck({Key? key}) : super(key: key);
@@ -499,11 +503,11 @@ class _TermsCheckState extends State<TermsCheck> {
   Future<void> setUserLocation(String latitude, String longitude) async {
     print("setUserLocation으로 전달된 latitude : " + latitude);
     print("setUserLocation으로 전달된 longitude : " + longitude);
-
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
+
       String userId = payload['id'].toString();
       print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
       print("setUserLocation was called on mypage with userId is ${userId}");

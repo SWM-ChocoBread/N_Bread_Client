@@ -18,6 +18,10 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
@@ -574,10 +578,13 @@ class _HomeState extends State<Home> {
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
-          onTap: () {
+          onTap: () async {
+            var targetDealId =  dataContents[index]["id"].toString();
+            await faSelectContent("homeList", targetDealId);
+            // await abSelectContent(targetDealId, dataContents[index]["title"]);
             // 페이지 전환
             print("type of id is ${dataContents[index]["id"].toString().runtimeType}");
-              print("type of TOTAL is ${dataContents[index]["totalPrice"].runtimeType}");
+            print("type of TOTAL is ${dataContents[index]["totalPrice"].runtimeType}");
 
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
@@ -991,3 +998,12 @@ class _HomeState extends State<Home> {
 
 //   //return list['result']['nick'];
 // }
+
+Future<void> faSelectContent(String contentType, String itemId) async {
+  // Create the instance
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  await FirebaseAnalytics.instance.logSelectContent(
+    contentType: contentType,
+    itemId: itemId
+  );
+}

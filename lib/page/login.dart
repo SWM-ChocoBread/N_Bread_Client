@@ -7,6 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart' as Airbridge;
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:http/http.dart' as http;
 
 import 'app.dart';
@@ -45,6 +49,8 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
+        print("눌림");
+        
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return NaverLoginWebview();
@@ -334,6 +340,8 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () {
+        Amplitude.getInstance().logEvent('BUTTON_CLICKED');
+        exampleForAmplitude();
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return KakaoLoginWebview();
@@ -368,7 +376,10 @@ class _LoginState extends State<Login> {
           side: const BorderSide(width: 1.0, color: Colors.white),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
-      onPressed: () {
+      onPressed: () async {
+        await firebaseTest();
+        await exampleForAmplitude();
+        Airbridge.Airbridge.event.send(Airbridge.SignOutEvent());
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return AppleLoginWebview();
@@ -477,6 +488,26 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<void> exampleForAmplitude() async {
+    // Create the instance
+    final Amplitude analytics = Amplitude.getInstance(instanceName: "chocobread");
+
+    // Initialize SDK
+    analytics.init("85f89c7ec257835fd0e2bc4d83428f4f");
+
+    // Log an event
+    analytics.logEvent('MyApp startup', eventProperties: {
+      'friend_num': 10,
+      'is_heavy_user': true
+    });
+  }
+  Future<void> firebaseTest() async {
+    // Create the instance
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+    await FirebaseAnalytics.instance.logSelectContent(
+    contentType: "image",
+    itemId: "123"
+    );
   //카카오SDK api 연결 함수
   Future<Map<String, dynamic>> kakaoSdkLogin(
       String kakaoNumber, String? email) async {

@@ -23,7 +23,7 @@ class MyDateUtils {
     return "$formattedDate$formattedWeekDay  $dayNight $formattedTime"; // "22.08.01.월  오후 2:29"
   }
 
-  static String sendMyDateTime(String dateString, String timeString) {
+  static String sendMyDateTimeOriginal(String dateString, String timeString) {
     print("sendMyDateTime 으로 전달된 dateString은 : " + dateString);
     print("sendMyDateTime 으로 전달된 timeString은 : " + timeString);
     // dateString 의 형식 : "22.08.14.일"
@@ -52,6 +52,14 @@ class MyDateUtils {
         formattedTime; // tempDate의 형식 : "2022-08-14"
 
     return tempDateTime;
+  }
+
+  static String sendMyDateTime(String dateString, String timeString) {
+    print("sendMyDateTime 으로 전달된 dateString은 : " + dateString);
+    print("sendMyDateTime 으로 전달된 timeString은 : " + timeString);
+    // dateString 의 형식 : "2022-09-29 00:00:00.000"
+    // timeString 의 형식 : "19:30"
+    return "${dateString.split(' ')[0]} $timeString";
   }
 
   static String formatMyDateTimeDone(String dateString) {
@@ -90,7 +98,7 @@ class MyDateUtils {
         .format(dt)
         .split(' ')[0];
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
-    return "$formattedDate$formattedWeekDay";
+    return "$formattedDate$formattedWeekDay"; // 22.09.13.화
   }
 
   static String formatMyTime(String dateString) {
@@ -99,7 +107,7 @@ class MyDateUtils {
         .format(dt)
         .split(' ')[0];
     String? dayNight = {"AM": "오전", "PM": "오후"}[DateFormat("a").format(dt)];
-    return "$dayNight $formattedTime";
+    return "$dayNight $formattedTime"; // 오후 9:24
   }
 
   static String dateTimeDifference(DateTime rightnow, String dateString) {
