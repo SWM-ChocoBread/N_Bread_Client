@@ -422,6 +422,11 @@ class _TermsCheckState extends State<TermsCheck> {
           ),
           onPressed: (isServiceChecked && isPersonalChecked) // 모두 체크한 경우
               ? () {
+                //혜연 : 임시로 추가한 nickname set 페이지 이동 코드
+                Navigator.push(context,
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return NicknameSet();
+                      }));
                   // .then((_) async {
                   //   if (await checkIfPermissionGranted()) {
                   //     // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
