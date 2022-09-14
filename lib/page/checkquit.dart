@@ -23,10 +23,12 @@ class _CheckQuitState extends State<CheckQuit> {
             child: const Text("취소")),
         TextButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return const App();
-              }));
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (BuildContext context) {
+              //   return const App();
+              // }));
+              int count = 0;
+              Navigator.of(context).popUntil((_) => count++ >= 2);
             },
             child: const Text("확인"))
       ],

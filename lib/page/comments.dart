@@ -1,12 +1,33 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ui';
 
+import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/style/colorstyles.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
+import 'blockuser.dart';
+import 'checkdeletecomment.dart';
+
+var jsonString = '{"content":""}';
 
 class DetailCommentsView extends StatefulWidget {
   List<Map<String, dynamic>> data;
-  DetailCommentsView({Key? key, required this.data, required this.replyTo})
+  DetailCommentsView(
+      {Key? key,
+      required this.data,
+      required this.replyTo,
+      required this.replyToId,
+      required this.id,
+      required this.currentUserId})
       : super(key: key);
   String replyTo;
+  String replyToId;
+  String id;
+  String currentUserId;
 
   @override
   State<DetailCommentsView> createState() => _DetailCommentsViewState();
@@ -14,8 +35,15 @@ class DetailCommentsView extends StatefulWidget {
 
 class _DetailCommentsViewState extends State<DetailCommentsView> {
   final globalKeysOut = <GlobalKey>[];
+  // globalKeysOut.add(GlobalKey());
   // int heightcontroller = 55;
   String replyToHere = "";
+  String replyToHereId = "";
+  TextEditingController commentController =
+      TextEditingController(); // 댓글에 붙는 controller
+  String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 댓글 저장하기
+  String toWhom = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 누구한테 답글을 쓰는지 저장하기
+  bool enableSend = false;
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -31,9 +59,11 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   Color _colorUserStatus(String userstatus) {
     switch (userstatus) {
       case "제안자":
-        return Colors.red; // 제안자의 색
+        return ColorStyle.seller;
+      // Colors.red; // 제안자의 색
       case "참여자":
-        return Colors.blue; // 참여자의 색
+        return ColorStyle.participant;
+      // Colors.blue; // 참여자의 색
     }
     return Colors.grey; // 지나가는 사람의 색
   }
@@ -57,6 +87,134 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     }
   }
 
+  Widget _blockUserButton(int userid, String usernickname) {
+    // 유저 신고하기 팝업 버튼
+    return PopupMenuButton(
+      // 신고하기가 나오는 팝업메뉴버튼
+      icon: const Icon(
+        Icons.more_vert,
+        color: Colors.grey,
+      ),
+      offset: const Offset(-5, 50),
+      shape: ShapeBorder.lerp(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          1),
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem(
+            value: "block",
+            child: Text("차단하기"),
+          ),
+        ];
+      },
+      onSelected: (String val) {
+        if (val == "block") {
+          // 차단하기를 누른 경우, 해당 detail page 에 있는 정보 중 유저의 정보를 그대로 blockuser에 전달해서 navigator
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return BlockUser(
+              userid: userid,
+              usernickname: usernickname,
+              isfromdetail: false,
+            );
+          }));
+        }
+      },
+    );
+  }
+
+  Color _commentColorDeterminant(String comment) {
+    if (comment == "삭제된 댓글입니다.") {
+      return Colors.grey;
+    }
+    return Colors.black;
+  }
+
+  bool _showDeletedButton(String contents) {
+    if (contents == "삭제된 댓글입니다.") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Widget _deleteComments(int userId, int commentsId) {
+    if (userId.toString() == widget.currentUserId) {
+      // 만약 현재 유저가 해당 댓글을 쓴 사람인 경우
+      return TextButton(
+          onPressed: () {
+            // 삭제하기 버튼을 눌렀을 경우 : 댓글을 삭제하시겠습니까? alert 창 > 댓글 삭제API
+            showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return CheckDeleteComment(
+                        commentsIdString: commentsId.toString(),
+                        isComment: true,
+                        fromDetail: false,
+                      );
+                    })
+                // .then((_) => setState(() {
+                //   _loadComments();
+                //   // _commentsWidget();
+                // }))
+                ;
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: (BuildContext context) {
+            //   return CheckDeleteComment(
+            //       commentsIdString: commentsId.toString());
+            // })).then((_) => setState(() {
+            //       _commentsWidget();
+            //     }));
+            // deleteComment(commentsId.toString());
+            // setState(() {
+            //   _commentsWidget();
+            // });
+            print(commentsId);
+          },
+          child: const Text("삭제하기",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              )));
+    }
+
+    return Container();
+  }
+
+  Widget _deleteReply(int repliesUserId, int repliesId) {
+    if (repliesUserId.toString() == widget.currentUserId) {
+      // 만약 현재 유저가 해당 대댓글을 쓴 사람인 경우
+      return TextButton(
+          onPressed: () {
+            // 삭제하기 버튼을 눌렀을 경우 대댓글삭제API
+            showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return CheckDeleteComment(
+                        commentsIdString: repliesId.toString(),
+                        isComment: false,
+                        fromDetail: false,
+                      );
+                    })
+                // .then((_) => setState(() {
+                //   _commentsWidget();
+                // }))
+                ;
+            // deleteReply(repliesId.toString());
+            // setState(() {
+            //   _commentsWidget();
+            // });
+          },
+          child: const Text("삭제하기",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              )));
+    }
+    return Container();
+  }
+
   Widget _bodyWidget() {
     return SingleChildScrollView(
       child: ListView.separated(
@@ -67,7 +225,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           itemBuilder: (BuildContext context, int firstIndex) {
             globalKeysOut.add(GlobalKey());
             return Container(
-                key: globalKeysOut[widget.data[firstIndex]["id"]],
+                key: globalKeysOut[
+                    firstIndex], // widget.data[firstIndex]["id"] - 1
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -76,32 +235,45 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                     ),
                     Row(
                       children: [
-                        Icon(
-                          Icons.circle,
-                          color: _colorUserStatus(
-                              widget.data[firstIndex]["userStatus"]),
-                          // size: 30,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                color: _colorUserStatus(widget.data[firstIndex]
+                                    ["User"]["userStatus"]),
+                                // size: 30,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "${widget.data[firstIndex]["User"]["nick"]}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              _userStatusChip(widget.data[firstIndex]["User"]
+                                      ["userStatus"]
+                                  .toString()),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                MyDateUtils.dateTimeDifference(
+                                    DateTime.now(),
+                                    widget.data[firstIndex][
+                                        "createdAt"]), // ${widget.data[firstIndex]["createdAt"].toString().substring(5, 7)}.${widget.data[firstIndex]["createdAt"].toString().substring(8, 10)} ${widget.data[firstIndex]["createdAt"].toString().substring(11, 16)}
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                              )
+                            ],
+                          ),
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "${widget.data[firstIndex]["userNickname"]}",
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        _userStatusChip(
-                            widget.data[firstIndex]["userStatus"].toString()),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "${widget.data[firstIndex]["fromThen"]}",
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 12),
-                        )
+                        _blockUserButton(widget.data[firstIndex]["userId"],
+                            widget.data[firstIndex]["User"]["nick"])
                       ],
                     ),
                     const SizedBox(
@@ -115,65 +287,84 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           Flexible(
                             child: Text(
                               "${widget.data[firstIndex]["content"]}",
+                              style: TextStyle(
+                                  color: _commentColorDeterminant(widget
+                                          .data[firstIndex]
+                                      ["content"])), // 삭제된 댓글인 경우, 글씨 회색으로 처리하기
                               // softWrap: true,
                             ),
                           )
                         ],
                       ),
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(left: 19.0),
-                      child: TextButton(
-                          onPressed: () {
-                            // final targetcomments = testkey.currentContext;
-                            // if (targetcomments != null) {
-                            //   Scrollable.ensureVisible(targetcomments);
-                            // }
+                      child: Row(
+                        children: [
+                          TextButton(
+                              onPressed: () {
+                                // final targetcomments = testkey.currentContext;
+                                // if (targetcomments != null) {
+                                //   Scrollable.ensureVisible(targetcomments);
+                                // }
 
-                            // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
-                            // setState(() {
-                            //   enablecommentsbox = true;
-                            // });
-                            // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
+                                // 답글쓰기 버튼을 눌렀을 때 enablecommentsbox 가 true로 변하면서 댓글 입력창이 나타난다.
+                                // setState(() {
+                                //   enablecommentsbox = true;
+                                // });
+                                // currentfocusnode.requestFocus(); // 답글쓰기 버튼을 누르면,
 
-                            // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
-                            // Navigator.push(context,
-                            //     MaterialPageRoute(builder: (BuildContext context) {
-                            //   return DetailCommentsView(
-                            //     data: widget.data,
-                            //   );
-                            // }));
+                                // 답글쓰기 버튼을 누르면, 댓글 페이지로 넘어가기
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (BuildContext context) {
+                                //   return DetailCommentsView(
+                                //     data: widget.data,
+                                //   );
+                                // }));
 
-                            // 답글쓰기 버튼을 눌렀을 때
-                            final targetcomments =
-                                globalKeysOut[widget.data[firstIndex]["id"]]
-                                    .currentContext;
-                            if (targetcomments != null) {
-                              Scrollable.ensureVisible(targetcomments,
-                                  duration: const Duration(milliseconds: 600),
-                                  curve: Curves.easeInOut);
-                              setState(() {
-                                replyToHere =
-                                    "${widget.data[firstIndex]["userNickname"]}";
-                              });
-                            }
-                          },
-                          child: const Text("답글쓰기",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
-                              ))),
+                                // 답글쓰기 버튼을 눌렀을 때
+                                final targetcomments = globalKeysOut[firstIndex]
+                                    .currentContext; // widget.data[firstIndex]["id"]
+                                if (targetcomments != null) {
+                                  Scrollable.ensureVisible(targetcomments,
+                                      duration:
+                                          const Duration(milliseconds: 600),
+                                      curve: Curves.easeInOut);
+                                  setState(() {
+                                    replyToHere =
+                                        "${widget.data[firstIndex]["User"]["nick"]}";
+                                    replyToHereId = widget.data[firstIndex]
+                                            ["id"]
+                                        .toString();
+                                  });
+                                }
+                              },
+                              child: const Text("답글쓰기",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ))),
+                          _showDeletedButton(widget.data[firstIndex]["content"])
+                              ? _deleteComments(
+                                  widget.data[firstIndex]["userId"],
+                                  widget.data[firstIndex]["id"])
+                              : Container(),
+                        ],
+                      ),
                     ),
                     Container(
                       margin: const EdgeInsets.only(left: 25),
-                      width: displayWidth(context) - 80,
+                      width: displayWidth(context) - 60,
                       height: 1,
                       color: const Color(0xffF0EBE0),
                     ),
                     // 대댓글
                     ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.only(left: 25),
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context, int secondIndex) {
                           return Container(
@@ -185,35 +376,54 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(
-                                      Icons.circle,
-                                      color: _colorUserStatus(
-                                          widget.data[firstIndex]["Replies"]
-                                              [secondIndex]["userStatus"]),
-                                      // size: 30,
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.circle,
+                                            color: _colorUserStatus(
+                                                widget.data[firstIndex]
+                                                        ["Replies"][secondIndex]
+                                                    ["User"]["userStatus"]),
+                                            // size: 30,
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            "${widget.data[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          _userStatusChip(widget
+                                              .data[firstIndex]["Replies"]
+                                                  [secondIndex]["User"]
+                                                  ["userStatus"]
+                                              .toString()),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            MyDateUtils.dateTimeDifference(
+                                                DateTime.now(),
+                                                widget.data[firstIndex]
+                                                        ["Replies"][secondIndex]
+                                                    ["createdAt"]),
+                                            style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["userNickname"]}",
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    _userStatusChip(widget.data[firstIndex]
-                                            ["Replies"][secondIndex]
-                                            ["userStatus"]
-                                        .toString()),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      "${widget.data[firstIndex]["Replies"][secondIndex]["fromThen"]}",
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 12),
+                                    _blockUserButton(
+                                      widget.data[firstIndex]["Replies"]
+                                          [secondIndex]["userId"],
+                                      widget.data[firstIndex]["Replies"]
+                                          [secondIndex]["User"]["nick"],
                                     )
                                   ],
                                 ),
@@ -228,6 +438,11 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                       Flexible(
                                         child: Text(
                                           "${widget.data[firstIndex]["Replies"][secondIndex]["content"]}",
+                                          style: TextStyle(
+                                              color: _commentColorDeterminant(widget
+                                                          .data[firstIndex]
+                                                      ["Replies"][secondIndex][
+                                                  "content"])), // 삭제된 댓글인 경우, 글씨 회색으로 처리하기
                                           // softWrap: true,
                                         ),
                                       )
@@ -236,7 +451,21 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                 ),
                                 const SizedBox(
                                   height: 15,
-                                )
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 22.0),
+                                  child: _showDeletedButton(
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["content"])
+                                      ? _deleteReply(
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["userId"],
+                                          widget.data[firstIndex]["Replies"]
+                                              [secondIndex]["id"])
+                                      : const SizedBox(
+                                          // height: 15,
+                                          ),
+                                ),
                                 // Padding(
                                 //   padding: const EdgeInsets.only(left: 19.0),
                                 //   child: TextButton(
@@ -295,9 +524,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 onPressed: () {
                   setState(() {
                     replyToHere = "";
+                    replyToHereId = "";
                   });
                 },
-                icon: Icon(Icons.clear_rounded),
+                icon: const Icon(Icons.clear_rounded),
                 constraints: const BoxConstraints(),
                 padding: EdgeInsets.zero,
                 iconSize: 15,
@@ -322,9 +552,10 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                 onPressed: () {
                   setState(() {
                     widget.replyTo = "";
+                    widget.replyToId = "";
                   });
                 },
-                icon: Icon(Icons.clear_rounded),
+                icon: const Icon(Icons.clear_rounded),
                 constraints: const BoxConstraints(),
                 padding: EdgeInsets.zero,
                 iconSize: 15,
@@ -346,7 +577,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
   double heightcontroller() {
     if ("${widget.replyTo}" != "" || replyToHere != "") {
-      return 95;
+      return 93;
     }
     return 69;
   }
@@ -369,9 +600,11 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                     child: TextFormField(
                       // focusNode: currentfocusnode,
                       // initialValue: "${widget.replyTo}",
+                      autocorrect: false,
                       autofocus:
                           true, // 답글쓰기나 댓글 입력 textfield 를 누르면, comments page 로 이동해서 textfield에 자동 focus 이동
-                      maxLines: null,
+                      minLines: 1,
+                      maxLines: 2, // 댓글 입력창의 높이 제한하기
                       decoration: InputDecoration(
                         hintText: "댓글을 입력해주세요.",
                         contentPadding:
@@ -392,14 +625,61 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      onChanged: (String commentInput) {
+                        setState(() {
+                          // 입력할 때마다 저장된다.
+                          commentToServer = commentInput;
+                          if (commentInput != "") {
+                            enableSend = true;
+                          } else {
+                            enableSend = false;
+                          }
+                          print(commentToServer + " 1"); // 서버에 전달할 댓글 내용 저장
+                        });
+                      },
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.send_rounded),
+                    // enableSend 가 false이면, 댓글창에 아무것도 없으면, send 버튼 비활성화 (send 버튼 눌러도 변화 없음)
+                    onPressed: enableSend
+                        ? () async{
+                            // send 버튼을 누르면 작동한다.
+                            // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
+                            print(commentToServer + " 2"); //
+                            //print("createComment called");
+
+                            //createComment(commentToServer);
+                            // print("$replyToHere");
+                            // print("${widget.replyTo}");
+                            if (replyToHereId != "") {
+                              toWhom = replyToHereId;
+                            } else if (widget.replyToId != "") {
+                              toWhom = widget.replyToId;
+                            }
+
+                            if (toWhom == "") {
+                              // 댓글을 썼을 경우
+                              print("댓글을 썼을 경우 댓글 내용은 ${commentToServer}");
+                              await createComment(commentToServer);
+                            } else {
+                              // 대댓글을 썼을 경우, 서버에 보내는 API
+                              print("답글을 썼을 경우");
+                              await createReply(commentToServer, toWhom);
+                            }
+                            print(
+                                "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+                            // Navigator.push(context, MaterialPageRoute(
+                            //     builder: (BuildContext context) {
+                            //   return DetailContentView(data: {},);
+                            // }));
+                            Navigator.pop(
+                                context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
+                          }
+                        : null,
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: (enableSend) ? ColorStyle.mainColor : Colors.grey,
+                    ),
                     padding: const EdgeInsets.only(
                         left: 10, right: 0, top: 0, bottom: 0),
                     constraints: const BoxConstraints(),
@@ -426,5 +706,60 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
         bottomNavigationBar: _bottomTextfield(),
       ),
     );
+  }
+
+  //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
+  Future createComment(String comment) async {
+    print("create Comment called");
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    var jsonString = '{"content":""}';
+    Map mapToSend = jsonDecode(jsonString);
+    mapToSend['content'] = comment;
+    print("SharedPreferences await finished");
+
+    if (userToken != null) {
+      print("id is ${widget.id}");
+
+      String tmpUrl = 'https://www.chocobread.shop/comments/${widget.id}';
+      var url = Uri.parse(tmpUrl);
+      var response = await http.post(url,
+          headers: {
+            'Authorization': userToken,
+          },
+          body: mapToSend);
+      print("create comment functon's token is ${userToken}");
+
+      print("create comment functon's response is ${response.body}");
+    } else {
+      print('failed to create comment');
+    }
+  }
+
+  Future createReply(String comment, String parId) async {
+    print("createReply called");
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+    print("create Reply usertoken is ${userToken}");
+
+    var jsonString = '{"content": "", "parentId": ""}';
+    Map mapToSend = jsonDecode(jsonString);
+    mapToSend['content'] = comment;
+    mapToSend['parentId'] = parId;
+
+    if (userToken != null) {
+      //아래 링크 2 대신에 게시글 번호 (dealId가져올 수 있어?)
+      String tmpUrl = 'https://www.chocobread.shop/comments/reply/${widget.id}';
+      var url = Uri.parse(tmpUrl);
+      var response = await http.post(url,
+          headers: {
+            'Authorization': userToken,
+          },
+          body: mapToSend);
+      print("response is ${response.body}");
+    } else {
+      print('failed to create comment');
+    }
   }
 }

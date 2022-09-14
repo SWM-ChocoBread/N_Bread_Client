@@ -1,13 +1,34 @@
-import 'dart:ffi';
-
+import 'dart:convert';
+// import 'dart:ffi';
+import 'dart:io';
+import 'package:chocobread/page/imageuploader.dart' as imageFile;
+import 'package:chocobread/page/widgets/snackbar.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/customformfield.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/datetime_utils.dart';
+import 'repository/contents_repository.dart' as contents;
+import 'package:dio/dio.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
+import '../style/colorstyles.dart';
 import '../utils/price_utils.dart';
 import 'app.dart';
+import 'imageuploader.dart';
+
+var jsonString =
+    '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":""}';
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -18,6 +39,23 @@ class customForm extends StatefulWidget {
 
 class _customFormState extends State<customForm> {
   final now = DateTime.now();
+  late DateTime tempPickedDate; // 임시로 datepicker로 선택된 날짜를 저장해주는 변수
+  late bool
+      isOnTappedDate; // 수정하기 페이지에 들어와서 datepicker 로 값을 수정했는지 여부를 나타내는 bool
+  late TimeOfDay tempPickedTime; // 임시로 timepicker로 선택된 시간을 저장해주는 변수
+  late bool
+      isOnTappedTime; // 수정하기 페이지에 들어와서 timepicker 로 값을 수정했는지 여부를 나타내는 bool
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tempPickedDate = DateTime.now();
+    tempPickedTime = TimeOfDay.now();
+
+    isOnTappedDate = false; // 처음에는 datepicker로 값을 변경하지 않음
+    isOnTappedTime = false; // 처음에는 timepicker로 값을 변경하지 않음
+  }
 
   // 각각의 textfield에 붙는 controller
   TextEditingController productNameController =
@@ -26,8 +64,8 @@ class _customFormState extends State<customForm> {
       TextEditingController(); // 판매 링크에 붙는 controller
   TextEditingController totalPriceController =
       TextEditingController(); // 총 가격에 붙는 controller
-  // TextEditingController numOfParticipantsController =
-  //     TextEditingController(); // 모집 인원에 붙는 controller
+  TextEditingController numOfParticipantsController =
+      TextEditingController(); // 모집 인원에 붙는 controller
   TextEditingController dateController =
       TextEditingController(); // 거래 날짜에 붙는 controller
   TextEditingController timeController =
@@ -46,12 +84,220 @@ class _customFormState extends State<customForm> {
   String time = ""; // 거래 시간
   String place = ""; // 거래 장소
   String extra = ""; // 추가 작성
+  String productDate = "";
+  String personalPrice = ""; // 1인당 가격
+  String dateToSend = "";
+  List<XFile>? finalImageFileList = [];
 
   final GlobalKey<FormState> _formKey = GlobalKey<
       FormState>(); // added to form widget to identify the state of form
 
+  final ImagePicker imagePickerFromGallery =
+      ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
+  final ImagePicker imagePickerFromCamera = ImagePicker();
+  int? currentnumofimages = 0;
+
+  List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
+
+  void selectImagesFromGallery() async {
+    final List<XFile>? selectedImagesFromGallery =
+        await imagePickerFromGallery.pickMultiImage();
+    setState(() {});
+
+    setState(() {
+      imageFileList = []; // 갤러리 버튼을 누를 때마다 이미지 리스트가 비워진다. (새로 다시 선택)
+      if (selectedImagesFromGallery != null) {
+        imageFileList!.addAll(selectedImagesFromGallery);
+      }
+      currentnumofimages = imageFileList?.length;
+    });
+    // imageFileList = []; // 갤러리 버튼을 누를 때마다 이미지 리스트가 비워진다. (새로 다시 선택)
+    // if (selectedImagesFromGallery != null) {
+    //   imageFileList!.addAll(selectedImagesFromGallery);
+    // }
+    // currentnumofimages = imageFileList?.length;
+
+    //else if (selectedImagesFromGallery.isNotEmpty) {
+    //   imageFileList!.addAll(selectedImagesFromGallery);
+    // }
+    setState(() {});
+  }
+
+  void selectImagesFromCamera() async {
+    final XFile? selectedImageFromCamera =
+        await imagePickerFromCamera.pickImage(source: ImageSource.camera);
+    setState(() {});
+    imageFileList = [];
+    if (selectedImageFromCamera != null) {
+      imageFileList!.add(selectedImageFromCamera);
+    }
+  }
+
+  String _getNumberOfImages() {
+    int? numofimages = imageFileList?.length;
+    if (numofimages == 0) {
+      return "0";
+    } else if (numofimages! >= 3) {
+      return "3";
+    }
+    return "${imageFileList?.length}";
+  }
+
+  Duration durationforsnackbar() {
+    int? numofimages = imageFileList?.length;
+    if (numofimages! > 3) {
+      return const Duration(milliseconds: 5000);
+    }
+    return const Duration(milliseconds: 0);
+  }
+
+  Widget _getPhotoButton() {
+    return OutlinedButton(
+        onPressed: () {
+          showModalBottomSheet(
+              shape: const RoundedRectangleBorder(
+                  // modal bottom sheet 의 윗부분을 둥글게 만들어주기
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30))),
+              context: context,
+              builder: (BuildContext context) {
+                return Container(
+                  padding: const EdgeInsets.only(left: 50, right: 50, top: 50),
+                  height: 200,
+                  color: Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {
+                              selectImagesFromGallery();
+                              Navigator.pop(context);
+
+                              const snackBar = SnackBar(
+                                content: Text(
+                                  "사진은 3장까지 업로드할 수 있습니다!",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                // backgroundColor: Colors.black,
+                                duration: Duration(milliseconds: 2000),
+                                behavior: SnackBarBehavior.floating,
+                                elevation: 50,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                  Radius.circular(5),
+                                )),
+                                // StadiumBorder(),
+                                // RoundedRectangleBorder(
+                                //     borderRadius: BorderRadius.only(
+                                //         topLeft: Radius.circular(30),
+                                //         topRight: Radius.circular(30))),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }, // 갤러리에서 사진 가져오고
+                            style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.all(20),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25))),
+                            child: const Icon(
+                              Icons.photo,
+                              size: 30,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          const Text(
+                            "갤러리",
+                            style: TextStyle(fontSize: 16),
+                          )
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {
+                              selectImagesFromCamera();
+                            }, // 카메라로 사진 찍기
+                            style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.all(20),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25))),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 30,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          const Text(
+                            "카메라",
+                            style: TextStyle(fontSize: 16),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              });
+        },
+        style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25))),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.camera_alt_rounded,
+              size: 30,
+            ),
+            Text("${_getNumberOfImages()}/3") // 0 자리에 사진의 개수가 들어간다.
+          ],
+        ));
+  }
+
+// 3개의 사진이 들어갈 공간
+  final List _boxContents = [Container(), Container(), Container()];
+// 3개만 들어가도록 하는 코드
+  Widget _showPhoto() {
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: Row(children: [
+          _getPhotoButton(),
+          Flexible(
+            child: GridView.count(
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 3,
+                crossAxisSpacing: 15,
+                padding: const EdgeInsets.all(15),
+                shrinkWrap: true,
+                children: List.generate(
+                  3,
+                  (index) => Container(
+                    decoration: index < imageFileList!.length
+                        ? BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(25)),
+                            color: Colors.grey,
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: FileImage(
+                                    File(imageFileList![index].path))))
+                        : null,
+                    child: _boxContents[index],
+                  ),
+                )),
+          )
+        ]));
+  }
+
   Widget _productNameTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productNameController,
       decoration: InputDecoration(
         hintText: "제품명",
@@ -81,6 +327,7 @@ class _customFormState extends State<customForm> {
 
   Widget _productLinkTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: productLinkController,
       // cursorColor: const Color(0xffF6BD60),
       decoration: InputDecoration(
@@ -110,6 +357,7 @@ class _customFormState extends State<customForm> {
 
   Widget _totalPriceTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: totalPriceController
         ..selection = TextSelection.fromPosition(TextPosition(
             offset: totalPriceController.text
@@ -164,7 +412,8 @@ class _customFormState extends State<customForm> {
 
   Widget _participantsTextFormField() {
     return TextFormField(
-      // controller: numOfParticipantsController,
+      autocorrect: false,
+      controller: numOfParticipantsController,
       decoration: InputDecoration(
         // hintText: "모집 인원(나 포함)",
         isDense: true,
@@ -199,6 +448,8 @@ class _customFormState extends State<customForm> {
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '모집인원을 입력해주세요.';
+        } else if (int.parse(val) == 0) {
+          return '0은 들어갈 수 없습니다.';
         }
         return null;
       },
@@ -211,23 +462,61 @@ class _customFormState extends State<customForm> {
     );
   }
 
-  Widget _pricePerPerson(String totalprice, String numofparticipants) {
+  _pricePerPersonText(String totalprice, String numofparticipants) {
     if (totalprice.isNotEmpty & numofparticipants.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 3),
-        child: Text(
-          "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(((int.parse(totalprice) / int.parse(numofparticipants) / 10).ceil() * 10).toString())} 원",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      );
+      // 총가격과 모집인원이 비어있지 않은 경우
+      if (int.parse(numofparticipants) > 0) {
+        // 모집 인원이 양수인 경우
+        if (totalprice == "0") {
+          // 총가격 = 0, 모집인원 = 양수 : 무료 나눔 ("1인당 부담 가격: 0원")
+          personalPrice = "0";
+        } else if (int.parse(totalprice) < int.parse(numofparticipants)) {
+          // 총가격 < 모집인원 : ("1인당 부담 가격: ")
+          personalPrice = "";
+        } else if (int.parse(totalprice) == int.parse(numofparticipants)) {
+          // 총가격 == 모집인원 : ("1인당 부담 가격: 1 원")
+          personalPrice = "1";
+        } else if (int.parse(totalprice) > int.parse(numofparticipants)) {
+          // 총가격 > 모집인원 : ("1인당 부담 가격: $나눈결과 원")
+          personalPrice =
+              ((int.parse(totalprice) / int.parse(numofparticipants) / 10)
+                          .ceil() *
+                      10)
+                  .toString();
+        }
+      } else {
+        personalPrice = "";
+      }
+    } else {
+      personalPrice = "";
     }
-    return const Padding(
-      padding: EdgeInsets.only(left: 3),
+
+    if (personalPrice == "") {
+      return "1인당 부담 가격: ";
+    } else {
+      return "1인당 부담 가격: ${PriceUtils.calcStringToWonOnly(personalPrice)} 원";
+    }
+  }
+
+  Widget _pricePerPerson(String totalprice, String numofparticipants) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 3),
       child: Text(
-        "1인당 부담 가격: ",
-        style: TextStyle(fontWeight: FontWeight.bold),
+        _pricePerPersonText(totalprice, numofparticipants),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  DateTime initialDateDeterminant(bool isOnTappedDate) {
+    if (isOnTappedDate) {
+      // datepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
+      return tempPickedDate;
+    } else {
+      // datepicker로 값이 수정되지 않은 경우 : 오늘을 처음 시작일로 지정한다.
+      return DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    }
   }
 
   Widget _dateTextFormField() {
@@ -263,19 +552,30 @@ class _customFormState extends State<customForm> {
       validator: (String? val) {
         if (val == null || val.isEmpty) {
           return '거래 날짜를 입력해주세요.';
+        } else if (val.toString() == "0000-00-00 00:00:00") {
+          return '유효한 날짜를 선택해주세요.';
         }
         return null;
       },
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
             context: context,
-            initialDate: DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day + 4),
-            firstDate: DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day + 4),
+            initialDate:
+                initialDateDeterminant(isOnTappedDate), // 이전에 선택했던 날짜가 처음 날짜
+            firstDate: DateTime(
+                DateTime.now().year, DateTime.now().month, DateTime.now().day),
             lastDate: DateTime(DateTime.now().year, DateTime.now().month + 1,
-                DateTime.now().day + 4));
+                DateTime.now().day));
         if (pickedDate != null) {
+          // 만약 날짜를 선택했다면
+          print("[***] datepicker에서 날짜를 선택했을 때의 pickedDate : " +
+              pickedDate.toString());
+          setState(() {
+            isOnTappedDate =
+                true; // 거래 날짜를 선택했었던(수정) 경우, isOnTapped 가 true 로 변경된다.
+          });
+          tempPickedDate = pickedDate;
+          date = pickedDate.toString(); // 서버에 보낼 거래 날짜를 저장한다.
           String formattedDate = DateFormat('yy.MM.dd.').format(pickedDate);
           String? weekday = {
             "Mon": "월",
@@ -289,9 +589,31 @@ class _customFormState extends State<customForm> {
           setState(() {
             dateController.text = "$formattedDate$weekday";
           });
+        } else {
+          // 날짜를 선택하지 않고 취소를 눌렀다면
+          if (isOnTappedDate) {
+            // 이전에 날짜를 선택한 적이 없다면,
+            setState(() {
+              dateController.text = dateController.text;
+            });
+          } else {
+            setState(() {
+              dateController.text = "";
+            });
+          }
         }
       },
     );
+  }
+
+  TimeOfDay initialTimeDeterminant(bool isOnTappedTime) {
+    if (isOnTappedTime) {
+      // timepicker로 값이 수정된 경우 : 수정된 값을 넣어준다.
+      return tempPickedTime;
+    } else {
+      // timepicker로 값이 수정되지 않은 경우 : detail.dart 에서 받아온 정보를 그대로 initial value로 넣어준다.
+      return TimeOfDay.now();
+    }
   }
 
   Widget _timeTextFormField() {
@@ -332,21 +654,58 @@ class _customFormState extends State<customForm> {
       },
       onTap: () async {
         TimeOfDay? pickedTime = await showTimePicker(
-            context: context, initialTime: TimeOfDay.now());
-
+            context: context,
+            initialTime: initialTimeDeterminant(isOnTappedTime));
         if (pickedTime != null) {
-          DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
-              .format(context)
-              .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
-          String formattedTime = DateFormat("h:mm").format(parsedTime);
+          // var df = DateFormat("h:mm a");
+          // var dt = df.parse(pickedTime.format(context));
+          // var saveTime = DateFormat('HH:mm').format(dt);
+          // print(saveTime);
+
+          final now = new DateTime.now();
+          DateTime newparsedTime = new DateTime(
+              now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          print(
+              "[***] newDatetime으로 생성한 newparsedTime : ${newparsedTime.toString()}");
+          setState(() {
+            isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
+          });
+          tempPickedTime = pickedTime;
+          print(pickedTime);
+          print("***********시간 설정 부분 에러 확인을 위한 작업***************");
+          // print("DateFormat : ${DateFormat}");
+          // print("DateFormat.jm('ko_KR') : ${DateFormat.jm('ko_KR')}");
+          // print(
+          //     "DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString()) : ${DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString())}");
+          //print("parseTime에 dateTime 넣기 시도");
+          // DateTime parsedTime = new DateTime(
+          //     now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
+          //print("parseTime에 dateTime 넣기 완료. parsedTime을 출력합니다.");
+          print("newparsedTime : ${newparsedTime}");
+          String formattedTime = DateFormat("h:mm").format(newparsedTime);
           String? dayNight = {
             "AM": "오전",
             "PM": "오후"
-          }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
-
+          }[DateFormat("a").format(newparsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          time = DateFormat("HH:mm")
+              .format(newparsedTime)
+              .toString(); // 서버에 보낼 거래 시간을 저장한다.
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
           });
+        } else {
+          // 날짜를 선택하지 않고 취소를 눌렀다면
+          if (isOnTappedTime) {
+            // 이전에 날짜를 선택한 적이 없다면,
+            setState(() {
+              timeController.text = timeController.text;
+            });
+          } else {
+            setState(() {
+              timeController.text = "";
+            });
+          }
         }
       },
     );
@@ -354,6 +713,7 @@ class _customFormState extends State<customForm> {
 
   Widget _placeTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: placeController,
       maxLines: null,
       decoration: InputDecoration(
@@ -387,7 +747,9 @@ class _customFormState extends State<customForm> {
 
   Widget _extraTextFormField() {
     return TextFormField(
+      autocorrect: false,
       controller: extraController,
+      minLines: 5,
       maxLines: null,
       decoration: InputDecoration(
         hintText: "추가적으로 덧붙이고 싶은 내용이 있다면 알려주세요.",
@@ -405,7 +767,8 @@ class _customFormState extends State<customForm> {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.newline,
+      keyboardType: TextInputType.multiline,
     );
   }
 
@@ -416,230 +779,335 @@ class _customFormState extends State<customForm> {
             key: _formKey,
             child: SingleChildScrollView(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 제품명
-                    const Text(
-                      "제품명",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _productNameTextFormField(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    // 판매 링크
-                    const Text(
-                      "판매 링크 (선택)",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _productLinkTextFormField(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    // 단위 가격
-                    const Text(
-                      "단위 가격",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        // 총가격 (배송비 포함)
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 3),
-                                child: Text(
-                                  "총가격 (배송비 포함)",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black.withOpacity(0.8)),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 제품명
+                      const Text(
+                        "제품명",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      _productNameTextFormField(),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // 판매 링크
+                      const Text(
+                        "판매 링크 (선택)",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      _productLinkTextFormField(),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // 단위 가격
+                      const Text(
+                        "단위 가격",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          // 총가격 (배송비 포함)
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    "총가격 (배송비 포함)",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black.withOpacity(0.8)),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              _totalPriceTextFormField(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 15),
-                        // 모집 인원 (나 포함)
-                        Expanded(
-                          // textfield cannot have unbounded height
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 3),
-                                child: Text(
-                                  "모집 인원 (나 포함)",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black.withOpacity(0.8)),
+                                const SizedBox(
+                                  height: 5,
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              _participantsTextFormField()
-                            ],
+                                _totalPriceTextFormField(),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    // 1인당 부담해야 할 가격
-                    _pricePerPerson(totalPrice, numOfParticipants),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    // 거래 날짜
-                    const Text(
-                      "거래 날짜",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _dateTextFormField(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    // 거래 시간
-                    const Text(
-                      "거래 시간",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _timeTextFormField(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    // 거래 장소
-                    const Text(
-                      "거래 장소",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _placeTextFormField(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    // 내용
-                    const Text(
-                      "내용 (선택)",
-                      style:
-                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _extraTextFormField(),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    //제안하기 버튼
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OutlinedButton(
-                          // onPressed: () {
-                          //   // Validate returns true if the form is valid, or false otherwise.
-                          //   if (_formKey.currentState!.validate()) {
-                          //     // If the form is valid, display a snackbar. In the real world,
-                          //     // you'd often call a server or save the information in a database.
-                          //     ScaffoldMessenger.of(context).showSnackBar(
-                          //       const SnackBar(content: Text('성공적으로 제안되었습니다!')),
-                          //     );
-                          //   }
-                          // },
-                          onPressed: () {
-                            setState(() {
-                              productName = productNameController.text; // 제품명
-                              productLink = productLinkController.text; // 판매 링크
-                              date = dateController.text; // 거래 날짜
-                              time = timeController.text; // 거래 시간
-                              place = placeController.text; // 거래 장소
-                              extra = extraController.text; // 추가 작성
-                            });
-
-                            const snackBar = SnackBar(
-                              content: Text(
-                                "성공적으로 제안되었습니다!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              // backgroundColor: Colors.black,
-                              duration: Duration(milliseconds: 2000),
-                              // behavior: SnackBarBehavior.floating,
-                              elevation: 50,
-                              shape: StadiumBorder(),
-                              // RoundedRectangleBorder(
-                              //     borderRadius: BorderRadius.only(
-                              //         topLeft: Radius.circular(30),
-                              //         topRight: Radius.circular(30))),
-                            );
-
-                            // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                          const SizedBox(width: 15),
+                          // 모집 인원 (나 포함)
+                          Expanded(
+                            // textfield cannot have unbounded height
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    "모집 인원 (나 포함)",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black.withOpacity(0.8)),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                _participantsTextFormField()
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      // 1인당 부담해야 할 가격
+                      _pricePerPerson(totalPrice, numOfParticipants),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // 거래 날짜
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            "거래 날짜",
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            width: 7,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      _dateTextFormField(),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // 거래 시간
+                      const Text(
+                        "거래 시간",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      _timeTextFormField(),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // 거래 장소
+                      const Text(
+                        "거래 장소",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      _placeTextFormField(),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // 내용
+                      const Text(
+                        "내용 (선택)",
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      _extraTextFormField(),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      //제안하기 버튼
+                      SizedBox(
+                        width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
+                        child: OutlinedButton(
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                                return const App();
-                              }));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            }
-                          },
+                              // form 이 모두 validate 하면
+                              // controller로 서버에 보낼 데이터들을 가져와서 변수에 저장한다.
+                              setState(() {
+                                productName = productNameController.text; // 제품명
+                                productLink =
+                                    productLinkController.text; // 판매 링크
+                                // 총가격과 모집인원은 onChanged로 받아와진다.
+                                // personalPrice는 유효한 총가격과 모집인원이 입력되자마자 위에서 정해진다.
+                                // date = dateController.text; // 거래 날짜
+                                // time = timeController.text; // 거래 시간
+                                place = placeController.text; // 거래 장소
+                                extra = extraController.text; // 추가 작성
+                              });
+                              if ((int.parse(totalPrice) >=
+                                      int.parse(numOfParticipants)) ||
+                                  (int.parse(totalPrice) == 0)) {
+                                // 서버에 보낼 수 있는 형식으로 정리하기
+                                dateToSend = MyDateUtils.sendMyDateTime(
+                                    date, time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
+                                print(
+                                    "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
+                                print("서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                Map mapToSend = jsonDecode(jsonString);
+                                mapToSend['title'] = productName.toString();
+                                mapToSend['link'] = productLink.toString();
+                                mapToSend['totalPrice'] = totalPrice;
+                                mapToSend['personalPrice'] = personalPrice;
+                                mapToSend['totalMember'] = numOfParticipants;
+                                mapToSend['dealDate'] = dateToSend;
+                                mapToSend['place'] = place;
+                                mapToSend['content'] = extra;
+                                mapToSend['region'] =
+                                    prefs.getString('userLocation');
+                                //region,imageLink123은 우선 디폴트값
+                                //print(imageFileList?[0]);
+                                final List<MultipartFile> _files =
+                                    imageFileList!
+                                        .map((img) =>
+                                            MultipartFile.fromFileSync(img.path,
+                                                contentType: new MediaType(
+                                                    "image", "jpg")))
+                                        .toList();
+                                print("files: ### ");
+                                print(_files);
+                                print("file length :  ${_files.length} ");
+                                FormData _formData =
+                                    FormData.fromMap({"img": _files});
+                                print(mapToSend);
+                                print(jsonString);
 
-                          // () async {
-                          //   if (_formKey.currentState!.validate()) {
-                          //     const SnackBar(
-                          //       content: Text("제안 완료"),
-                          //     );
-                          //   }
-                          // },
+                                // 서버에 보내기
+                                await getApiTest(mapToSend, _formData);
+
+                                // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                                Navigator.push(context, MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                  return const App();
+                                }));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(MySnackBar("성공적으로 제안되었습니다!"));
+                              } else {
+                                // form 이 유효하지 않은 경우
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    MySnackBar("총가격은 모집인원보다 커야 합니다!"));
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(MySnackBar("필수 입력 칸을 채워주세요."));
+                            }
+                            // finalImageFileList = imageUploader().getImageFileList;
+                          },
                           child: const Text('제안하기'),
                         ),
-                        // 서버로 보낼 데이터가 제대로 저장되었는지 확인하기 위한 것
-                        // Flexible(
-                        //   child: Text(
-                        //       "${productName} ${productLink} ${date} ${time} ${place} ${extra}"),
-                        // ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
+                      )
+                    ],
+                  )),
             )));
   }
 
   @override
   Widget build(BuildContext context) {
-    return SuggestionForm();
+    return Column(
+      children: [
+        _showPhoto(),
+        SuggestionForm(),
+      ],
+    );
+  }
+}
+
+Future getApiTest(Map jsonbody, FormData formData) async {
+  final prefs = await SharedPreferences.getInstance();
+  var dealCreateUrl = "https://www.chocobread.shop/deals/create";
+  var url = Uri.parse(
+    dealCreateUrl,
+  );
+  var body2 = json.encode(jsonbody);
+  var userToken = prefs.getString("userToken");
+  //File _image="assets/images/maltesers.png";
+
+  var map = new Map<String, dynamic>();
+  map['body'] = jsonbody;
+  print("value of map");
+  print(map);
+  print(map.toString());
+  var dio = Dio();
+  var dioFormData = FormData.fromMap(map);
+
+  if (userToken != null) {
+    var response = await http.post(url,
+        headers: {
+          "Authorization": userToken,
+        },
+        body: jsonbody);
+    print(response);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print(list);
+    dio.options.contentType = 'multipart/form-data';
+    dio.options.headers['Authorization'] = userToken;
+    //  list[result][id] 예외처리 ex) 404 안하면 crash
+    print("dealId : ${list['result']['id']} ");
+    var imgCreateUrl =
+        "https://www.chocobread.shop/deals/${list['result']['id']}/img";
+
+    final dioResponse = await dio.post(
+      imgCreateUrl,
+      data: formData,
+    );
+
+    await FirebaseAnalytics.instance.logSelectContent(
+      contentType: "image",
+      itemId: 'TEST',
+    );
+
+    await FirebaseAnalytics.instance.logEvent(name: "dealCreate", parameters: {
+      "id": list['result']['id'].toString(),
+      "title": list['result']['title'].toString()
+      // productLink : productLink,
+      // totalPrice : totalPrice,
+      // numOfParticipants : numOfParticipants,
+      // personalPrice : personalPrice,
+      // dateToSend : dateToSend,
+      // place : place,
+      // extra : extra
+    });
+
+    Airbridge.event.send(Event(
+      'dealCreateEvent',
+      option: EventOption(
+        semantics: {
+          'transactionID': list['result']['id'].toString(),
+          'products': [
+            {
+              'productID': jsonbody['id'],
+              'name': list['result']['title'].toString(),
+              "price": 1000,
+              "currency": 'KRW',
+              "quantity": 1,
+            }
+          ]
+        },
+      ),
+    ));
+  } else {
+    print("오류발생");
   }
 }

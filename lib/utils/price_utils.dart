@@ -4,7 +4,7 @@ class PriceUtils {
   static final oCcy = NumberFormat("#,###", "ko_KR");
   static String calcStringToWon(String priceString) {
     // if (priceString == "무료나눔") return priceString;
-    return "${oCcy.format(int.parse(priceString))}원/묶음";
+    return "1인당 ${oCcy.format(int.parse(priceString))}원";
   }
 
   static String calcStringToWonOnly(String priceString) {
