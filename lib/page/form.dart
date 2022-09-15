@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:chocobread/page/imageuploader.dart' as imageFile;
 import 'package:chocobread/page/widgets/snackbar.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -20,6 +19,7 @@ import '../utils/datetime_utils.dart';
 import 'checkmovetophotosettings.dart';
 import 'repository/contents_repository.dart' as contents;
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
@@ -1083,38 +1083,36 @@ Future getApiTest(Map jsonbody, FormData formData) async {
       imgCreateUrl,
       data: formData,
     );
-
-    await FirebaseAnalytics.instance.logSelectContent(
-      contentType: "image",
-      itemId: 'TEST',
+    var dealCreateResponseResult = list['result'];
+    await FirebaseAnalytics.instance.logEvent(
+      name: "deal_create",
+      parameters: {
+        "dealId" : dealCreateResponseResult['id'].toString(),
+        "title" : dealCreateResponseResult['title'].toString(),
+        "productLink" :  dealCreateResponseResult['link'].toString(),
+        "totalPrice" :  dealCreateResponseResult['totalPrice'].toString(),
+        "totalMember" : dealCreateResponseResult['totalMember'].toString(),
+        "personalPrice" : dealCreateResponseResult['personalPrice'].toString(),
+        "dealDate" : dealCreateResponseResult['dealDate'].toString(),
+        "dealPlace" : dealCreateResponseResult['dealPlace'].toString(),
+        "content" : dealCreateResponseResult['content'].toString(),
+      }
     );
 
-    await FirebaseAnalytics.instance.logEvent(name: "dealCreate", parameters: {
-      "id": list['result']['id'].toString(),
-      "title": list['result']['title'].toString()
-      // productLink : productLink,
-      // totalPrice : totalPrice,
-      // numOfParticipants : numOfParticipants,
-      // personalPrice : personalPrice,
-      // dateToSend : dateToSend,
-      // place : place,
-      // extra : extra
-    });
-
     Airbridge.event.send(Event(
-      'dealCreateEvent',
+      'Deal Create',
       option: EventOption(
         semantics: {
           'transactionID': list['result']['id'].toString(),
           'products': [
-            {
-              'productID': jsonbody['id'],
-              'name': list['result']['title'].toString(),
-              "price": 1000,
-              "currency": 'KRW',
-              "quantity": 1,
-            }
-          ]
+              {
+                'productID': jsonbody['id'],
+                'name': dealCreateResponseResult['totalPrice'].toString(),
+                "price": dealCreateResponseResult['totalPrice'].toString(),
+                "currency": 'KRW',
+                "quantity": 1,
+              }
+            ]
         },
       ),
     ));
