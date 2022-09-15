@@ -581,7 +581,7 @@ class _HomeState extends State<Home> {
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () async {
             var targetDealId =  dataContents[index]["id"].toString();
-            await faSelectContent(1231.toDouble());
+            await faSelectContent(dataContents[index]["totalPrice"].toDouble(), dataContents[index]["id"].toString(), dataContents[index]["title"].toString());
             // await abSelectContent(targetDealId, dataContents[index]["title"]);
             // 페이지 전환
             print("type of id is ${dataContents[index]["id"].toString().runtimeType}");
@@ -996,17 +996,20 @@ class _HomeState extends State<Home> {
 //   Map<String, dynamic> list = jsonDecode(responseBody);
 //   print("response is");
 //   print(list);
-
 //   //return list['result']['nick'];
 // }
 
-Future<void> faSelectContent(double value) async {
+Future<void> faSelectContent(double value, String itemId, String itemName) async {
   // Create the instance
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   await FirebaseAnalytics.instance.logViewItem(
     currency : "KRW",
     value : value,
-    items : [
+    items :[
+        AnalyticsEventItem(
+          itemId: itemId,
+          itemName: itemName
+        )
     ]
   );
 }
