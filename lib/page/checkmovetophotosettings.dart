@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class CheckMoveToSettings extends StatefulWidget {
-  CheckMoveToSettings({Key? key}) : super(key: key);
+class CheckMoveToPhotoSettings extends StatefulWidget {
+  CheckMoveToPhotoSettings({Key? key}) : super(key: key);
 
   @override
-  State<CheckMoveToSettings> createState() => _CheckMoveToSettingsState();
+  State<CheckMoveToPhotoSettings> createState() =>
+      _CheckMoveToPhotoSettingsState();
 }
 
-class _CheckMoveToSettingsState extends State<CheckMoveToSettings> {
+class _CheckMoveToPhotoSettingsState extends State<CheckMoveToPhotoSettings> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(

@@ -17,7 +17,7 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/datetime_utils.dart';
-import 'checkmovetosettings.dart';
+import 'checkmovetophotosettings.dart';
 import 'repository/contents_repository.dart' as contents;
 import 'package:dio/dio.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
@@ -190,7 +190,7 @@ class _customFormState extends State<customForm> {
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return CheckMoveToSettings();
+                                      return CheckMoveToPhotoSettings();
                                     });
                               }
                             }, // 갤러리에서 사진 가져오고
@@ -229,7 +229,7 @@ class _customFormState extends State<customForm> {
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return CheckMoveToSettings();
+                                      return CheckMoveToPhotoSettings();
                                     });
                               }
                             }, // 카메라로 사진 찍기
