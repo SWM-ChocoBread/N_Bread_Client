@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:chocobread/page/mypage.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart' as Airbridge;
@@ -263,6 +265,40 @@ class _LoginState extends State<Login> {
         if (code == 200) {
           print("code가 200입니다. 홈 화면으로 리다이렉트합니다.");
           //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
+          final prefs = await SharedPreferences.getInstance();
+          String? curLocation = prefs.getString("userLocation");
+          if (curLocation == null) {
+            print('curLocation이 null입니다. db에서 위치를 가져옵니다');
+            String? token = prefs.getString("userToken");
+            if (token != null) {
+              Map<String, dynamic> payload = Jwt.parseJwt(token);
+              int userId = payload['id'];
+              String tmpUrl =
+                  'https://www.chocobread.shop/users/' + userId.toString();
+              var url = Uri.parse(
+                tmpUrl,
+              );
+              var response = await http.get(url);
+              String responseBody = utf8.decode(response.bodyBytes);
+              Map<String, dynamic> list = jsonDecode(responseBody);
+              if (list['result']['addr'] == null) {
+                prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+                print(
+                    "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+              }
+              else{
+                prefs.setString("userLocation", list['result']['addr']);
+                print(
+                    "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+              }
+              
+              
+            } else {
+              print("token is null");
+            }
+            //https://www.chocobread.shop/users/1
+          }
+
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (BuildContext context) => const App()),
@@ -520,32 +556,30 @@ class _LoginState extends State<Login> {
     await FirebaseAnalytics.instance
         .logSelectContent(contentType: "image", itemId: "123");
   }
-    //카카오SDK api 연결 함수
-    Future<Map<String, dynamic>> kakaoSdkLogin(
-        String kakaoNumber, String? email) async {
-      String tmpUrl = 'https://www.chocobread.shop/auth/kakaosdk/signup';
-      var url = Uri.parse(
-        tmpUrl,
-      );
 
-      Map data = {"kakaoNumber": kakaoNumber, "email": email};
-      var body = json.encode(data);
-      var response = await http.post(url,
-          headers: {"Content-Type": "application/json"}, body: body);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
+  //카카오SDK api 연결 함수
+  Future<Map<String, dynamic>> kakaoSdkLogin(
+      String kakaoNumber, String? email) async {
+    String tmpUrl = 'https://www.chocobread.shop/auth/kakaosdk/signup';
+    var url = Uri.parse(
+      tmpUrl,
+    );
 
-      var tmp = List<Map<String, dynamic>>.empty(growable: true);
-      print("kakaoSdkLogin의 response : ${list}");
-      if (list['code'] != 500) {
-        print("code : ${list['code']}");
-        print("result의 accessToken값 : ${list['result']['accessToken']}");
-        final prefs = await SharedPreferences.getInstance();
-        prefs.setString('userToken', list['result']['accessToken']);
-      }
-      code = list['code'];
-
-      return list;
+    Map data = {"kakaoNumber": kakaoNumber, "email": email};
+    var body = json.encode(data);
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: body);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print("kakaoSdkLogin의 response : ${list}");
+    if (list['code'] != 500) {
+      print("code : ${list['code']}");
+      print("result의 accessToken값 : ${list['result']['accessToken']}");
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('userToken', list['result']['accessToken']);
     }
-  }
+    code = list['code'];
 
+    return list;
+  }
+}

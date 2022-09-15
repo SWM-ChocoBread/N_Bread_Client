@@ -130,11 +130,6 @@ class _NicknameSetState extends State<NicknameSet> {
     print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
   }
 
-  Future setNickname() async {
-    // TODO : setNickname 함수에 API로 보내는 부분 추가해야 함
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("isNickname", true);
-  }
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -347,82 +342,36 @@ class _NicknameSetState extends State<NicknameSet> {
                           nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                       print("닉네임 제출하려는 닉네임은 " + nicknametosubmit);
                       //SET NICKNAME API CALL
-                      nicknameSet(nicknametosubmit);  //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
+                      await nicknameSet(nicknametosubmit);  //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
                       //채은 : 좌표넣기
                       // await setUserLocation("37.5037142", "127.0447821");
-                      // setState(() {
-                      //   _getCurrentPosition().then(((value) async {
-                      //     _currentPosition = value;
-                      //     print(_currentPosition);
-                      //     print(
-                      //         "latitude: ${_currentPosition?.latitude ?? ""}");
-                      //     print(
-                      //         "longitude: ${_currentPosition?.longitude ?? ""}");
-                      //     var latitude =
-                      //         _currentPosition?.latitude ?? basicLatitude;
-                      //     var longitude =
-                      //         _currentPosition?.longitude ?? basicLongitude;
-                      //     print("닉네임 설정하기 버튼을 눌렀을 때의 위도 : " +
-                      //         latitude.toString());
-                      //     print("닉네임 설정하기 버튼을 눌렀을 때의 경도 : " +
-                      //         longitude.toString());
-                      //     await setUserLocation(
-                      //         latitude.toString(), longitude.toString());
-                      //     final prefs = await SharedPreferences.getInstance();
-                      //     var temp = prefs.getString("userLocation");
-                      //     print(
-                      //         "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
-                      //             temp.toString());
-                      //     currentLocation = temp!;
-                      //     print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
-                      //         currentLocation);
-                      //     // prefs.setString("userLocation", currentLocation);
-                      //   }));
-                      // });
-                      setNickname().then((_) {
-                        // setState(() {
-                        //   _getCurrentPosition().then(((value) async {
-                        //     _currentPosition = value;
-                        //     print(_currentPosition);
-                        //     print(
-                        //         "latitude: ${_currentPosition?.latitude ?? ""}");
-                        //     print(
-                        //         "longitude: ${_currentPosition?.longitude ?? ""}");
-                        //     var latitude =
-                        //         _currentPosition?.latitude ?? basicLatitude;
-                        //     var longitude =
-                        //         _currentPosition?.longitude ?? basicLongitude;
-                        //     print("닉네임 설정하기 버튼을 눌렀을 때의 위도 : " +
-                        //         latitude.toString());
-                        //     print("닉네임 설정하기 버튼을 눌렀을 때의 경도 : " +
-                        //         longitude.toString());
-                        //     await setUserLocation(
-                        //         latitude.toString(), longitude.toString());
-                        //     final prefs = await SharedPreferences.getInstance();
-                        //     var temp = prefs.getString("userLocation");
-                        //     print(
-                        //         "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
-                        //             temp.toString());
-                        //     currentLocation = temp!;
-                        //     print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
-                        //         currentLocation);
-                        //     // prefs.setString("userLocation", currentLocation);
-                        //   }));
-                        // });
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) => const App()),
-                            (route) => false);
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (BuildContext context) {
-                        //   return const App();
-                        // }));
-                      });
-                      // Navigator.push(context,
-                      //     MaterialPageRoute(builder: (BuildContext context) {
-                      //   return const App();
-                      // }));
+                      await _getCurrentPosition().then(((value) async {
+                        _currentPosition = value;
+                        var latitude =
+                            _currentPosition?.latitude ?? basicLatitude;
+                        var longitude =
+                            _currentPosition?.longitude ?? basicLongitude;
+                        print(
+                            "닉네임 설정하기 버튼을 눌렀을 때의 위도 : " + latitude.toString());
+                        print(
+                            "닉네임 설정하기 버튼을 눌렀을 때의 경도 : " + longitude.toString());
+                        await setUserLocation(
+                            latitude.toString(), longitude.toString());
+                        final prefs = await SharedPreferences.getInstance();
+                        var temp = prefs.getString("userLocation");
+                        print(
+                            "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
+                                temp.toString());
+                        currentLocation = temp!;
+                        print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
+                            currentLocation);
+                        // prefs.setString("userLocation", currentLocation);
+                      }));
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => const App()),
+                          (route) => false);
                     }
                   : null,
               child: const Text(

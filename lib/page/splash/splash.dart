@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+//test comment
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
 
@@ -22,7 +23,7 @@ class _SplashState extends State<Splash> {
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
-    //prefs.clear();
+    // prefs.clear();
     // TODO : 닉네임 설정 완료 여부를 확인하는 API를 호출하는 부분
     bool hasToken = false;
     String? userToken = prefs.getString("userToken");
@@ -51,7 +52,7 @@ class _SplashState extends State<Splash> {
       } else if (list['code'] == 300 || list['code'] == 404) {
         print("코드가 ${list['code']}입니다. 약관동의 화면으로 리다이렉트합니다.");
         Navigator.pushNamedAndRemoveUntil(
-              context, '/termscheck', (route) => false);
+            context, '/termscheck', (route) => false);
       } else {
         print("서버 에러가 발생하였습니다. 로그인 화면으로 리다이렉트합니다.");
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);

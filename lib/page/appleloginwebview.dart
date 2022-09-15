@@ -59,6 +59,36 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       if (list['code'] == 200) {
         print("코드가 200입니다. 홈화면으로 리다이렉트합니다.");
         //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
+        final prefs = await SharedPreferences.getInstance();
+        String? curLocation = prefs.getString("userLocation");
+        if (curLocation == null) {
+          print('curLocation이 null입니다. db에서 위치를 가져옵니다');
+          String? token = prefs.getString("userToken");
+          if (token != null) {
+            Map<String, dynamic> payload = Jwt.parseJwt(token);
+            int userId = payload['id'];
+            String tmpUrl =
+                'https://www.chocobread.shop/users/' + userId.toString();
+            var url = Uri.parse(
+              tmpUrl,
+            );
+            var response = await http.get(url);
+            String responseBody = utf8.decode(response.bodyBytes);
+            Map<String, dynamic> list = jsonDecode(responseBody);
+            if (list['result']['addr'] == null) {
+              prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+              print(
+                  "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+            } else {
+              prefs.setString("userLocation", list['result']['addr']);
+              print(
+                  "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+            }
+          } else {
+            print("token is null");
+          }
+          //https://www.chocobread.shop/users/1
+        }
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (BuildContext context) => const App()),

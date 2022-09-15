@@ -13,8 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/datetime_utils.dart';
+import 'checkmovetophotosettings.dart';
 import 'repository/contents_repository.dart' as contents;
 import 'package:dio/dio.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -99,7 +101,7 @@ class _customFormState extends State<customForm> {
 
   List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
 
-  void selectImagesFromGallery() async {
+  Future selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
     setState(() {});
@@ -123,7 +125,7 @@ class _customFormState extends State<customForm> {
     setState(() {});
   }
 
-  void selectImagesFromCamera() async {
+  Future selectImagesFromCamera() async {
     final XFile? selectedImageFromCamera =
         await imagePickerFromCamera.pickImage(source: ImageSource.camera);
     setState(() {});
@@ -172,31 +174,25 @@ class _customFormState extends State<customForm> {
                       Column(
                         children: [
                           OutlinedButton(
-                            onPressed: () {
-                              selectImagesFromGallery();
-                              Navigator.pop(context);
-
-                              const snackBar = SnackBar(
-                                content: Text(
-                                  "사진은 3장까지 업로드할 수 있습니다!",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                // backgroundColor: Colors.black,
-                                duration: Duration(milliseconds: 2000),
-                                behavior: SnackBarBehavior.floating,
-                                elevation: 50,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                  Radius.circular(5),
-                                )),
-                                // StadiumBorder(),
-                                // RoundedRectangleBorder(
-                                //     borderRadius: BorderRadius.only(
-                                //         topLeft: Radius.circular(30),
-                                //         topRight: Radius.circular(30))),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
+                            onPressed: () async {
+                              var status = await Permission.photos.request();
+                              if (status.isGranted) {
+                                // Either the permission was already granted before or the user just granted it.
+                                // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
+                                print("권한을 허용했습니다.");
+                                await selectImagesFromGallery();
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    MySnackBar("사진은 3장까지 업로드할 수 있습니다!"));
+                              } else {
+                                // 권한을 허용하지 않은 경우 : 설정으로 이동해서 권한 허용을 요청하는 alert dialog 띄우기
+                                print("권한을 허용하지 않았습니다.");
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CheckMoveToPhotoSettings();
+                                    });
+                              }
                             }, // 갤러리에서 사진 가져오고
                             style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.all(20),
@@ -219,8 +215,23 @@ class _customFormState extends State<customForm> {
                       Column(
                         children: [
                           OutlinedButton(
-                            onPressed: () {
-                              selectImagesFromCamera();
+                            onPressed: () async {
+                              var status = await Permission.camera.request();
+                              if (status.isGranted) {
+                                // Either the permission was already granted before or the user just granted it.
+                                // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
+                                print("권한을 허용했습니다.");
+                                await selectImagesFromCamera();
+                                Navigator.pop(context);
+                              } else {
+                                // 권한을 허용하지 않은 경우 : 설정으로 이동해서 권한 허용을 요청하는 alert dialog 띄우기
+                                print("권한을 허용하지 않았습니다.");
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CheckMoveToPhotoSettings();
+                                    });
+                              }
                             }, // 카메라로 사진 찍기
                             style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.all(20),
@@ -661,23 +672,35 @@ class _customFormState extends State<customForm> {
           // var dt = df.parse(pickedTime.format(context));
           // var saveTime = DateFormat('HH:mm').format(dt);
           // print(saveTime);
-          print("[***] timepicker에서 시간을 선택했을 때의 pickedTime : " +
-              pickedTime.toString());
+
+          final now = new DateTime.now();
+          DateTime newparsedTime = new DateTime(
+              now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          print(
+              "[***] newDatetime으로 생성한 newparsedTime : ${newparsedTime.toString()}");
           setState(() {
             isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedTime = pickedTime;
           print(pickedTime);
-          DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
-              .format(context)
-              .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
-          String formattedTime = DateFormat("h:mm").format(parsedTime);
+          print("***********시간 설정 부분 에러 확인을 위한 작업***************");
+          // print("DateFormat : ${DateFormat}");
+          // print("DateFormat.jm('ko_KR') : ${DateFormat.jm('ko_KR')}");
+          // print(
+          //     "DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString()) : ${DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString())}");
+          //print("parseTime에 dateTime 넣기 시도");
+          // DateTime parsedTime = new DateTime(
+          //     now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
+          //print("parseTime에 dateTime 넣기 완료. parsedTime을 출력합니다.");
+          print("newparsedTime : ${newparsedTime}");
+          String formattedTime = DateFormat("h:mm").format(newparsedTime);
           String? dayNight = {
             "AM": "오전",
             "PM": "오후"
-          }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          }[DateFormat("a").format(newparsedTime)]; // AM, PM을 한글 오전, 오후로 변환
           time = DateFormat("HH:mm")
-              .format(parsedTime)
+              .format(newparsedTime)
               .toString(); // 서버에 보낼 거래 시간을 저장한다.
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
@@ -1097,4 +1120,3 @@ Future getApiTest(Map jsonbody, FormData formData) async {
     print("오류발생");
   }
 }
-
