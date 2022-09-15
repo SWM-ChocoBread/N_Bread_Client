@@ -1,7 +1,17 @@
-import 'package:chocobread/page/done.dart';
+import 'dart:convert';
 
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:chocobread/page/done.dart';
+import 'package:chocobread/utils/datetime_utils.dart';
+import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../utils/price_utils.dart';
 
@@ -84,7 +94,8 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
                 crossAxisCellCount: 8,
                 mainAxisCellCount: 1,
                 child: Text(
-                  widget.data["date"].toString(),
+                  MyDateUtils.formatMyDateTime(
+                      widget.data["dealDate"].toString()),
                   softWrap: true,
                   style: const TextStyle(
                     fontSize: 15,
@@ -103,7 +114,7 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
                 crossAxisCellCount: 8,
                 mainAxisCellCount: 1,
                 child: Text(
-                  widget.data["place"].toString(),
+                  widget.data["dealPlace"].toString(),
                   softWrap: true,
                   style: const TextStyle(
                     fontSize: 15,
@@ -148,9 +159,26 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
           child: const Text("취소하기"),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
+            // 여기서  호출
+            joinDeal();
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
+                  Airbridge.event.send(PurchaseEvent(
+              products: [
+                Product(
+                  id: widget.data["id"].toString(),
+                  name: widget.data["title"].toString(),
+                  price: widget.data["totalPrice"],
+                  currency: 'KRW',
+                  quantity: num.parse(widget.data['totalMember'].toString()),
+                ),
+              ],
+              isInAppPurchase: true,
+              currency: 'KRW',
+            ));
+            
+
               return ConfirmParticipation(
                 data: widget.data,
               );
@@ -161,4 +189,42 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
       ],
     );
   }
+
+  void joinDeal() async {
+//localhost:5005/deals/:dealId/join/:userId
+    String dealId = widget.data['id'].toString();
+    late UserInfoRepository userInfoRepository = UserInfoRepository();
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    String userId = getTokenPayload['id'].toString();
+
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+
+    if (userToken != null) {
+      String tmpUrl =
+          'https://www.chocobread.shop/deals/' + dealId + '/join/' + userId;
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var response =
+          await http.post(url, headers: {"Authorization": userToken});
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      await faPurchase('KRW', widget.data["id"].toString(), widget.data["totalPrice"].toDouble());
+      print(list);
+      print("RESPONSE BODY");
+      print(responseBody);
+    }
+  }
+}
+
+Future<void> faPurchase(String currency, String transactionId, double value) async {
+  // Create the instance
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  await FirebaseAnalytics.instance.logPurchase(
+    currency: currency,
+    transactionId: transactionId,
+    value : value
+  );
 }

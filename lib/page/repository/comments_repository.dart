@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 class CommentsRepository {
   List<Map<String, dynamic>> dataComments = [
     {
@@ -11,7 +16,7 @@ class CommentsRepository {
       "fromThen": "17시간 전",
       "dealId": 1,
       "userId": 1,
-      "userNickname": "역삼동 소마사랑",
+      "User": {"nick": "역삼동 소마사랑"},
       "userStatus": "",
       "Replies": [
         {
@@ -26,7 +31,7 @@ class CommentsRepository {
           "parentId": 1,
           "dealId": 1,
           "userId": 2,
-          "userNickname": "역삼동 은이님",
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         },
         {
@@ -39,8 +44,8 @@ class CommentsRepository {
           "fromThen": "15시간 전",
           "parentId": 1,
           "dealId": 1,
-          "userId": 1,
-          "userNickname": "역삼동 은이님",
+          "userId": 2,
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         },
         {
@@ -54,7 +59,7 @@ class CommentsRepository {
           "parentId": 1,
           "dealId": 1,
           "userId": 3,
-          "userNickname": "역삼동 kite",
+          "User": {"nick": "역삼동 kite"},
           "userStatus": "참여자",
         },
         {
@@ -67,8 +72,8 @@ class CommentsRepository {
           "fromThen": "12시간 전",
           "parentId": 1,
           "dealId": 1,
-          "userId": 1,
-          "userNickname": "역삼동 은이님",
+          "userId": 2,
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         },
       ]
@@ -82,8 +87,8 @@ class CommentsRepository {
       "deletedAt": null,
       "fromThen": "12분 전",
       "dealId": 1,
-      "userId": 3,
-      "userNickname": "역삼동 kth",
+      "userId": 4,
+      "User": {"nick": "역삼동 kth"},
       "userStatus": "참여자",
       "Replies": [
         {
@@ -96,8 +101,8 @@ class CommentsRepository {
           "fromThen": "11분 전",
           "parentId": 2,
           "dealId": 1,
-          "userId": 1,
-          "userNickname": "역삼동 은이님",
+          "userId": 2,
+          "User": {"nick": "역삼동 은이님"},
           "userStatus": "제안자",
         }
       ]
@@ -106,20 +111,53 @@ class CommentsRepository {
       "id": 2,
       "content": "시간 조정 가능한가요?",
       "isDeleted": null,
-      "createdAt": "2022-07-17T05:22:33.000Z",
-      "updatedAt": "2022-07-17T05:22:33.000Z",
+      "createdAt": "2022-08-02T12:34:30.000Z",
+      "updatedAt": "2022-07-17T05:23:37.000Z",
       "deletedAt": null,
       "fromThen": "7분 전",
       "dealId": 1,
-      "userId": 4,
-      "userNickname": "역삼동 소마짱짱",
+      "userId": 1,
+      "User": {"nick": "역삼동 소마짱짱"},
       "userStatus": "",
       "Replies": []
     }
   ];
 
-  Future<List<Map<String, dynamic>>> loadComments() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    return dataComments;
+  // Future<List<Map<String, dynamic>>> loadComments(String dealId) async {
+  //   await Future.delayed(const Duration(milliseconds: 1000));
+  //   return dataComments;
+  // }
+
+  Future<Map<String, dynamic>> _callAPI(String dealId) async {
+    // await Future.delayed(const Duration(microseconds: 1), (){});
+    String tmpUrl = 'https://www.chocobread.shop/comments/' + dealId;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+
+    //print(list);
+
+    return list;
+  }
+
+  Future<List<dynamic>> loadComments(String dealId) async {
+    // API 통신 location 값을 보내주면서
+    print("load comment called");
+    // await Future.delayed(const Duration(microseconds: 100), () {});
+    Map<String, dynamic> getData = await _callAPI(dealId);
+
+    // await Future.delayed(const Duration(milliseconds: 1000));
+    var tmp = List<Map<String, dynamic>>.empty(growable: true);
+
+    if (getData['result']['comments'].length != 0) {
+      for (int i = 0; i < getData['result']['comments'].length; i++) {
+        Map<String, dynamic> oneComment = getData['result']['comments'][i];
+        tmp.add(oneComment);
+      }
+    }
+    return tmp;
   }
 }
