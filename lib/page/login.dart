@@ -281,9 +281,18 @@ class _LoginState extends State<Login> {
               var response = await http.get(url);
               String responseBody = utf8.decode(response.bodyBytes);
               Map<String, dynamic> list = jsonDecode(responseBody);
-              prefs.setString("userLocation", list['result']['addr']);
-              print(
-                  "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+              if (list['result']['addr'] == null) {
+                prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+                print(
+                    "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+              }
+              else{
+                prefs.setString("userLocation", list['result']['addr']);
+                print(
+                    "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+              }
+              
+              
             } else {
               print("token is null");
             }
