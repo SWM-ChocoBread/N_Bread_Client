@@ -481,6 +481,19 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    Airbridge.Airbridge.state.setUser(
+        Airbridge.User(
+          id: 'tester',
+          email: 'tester@ab180.co',
+          alias: {
+            'alias_key': 'alias_value',
+          },
+          attributes: {
+            'provider': 'attr_value',
+            'curLoaction3' : 'location_value'
+          },  
+        )
+    );
     return Scaffold(
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),

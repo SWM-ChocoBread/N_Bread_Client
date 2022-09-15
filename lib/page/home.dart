@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
@@ -580,7 +581,7 @@ class _HomeState extends State<Home> {
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () async {
             var targetDealId =  dataContents[index]["id"].toString();
-            await faSelectContent("homeList", targetDealId);
+            await faSelectContent(1231.toDouble());
             // await abSelectContent(targetDealId, dataContents[index]["title"]);
             // 페이지 전환
             print("type of id is ${dataContents[index]["id"].toString().runtimeType}");
@@ -999,11 +1000,13 @@ class _HomeState extends State<Home> {
 //   //return list['result']['nick'];
 // }
 
-Future<void> faSelectContent(String contentType, String itemId) async {
+Future<void> faSelectContent(double value) async {
   // Create the instance
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  await FirebaseAnalytics.instance.logSelectContent(
-    contentType: contentType,
-    itemId: itemId
+  await FirebaseAnalytics.instance.logViewItem(
+    currency : "KRW",
+    value : value,
+    items : [
+    ]
   );
 }
