@@ -90,7 +90,7 @@ class _NicknameSetState extends State<NicknameSet> {
     if (permission == LocationPermission.deniedForever) {
       const snackBar = SnackBar(
         content: Text(
-          "위치 권한이 영구적으로 거부됐습니다! 권한을 요청할 수 없습니다.",
+          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: ColorStyle.darkMainColor,
