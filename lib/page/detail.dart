@@ -23,7 +23,6 @@ import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
-
 import '../utils/price_utils.dart';
 import 'blockuser.dart';
 import 'checkdeletecomment.dart';
@@ -510,13 +509,9 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _userStatusChip(String userstatus) {
-    // if (userstatus == "user") {
-    //   return Container(
-    //     width: 0,
-    //     height: 0,
-    //   );
-    // } else {
-    if (userstatus != "user") {
+    if (userstatus == "") {
+      return const SizedBox.shrink();
+    } else {
       return Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
           decoration: BoxDecoration(
@@ -530,7 +525,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                 fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
           ));
     }
-    return const SizedBox.shrink();
   }
 
   bool _showDeletedButton(String contents) {
