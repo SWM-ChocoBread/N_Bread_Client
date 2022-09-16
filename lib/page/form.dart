@@ -175,7 +175,17 @@ class _customFormState extends State<customForm> {
                         children: [
                           OutlinedButton(
                             onPressed: () async {
-                              var status = await Permission.photos.request();
+                              PermissionStatus status;
+                              if (Platform.isAndroid) {
+                                // android 인 경우 : storage 권한을 묻는다.
+                                status = await Permission.storage.request();
+                              } else if (Platform.isIOS) {
+                                // iOS 인 경우 : photos 권한을 묻는다.
+                                status = await Permission.photos.request();
+                              } else {
+                                // android 도 아니고, iOS 도 아닌 경우 : storage 권한을 묻는다.
+                                status = await Permission.storage.request();
+                              }
                               if (status.isGranted) {
                                 // Either the permission was already granted before or the user just granted it.
                                 // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
@@ -1084,20 +1094,17 @@ Future getApiTest(Map jsonbody, FormData formData) async {
       data: formData,
     );
     var dealCreateResponseResult = list['result'];
-    await FirebaseAnalytics.instance.logEvent(
-      name: "deal_create",
-      parameters: {
-        "dealId" : dealCreateResponseResult['id'].toString(),
-        "title" : dealCreateResponseResult['title'].toString(),
-        "productLink" :  dealCreateResponseResult['link'].toString(),
-        "totalPrice" :  dealCreateResponseResult['totalPrice'].toString(),
-        "totalMember" : dealCreateResponseResult['totalMember'].toString(),
-        "personalPrice" : dealCreateResponseResult['personalPrice'].toString(),
-        "dealDate" : dealCreateResponseResult['dealDate'].toString(),
-        "dealPlace" : dealCreateResponseResult['dealPlace'].toString(),
-        "content" : dealCreateResponseResult['content'].toString(),
-      }
-    );
+    await FirebaseAnalytics.instance.logEvent(name: "deal_create", parameters: {
+      "dealId": dealCreateResponseResult['id'].toString(),
+      "title": dealCreateResponseResult['title'].toString(),
+      "productLink": dealCreateResponseResult['link'].toString(),
+      "totalPrice": dealCreateResponseResult['totalPrice'].toString(),
+      "totalMember": dealCreateResponseResult['totalMember'].toString(),
+      "personalPrice": dealCreateResponseResult['personalPrice'].toString(),
+      "dealDate": dealCreateResponseResult['dealDate'].toString(),
+      "dealPlace": dealCreateResponseResult['dealPlace'].toString(),
+      "content": dealCreateResponseResult['content'].toString(),
+    });
 
     Airbridge.event.send(Event(
       'Deal Create',
@@ -1105,14 +1112,14 @@ Future getApiTest(Map jsonbody, FormData formData) async {
         semantics: {
           'transactionID': list['result']['id'].toString(),
           'products': [
-              {
-                'productID': jsonbody['id'],
-                'name': dealCreateResponseResult['totalPrice'].toString(),
-                "price": dealCreateResponseResult['totalPrice'].toString(),
-                "currency": 'KRW',
-                "quantity": 1,
-              }
-            ]
+            {
+              'productID': jsonbody['id'],
+              'name': dealCreateResponseResult['totalPrice'].toString(),
+              "price": dealCreateResponseResult['totalPrice'].toString(),
+              "currency": 'KRW',
+              "quantity": 1,
+            }
+          ]
         },
       ),
     ));
