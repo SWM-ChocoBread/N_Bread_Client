@@ -6,6 +6,10 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import '../style/colorstyles.dart';
 import 'checknicknameoverlap.dart';
@@ -269,6 +273,8 @@ class _NicknameChangeState extends State<NicknameChange> {
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString('userToken');
 
+
+
     if (userToken != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
       String userId = payload['id'].toString();
@@ -285,6 +291,24 @@ class _NicknameChangeState extends State<NicknameChange> {
       var response = await http.put(url, headers: headerss, body: jsonString);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
+      await FirebaseAnalytics.instance.logEvent(
+        name: "nickname_change",
+        parameters: {
+          "userId" : list['result']['id'],
+          "provider" : payload['provider'].toString(),
+          "changedNick" : list['result']['nick']
+        }
+      );
+      Airbridge.event.send(Event(
+            'Nickname Change',
+            option: EventOption(
+              attributes: {
+                "userId" : list['result']['id'],
+                "provider" : payload['provider'].toString(),
+                "changedNick" : list['result']['nick']
+              },
+            ),
+          ));
       print(list);
     }
   }

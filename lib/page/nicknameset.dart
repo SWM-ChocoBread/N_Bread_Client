@@ -8,6 +8,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+
 import '../constants/sizes_helper.dart';
 import '../style/colorstyles.dart';
 import 'app.dart';
@@ -439,7 +444,25 @@ class _NicknameSetState extends State<NicknameSet> {
       var response = await http.put(url, headers: headerss, body: jsonString);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
-      print(list);
+      print("RESPONSE : ${response.body}");
+      await FirebaseAnalytics.instance.logEvent(
+        name: "nickname_set",
+        parameters: {
+          "userId" : list['result']['id'],
+          "provider" : payload['provider'].toString(),
+          "changedNick" : list['result']['nick']
+        }
+      );
+      Airbridge.event.send(Event(
+            'Nickname Set',
+            option: EventOption(
+              attributes: {
+                "userId" : list['result']['id'],
+                "provider" : payload['provider'].toString(),
+                "changedNick" : list['result']['nick']
+              },
+            ),
+          ));
     }
   }
 
