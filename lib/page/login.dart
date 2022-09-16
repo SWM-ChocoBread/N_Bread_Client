@@ -285,14 +285,11 @@ class _LoginState extends State<Login> {
                 prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
                 print(
                     "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
-              }
-              else{
+              } else {
                 prefs.setString("userLocation", list['result']['addr']);
                 print(
                     "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
               }
-              
-              
             } else {
               print("token is null");
             }
@@ -495,19 +492,10 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 10,
               ),
-              _kakaologoutSDK(),
-              const SizedBox(
-                height: 10,
-              ),
-              _kakaologin(),
-              const SizedBox(
-                height: 10,
-              ),
               _applelogin(),
               const SizedBox(
                 height: 10,
               ),
-              _home(),
             ],
           ),
         ),
@@ -517,19 +505,14 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    Airbridge.Airbridge.state.setUser(
-        Airbridge.User(
-          id: 'tester',
-          email: 'tester@ab180.co',
-          alias: {
-            'alias_key': 'alias_value',
-          },
-          attributes: {
-            'provider': 'attr_value',
-            'curLoaction3' : 'location_value'
-          },  
-        )
-    );
+    Airbridge.Airbridge.state.setUser(Airbridge.User(
+      id: 'tester',
+      email: 'tester@ab180.co',
+      alias: {
+        'alias_key': 'alias_value',
+      },
+      attributes: {'provider': 'attr_value', 'curLoaction3': 'location_value'},
+    ));
     return Scaffold(
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
