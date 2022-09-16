@@ -413,13 +413,7 @@ class _LoginState extends State<Login> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () async {
-        await firebaseTest();
         await exampleForAmplitude();
-        Airbridge.Airbridge.event.send(Airbridge.SignOutEvent());
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return AppleLoginWebview();
-        }));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -517,19 +511,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    Airbridge.Airbridge.state.setUser(
-        Airbridge.User(
-          id: 'tester',
-          email: 'tester@ab180.co',
-          alias: {
-            'alias_key': 'alias_value',
-          },
-          attributes: {
-            'provider': 'attr_value',
-            'curLoaction3' : 'location_value'
-          },  
-        )
-    );
     return Scaffold(
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
@@ -548,13 +529,6 @@ class _LoginState extends State<Login> {
     // Log an event
     analytics.logEvent('MyApp startup',
         eventProperties: {'friend_num': 10, 'is_heavy_user': true});
-  }
-
-  Future<void> firebaseTest() async {
-    // Create the instance
-    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-    await FirebaseAnalytics.instance
-        .logSelectContent(contentType: "image", itemId: "123");
   }
 
   //카카오SDK api 연결 함수
