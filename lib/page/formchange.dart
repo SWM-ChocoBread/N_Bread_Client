@@ -269,7 +269,17 @@ class _customFormChangeState extends State<customFormChange> {
                         children: [
                           OutlinedButton(
                             onPressed: () async {
-                              var status = await Permission.camera.request();
+                              PermissionStatus status;
+                              if (Platform.isAndroid) {
+                                // android 인 경우 : storage 권한을 묻는다.
+                                status = await Permission.storage.request();
+                              } else if (Platform.isIOS) {
+                                // iOS 인 경우 : photos 권한을 묻는다.
+                                status = await Permission.photos.request();
+                              } else {
+                                // android 도 아니고, iOS 도 아닌 경우 : storage 권한을 묻는다.
+                                status = await Permission.storage.request();
+                              }
                               if (status.isGranted) {
                                 // Either the permission was already granted before or the user just granted it.
                                 // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
