@@ -289,8 +289,7 @@ class _LoginState extends State<Login> {
                 prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
                 print(
                     "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
-              }
-              else{
+              } else {
                 prefs.setString("userLocation", list['result']['addr']);
                 print(
                     "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
@@ -528,19 +527,10 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 10,
               ),
-              _kakaologoutSDK(),
-              const SizedBox(
-                height: 10,
-              ),
-              _kakaologin(),
-              const SizedBox(
-                height: 10,
-              ),
               _applelogin(),
               const SizedBox(
                 height: 10,
               ),
-              _home(),
             ],
           ),
         ),
