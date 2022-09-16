@@ -386,11 +386,8 @@ class _TermsCheckState extends State<TermsCheck> {
   // }
 
   Future<bool> checkIfPermissionGranted() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.location,
-      // Permission.locationAlways,
-      Permission.locationWhenInUse
-    ].request();
+    Map<Permission, PermissionStatus> statuses =
+        await [Permission.locationWhenInUse].request();
 
     bool permitted = true;
 
