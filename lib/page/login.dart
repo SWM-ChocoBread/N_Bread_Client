@@ -23,6 +23,9 @@ import 'naverloginwebview.dart';
 //혜연
 //아래 코드는 300일 경우 약관 동의 화면으로, 200일 경우 홈 화면으로 리다이렉트 시켜줘야합니다.
 int code = 0;
+String userId = "";
+String userEmail = "";
+String kakaoSeverEmail = "";
 
 class Login extends StatefulWidget {
   Login({Key? key}) : super(key: key);
@@ -189,6 +192,7 @@ class _LoginState extends State<Login> {
               // 이전에 로그인한 기록이 없다면, 회원가입 프로세스인 약관 동의로 이동 (이전 stack 비우기)
               try {
                 User user = await UserApi.instance.me();
+                kakaoSeverEmail = (user.kakaoAccount?.email).toString();
                 print('사용자 정보 요청 성공/ 이 유저는 새로 sdk를 이용해 로그인하는 사람입니다.'
                     '\n회원번호: ${user.id}'
                     '\n닉네임: ${user.kakaoAccount?.profile?.nickname}'
@@ -264,7 +268,6 @@ class _LoginState extends State<Login> {
         }
         if (code == 200) {
           print("code가 200입니다. 홈 화면으로 리다이렉트합니다.");
-          //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
           final prefs = await SharedPreferences.getInstance();
           String? curLocation = prefs.getString("userLocation");
           if (curLocation == null) {
@@ -281,6 +284,7 @@ class _LoginState extends State<Login> {
               var response = await http.get(url);
               String responseBody = utf8.decode(response.bodyBytes);
               Map<String, dynamic> list = jsonDecode(responseBody);
+              String userProvider = list['result']['provider'];
               if (list['result']['addr'] == null) {
                 prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
                 print(
@@ -291,22 +295,52 @@ class _LoginState extends State<Login> {
                 print(
                     "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
               }
-              
-              
+              print("200 로그인 이벤트 전송 완료");
             } else {
               print("token is null");
             }
             //https://www.chocobread.shop/users/1
           }
-
+          Airbridge.Airbridge.event.send(Airbridge.SignInEvent(
+                user: Airbridge.User(
+                    id: userId.toString(),
+                    email : kakaoSeverEmail,
+                    attributes: {
+                      "provider" : "kakao",
+                      "curLocation" : prefs.getString('userLocation')
+                    }
+                  )
+                ));
+          await FirebaseAnalytics.instance.logLogin(
+              loginMethod: "kakao"
+          );
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (BuildContext context) => const App()),
               (route) => false);
-        } else if (code == 300) {
-          print("code가 300입니다. 약관 동의 화면으로 리다이렉트합니다.");
+        } else if(code == 300 || code == 301){
+          print("CODE : ${code}");
+          if (code == 300) {
+            print("code가 300입니다. 약관 동의 화면으로 리다이렉트합니다.");
+            // 카카오 SDK 300
+            Airbridge.Airbridge.event.send(Airbridge.SignUpEvent(
+              user: Airbridge.User(
+                  id: userId,
+                  email : userEmail,
+                  attributes: {
+                    "provider" : "kakao",
+                  }
+                )
+              ));
+            await FirebaseAnalytics.instance.logSignUp(
+              signUpMethod: "kakao"
+            );
+          }
           Navigator.pushNamedAndRemoveUntil(
               context, '/termscheck', (route) => false);
+        }
+        else{
+          print("${code} else code");
         }
       },
       child: Row(
@@ -341,6 +375,7 @@ class _LoginState extends State<Login> {
       onPressed: () async {
         try {
           await UserApi.instance.logout();
+          
           print('로그아웃 성공, SDK에서 토큰 삭제');
         } catch (error) {
           print('로그아웃 실패, SDK에서 토큰 삭제 $error');
@@ -414,6 +449,10 @@ class _LoginState extends State<Login> {
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () async {
         await exampleForAmplitude();
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return AppleLoginWebview();
+        }));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -553,6 +592,8 @@ class _LoginState extends State<Login> {
       prefs.setString('userToken', list['result']['accessToken']);
     }
     code = list['code'];
+    userId = list['result']['id'].toString();
+    userEmail = list['result']['email'].toString();
 
     return list;
   }

@@ -20,6 +20,10 @@ import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import 'accountdelete.dart';
 import 'detail.dart';
@@ -114,6 +118,11 @@ class _MyPageState extends State<MyPage> {
                                     prefs.remove('userToken');
                                     try {
                                       await UserApi.instance.logout();
+                                      await FirebaseAnalytics.instance.logEvent(name: "logout", parameters: {
+                                        "userId" : payload['id'],
+                                        "provier" : "kakao"
+                                      });
+                                      Airbridge.event.send(SignOutEvent());
                                       print('로그아웃 성공, SDK에서 토큰 삭제');
                                     } catch (error) {
                                       print('로그아웃 실패, SDK에서 토큰 삭제 $error');
@@ -126,6 +135,11 @@ class _MyPageState extends State<MyPage> {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
+                                    await FirebaseAnalytics.instance.logEvent(name: "logout", parameters: {
+                                        "userId" : payload['id'],
+                                        "provier" : "apple"
+                                      });
+                                    Airbridge.event.send(SignOutEvent());
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
@@ -156,7 +170,6 @@ class _MyPageState extends State<MyPage> {
                                   ),
                               onPressed: () async {
                                 print("탈퇴하기 버튼이 눌렸습니다.");
-                                Airbridge.event.send(SignOutEvent());
                                 await resign();
                                 Navigator.pushAndRemoveUntil(
                                     context,
