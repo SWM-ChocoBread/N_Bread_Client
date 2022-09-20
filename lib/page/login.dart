@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:chocobread/page/mypage.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -14,7 +15,7 @@ import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:http/http.dart' as http;
-
+import 'dart:io' show Platform;
 import 'app.dart';
 import 'appleloginwebview.dart';
 import 'kakaologinwebview.dart';
@@ -301,44 +302,32 @@ class _LoginState extends State<Login> {
             //https://www.chocobread.shop/users/1
           }
           Airbridge.Airbridge.event.send(Airbridge.SignInEvent(
-                user: Airbridge.User(
-                    id: userId.toString(),
-                    email : kakaoSeverEmail,
-                    attributes: {
-                      "provider" : "kakao",
-                      "curLocation" : prefs.getString('userLocation')
-                    }
-                  )
-                ));
-          await FirebaseAnalytics.instance.logLogin(
-              loginMethod: "kakao"
-          );
+              user: Airbridge.User(
+                  id: userId.toString(),
+                  email: kakaoSeverEmail,
+                  attributes: {
+                "provider": "kakao",
+                "curLocation": prefs.getString('userLocation')
+              })));
+          await FirebaseAnalytics.instance.logLogin(loginMethod: "kakao");
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (BuildContext context) => const App()),
               (route) => false);
-        } else if(code == 300 || code == 301){
+        } else if (code == 300 || code == 301) {
           print("CODE : ${code}");
           if (code == 300) {
             print("code가 300입니다. 약관 동의 화면으로 리다이렉트합니다.");
             // 카카오 SDK 300
             Airbridge.Airbridge.event.send(Airbridge.SignUpEvent(
-              user: Airbridge.User(
-                  id: userId,
-                  email : userEmail,
-                  attributes: {
-                    "provider" : "kakao",
-                  }
-                )
-              ));
-            await FirebaseAnalytics.instance.logSignUp(
-              signUpMethod: "kakao"
-            );
+                user: Airbridge.User(id: userId, email: userEmail, attributes: {
+              "provider": "kakao",
+            })));
+            await FirebaseAnalytics.instance.logSignUp(signUpMethod: "kakao");
           }
           Navigator.pushNamedAndRemoveUntil(
               context, '/termscheck', (route) => false);
-        }
-        else{
+        } else {
           print("${code} else code");
         }
       },
@@ -374,7 +363,7 @@ class _LoginState extends State<Login> {
       onPressed: () async {
         try {
           await UserApi.instance.logout();
-          
+
           print('로그아웃 성공, SDK에서 토큰 삭제');
         } catch (error) {
           print('로그아웃 실패, SDK에서 토큰 삭제 $error');
@@ -402,44 +391,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _kakaologin() {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-          backgroundColor: const Color(0xffFEE500),
-          side: const BorderSide(width: 1.0, color: Color(0xffFEE500)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-          padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
-      onPressed: () {
-        Amplitude.getInstance().logEvent('BUTTON_CLICKED');
-        exampleForAmplitude();
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return KakaoLoginWebview();
-        }));
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            "assets/logo/kakao.png",
-            color: const Color(0xff000000),
-            width: 18,
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "카카오 로그인",
-                style:
-                    TextStyle(color: const Color(0xff000000).withOpacity(0.85)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _applelogin() {
+  Widget _appleloginSDK() {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
@@ -448,10 +400,61 @@ class _LoginState extends State<Login> {
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () async {
         await exampleForAmplitude();
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return AppleLoginWebview();
-        }));
+        final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
+        print(credential);
+        //   webAuthenticationOptions: WebAuthenticationOptions(
+        //     // TODO: Set the `clientId` and `redirectUri` arguments to the values you entered in the Apple Developer portal during the setup
+        //     clientId: 'de.lunaone.flutter.signinwithappleexample.service',
+
+        //     redirectUri:
+        //         // For web your redirect URI needs to be the host of the "current page",
+        //         // while for Android you will be using the API server that redirects back into your app via a deep link
+        //         kIsWeb
+        //             ? Uri.parse('https://www.chocobread.shop/auth/apple')
+        //             : Uri.parse(
+        //                 'https://flutter-sign-in-with-apple-example.glitch.me/callbacks/sign_in_with_apple',
+        //               ),
+        //   ),
+        //   // TODO: Remove these if you have no need for them
+        //   nonce: 'example-nonce',
+        //   state: 'example-state',
+        // );
+
+        // // ignore: avoid_print
+        // print(credential);
+
+        // // This is the endpoint that will convert an authorization code obtained
+        // // via Sign in with Apple into a session in your system
+        // final signInWithAppleEndpoint = Uri(
+        //   scheme: 'https',
+        //   host: 'flutter-sign-in-with-apple-example.glitch.me',
+        //   path: '/sign_in_with_apple',
+        //   queryParameters: <String, String>{
+        //     'code': credential.authorizationCode,
+        //     if (credential.givenName != null)
+        //       'firstName': credential.givenName!,
+        //     if (credential.familyName != null)
+        //       'lastName': credential.familyName!,
+        //     'useBundleId': !kIsWeb && (Platform.isIOS || Platform.isMacOS)
+        //         ? 'true'
+        //         : 'false',
+        //     if (credential.state != null) 'state': credential.state!,
+        //   },
+        // );
+
+        // final session = await http.Client().post(
+        //   signInWithAppleEndpoint,
+        // );
+
+        // If we got this far, a session based on the Apple ID credential has been created in your system,
+        // and you can now set this as the app's session
+        // ignore: avoid_print
+        //print(session);
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -527,7 +530,7 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 10,
               ),
-              _applelogin(),
+              _appleloginSDK(),
               const SizedBox(
                 height: 10,
               ),

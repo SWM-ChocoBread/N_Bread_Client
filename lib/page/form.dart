@@ -678,11 +678,6 @@ class _customFormState extends State<customForm> {
             context: context,
             initialTime: initialTimeDeterminant(isOnTappedTime));
         if (pickedTime != null) {
-          // var df = DateFormat("h:mm a");
-          // var dt = df.parse(pickedTime.format(context));
-          // var saveTime = DateFormat('HH:mm').format(dt);
-          // print(saveTime);
-
           final now = new DateTime.now();
           DateTime newparsedTime = new DateTime(
               now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
@@ -694,15 +689,6 @@ class _customFormState extends State<customForm> {
           tempPickedTime = pickedTime;
           print(pickedTime);
           print("***********시간 설정 부분 에러 확인을 위한 작업***************");
-          // print("DateFormat : ${DateFormat}");
-          // print("DateFormat.jm('ko_KR') : ${DateFormat.jm('ko_KR')}");
-          // print(
-          //     "DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString()) : ${DateFormat.jm('ko_KR').parse(pickedTime.format(context).toString())}");
-          //print("parseTime에 dateTime 넣기 시도");
-          // DateTime parsedTime = new DateTime(
-          //     now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
-          // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
-          //print("parseTime에 dateTime 넣기 완료. parsedTime을 출력합니다.");
           print("newparsedTime : ${newparsedTime}");
           String formattedTime = DateFormat("h:mm").format(newparsedTime);
           String? dayNight = {

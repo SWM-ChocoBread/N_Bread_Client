@@ -792,27 +792,28 @@ class _customFormChangeState extends State<customFormChange> {
             initialTime: initialTimeDeterminant(isOnTappedTime));
 
         if (pickedTime != null) {
-          print("[***] timepicker에서 시간을 선택했을 때의 pickedTime : " +
-              pickedTime.toString());
+          final now = new DateTime.now();
+          DateTime newparsedTime = new DateTime(
+              now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+          print(
+              "[***] newDatetime으로 생성한 newparsedTime : ${newparsedTime.toString()}");
           setState(() {
             isOnTappedTime = true; // 거래 날짜를 수정한 경우, isOnTapped 가 true 로 변경된다.
           });
           tempPickedTime = pickedTime;
           print(pickedTime);
-          DateTime parsedTime = DateFormat.jm('ko_KR').parse(pickedTime
-              .format(context)
-              .toString()); // converting to DateTime so that we can format on different pattern (ex. jm : 5:08 PM)
-          String formattedTime = DateFormat("h:mm").format(parsedTime);
+          print("***********시간 설정 부분 에러 확인을 위한 작업***************");
+          print("newparsedTime : ${newparsedTime}");
+          String formattedTime = DateFormat("h:mm").format(newparsedTime);
           String? dayNight = {
             "AM": "오전",
             "PM": "오후"
-          }[DateFormat("a").format(parsedTime)]; // AM, PM을 한글 오전, 오후로 변환
+          }[DateFormat("a").format(newparsedTime)]; // AM, PM을 한글 오전, 오후로 변환
           time = DateFormat("HH:mm")
-              .format(parsedTime)
+              .format(newparsedTime)
               .toString(); // 서버에 보낼 거래 시간을 저장한다.
           setState(() {
             timeController.text = "${dayNight!} $formattedTime";
-            time = DateFormat("HH:mm").format(parsedTime);
           });
         } else {
           // 날짜를 선택하지 않고 취소를 눌렀다면
