@@ -66,6 +66,21 @@ class MyDateUtils {
     return temp2.toString();
   }
 
+  static bool selectedDateTime(String dateString, String timeString) {
+    // dateString 의 형식 : "2022-09-29 00:00:00.000"
+    // timeString 의 형식 : "19:30"
+    DateTime temp = DateTime.parse(
+        "${dateString.split(' ')[0]} $timeString"); // "2022-09-29 19:30"
+    var diff = DateTime.now().difference(temp).inMinutes;
+    if (diff < 0) {
+      // 제안하는 시점보다 나중으로 거래 날짜를 설정해야 한다.
+      return true;
+    } else {
+      // 제안하는 시점보다 이전으로 거래 날짜를 설정하면 안 된다.
+      return false;
+    }
+  }
+
   static String formatMyDateTimeDone(String dateString) {
     DateTime dt = DateTime.parse(dateString);
     DateTime ddt = DateTime(dt.year, dt.month, dt.day - 3);

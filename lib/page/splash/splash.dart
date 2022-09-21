@@ -20,6 +20,10 @@ class _SplashState extends State<Splash> {
   // static String routeName = "/splash";
 
   void checkStatus() async {
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    print(DateTime.now()
+        .difference(DateTime.parse("2022-09-21 20:00:00.000"))
+        .inMinutes);
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
