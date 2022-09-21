@@ -57,9 +57,13 @@ class MyDateUtils {
   static String sendMyDateTime(String dateString, String timeString) {
     print("sendMyDateTime 으로 전달된 dateString은 : " + dateString);
     print("sendMyDateTime 으로 전달된 timeString은 : " + timeString);
+    DateTime temp1 = DateTime.parse("${dateString.split(' ')[0]} $timeString");
+    print(temp1);
+    DateTime temp2 = temp1.subtract(const Duration(hours: 9)); // 9시간을 뺀 것
+    print(temp2);
     // dateString 의 형식 : "2022-09-29 00:00:00.000"
     // timeString 의 형식 : "19:30"
-    return "${dateString.split(' ')[0]} $timeString";
+    return temp2.toString();
   }
 
   static String formatMyDateTimeDone(String dateString) {
