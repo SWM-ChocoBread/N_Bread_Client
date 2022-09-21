@@ -471,6 +471,8 @@ class _customFormState extends State<customForm> {
           return '모집인원을 입력해주세요.';
         } else if (int.parse(val) == 0) {
           return '0은 들어갈 수 없습니다.';
+        } else if (int.parse(val) == 1) {
+          return '1은 들어갈 수 없습니다.';
         }
         return null;
       },
@@ -1016,8 +1018,8 @@ class _customFormState extends State<customForm> {
                                     MySnackBar("총가격은 모집인원보다 커야 합니다!"));
                               }
                             } else {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(MySnackBar("필수 입력 칸을 채워주세요."));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  MySnackBar("필수 입력 칸을 유효한 값으로 채워주세요."));
                             }
                             // finalImageFileList = imageUploader().getImageFileList;
                           },
