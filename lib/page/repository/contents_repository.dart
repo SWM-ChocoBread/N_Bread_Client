@@ -229,8 +229,7 @@ class ContentsRepository {
     ],
   };
 
-  Future<List<Map<String, dynamic>>> loadContentsFromLocation(
-      String location) async {
+  Future<List<Map<String, dynamic>>> loadContentsFromLocation() async {
     //prefTest();
     await Future.delayed(const Duration(microseconds: 1), () {});
     final prefs = await SharedPreferences.getInstance();
@@ -238,10 +237,15 @@ class ContentsRepository {
     // prefs.remove('userToken');
     print(
         "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 userToken : ${prefs.getString('userToken')}");
+    String range = prefs.getString('range') ?? 'loc2';
+    String location = prefs.getString(range) ?? "기본값";
     // API 통신 location 값을 보내주면서
     print(
         "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 location : ${location}");
-    String tmpUrl = 'https://www.chocobread.shop/deals/all/' + location;
+
+    print("range값은 ${range}");
+    String tmpUrl =
+        'https://www.chocobread.shop/deals/all/' + range + '/' + location;
     var url = Uri.parse(
       tmpUrl,
     );

@@ -111,26 +111,6 @@ class _LoginState extends State<Login> {
             } catch (error) {
               print('토큰 유효성 체크 성공에서 사용자 정보 요청에 실패하였습니다. $error');
             }
-
-            // SharedPreferences prefs = await SharedPreferences.getInstance();
-            // bool isNickname =
-            //     prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
-            // if (isNickname) {
-            //   // 카카오 SDK로 로그인을 하고 난 후, 이전에 약관 동의와 닉네임 설정을 했었다면,
-            //   // TODO : (수정해야 할 사항) 카카오 SDK로 로그인을 하고 난 후, 이전에 닉네임 설정까지 완료했다면(회원가입 과정을 모두 다 거쳤다면) 홈으로 이동
-            //   Navigator.pushAndRemoveUntil(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (BuildContext context) => const App()),
-            //       (route) => false);
-            // } else {
-            //   // 카카오 SDK로 로그인을 하고 난 후, 약관 동의와 닉네임 설정 과정을 완료하지 않고 앱을 나간 경우
-            //   Navigator.pushAndRemoveUntil(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (BuildContext context) => TermsCheck()),
-            //       (route) => false);
-            // }
           } catch (error) {
             // 토큰이 유효성 체크 중 에러 발생 == 토큰이 있으나 (만료된 경우 || 토큰 정보 조회에 실패한 경우)
             if (error is KakaoException && error.isInvalidTokenError()) {
@@ -155,26 +135,7 @@ class _LoginState extends State<Login> {
                 print("code 가 ${code}로 설정되었습니다.");
               } catch (error) {
                 print('사용자 정보 요청 실패 $error');
-              }
-              // TODO : (추가해야 할 사항) 닉네임 설정 여부를 확인하는 API 호출 추가하기
-              // SharedPreferences prefs = await SharedPreferences.getInstance();
-              // bool isNickname =
-              //     prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
-              // if (isNickname) {
-              //   // 카카오 계정으로 로그인에 성공하고, 이전에 회원가입 절차를 수행했던 사람이라면(닉네임 설정까지 완료했다면) 홈 화면으로 이동하기
-              //   Navigator.pushAndRemoveUntil(
-              //       context,
-              //       MaterialPageRoute(
-              //           builder: (BuildContext context) => const App()),
-              //       (route) => false);
-              // } else {
-              //   // 카카오 SDK로 로그인을 하고 난 후, 약관 동의와 닉네임 설정 과정을 완료하지 않고 앱을 나간 경우
-              //   Navigator.pushAndRemoveUntil(
-              //       context,
-              //       MaterialPageRoute(
-              //           builder: (BuildContext context) => TermsCheck()),
-              //       (route) => false);
-              // }
+              } 
             } catch (error) {
               print('로그인 실패 $error');
             }

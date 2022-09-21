@@ -526,9 +526,7 @@ class _HomeState extends State<Home> {
     String? locate = prefs.getString("loc3");
     if (locate != null) {
       currentLocation = locate;
-      print(
-          "[home.dart] loadContents 에서의 currentlocation = ${currentLocation}");
-      return contentsRepository.loadContentsFromLocation(currentLocation);
+      return contentsRepository.loadContentsFromLocation();
     }
   }
 
