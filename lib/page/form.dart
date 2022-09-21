@@ -967,51 +967,60 @@ class _customFormState extends State<customForm> {
                                       int.parse(numOfParticipants)) ||
                                   (int.parse(totalPrice) == 0)) {
                                 // 서버에 보낼 수 있는 형식으로 정리하기
-                                dateToSend = MyDateUtils.sendMyDateTime(
-                                    date, time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
-                                print(
-                                    "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
-                                print("서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                Map mapToSend = jsonDecode(jsonString);
-                                mapToSend['title'] = productName.toString();
-                                mapToSend['link'] = productLink.toString();
-                                mapToSend['totalPrice'] = totalPrice;
-                                mapToSend['personalPrice'] = personalPrice;
-                                mapToSend['totalMember'] = numOfParticipants;
-                                mapToSend['dealDate'] = dateToSend;
-                                mapToSend['place'] = place;
-                                mapToSend['content'] = extra;
-                                mapToSend['region'] =
-                                    prefs.getString('userLocation');
-                                //region,imageLink123은 우선 디폴트값
-                                //print(imageFileList?[0]);
-                                final List<MultipartFile> _files =
-                                    imageFileList!
-                                        .map((img) =>
-                                            MultipartFile.fromFileSync(img.path,
-                                                contentType: new MediaType(
-                                                    "image", "jpg")))
-                                        .toList();
-                                print("files: ### ");
-                                print(_files);
-                                print("file length :  ${_files.length} ");
-                                FormData _formData =
-                                    FormData.fromMap({"img": _files});
-                                print(mapToSend);
-                                print(jsonString);
 
-                                // 서버에 보내기
-                                await getApiTest(mapToSend, _formData);
+                                if (MyDateUtils.selectedDateTime(date, time)) {
+                                  // 거래를 제안하는 시점보다 이후에 거래 날짜를 설정한 경우 : 서버에 보내기
+                                  dateToSend = MyDateUtils.sendMyDateTime(date,
+                                      time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
+                                  print(
+                                      "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
+                                  print("서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  Map mapToSend = jsonDecode(jsonString);
+                                  mapToSend['title'] = productName.toString();
+                                  mapToSend['link'] = productLink.toString();
+                                  mapToSend['totalPrice'] = totalPrice;
+                                  mapToSend['personalPrice'] = personalPrice;
+                                  mapToSend['totalMember'] = numOfParticipants;
+                                  mapToSend['dealDate'] = dateToSend;
+                                  mapToSend['place'] = place;
+                                  mapToSend['content'] = extra;
+                                  mapToSend['region'] =
+                                      prefs.getString('userLocation');
+                                  //region,imageLink123은 우선 디폴트값
+                                  //print(imageFileList?[0]);
+                                  final List<MultipartFile> _files =
+                                      imageFileList!
+                                          .map((img) =>
+                                              MultipartFile.fromFileSync(
+                                                  img.path,
+                                                  contentType: new MediaType(
+                                                      "image", "jpg")))
+                                          .toList();
+                                  print("files: ### ");
+                                  print(_files);
+                                  print("file length :  ${_files.length} ");
+                                  FormData _formData =
+                                      FormData.fromMap({"img": _files});
+                                  print(mapToSend);
+                                  print(jsonString);
 
-                                // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                  return const App();
-                                }));
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(MySnackBar("성공적으로 제안되었습니다!"));
+                                  // 서버에 보내기
+                                  await getApiTest(mapToSend, _formData);
+
+                                  // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                    return const App();
+                                  }));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      MySnackBar("성공적으로 제안되었습니다!"));
+                                } else {
+                                  // 거래를 제안하는 시점보다 이전에 거래 날짜를 설정한 경우 ; 서버에 보내지 않고, snackbar 보여주기
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      MySnackBar("거래 날짜는 과거로 설정할 수 없습니다!"));
+                                }
                               } else {
                                 // form 이 유효하지 않은 경우
                                 ScaffoldMessenger.of(context).showSnackBar(
