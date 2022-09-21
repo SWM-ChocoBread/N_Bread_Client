@@ -64,7 +64,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
     if (list['code'] == 200) {
         print("코드가 200입니다. 홈화면으로 리다이렉트합니다.");
         final prefs = await SharedPreferences.getInstance();
-        String? curLocation = prefs.getString("userLocation");
+        String? curLocation = prefs.getString("loc3");
         if (curLocation == null) {
           print('curLocation이 null입니다. db에서 위치를 가져옵니다');
           String? token = prefs.getString("userToken");
@@ -80,13 +80,15 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
             String responseBody = utf8.decode(response.bodyBytes);
             Map<String, dynamic> list = jsonDecode(responseBody);
             if (list['result']['addr'] == null) {
-              prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+              prefs.setString("loc3", "위치를 알 수 없는 사용자입니다");
               print(
-                  "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+                  "loc1,2,3을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
             } else {
-              prefs.setString("userLocation", list['result']['addr']);
+              prefs.setString("loc1", list['result']['loc1']);
+              prefs.setString("loc2", list['result']['loc2']);
+              prefs.setString("loc3", list['result']['addr']);
               print(
-                  "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+                  "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('loc3')}입니다");
             }
           } else {
             print("token is null");
@@ -100,7 +102,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
             email : list['result']['email'],
             attributes: {
               "provider" : userProvider,
-              "curLocation" : prefs.getString('userLocation')
+              "curLocation" : prefs.getString('loc3')
             }
           )
         ));

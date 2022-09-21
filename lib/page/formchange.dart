@@ -1106,7 +1106,7 @@ class _customFormChangeState extends State<customFormChange> {
                               mapToSend['place'] = place;
                               mapToSend['content'] = extra;
                               mapToSend['region'] =
-                                  prefs.getString('userLocation');
+                                  prefs.getString('loc3');
                               //region,imageLink123은 우선 디폴트값
                               //print(imageFileList?[0]);
                               if (imageFileList!.length > 0) {

@@ -987,7 +987,7 @@ class _customFormState extends State<customForm> {
                                   mapToSend['place'] = place;
                                   mapToSend['content'] = extra;
                                   mapToSend['region'] =
-                                      prefs.getString('userLocation');
+                                      prefs.getString('loc3');
                                   //region,imageLink123은 우선 디폴트값
                                   //print(imageFileList?[0]);
                                   final List<MultipartFile> _files =

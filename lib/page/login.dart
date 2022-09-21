@@ -270,7 +270,7 @@ class _LoginState extends State<Login> {
         if (code == 200) {
           print("code가 200입니다. 홈 화면으로 리다이렉트합니다.");
           final prefs = await SharedPreferences.getInstance();
-          String? curLocation = prefs.getString("userLocation");
+          String? curLocation = prefs.getString("loc3");
           if (curLocation == null) {
             print('curLocation이 null입니다. db에서 위치를 가져옵니다');
             String? token = prefs.getString("userToken");
@@ -287,13 +287,15 @@ class _LoginState extends State<Login> {
               Map<String, dynamic> list = jsonDecode(responseBody);
               String userProvider = list['result']['provider'];
               if (list['result']['addr'] == null) {
-                prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+                prefs.setString("loc3", "위치를 알 수 없는 사용자입니다");
                 print(
-                    "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+                    "loc3를 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 loc3는 ${prefs.getString('loc3')}입니다");
               } else {
-                prefs.setString("userLocation", list['result']['addr']);
+                prefs.setString("loc1", list['result']['loc1']);
+                prefs.setString("loc2", list['result']['loc2']);
+                prefs.setString("loc3", list['result']['addr']);
                 print(
-                    "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+                    "loc1,2,3을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
               }
               print("200 로그인 이벤트 전송 완료");
             } else {
@@ -307,7 +309,7 @@ class _LoginState extends State<Login> {
                   email: kakaoSeverEmail,
                   attributes: {
                 "provider": "kakao",
-                "curLocation": prefs.getString('userLocation')
+                "curLocation": prefs.getString('loc3')
               })));
           await FirebaseAnalytics.instance.logLogin(loginMethod: "kakao");
           Navigator.pushAndRemoveUntil(

@@ -561,31 +561,6 @@ class _MyPageState extends State<MyPage> {
     print("setUserNickName is ${setUserNickName}");
   }
 
-  void setUserLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-    if (token != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-
-      String userId = payload['id'].toString();
-      print("setUserLocation on home, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
-
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var response = await http.post(url);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      if (list.length == 0) {
-        print("length of list is 0");
-      } else {
-        print(list);
-      }
-    }
-  }
-
   void kakaoLogout() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
@@ -593,8 +568,6 @@ class _MyPageState extends State<MyPage> {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      print("setUserLocation on home, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
 
       String tmpUrl =
           'https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout';
