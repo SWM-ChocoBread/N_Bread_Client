@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
@@ -78,6 +79,7 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Container(
         color: ColorStyle.mainColor,
         child: Column(

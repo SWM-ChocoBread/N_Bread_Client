@@ -1,6 +1,7 @@
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
@@ -25,6 +26,7 @@ class _CustomerServiceState extends State<CustomerService> {
       //   "고객센터",
       //   style: TextStyle(color: Colors.white),
       // ),
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       centerTitle: false,
       titleSpacing: 23,
       elevation: 0,
@@ -150,6 +152,7 @@ class _CustomerServiceState extends State<CustomerService> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appBarWidget(),
       body: _bodyWidget(),

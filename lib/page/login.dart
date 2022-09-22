@@ -38,6 +38,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       centerTitle: false,
       titleSpacing: 23,
       elevation: 0,
