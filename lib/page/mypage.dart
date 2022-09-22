@@ -14,6 +14,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,9 +30,14 @@ import 'package:amplitude_flutter/identify.dart';
 import 'accountdelete.dart';
 import 'detail.dart';
 import 'termslook.dart';
+import 'home.dart' as home;
 
 String setUserNickName = "";
+Position? _currentPosition;
 UserInfoRepository userInfoRepository = UserInfoRepository();
+String newloc1 = "";
+String newloc2 = "";
+String newloc3 = "";
 
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
@@ -119,10 +125,12 @@ class _MyPageState extends State<MyPage> {
                                     prefs.remove('userToken');
                                     try {
                                       await UserApi.instance.logout();
-                                      await FirebaseAnalytics.instance.logEvent(name: "logout", parameters: {
-                                        "userId" : payload['id'],
-                                        "provier" : "kakao"
-                                      });
+                                      await FirebaseAnalytics.instance.logEvent(
+                                          name: "logout",
+                                          parameters: {
+                                            "userId": payload['id'],
+                                            "provier": "kakao"
+                                          });
                                       Airbridge.event.send(SignOutEvent());
                                       print('로그아웃 성공, SDK에서 토큰 삭제');
                                     } catch (error) {
@@ -136,10 +144,12 @@ class _MyPageState extends State<MyPage> {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
-                                    await FirebaseAnalytics.instance.logEvent(name: "logout", parameters: {
-                                        "userId" : payload['id'],
-                                        "provier" : "apple"
-                                      });
+                                    await FirebaseAnalytics.instance.logEvent(
+                                        name: "logout",
+                                        parameters: {
+                                          "userId": payload['id'],
+                                          "provier": "apple"
+                                        });
                                     Airbridge.event.send(SignOutEvent());
                                     Navigator.pushAndRemoveUntil(
                                         context,
@@ -176,7 +186,7 @@ class _MyPageState extends State<MyPage> {
                                     builder: (BuildContext context) {
                                       return CheckResign();
                                     });
-                                
+
                                 // 로그아웃을 하면 이동하는 페이지 넣기
                                 // Navigator.push(context, MaterialPageRoute(
                                 //     builder: (BuildContext context) {
@@ -577,12 +587,168 @@ class _MyPageState extends State<MyPage> {
       var response = await http.get(url);
       String responseBody = utf8.decode(response.bodyBytes);
       print(responseBody);
-      //Map<String, dynamic> list = jsonDecode(responseBody);
-      // if (list.length == 0) {
-      //   print("length of list is 0");
-      // } else {
-      //   print(list);
-      // }
+    }
+  }
+
+  void pressGetLocationButton() async {
+    _getCurrentPosition().then((value) {
+      _currentPosition = value;
+      return _currentPosition;
+    }).then((curposition) {
+      getLocation(
+          curposition!.latitude.toString(), curposition.longitude.toString());
+    }).then((value) {
+      setState(() {
+        print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
+      });
+    });
+  }
+
+  void getLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+        latitude +
+        '/' +
+        longitude;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list['code'] == 200) {
+      print('code 200 return');
+      newloc1 = list['result']['location1'];
+      newloc2 = list['result']['location2'];
+      newloc3 = list['result']['location3'];
+      print('newloc123에 리턴값 저장 완료');
+    }
+    print("on getUserLocation, response is ${list}");
+  }
+
+  void setLocation(String loc1, String loc2, String loc3) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("loc1", loc1);
+    prefs.setString("loc2", loc2);
+    prefs.setString("loc3", loc3);
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      String tmpurl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          loc1 +
+          '/' +
+          loc2 +
+          '/' +
+          loc3;
+      var url = Uri.parse(tmpurl);
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print('on setlocation, list is ${list}');
+    }
+    print('setUserLocation실행완료');
+  }
+
+  //home.dart에서 불러온 함수
+  Future<bool> checkLocationPermission() async {
+    // 위치 권한을 받았는지 확인하는 함수
+    print("*** checkLocationPermission 함수가 실행되었습니다! ***");
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // 1. Location Service 가 enable 되었는지 확인하는 과정
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 serviceEnabled : " +
+        serviceEnabled.toString());
+
+    // serviceEnabled 가 false인 경우 : snackbar 보여줌
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    // 2. permission 을 받았는지 확인하는 과정
+    permission = await Geolocator.checkPermission();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 permission : " +
+        permission.toString());
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+            Radius.circular(5),
+          )),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error('Location permissions are permanently denied, we cannot request permissions');
+    }
+
+    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
+    // 현재 device의 position 을 return 한다.
+    return true;
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    print("*** _getCurrentPosition 함수가 실행되었습니다! ***");
+    final hasPermission = await checkLocationPermission();
+    print("[home.dart] _getCurrentPosition 함수 안에서의 hasPermission : " +
+        hasPermission.toString());
+
+    if (hasPermission) {
+      print("[home.dart] _getCurrentPosition 함수 내에서 위치를 가져오기 전까지의 현재 위치는 " +
+          _currentPosition.toString());
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
     }
   }
 }
