@@ -253,20 +253,20 @@ class _HomeState extends State<Home> {
             // _getCurrentPosition();
             // print("새로고침 버튼을 눌렀을 때 _getCurrentPosition 의 결과 : " +
             //     _getCurrentPosition().toString());
-            _getCurrentPosition().then((value) {
-              _currentPosition = value;
-              print("_getCurrentPosition의 결과를 저장한 _currentPosition : " +
-                  _currentPosition.toString());
-              return _currentPosition;
-            }).then((curposition) {
-              setUserLocation(curposition!.latitude.toString(),
-                  curposition.longitude.toString());
-              print("새로고침 버튼을 누른 결과로 얻은 currentLocation : " + currentLocation);
-            }).then((value) {
-              setState(() {
-                print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
-              });
-            });
+            // _getCurrentPosition().then((value) {
+            //   _currentPosition = value;
+            //   print("_getCurrentPosition의 결과를 저장한 _currentPosition : " +
+            //       _currentPosition.toString());
+            //   return _currentPosition;
+            // }).then((curposition) {
+            //   setUserLocation(curposition!.latitude.toString(),
+            //       curposition.longitude.toString());
+            //   print("새로고침 버튼을 누른 결과로 얻은 currentLocation : " + currentLocation);
+            // }).then((value) {
+            //   setState(() {
+            //     print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
+            //   });
+            // });
 
             // setState(() {
             //   _getCurrentPosition().then(((value) {
@@ -287,13 +287,13 @@ class _HomeState extends State<Home> {
             child: Row(children: [
               //혜연->채은 요청사항 : currentLocation에 값을 넣음에도 불구하고(loadcontents함수에서)화면에는 초기값인 ""만 보임.
               Text(currentLocation),
-              const SizedBox(
-                width: 10,
-              ),
-              const FaIcon(
-                FontAwesomeIcons.rotateRight,
-                size: 17,
-              ),
+              // const SizedBox(
+              //   width: 10,
+              // ),
+              // const FaIcon(
+              //   FontAwesomeIcons.rotateRight,
+              //   size: 17,
+              // ),
               // PopupMenuButton<String>(
               //   offset: const Offset(-5, 30),
               //   shape: ShapeBorder.lerp(
@@ -580,32 +580,37 @@ class _HomeState extends State<Home> {
         return GestureDetector(
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () async {
-            var targetDealId =  dataContents[index]["id"].toString();
-            await faSelectContent(dataContents[index]["totalPrice"].toDouble(), dataContents[index]["id"].toString(), dataContents[index]["title"].toString());
+            var targetDealId = dataContents[index]["id"].toString();
+            await faSelectContent(
+                dataContents[index]["totalPrice"].toDouble(),
+                dataContents[index]["id"].toString(),
+                dataContents[index]["title"].toString());
             // await abSelectContent(targetDealId, dataContents[index]["title"]);
             // 페이지 전환
-            print("type of id is ${dataContents[index]["id"].toString().runtimeType}");
-            print("type of TOTAL is ${dataContents[index]["totalPrice"].runtimeType}");
+            print(
+                "type of id is ${dataContents[index]["id"].toString().runtimeType}");
+            print(
+                "type of TOTAL is ${dataContents[index]["totalPrice"].runtimeType}");
 
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
-                   Airbridge.event.send(ViewProductDetailEvent(
-              products: [
-                Product(
-                  id: dataContents[index]["id"].toString(),
-                  name: dataContents[index]["title"].toString(),
-                  price: dataContents[index]["totalPrice"],
-                  currency: 'KRW',
-                  quantity: num.parse(dataContents[index]['totalMember'].toString()),
-                ),
-              ],
-            ));
+              Airbridge.event.send(ViewProductDetailEvent(
+                products: [
+                  Product(
+                    id: dataContents[index]["id"].toString(),
+                    name: dataContents[index]["title"].toString(),
+                    price: dataContents[index]["totalPrice"],
+                    currency: 'KRW',
+                    quantity: num.parse(
+                        dataContents[index]['totalMember'].toString()),
+                  ),
+                ],
+              ));
               return DetailContentView(
                 data: dataContents[index],
                 isFromHome: true,
               );
             }));
-           
           },
           child: Container(
             padding: const EdgeInsets.symmetric(
@@ -999,17 +1004,12 @@ class _HomeState extends State<Home> {
 //   //return list['result']['nick'];
 // }
 
-Future<void> faSelectContent(double value, String itemId, String itemName) async {
+Future<void> faSelectContent(
+    double value, String itemId, String itemName) async {
   // Create the instance
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   await FirebaseAnalytics.instance.logViewItem(
-    currency : "KRW",
-    value : value,
-    items :[
-        AnalyticsEventItem(
-          itemId: itemId,
-          itemName: itemName
-        )
-    ]
-  );
+      currency: "KRW",
+      value: value,
+      items: [AnalyticsEventItem(itemId: itemId, itemName: itemName)]);
 }
