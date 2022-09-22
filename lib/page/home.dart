@@ -64,8 +64,7 @@ class _HomeState extends State<Home> {
       },
     ).then((value) => {
           setState(() {
-            print(
-                "*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
+            print("*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
           })
         });
     print(
@@ -856,13 +855,52 @@ class _HomeState extends State<Home> {
             );
           }
 
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.data.toString().length != 2) {
             return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
           }
 
-          return const Center(
-            child: Text("해당 지역에는 상품이 없습니다."),
-          );
+          return Center(
+              child: Padding(
+            padding: const EdgeInsets.all(15.0), //첫 거래 제안하기 버튼 크기 조절
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                    padding: EdgeInsets.fromLTRB(70, 0, 70, 35),
+                    child: Image.asset('images/astronaut.png')),
+                Text('아직 등록된 거래글이 없어요!'),
+                Text('거래글을 작성하고 개척자가 되어주세요!'),
+                SizedBox(
+                  height: 15,
+                  //color: Colors.black,
+                ),
+                OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: ColorStyle.mainColor,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 13, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)), // Set this
+                    ),
+                    onPressed: () async {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return CreateNew();
+                      })).then((_) => setState(() {
+                            _bodyWidget();
+                          }));
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text("첫 거래 제안하기",
+                            style: TextStyle(color: Colors.white)),
+                      ],
+                    )),
+              ],
+            ),
+          ));
         });
   }
 
