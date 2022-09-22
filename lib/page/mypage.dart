@@ -14,6 +14,7 @@ import 'package:chocobread/page/repository/ongoing_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -63,7 +64,7 @@ class _MyPageState extends State<MyPage> {
       print(
           "testSetLocation을 하고 나서 userLocation : ${prefs.getString("userLocation")}");
 
-      prefsLocation = prefs.getString("userLocation")!;
+      prefsLocation = prefs.getString("loc3")!;
       print("^^^^^^^^^^^^^" + prefsLocation);
     });
   }
