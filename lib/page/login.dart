@@ -111,26 +111,6 @@ class _LoginState extends State<Login> {
             } catch (error) {
               print('토큰 유효성 체크 성공에서 사용자 정보 요청에 실패하였습니다. $error');
             }
-
-            // SharedPreferences prefs = await SharedPreferences.getInstance();
-            // bool isNickname =
-            //     prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
-            // if (isNickname) {
-            //   // 카카오 SDK로 로그인을 하고 난 후, 이전에 약관 동의와 닉네임 설정을 했었다면,
-            //   // TODO : (수정해야 할 사항) 카카오 SDK로 로그인을 하고 난 후, 이전에 닉네임 설정까지 완료했다면(회원가입 과정을 모두 다 거쳤다면) 홈으로 이동
-            //   Navigator.pushAndRemoveUntil(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (BuildContext context) => const App()),
-            //       (route) => false);
-            // } else {
-            //   // 카카오 SDK로 로그인을 하고 난 후, 약관 동의와 닉네임 설정 과정을 완료하지 않고 앱을 나간 경우
-            //   Navigator.pushAndRemoveUntil(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (BuildContext context) => TermsCheck()),
-            //       (route) => false);
-            // }
           } catch (error) {
             // 토큰이 유효성 체크 중 에러 발생 == 토큰이 있으나 (만료된 경우 || 토큰 정보 조회에 실패한 경우)
             if (error is KakaoException && error.isInvalidTokenError()) {
@@ -155,26 +135,7 @@ class _LoginState extends State<Login> {
                 print("code 가 ${code}로 설정되었습니다.");
               } catch (error) {
                 print('사용자 정보 요청 실패 $error');
-              }
-              // TODO : (추가해야 할 사항) 닉네임 설정 여부를 확인하는 API 호출 추가하기
-              // SharedPreferences prefs = await SharedPreferences.getInstance();
-              // bool isNickname =
-              //     prefs.getBool("isNickname") ?? false; // 닉네임을 설정했는지 여부
-              // if (isNickname) {
-              //   // 카카오 계정으로 로그인에 성공하고, 이전에 회원가입 절차를 수행했던 사람이라면(닉네임 설정까지 완료했다면) 홈 화면으로 이동하기
-              //   Navigator.pushAndRemoveUntil(
-              //       context,
-              //       MaterialPageRoute(
-              //           builder: (BuildContext context) => const App()),
-              //       (route) => false);
-              // } else {
-              //   // 카카오 SDK로 로그인을 하고 난 후, 약관 동의와 닉네임 설정 과정을 완료하지 않고 앱을 나간 경우
-              //   Navigator.pushAndRemoveUntil(
-              //       context,
-              //       MaterialPageRoute(
-              //           builder: (BuildContext context) => TermsCheck()),
-              //       (route) => false);
-              // }
+              } 
             } catch (error) {
               print('로그인 실패 $error');
             }
@@ -270,7 +231,7 @@ class _LoginState extends State<Login> {
         if (code == 200) {
           print("code가 200입니다. 홈 화면으로 리다이렉트합니다.");
           final prefs = await SharedPreferences.getInstance();
-          String? curLocation = prefs.getString("userLocation");
+          String? curLocation = prefs.getString("loc3");
           if (curLocation == null) {
             print('curLocation이 null입니다. db에서 위치를 가져옵니다');
             String? token = prefs.getString("userToken");
@@ -287,13 +248,15 @@ class _LoginState extends State<Login> {
               Map<String, dynamic> list = jsonDecode(responseBody);
               String userProvider = list['result']['provider'];
               if (list['result']['addr'] == null) {
-                prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+                prefs.setString("loc3", "위치를 알 수 없는 사용자입니다");
                 print(
-                    "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+                    "loc3를 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 loc3는 ${prefs.getString('loc3')}입니다");
               } else {
-                prefs.setString("userLocation", list['result']['addr']);
+                prefs.setString("loc1", list['result']['loc1']);
+                prefs.setString("loc2", list['result']['loc2']);
+                prefs.setString("loc3", list['result']['addr']);
                 print(
-                    "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+                    "loc1,2,3을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
               }
               print("200 로그인 이벤트 전송 완료");
             } else {
@@ -307,7 +270,7 @@ class _LoginState extends State<Login> {
                   email: kakaoSeverEmail,
                   attributes: {
                 "provider": "kakao",
-                "curLocation": prefs.getString('userLocation')
+                "curLocation": prefs.getString('loc3')
               })));
           await FirebaseAnalytics.instance.logLogin(loginMethod: "kakao");
           Navigator.pushAndRemoveUntil(

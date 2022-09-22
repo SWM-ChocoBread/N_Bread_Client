@@ -25,11 +25,14 @@ class _SplashState extends State<Splash> {
 
     // prefs.clear();
     // TODO : 닉네임 설정 완료 여부를 확인하는 API를 호출하는 부분
-    bool hasToken = false;
+    String? range = prefs.getString('range');
+    if (range == null) {
+      prefs.setString('range', 'loc2');
+      print('range의 값이 null입니다. range를 loc2로 설정하였습니다');
+    }
     String? userToken = prefs.getString("userToken");
 
     if (userToken != null) {
-      hasToken = true;
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
 
       String userId = payload['id'].toString();
@@ -62,27 +65,6 @@ class _SplashState extends State<Splash> {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
     print("[*] 유저 토큰 : " + userToken.toString());
-  }
-
-  // void moveScreen() async {
-  //   await checkStatus().then((hasToken) {
-  //     if (hasToken) {
-  //       // 이전에 로그인한 기록이 있다면, 홈 화면으로 이동 (이전 stack 비우기)
-  //       Navigator.pushAndRemoveUntil(
-  //           context,
-  //           MaterialPageRoute(builder: (BuildContext context) => const App()),
-  //           (route) => false);
-  //     } else {
-  //       // 이전에 로그인한 기록이 없다면, 로그인 화면으로 이동 (이전 stack 비우기)
-  //       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-  //     }
-  //   });
-  // }
-
-  // sharedPreferences 초기화 위해 사용하는 함수
-  void clearSharedPreferences() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
   }
 
   @override

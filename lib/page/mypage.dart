@@ -31,9 +31,14 @@ import 'package:amplitude_flutter/identify.dart';
 import 'accountdelete.dart';
 import 'detail.dart';
 import 'termslook.dart';
+import 'home.dart' as home;
 
 String setUserNickName = "";
+Position? _currentPosition;
 UserInfoRepository userInfoRepository = UserInfoRepository();
+String newloc1 = "";
+String newloc2 = "";
+String newloc3 = "";
 
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
@@ -740,73 +745,6 @@ class _MyPageState extends State<MyPage> {
     print("setUserNickName is ${setUserNickName}");
   }
 
-  void setUserLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-    if (token != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-
-      String userId = payload['id'].toString();
-      print("setUserLocation on home, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
-
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' + userId;
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var response = await http.post(url);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      if (list.length == 0) {
-        print("length of list is 0");
-      } else {
-        print(list);
-      }
-    }
-  }
-
-  Future<void> findUserLocation(String latitude, String longitude) async {
-    print("setUserLocation으로 전달된 latitude : " + latitude);
-    print("setUserLocation으로 전달된 longitude : " + longitude);
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-    if (token != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-
-      String userId = payload['id'].toString();
-      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
-
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
-          userId +
-          '/' +
-          latitude +
-          '/' +
-          longitude;
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var response = await http.post(url);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      if (list.length == 0) {
-        print("length of list is 0");
-      } else {
-        try {
-          newLocation = list['result']['location3'].toString();
-          prefs.setString(
-              'userLocation', list['result']['location3'].toString());
-          print("nicknameset : list value is ${list['result']}");
-          print(
-              'nicknameset : currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
-          print(list);
-        } catch (e) {
-          print(e);
-        }
-      }
-    }
-  }
-
   void kakaoLogout() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
@@ -814,8 +752,6 @@ class _MyPageState extends State<MyPage> {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      print("setUserLocation on home, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
 
       String tmpUrl =
           'https://kauth.kakao.com/oauth/logout?client_id=961455942bafc305880d39f2eef0bdda&logout_redirect_uri=https://www.chocobread.shop/auth/kakao/logout';
@@ -825,12 +761,168 @@ class _MyPageState extends State<MyPage> {
       var response = await http.get(url);
       String responseBody = utf8.decode(response.bodyBytes);
       print(responseBody);
-      //Map<String, dynamic> list = jsonDecode(responseBody);
-      // if (list.length == 0) {
-      //   print("length of list is 0");
-      // } else {
-      //   print(list);
-      // }
+    }
+  }
+
+  void pressGetLocationButton() async {
+    _getCurrentPosition().then((value) {
+      _currentPosition = value;
+      return _currentPosition;
+    }).then((curposition) {
+      getLocation(
+          curposition!.latitude.toString(), curposition.longitude.toString());
+    }).then((value) {
+      setState(() {
+        print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
+      });
+    });
+  }
+
+void getLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+        latitude +
+        '/' +
+        longitude;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list['code'] == 200) {
+      print('code 200 return');
+      newloc1 = list['result']['location1'];
+      newloc2 = list['result']['location2'];
+      newloc3 = list['result']['location3'];
+      print('newloc123에 리턴값 저장 완료');
+    }
+    print("on getUserLocation, response is ${list}");
+  }
+
+  void setLocation(String loc1, String loc2, String loc3) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("loc1", loc1);
+    prefs.setString("loc2", loc2);
+    prefs.setString("loc3", loc3);
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      String tmpurl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          loc1 +
+          '/' +
+          loc2 +
+          '/' +
+          loc3;
+      var url = Uri.parse(tmpurl);
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print('on setlocation, list is ${list}');
+    }
+    print('setUserLocation실행완료');
+  }
+
+  //home.dart에서 불러온 함수
+  Future<bool> checkLocationPermission() async {
+    // 위치 권한을 받았는지 확인하는 함수
+    print("*** checkLocationPermission 함수가 실행되었습니다! ***");
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // 1. Location Service 가 enable 되었는지 확인하는 과정
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 serviceEnabled : " +
+        serviceEnabled.toString());
+
+    // serviceEnabled 가 false인 경우 : snackbar 보여줌
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    // 2. permission 을 받았는지 확인하는 과정
+    permission = await Geolocator.checkPermission();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 permission : " +
+        permission.toString());
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+            Radius.circular(5),
+          )),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error('Location permissions are permanently denied, we cannot request permissions');
+    }
+
+    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
+    // 현재 device의 position 을 return 한다.
+    return true;
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    print("*** _getCurrentPosition 함수가 실행되었습니다! ***");
+    final hasPermission = await checkLocationPermission();
+    print("[home.dart] _getCurrentPosition 함수 안에서의 hasPermission : " +
+        hasPermission.toString());
+
+    if (hasPermission) {
+      print("[home.dart] _getCurrentPosition 함수 내에서 위치를 가져오기 전까지의 현재 위치는 " +
+          _currentPosition.toString());
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
     }
   }
 }

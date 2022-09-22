@@ -343,8 +343,6 @@ class _NicknameSetState extends State<NicknameSet> {
                       print("닉네임 제출하려는 닉네임은 " + nicknametosubmit);
                       //SET NICKNAME API CALL
                       await nicknameSet(nicknametosubmit);  //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
-                      //채은 : 좌표넣기
-                      // await setUserLocation("37.5037142", "127.0447821");
                       await _getCurrentPosition().then(((value) async {
                         _currentPosition = value;
                         var latitude =
@@ -358,14 +356,13 @@ class _NicknameSetState extends State<NicknameSet> {
                         await setUserLocation(
                             latitude.toString(), longitude.toString());
                         final prefs = await SharedPreferences.getInstance();
-                        var temp = prefs.getString("userLocation");
+                        var temp = prefs.getString("loc3");
                         print(
                             "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
                                 temp.toString());
                         currentLocation = temp!;
                         print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
                             currentLocation);
-                        // prefs.setString("userLocation", currentLocation);
                       }));
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -495,7 +492,7 @@ class _NicknameSetState extends State<NicknameSet> {
       } else {
         try {
           prefs.setString(
-              'userLocation', list['result']['location3'].toString());
+              'loc3', list['result']['location3'].toString());
           print("nicknameset : list value is ${list['result']}");
           print(
               'nicknameset : currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');
