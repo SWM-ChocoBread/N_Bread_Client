@@ -59,7 +59,7 @@ class _MyPageState extends State<MyPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       // test code
-      prefs.setString("userLocation", "역삼동");
+      prefs.setString("loc3", "역삼동");
       print(
           "testSetLocation을 하고 나서 userLocation : ${prefs.getString("userLocation")}");
 
@@ -70,9 +70,9 @@ class _MyPageState extends State<MyPage> {
 
   testSetLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("userLocation", "역삼동");
+    await prefs.setString("loc3", "역삼동");
     print(
-        "testSetLocation을 하고 나서 userLocation : ${prefs.getString("userLocation")}");
+        "testSetLocation을 하고 나서 userLocation : ${prefs.getString("loc3")}");
   }
 
   @override
@@ -304,91 +304,6 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
-  Future<bool> checkLocationPermission() async {
-    // 위지 권한을 받았는지 확인하는 함수
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
-      const snackBar = SnackBar(
-        content: Text(
-          "위치 서비스 사용이 불가능합니다.",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: ColorStyle.darkMainColor,
-        duration: Duration(milliseconds: 2000),
-        // behavior: SnackBarBehavior.floating,
-        elevation: 50,
-        shape: StadiumBorder(),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return false;
-      // Future.error("Location services are disabled");
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        const snackBar = SnackBar(
-          content: Text(
-            "위치 권한이 거부됐습니다!",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: ColorStyle.darkMainColor,
-          duration: Duration(milliseconds: 2000),
-          // behavior: SnackBarBehavior.floating,
-          elevation: 50,
-          shape: StadiumBorder(),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        return false;
-        // Future.error('Location permission are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      const snackBar = SnackBar(
-        content: Text(
-          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: ColorStyle.darkMainColor,
-        duration: Duration(milliseconds: 2000),
-        // behavior: SnackBarBehavior.floating,
-        elevation: 50,
-        shape: StadiumBorder(),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return false;
-      // Future.error('Location permissions are permanently denied, we cannot request permissions');
-    }
-
-    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
-    // 현재 device의 position 을 return 한다.
-    return true;
-  }
-
-  Future<Position?> _getCurrentPosition() async {
-    final hasPermission = await checkLocationPermission();
-
-    if (hasPermission) {
-      return await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-    }
-
-    // print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
-  }
-
-  _finalCurrentLocation() async {
-    geoLocation = await _getCurrentPosition();
-    var latitude = geoLocation?.latitude ?? basicLatitude;
-    var longitude = geoLocation?.longitude ?? basicLongitude;
-    await findUserLocation(latitude.toString(), longitude.toString());
-  }
-
   Widget _userLocation() {
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, bottom: 15, right: 15),
@@ -416,7 +331,7 @@ class _MyPageState extends State<MyPage> {
               // 동네 새로고침 버튼을 눌렀을 때
               // 1. 현재 위치를 가져온다.
               //await testSetLocation();
-              await _finalCurrentLocation();
+              await pressGetLocationButton();
               // 2. 가져온 현재 위치를 확인하는 dialog를 띄운다.
               showDialog(
                   context: context,
@@ -426,7 +341,7 @@ class _MyPageState extends State<MyPage> {
                   }).then((_) async {
                 final prefs = await SharedPreferences.getInstance();
                 setState(() {
-                  prefsLocation = prefs.getString("userLocation")!;
+                  prefsLocation = prefs.getString("loc3")!;
                   print("@@@@@@@@@@@@@@@" + prefsLocation);
                 });
               });
@@ -764,7 +679,9 @@ class _MyPageState extends State<MyPage> {
     }
   }
 
-  void pressGetLocationButton() async {
+  //동네 새로고침 버튼 눌렀을 때
+  //newLoc1 : 서울특별시 newLoc2 : 강남구 newLoc3 : 역삼동
+  Future<void> pressGetLocationButton() async {
     _getCurrentPosition().then((value) {
       _currentPosition = value;
       return _currentPosition;
@@ -778,7 +695,7 @@ class _MyPageState extends State<MyPage> {
     });
   }
 
-void getLocation(String latitude, String longitude) async {
+  void getLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String tmpUrl = 'https://www.chocobread.shop/users/location/' +
         latitude +
@@ -800,6 +717,7 @@ void getLocation(String latitude, String longitude) async {
     print("on getUserLocation, response is ${list}");
   }
 
+  //변경버튼 눌렀을 때
   void setLocation(String loc1, String loc2, String loc3) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString("loc1", loc1);
