@@ -20,53 +20,54 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
       // title: const Text("현재 위치"),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         StaggeredGrid.count(
-          crossAxisCount: 12,
+          crossAxisCount: 13,
           // mainAxisSpacing: 10, // 가로 간격 생김
           // crossAxisSpacing: 3, // 세로 간격 생김
           children: [
             const StaggeredGridTile.count(
-              crossAxisCellCount: 4,
-              mainAxisCellCount: 1,
+              crossAxisCellCount: 5,
+              mainAxisCellCount: 2,
               child: Text(
                 "기존 위치",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18),
               ),
             ),
             StaggeredGridTile.count(
               crossAxisCellCount: 8,
-              mainAxisCellCount: 1,
+              mainAxisCellCount: 2,
               child: Text(
                 widget.prev,
-                style: const TextStyle(
-                  fontSize: 15,
-                ),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const StaggeredGridTile.count(
-              crossAxisCellCount: 4,
-              mainAxisCellCount: 1,
+              crossAxisCellCount: 5,
+              mainAxisCellCount: 2,
               child: Text(
                 "현재 위치",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18),
               ),
             ),
             StaggeredGridTile.count(
               crossAxisCellCount: 8,
-              mainAxisCellCount: 1,
+              mainAxisCellCount: 2,
               child: Text(
                 widget.now,
                 softWrap: true,
-                style: const TextStyle(
-                  fontSize: 15,
-                ),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
         ),
         const SizedBox(
-          height: 10,
+          height: 15,
         ),
-        Text("현재 위치를 ${widget.now}(으)로 변경하겠습니까?")
+        Text(
+          "동네를 ${widget.now}(으)로 변경하겠습니까?",
+          style: TextStyle(fontSize: 18),
+        )
       ]),
       actions: [
         TextButton(
@@ -81,7 +82,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
               await prefs.setString("userLocation", widget.now);
               Navigator.of(context).pop();
             },
-            child: const Text("변경하기"))
+            child: const Text("변경"))
       ],
     );
   }
