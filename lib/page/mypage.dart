@@ -4,6 +4,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/checkcurrentlocation.dart';
 import 'package:chocobread/page/checkresign.dart';
 import 'package:chocobread/page/home.dart';
 import 'package:chocobread/page/kakaoLogout.dart';
@@ -48,6 +49,37 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   late OngoingRepository ongoingRepository;
+  String prefsLocation = ""; // 로컬 스토리지에서 꺼낸 유저의 현재 위치를 넣는 변수
+  Position? geoLocation; // 새로 받아온 유저의 현재 위치를 넣는 변수
+  String newLocation = ""; // 새로 받아온 유저의 위경도를 바탕으로 얻은 새로운 위치
+  String basicLatitude = "37.5037142";
+  String basicLongitude = "127.0447821";
+
+  getUserLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // test code
+      prefs.setString("userLocation", "역삼동");
+      print(
+          "testSetLocation을 하고 나서 userLocation : ${prefs.getString("userLocation")}");
+
+      prefsLocation = prefs.getString("userLocation")!;
+      print("^^^^^^^^^^^^^" + prefsLocation);
+    });
+  }
+
+  testSetLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("userLocation", "역삼동");
+    print(
+        "testSetLocation을 하고 나서 userLocation : ${prefs.getString("userLocation")}");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUserLocation(); // Shared Preferences 를 활용해서 유저의 현재 위치를 local storage에서 가져오는 함수
+  }
 
   @override
   void didChangeDependencies() {
@@ -249,12 +281,9 @@ class _MyPageState extends State<MyPage> {
               color: ColorStyle.mainColor,
               // size: 30,
             ),
-            // const SizedBox(
-            //   width: 20,
-            // ),
             Padding(
               // ignore: prefer_const_constructors
-              padding: EdgeInsets.all(15.0),
+              padding: EdgeInsets.symmetric(horizontal: 15.0),
               child: Text(
                 // user nickname 이 들어와야 하는 공간
                 setUserNickName,
@@ -265,28 +294,172 @@ class _MyPageState extends State<MyPage> {
                     ),
               ),
             ),
-            // const SizedBox(
-            //   width: 15,
-            // ),
-            // IconButton(
-            //     onPressed: () {
-            //       Navigator.push(context,
-            //           MaterialPageRoute(builder: (BuildContext context) {
-            //         return NicknameChange();
-            //       }));
-            //     }, // 닉네임 변경 화면으로 전환
-            //     padding: EdgeInsets.zero,
-            //     constraints: const BoxConstraints(),
-            //     iconSize: 15,
-            //     icon: const Icon(
-            //       Icons.arrow_forward_ios_rounded,
-            //     )),
-            Icon(
+            const Icon(
               Icons.arrow_forward_ios_rounded,
               size: 15,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<bool> checkLocationPermission() async {
+    // 위지 권한을 받았는지 확인하는 함수
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          // behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: StadiumBorder(),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        // behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: StadiumBorder(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error('Location permissions are permanently denied, we cannot request permissions');
+    }
+
+    // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
+    // 현재 device의 position 을 return 한다.
+    return true;
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasPermission = await checkLocationPermission();
+
+    if (hasPermission) {
+      return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+    }
+
+    // print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
+  }
+
+  _finalCurrentLocation() async {
+    geoLocation = await _getCurrentPosition();
+    var latitude = geoLocation?.latitude ?? basicLatitude;
+    var longitude = geoLocation?.longitude ?? basicLongitude;
+    await findUserLocation(latitude.toString(), longitude.toString());
+  }
+
+  Widget _userLocation() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, bottom: 15, right: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            // ignore: prefer_const_constructors
+            padding: EdgeInsets.only(left: 39.0),
+            child: Text(
+              // user nickname 이 들어와야 하는 공간
+              prefsLocation,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
+                  ),
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          OutlinedButton(
+            onPressed: () async {
+              // 동네 새로고침 버튼을 눌렀을 때
+              // 1. 현재 위치를 가져온다.
+              //await testSetLocation();
+              await _finalCurrentLocation();
+              // 2. 가져온 현재 위치를 확인하는 dialog를 띄운다.
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CheckCurrentLocation(
+                        prev: prefsLocation, now: newLocation);
+                  }).then((_) async {
+                final prefs = await SharedPreferences.getInstance();
+                setState(() {
+                  prefsLocation = prefs.getString("userLocation")!;
+                  print("@@@@@@@@@@@@@@@" + prefsLocation);
+                });
+              });
+            },
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Color.fromARGB(255, 186, 186, 186),
+              side: BorderSide.none,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(100))),
+              minimumSize: Size.zero, // Set this
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            ),
+            child: Row(
+              children: const [
+                Icon(
+                  FontAwesomeIcons.rotateRight,
+                  size: 15,
+                  color: Colors.white,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "동네 새로고침",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -528,6 +701,7 @@ class _MyPageState extends State<MyPage> {
                   height: 20,
                 ),
                 _nickname(),
+                _userLocation(),
                 _line(),
                 _ongoingTitle(),
                 _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
@@ -604,7 +778,7 @@ class _MyPageState extends State<MyPage> {
     });
   }
 
-  void getLocation(String latitude, String longitude) async {
+void getLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String tmpUrl = 'https://www.chocobread.shop/users/location/' +
         latitude +

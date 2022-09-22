@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.white, foregroundColor: Colors.black),
         outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
-                primary: ColorStyle.mainColor,
+                foregroundColor: ColorStyle.mainColor,
                 side: const BorderSide(width: 1.0, color: ColorStyle.mainColor),
                 textStyle: const TextStyle(
                     // color: Colors.green,
@@ -91,4 +91,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
