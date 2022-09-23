@@ -7,6 +7,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
@@ -50,7 +51,11 @@ class MyApp extends StatelessWidget {
             Colors.white, // 모든 scaffold 의 background color 는 white
         primaryColor: ColorStyle.mainColor,
         appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.white, foregroundColor: Colors.black),
+            backgroundColor: Colors.white, foregroundColor: Colors.black,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            )),
         outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
                 primary: ColorStyle.mainColor,
