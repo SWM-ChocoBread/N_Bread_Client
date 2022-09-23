@@ -11,6 +11,7 @@ import 'package:chocobread/page/kakaoLogout.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
+import 'package:chocobread/page/widgets/snackbar.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
@@ -49,36 +50,45 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   late OngoingRepository ongoingRepository;
-  String prefsLocation = ""; // 로컬 스토리지에서 꺼낸 유저의 현재 위치를 넣는 변수
+  String mypageLocation = ""; // 로컬 스토리지에서 꺼낸 유저의 현재 위치를 넣는 변수 (마이페이지에 표시되는 위치)
+  String prevLocation =
+      ""; // 로컬 스토리지에서 꺼낸 유저의 현재 위치를 넣는 변수 (dialog에 표시되는 이전 위치)
   Position? geoLocation; // 새로 받아온 유저의 현재 위치를 넣는 변수
   String newLocation = ""; // 새로 받아온 유저의 위경도를 바탕으로 얻은 새로운 위치
   String basicLatitude = "37.5037142";
   String basicLongitude = "127.0447821";
 
   getUserLocation() async {
+    // Shared Preferences 를 활용해서 유저의 현재 위치를 local storage에서 가져오는 함수 (마이페이지에 표시됨)
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       // test code
-      prefs.setString("loc3", "역삼동");
-      print(
-          "testSetLocation을 하고 나서 userLocation : ${prefs.getString("userLocation")}");
-
-      prefsLocation = prefs.getString("userLocation")!;
-      print("^^^^^^^^^^^^^" + prefsLocation);
+      // prefs.setString("loc3", "역삼동");
+      // local storage에서 꺼내온 값들을 조합해서 기존 위치를 나타내는 prevLocation을 만들어준다. (dialog에 표시되는 이전 위치)
+      var prevloc1 = prefs.getString("loc1");
+      var prevloc2 = prefs.getString("loc2");
+      var prevloc3 = prefs.getString("loc3");
+      if (prevloc3 != null) {
+        mypageLocation = prevloc3;
+      }
+      if (prevloc1 != null && prevloc2 != null && prevloc3 != null) {
+        prevLocation = "$prevloc1 $prevloc2 $prevloc3";
+      }
+      print("^^^^^^^^^^^^^mypageLocation : " + mypageLocation);
+      print("^^^^^^^^^^^^^prevLocation : " + prevLocation);
     });
   }
 
   testSetLocation() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("loc3", "역삼동");
-    print(
-        "testSetLocation을 하고 나서 userLocation : ${prefs.getString("loc3")}");
+    print("testSetLocation을 하고 나서 userLocation : ${prefs.getString("loc3")}");
   }
 
   @override
   void initState() {
     super.initState();
-    getUserLocation(); // Shared Preferences 를 활용해서 유저의 현재 위치를 local storage에서 가져오는 함수
+    getUserLocation(); // Shared Preferences 를 활용해서 유저의 현재 위치를 local storage에서 가져오는 함수 (마이페이지에 표시되는 위치, dialog 이전 위치)
   }
 
   @override
@@ -315,7 +325,7 @@ class _MyPageState extends State<MyPage> {
             padding: EdgeInsets.only(left: 39.0),
             child: Text(
               // user nickname 이 들어와야 하는 공간
-              prefsLocation,
+              mypageLocation,
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -329,22 +339,8 @@ class _MyPageState extends State<MyPage> {
           OutlinedButton(
             onPressed: () async {
               // 동네 새로고침 버튼을 눌렀을 때
-              // 1. 현재 위치를 가져온다.
               //await testSetLocation();
-              await pressGetLocationButton();
-              // 2. 가져온 현재 위치를 확인하는 dialog를 띄운다.
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CheckCurrentLocation(
-                        prev: prefsLocation, now: newLocation);
-                  }).then((_) async {
-                final prefs = await SharedPreferences.getInstance();
-                setState(() {
-                  prefsLocation = prefs.getString("loc3")!;
-                  print("@@@@@@@@@@@@@@@" + prefsLocation);
-                });
-              });
+              await getCurrentPosition();
             },
             style: OutlinedButton.styleFrom(
               backgroundColor: Color.fromARGB(255, 186, 186, 186),
@@ -681,21 +677,12 @@ class _MyPageState extends State<MyPage> {
 
   //동네 새로고침 버튼 눌렀을 때
   //newLoc1 : 서울특별시 newLoc2 : 강남구 newLoc3 : 역삼동
-  Future<void> pressGetLocationButton() async {
-    _getCurrentPosition().then((value) {
-      _currentPosition = value;
-      return _currentPosition;
-    }).then((curposition) {
-      getLocation(
-          curposition!.latitude.toString(), curposition.longitude.toString());
-    }).then((value) {
-      setState(() {
-        print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
-      });
-    });
+  pressGetLocationButton() async {
+    await getCurrentPosition(); // 권한이 허용되었으면, 현재 위치를 가져오는 함수
   }
 
-  void getLocation(String latitude, String longitude) async {
+  // 유저의 위경도를 받아서 현재 주소 위치를 찾아주는 함수
+  findLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String tmpUrl = 'https://www.chocobread.shop/users/location/' +
         latitude +
@@ -717,33 +704,6 @@ class _MyPageState extends State<MyPage> {
     print("on getUserLocation, response is ${list}");
   }
 
-  //변경버튼 눌렀을 때
-  void setLocation(String loc1, String loc2, String loc3) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString("loc1", loc1);
-    prefs.setString("loc2", loc2);
-    prefs.setString("loc3", loc3);
-    String? userToken = prefs.getString('userToken');
-    if (userToken != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
-      String userId = payload['id'].toString();
-      String tmpurl = 'https://www.chocobread.shop/users/location/' +
-          userId +
-          '/' +
-          loc1 +
-          '/' +
-          loc2 +
-          '/' +
-          loc3;
-      var url = Uri.parse(tmpurl);
-      var response = await http.post(url);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      print('on setlocation, list is ${list}');
-    }
-    print('setUserLocation실행완료');
-  }
-
   //home.dart에서 불러온 함수
   Future<bool> checkLocationPermission() async {
     // 위치 권한을 받았는지 확인하는 함수
@@ -759,21 +719,8 @@ class _MyPageState extends State<MyPage> {
     // serviceEnabled 가 false인 경우 : snackbar 보여줌
     if (!serviceEnabled) {
       await Geolocator.openLocationSettings();
-      const snackBar = SnackBar(
-        content: Text(
-          "위치 서비스 사용이 불가능합니다.",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: ColorStyle.darkMainColor,
-        duration: Duration(milliseconds: 2000),
-        behavior: SnackBarBehavior.floating,
-        elevation: 50,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-          Radius.circular(5),
-        )),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(MySnackBar("위치 서비스 사용이 불가능합니다."));
       return false;
       // Future.error("Location services are disabled");
     }
@@ -785,21 +732,8 @@ class _MyPageState extends State<MyPage> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        const snackBar = SnackBar(
-          content: Text(
-            "위치 권한이 거부됐습니다!",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: ColorStyle.darkMainColor,
-          duration: Duration(milliseconds: 2000),
-          behavior: SnackBarBehavior.floating,
-          elevation: 50,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-            Radius.circular(5),
-          )),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(MySnackBar("위치 권한이 거부됐습니다!"));
         return false;
         // Future.error('Location permission are denied');
       }
@@ -820,7 +754,8 @@ class _MyPageState extends State<MyPage> {
           Radius.circular(5),
         )),
       );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(MySnackBar("위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요."));
       return false;
       // Future.error('Location permissions are permanently denied, we cannot request permissions');
     }
@@ -830,17 +765,37 @@ class _MyPageState extends State<MyPage> {
     return true;
   }
 
-  Future<Position?> _getCurrentPosition() async {
-    print("*** _getCurrentPosition 함수가 실행되었습니다! ***");
+  Future<Position?> getCurrentPosition() async {
+    // 1. 위치 권한을 허용받았는지 확인한다.
     final hasPermission = await checkLocationPermission();
-    print("[home.dart] _getCurrentPosition 함수 안에서의 hasPermission : " +
+    print("[home.dart] getCurrentPosition 함수 안에서의 hasPermission : " +
         hasPermission.toString());
 
     if (hasPermission) {
-      print("[home.dart] _getCurrentPosition 함수 내에서 위치를 가져오기 전까지의 현재 위치는 " +
+      // 2. 위치 권한이 허용된 경우 : geolocator package로 현재 위도와 경도를 받아온다.
+      print("[home.dart] getCurrentPosition 함수 내에서 위치를 가져오기 전까지의 현재 위치는 " +
           _currentPosition.toString());
-      return await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      geoLocation = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high); // 권한이 허용되었으면, 현재 위치를 가져오는 함수
+      var latitude = geoLocation?.latitude ?? basicLatitude;
+      var longitude = geoLocation?.longitude ?? basicLongitude;
+      // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
+      await findLocation(latitude.toString(),
+          longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
+      // 4. 받아온 주소를 dialog pop up 창에 띄워준다.
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CheckCurrentLocation(
+                prev: prevLocation, now: "$newloc1 $newloc2 $newloc3");
+          }).then((_) async {
+        final prefs = await SharedPreferences.getInstance();
+        setState(() {
+          mypageLocation = prefs.getString("loc3")!;
+          print("@@@@@@@@@@@@@@@ 동네 새로고침 버튼 클릭 후 mypageLocation : " +
+              mypageLocation);
+        });
+      });
     }
   }
 }

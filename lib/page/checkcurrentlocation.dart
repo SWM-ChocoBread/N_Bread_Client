@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class CheckCurrentLocation extends StatefulWidget {
   String prev;
@@ -29,7 +33,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
               mainAxisCellCount: 2,
               child: Text(
                 "기존 위치",
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 15),
               ),
             ),
             StaggeredGridTile.count(
@@ -38,7 +42,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
               child: Text(
                 widget.prev,
                 style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             const StaggeredGridTile.count(
@@ -46,7 +50,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
               mainAxisCellCount: 2,
               child: Text(
                 "현재 위치",
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 15),
               ),
             ),
             StaggeredGridTile.count(
@@ -56,7 +60,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
                 widget.now,
                 softWrap: true,
                 style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -66,7 +70,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
         ),
         Text(
           "동네를 ${widget.now}(으)로 변경하겠습니까?",
-          style: TextStyle(fontSize: 18),
+          style: TextStyle(fontSize: 15),
         )
       ]),
       actions: [
@@ -77,13 +81,39 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
             child: const Text("취소")),
         TextButton(
             onPressed: () async {
-              // localStorage에 있는 userLocation을 newLocation으로 변경하기
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString("userLocation", widget.now);
+              var temp = widget.now.split(" ");
+              await setLocation(temp[0], temp[1], temp[2]);
               Navigator.of(context).pop();
             },
             child: const Text("변경"))
       ],
     );
+  }
+
+  // 변경버튼 눌렀을 때
+  setLocation(String loc1, String loc2, String loc3) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("loc1", loc1);
+    prefs.setString("loc2", loc2);
+    prefs.setString("loc3", loc3);
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      String tmpurl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          loc1 +
+          '/' +
+          loc2 +
+          '/' +
+          loc3;
+      var url = Uri.parse(tmpurl);
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print('on setlocation, list is ${list}');
+    }
+    print('setUserLocation실행완료');
   }
 }
