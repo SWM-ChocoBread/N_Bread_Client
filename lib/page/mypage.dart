@@ -72,8 +72,10 @@ class _MyPageState extends State<MyPage> {
       if (prevloc3 != null) {
         mypageLocation = prevloc3;
       }
-      if (prevloc1 != null && prevloc2 != null && prevloc3 != null) {
-        prevLocation = "$prevloc1 $prevloc2 $prevloc3";
+      if (prevloc2 != null && prevloc3 != null) {
+        prevLocation = "$prevloc2 $prevloc3";
+      } else {
+        prevLocation = "알 수 없음";
       }
       print("^^^^^^^^^^^^^mypageLocation : " + mypageLocation);
       print("^^^^^^^^^^^^^prevLocation : " + prevLocation);

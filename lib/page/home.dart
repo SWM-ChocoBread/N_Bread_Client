@@ -7,6 +7,7 @@ import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
+import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -64,8 +65,7 @@ class _HomeState extends State<Home> {
       },
     ).then((value) => {
           setState(() {
-            print(
-                "*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
+            print("*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
           })
         });
     print(
@@ -306,14 +306,14 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return Login();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.mood)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return Onboarding();
+                }));
+              },
+              icon: const Icon(Icons.mood)),
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,

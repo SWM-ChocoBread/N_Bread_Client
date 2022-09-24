@@ -986,8 +986,7 @@ class _customFormState extends State<customForm> {
                                   mapToSend['dealDate'] = dateToSend;
                                   mapToSend['place'] = place;
                                   mapToSend['content'] = extra;
-                                  mapToSend['region'] =
-                                      prefs.getString('loc3');
+                                  mapToSend['region'] = prefs.getString('loc3');
                                   //region,imageLink123은 우선 디폴트값
                                   //print(imageFileList?[0]);
                                   final List<MultipartFile> _files =
@@ -1006,8 +1005,20 @@ class _customFormState extends State<customForm> {
                                   print(mapToSend);
                                   print(jsonString);
 
+                                  // if (showProgressIndicator) {
+                                  //   Navigator.push(context, MaterialPageRoute(
+                                  //       builder: (BuildContext context) {
+                                  //     return const App();
+                                  //   }));
+                                  // } else {
+                                  //   const CircularProgressIndicator();
+                                  // }
+
                                   // 서버에 보내기
                                   await getApiTest(mapToSend, _formData);
+                                  // setState(() {
+                                  //   showProgressIndicator = true;
+                                  // });
 
                                   // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                                   Navigator.push(context, MaterialPageRoute(
