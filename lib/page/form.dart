@@ -1039,6 +1039,11 @@ class _customFormState extends State<customForm> {
                                                 // 서버에 보내기
                                                 await getApiTest(
                                                     mapToSend, _formData);
+                                                    setState(() {
+                                                  showindicator = false;
+                                                });
+                                                print(
+                                                    "현재 showindicator의 값은 ${showindicator}");
 
                                                 // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
                                                 await Navigator.push(context,
@@ -1049,12 +1054,6 @@ class _customFormState extends State<customForm> {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(MySnackBar(
                                                         "성공적으로 제안되었습니다!"));
-                                                setState(() {
-                                                  showindicator = false;
-                                                });
-
-                                                print(
-                                                    "현재 showindicator의 값은 ${showindicator}");
                                               } else {
                                                 // 거래를 제안하는 시점보다 이전에 거래 날짜를 설정한 경우 ; 서버에 보내지 않고, snackbar 보여주기
                                                 ScaffoldMessenger.of(context)
