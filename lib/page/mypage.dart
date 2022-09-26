@@ -789,6 +789,7 @@ class _MyPageState extends State<MyPage> {
       // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
       if (newloc1 == null && newloc2 == null && newloc3 == null) {
         showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (BuildContext context) {
               return AlertNoService();
@@ -796,10 +797,11 @@ class _MyPageState extends State<MyPage> {
       } else {
         // 4. 받아온 주소를 dialog pop up 창에 띄워준다.
         showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (BuildContext context) {
               return CheckCurrentLocation(
-                  prev: prevLocation, now: "$newloc1 $newloc2 $newloc3");
+                  prev: prevLocation, now: "$newloc2 $newloc3");
             }).then((_) async {
           final prefs = await SharedPreferences.getInstance();
           setState(() {
