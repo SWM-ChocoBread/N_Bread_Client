@@ -31,6 +31,7 @@ import 'imageuploader.dart';
 
 var jsonString =
     '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":""}';
+bool showindicator = false;
 
 class customForm extends StatefulWidget {
   customForm({Key? key}) : super(key: key);
@@ -790,262 +791,297 @@ class _customFormState extends State<customForm> {
               child: Container(
                   padding:
                       const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                      
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    //crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 제품명
-                      const Text(
-                        "제품명",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      _productNameTextFormField(),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      // 판매 링크
-                      const Text(
-                        "판매 링크 (선택)",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      _productLinkTextFormField(),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      // 단위 가격
-                      const Text(
-                        "단위 가격",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          // 총가격 (배송비 포함)
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "제품명",
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            _productNameTextFormField(),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            // 판매 링크
+                            const Text(
+                              "판매 링크 (선택)",
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            _productLinkTextFormField(),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            // 단위 가격
+                            const Text(
+                              "단위 가격",
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 3),
-                                  child: Text(
-                                    "총가격 (배송비 포함)",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black.withOpacity(0.8)),
+                                // 총가격 (배송비 포함)
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          "총가격 (배송비 포함)",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black
+                                                  .withOpacity(0.8)),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      _totalPriceTextFormField(),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                _totalPriceTextFormField(),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          // 모집 인원 (나 포함)
-                          Expanded(
-                            // textfield cannot have unbounded height
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 3),
-                                  child: Text(
-                                    "모집 인원 (나 포함)",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black.withOpacity(0.8)),
+                                const SizedBox(width: 15),
+                                // 모집 인원 (나 포함)
+                                Expanded(
+                                  // textfield cannot have unbounded height
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          "모집 인원 (나 포함)",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black
+                                                  .withOpacity(0.8)),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      _participantsTextFormField()
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                _participantsTextFormField()
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      // 1인당 부담해야 할 가격
-                      _pricePerPerson(totalPrice, numOfParticipants),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      // 거래 날짜
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            "거래 날짜",
-                            style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            width: 7,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      _dateTextFormField(),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      // 거래 시간
-                      const Text(
-                        "거래 시간",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      _timeTextFormField(),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      // 거래 장소
-                      const Text(
-                        "거래 장소",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      _placeTextFormField(),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      // 내용
-                      const Text(
-                        "내용 (선택)",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      _extraTextFormField(),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      //제안하기 버튼
-                      SizedBox(
-                        width: double.infinity, // 부모 widget의 width 를 100%로 가져가기
-                        child: OutlinedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              // form 이 모두 validate 하면
-                              // controller로 서버에 보낼 데이터들을 가져와서 변수에 저장한다.
-                              setState(() {
-                                productName = productNameController.text; // 제품명
-                                productLink =
-                                    productLinkController.text; // 판매 링크
-                                // 총가격과 모집인원은 onChanged로 받아와진다.
-                                // personalPrice는 유효한 총가격과 모집인원이 입력되자마자 위에서 정해진다.
-                                // date = dateController.text; // 거래 날짜
-                                // time = timeController.text; // 거래 시간
-                                place = placeController.text; // 거래 장소
-                                extra = extraController.text; // 추가 작성
-                              });
-                              if ((int.parse(totalPrice) >=
-                                      int.parse(numOfParticipants)) ||
-                                  (int.parse(totalPrice) == 0)) {
-                                // 서버에 보낼 수 있는 형식으로 정리하기
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            // 1인당 부담해야 할 가격
+                            _pricePerPerson(totalPrice, numOfParticipants),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            // 거래 날짜
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: const [
+                                Text(
+                                  "거래 날짜",
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  width: 7,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            _dateTextFormField(),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            // 거래 시간
+                            const Text(
+                              "거래 시간",
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            _timeTextFormField(),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            // 거래 장소
+                            const Text(
+                              "거래 장소",
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            _placeTextFormField(),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            // 내용
+                            const Text(
+                              "내용 (선택)",
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            _extraTextFormField(),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            //제안하기 버튼
+                            SizedBox(
+                              width: double
+                                  .infinity, // 부모 widget의 width 를 100%로 가져가기
+                              child: OutlinedButton(
+                                  onPressed: showindicator
+                                      ? () => null
+                                      : () async {
+                                          print('버튼눌림');
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            // form 이 모두 validate 하면
+                                            // controller로 서버에 보낼 데이터들을 가져와서 변수에 저장한다.
+                                            setState(() {
+                                              productName =
+                                                  productNameController
+                                                      .text; // 제품명
+                                              productLink =
+                                                  productLinkController
+                                                      .text; // 판매 링크
+                                              // 총가격과 모집인원은 onChanged로 받아와진다.
+                                              // personalPrice는 유효한 총가격과 모집인원이 입력되자마자 위에서 정해진다.
+                                              place =
+                                                  placeController.text; // 거래 장소
+                                              extra =
+                                                  extraController.text; // 추가 작성
+                                            });
+                                            if ((int.parse(totalPrice) >=
+                                                    int.parse(
+                                                        numOfParticipants)) ||
+                                                (int.parse(totalPrice) == 0)) {
+                                              // 서버에 보낼 수 있는 형식으로 정리하기
 
-                                if (MyDateUtils.selectedDateTime(date, time)) {
-                                  // 거래를 제안하는 시점보다 이후에 거래 날짜를 설정한 경우 : 서버에 보내기
-                                  dateToSend = MyDateUtils.sendMyDateTime(date,
-                                      time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
-                                  print(
-                                      "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
-                                  print("서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  Map mapToSend = jsonDecode(jsonString);
-                                  mapToSend['title'] = productName.toString();
-                                  mapToSend['link'] = productLink.toString();
-                                  mapToSend['totalPrice'] = totalPrice;
-                                  mapToSend['personalPrice'] = personalPrice;
-                                  mapToSend['totalMember'] = numOfParticipants;
-                                  mapToSend['dealDate'] = dateToSend;
-                                  mapToSend['place'] = place;
-                                  mapToSend['content'] = extra;
-                                  mapToSend['region'] = prefs.getString('loc3');
-                                  //region,imageLink123은 우선 디폴트값
-                                  //print(imageFileList?[0]);
-                                  final List<MultipartFile> _files =
-                                      imageFileList!
-                                          .map((img) =>
-                                              MultipartFile.fromFileSync(
-                                                  img.path,
-                                                  contentType: new MediaType(
-                                                      "image", "jpg")))
-                                          .toList();
-                                  print("files: ### ");
-                                  print(_files);
-                                  print("file length :  ${_files.length} ");
-                                  FormData _formData =
-                                      FormData.fromMap({"img": _files});
-                                  print(mapToSend);
-                                  print(jsonString);
+                                              if (MyDateUtils.selectedDateTime(
+                                                  date, time)) {
+                                                // 거래를 제안하는 시점보다 이후에 거래 날짜를 설정한 경우 : 서버에 보내기
+                                                dateToSend =
+                                                    MyDateUtils.sendMyDateTime(
+                                                        date,
+                                                        time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
+                                                final prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                Map mapToSend =
+                                                    jsonDecode(jsonString);
+                                                mapToSend['title'] =
+                                                    productName.toString();
+                                                mapToSend['link'] =
+                                                    productLink.toString();
+                                                mapToSend['totalPrice'] =
+                                                    totalPrice;
+                                                mapToSend['personalPrice'] =
+                                                    personalPrice;
+                                                mapToSend['totalMember'] =
+                                                    numOfParticipants;
+                                                mapToSend['dealDate'] =
+                                                    dateToSend;
+                                                mapToSend['place'] = place;
+                                                mapToSend['content'] = extra;
+                                                mapToSend['region'] =
+                                                    prefs.getString('loc3');
+                                                final List<MultipartFile>
+                                                    _files = imageFileList!
+                                                        .map((img) => MultipartFile
+                                                            .fromFileSync(
+                                                                img.path,
+                                                                contentType:
+                                                                    new MediaType(
+                                                                        "image",
+                                                                        "jpg")))
+                                                        .toList();
+                                                FormData _formData =
+                                                    FormData.fromMap(
+                                                        {"img": _files});
+                                                
+                                                setState(() {
+                                                  showindicator = true;
+                                                });
+                                                print(
+                                                    "현재 showindicator의 값은 ${showindicator}");
+                                                // 서버에 보내기
+                                                await getApiTest(
+                                                    mapToSend, _formData);
+                                                    setState(() {
+                                                  showindicator = false;
+                                                });
+                                                print(
+                                                    "현재 showindicator의 값은 ${showindicator}");
 
-                                  // if (showProgressIndicator) {
-                                  //   Navigator.push(context, MaterialPageRoute(
-                                  //       builder: (BuildContext context) {
-                                  //     return const App();
-                                  //   }));
-                                  // } else {
-                                  //   const CircularProgressIndicator();
-                                  // }
-
-                                  // 서버에 보내기
-                                  await getApiTest(mapToSend, _formData);
-                                  // setState(() {
-                                  //   showProgressIndicator = true;
-                                  // });
-
-                                  // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
-                                  Navigator.push(context, MaterialPageRoute(
-                                      builder: (BuildContext context) {
-                                    return const App();
-                                  }));
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      MySnackBar("성공적으로 제안되었습니다!"));
-                                } else {
-                                  // 거래를 제안하는 시점보다 이전에 거래 날짜를 설정한 경우 ; 서버에 보내지 않고, snackbar 보여주기
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      MySnackBar("거래 날짜는 과거로 설정할 수 없습니다!"));
-                                }
-                              } else {
-                                // form 이 유효하지 않은 경우
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    MySnackBar("총가격은 모집인원보다 커야 합니다!"));
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  MySnackBar("필수 입력 칸을 유효한 값으로 채워주세요."));
-                            }
-                            // finalImageFileList = imageUploader().getImageFileList;
-                          },
-                          child: const Text('제안하기'),
+                                                // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                                                await Navigator.push(context,
+                                                    MaterialPageRoute(builder:
+                                                        (BuildContext context) {
+                                                  return const App();
+                                                }));
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(MySnackBar(
+                                                        "성공적으로 제안되었습니다!"));
+                                              } else {
+                                                // 거래를 제안하는 시점보다 이전에 거래 날짜를 설정한 경우 ; 서버에 보내지 않고, snackbar 보여주기
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(MySnackBar(
+                                                        "거래 날짜는 과거로 설정할 수 없습니다!"));
+                                              }
+                                            } else {
+                                              // form 이 유효하지 않은 경우
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(MySnackBar(
+                                                      "총가격은 모집인원보다 커야 합니다!"));
+                                            }
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(MySnackBar(
+                                                    "필수 입력 칸을 유효한 값으로 채워주세요."));
+                                          }
+                                          // finalImageFileList = imageUploader().getImageFileList;
+                                        },
+                                  child: !showindicator
+                                      ? const Text('제안하기')
+                                      : const SizedBox(
+                                          child: CircularProgressIndicator(),
+                                          height: 20,
+                                          width: 20,
+                                        )),
+                            ),
+                          ],
                         ),
-                      )
+                      ),
                     ],
                   )),
             )));

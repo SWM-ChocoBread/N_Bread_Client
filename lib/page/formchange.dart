@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_talk.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart' as dio;
@@ -27,6 +28,8 @@ import '../utils/price_utils.dart';
 import 'app.dart';
 import 'checkmovetophotosettings.dart';
 import 'imageuploader.dart';
+
+bool showindicator = false;
 
 class customFormChange extends StatefulWidget {
   Map<String, dynamic> data;
@@ -1071,84 +1074,103 @@ class _customFormChangeState extends State<customFormChange> {
                         //     );
                         //   }
                         // },
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            // form 이 모두 validate 하면
-                            // controller로 서버에 보낼 데이터들을 가져와서 변수에 저장한다.
-                            setState(() {
-                              productName = productNameController.text; // 제품명
-                              productLink = productLinkController.text; // 판매 링크
-                              // 총가격과 모집인원은 onChanged로 받아와진다.
-                              // personalPrice는 유효한 총가격과 모집인원이 입력되자마자 위에서 정해진다.
-                              // date = dateController.text; // 거래 날짜
-                              // time = timeController.text; // 거래 시간
-                              place = placeController.text; // 거래 장소
-                              extra = extraController.text; // 추가 작성
-                            });
-                            if ((int.parse(totalPrice) >=
-                                    int.parse(numOfParticipants)) ||
-                                (int.parse(totalPrice) == 0)) {
-                              // 서버에 보낼 수 있는 형식으로 정리하기
-                              dateToSend = MyDateUtils.sendMyDateTime(
-                                  date, time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
-                              print(
-                                  "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
-                              print("서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              Map mapToSend = jsonDecode(jsonString);
-                              mapToSend['title'] = productName.toString();
-                              mapToSend['link'] = productLink.toString();
-                              mapToSend['totalPrice'] = totalPrice;
-                              mapToSend['personalPrice'] = personalPrice;
-                              mapToSend['totalMember'] = numOfParticipants;
-                              mapToSend['dealDate'] = dateToSend;
-                              mapToSend['place'] = place;
-                              mapToSend['content'] = extra;
-                              mapToSend['region'] =
-                                  prefs.getString('loc3');
-                              //region,imageLink123은 우선 디폴트값
-                              //print(imageFileList?[0]);
-                              if (imageFileList!.length > 0) {
-                                final List<dio.MultipartFile> _files =
-                                    imageFileList!
-                                        .map((img) =>
-                                            dio.MultipartFile.fromFileSync(
-                                                img.path,
-                                                contentType: new MediaType(
-                                                    "image", "jpg")))
-                                        .toList();
-                                dio.FormData _formData =
-                                    dio.FormData.fromMap({"img": _files});
-                                print("file length :  ${_files.length} ");
-                                print(mapToSend);
-                                print(jsonString);
-                                await postFormChange(
-                                    mapToSend, _formData, contentsid);
-                              } else {
-                                await postFormChangeWithoutImage(
-                                    mapToSend, contentsid);
-                              }
+                        onPressed: showindicator
+                            ? () => null
+                            : () async {
+                                if (_formKey.currentState!.validate()) {
+                                  // form 이 모두 validate 하면
+                                  // controller로 서버에 보낼 데이터들을 가져와서 변수에 저장한다.
+                                  setState(() {
+                                    productName =
+                                        productNameController.text; // 제품명
+                                    productLink =
+                                        productLinkController.text; // 판매 링크
+                                    // 총가격과 모집인원은 onChanged로 받아와진다.
+                                    // personalPrice는 유효한 총가격과 모집인원이 입력되자마자 위에서 정해진다.
+                                    // date = dateController.text; // 거래 날짜
+                                    // time = timeController.text; // 거래 시간
+                                    place = placeController.text; // 거래 장소
+                                    extra = extraController.text; // 추가 작성
+                                  });
+                                  if ((int.parse(totalPrice) >=
+                                          int.parse(numOfParticipants)) ||
+                                      (int.parse(totalPrice) == 0)) {
+                                    // 서버에 보낼 수 있는 형식으로 정리하기
+                                    dateToSend = MyDateUtils.sendMyDateTime(
+                                        date,
+                                        time); // 서버에 보낼 수 있는 형식으로 날짜, 시간 합치기
+                                    print(
+                                        "${productName} ${productLink} ${date} ${time} ${place} ${extra}");
+                                    print(
+                                        "서버에 보내는 날짜는 다음과 같습니다 : " + dateToSend);
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    Map mapToSend = jsonDecode(jsonString);
+                                    mapToSend['title'] = productName.toString();
+                                    mapToSend['link'] = productLink.toString();
+                                    mapToSend['totalPrice'] = totalPrice;
+                                    mapToSend['personalPrice'] = personalPrice;
+                                    mapToSend['totalMember'] =
+                                        numOfParticipants;
+                                    mapToSend['dealDate'] = dateToSend;
+                                    mapToSend['place'] = place;
+                                    mapToSend['content'] = extra;
+                                    mapToSend['region'] =
+                                        prefs.getString('loc3');
+                                    //region,imageLink123은 우선 디폴트값
+                                    //print(imageFileList?[0]);
+                                    if (imageFileList!.length > 0) {
+                                      final List<dio.MultipartFile> _files =
+                                          imageFileList!
+                                              .map((img) => dio.MultipartFile
+                                                  .fromFileSync(img.path,
+                                                      contentType:
+                                                          new MediaType(
+                                                              "image", "jpg")))
+                                              .toList();
+                                      dio.FormData _formData =
+                                          dio.FormData.fromMap({"img": _files});
+                                      print("file length :  ${_files.length} ");
+                                      print(mapToSend);
+                                      print(jsonString);
+                                      setState(() {
+                                        showindicator = true;
+                                      });
+                                      await postFormChange(
+                                          mapToSend, _formData, contentsid);
+                                    } else {
+                                      await postFormChangeWithoutImage(
+                                          mapToSend, contentsid);
+                                    }
+                                    setState(() {
+                                      showindicator = false;
+                                    });
 
-                              // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
-                              Navigator.pushAndRemoveUntil(context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) {
-                                return const App();
-                              }), (route) => false);
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(MySnackBar("성공적으로 제안되었습니다!"));
-                            } else {
-                              // form 이 유효하지 않은 경우
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  MySnackBar("총가격은 모집인원보다 커야 합니다!"));
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(MySnackBar("필수 입력 칸을 채워주세요."));
-                          }
-                        },
-                        child: const Text('수정하기'),
+                                    // form 이 모두 유효하면, 홈으로 이동하고, 성공적으로 제출되었음을 알려준다.
+                                    Navigator.pushAndRemoveUntil(context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) {
+                                      return const App();
+                                    }), (route) => false);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        MySnackBar("성공적으로 제안되었습니다!"));
+                                  } else {
+                                    // form 이 유효하지 않은 경우
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        MySnackBar("총가격은 모집인원보다 커야 합니다!"));
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      MySnackBar("필수 입력 칸을 채워주세요."));
+                                }
+                              },
+                        child: !showindicator
+                            ? const Text('수정하기')
+                            : const SizedBox(
+                                child: CircularProgressIndicator(),
+                                height: 20,
+                                width: 20,
+                              ),
                       ),
                     )
                   ],
