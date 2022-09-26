@@ -1,5 +1,6 @@
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
+import 'package:chocobread/page/alertnoservice.dart';
 
 import 'dart:convert';
 
@@ -38,9 +39,9 @@ import 'home.dart' as home;
 String setUserNickName = "";
 Position? _currentPosition;
 UserInfoRepository userInfoRepository = UserInfoRepository();
-String newloc1 = "";
-String newloc2 = "";
-String newloc3 = "";
+String? newloc1;
+String? newloc2;
+String? newloc3;
 
 class MyPage extends StatefulWidget {
   MyPage({Key? key}) : super(key: key);
@@ -72,8 +73,10 @@ class _MyPageState extends State<MyPage> {
       if (prevloc3 != null) {
         mypageLocation = prevloc3;
       }
-      if (prevloc1 != null && prevloc2 != null && prevloc3 != null) {
-        prevLocation = "$prevloc1 $prevloc2 $prevloc3";
+      if (prevloc2 != null && prevloc3 != null) {
+        prevLocation = "$prevloc2 $prevloc3";
+      } else {
+        prevLocation = "알 수 없음";
       }
       print("^^^^^^^^^^^^^mypageLocation : " + mypageLocation);
       print("^^^^^^^^^^^^^prevLocation : " + prevLocation);
@@ -783,20 +786,31 @@ class _MyPageState extends State<MyPage> {
       // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
       await findLocation(latitude.toString(),
           longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
-      // 4. 받아온 주소를 dialog pop up 창에 띄워준다.
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CheckCurrentLocation(
-                prev: prevLocation, now: "$newloc1 $newloc2 $newloc3");
-          }).then((_) async {
-        final prefs = await SharedPreferences.getInstance();
-        setState(() {
-          mypageLocation = prefs.getString("loc3")!;
-          print("@@@@@@@@@@@@@@@ 동네 새로고침 버튼 클릭 후 mypageLocation : " +
-              mypageLocation);
+      // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
+      if (newloc1 == null && newloc2 == null && newloc3 == null) {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return AlertNoService();
+            });
+      } else {
+        // 4. 받아온 주소를 dialog pop up 창에 띄워준다.
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return CheckCurrentLocation(
+                  prev: prevLocation, now: "$newloc2 $newloc3");
+            }).then((_) async {
+          final prefs = await SharedPreferences.getInstance();
+          setState(() {
+            mypageLocation = prefs.getString("loc3")!;
+            print("@@@@@@@@@@@@@@@ 동네 새로고침 버튼 클릭 후 mypageLocation : " +
+                mypageLocation);
+          });
         });
-      });
+      }
     }
   }
 }

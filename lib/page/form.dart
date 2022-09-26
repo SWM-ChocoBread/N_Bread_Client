@@ -958,7 +958,6 @@ class _customFormState extends State<customForm> {
                             SizedBox(
                               width: double
                                   .infinity, // 부모 widget의 width 를 100%로 가져가기
-
                               child: OutlinedButton(
                                   onPressed: showindicator
                                       ? () => null
@@ -1035,7 +1034,6 @@ class _customFormState extends State<customForm> {
                                                 });
                                                 print(
                                                     "현재 showindicator의 값은 ${showindicator}");
-
                                                 // 서버에 보내기
                                                 await getApiTest(
                                                     mapToSend, _formData);
