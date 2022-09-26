@@ -195,19 +195,21 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
       ),
       actions: [
-        // IconButton(
-        //     onPressed: () {},
-        //     icon: const Icon(
-        //       Icons.share,
-        //       color: Colors.white,
-        //     )),
+        IconButton(
+            onPressed: () {
+              print("공유하기버튼이 눌렸습니다");
+            },
+            icon: const Icon(
+              Icons.share,
+              color: Colors.white,
+            )),
         _popupMenuButtonSelector(),
-        // IconButton(
-        //     onPressed: () {},
-        //     icon: const Icon(
-        //       Icons.more_vert,
-        //       color: Colors.white,
-        //     )),
+        IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.more_vert,
+              color: Colors.white,
+            )),
       ],
     );
   }
