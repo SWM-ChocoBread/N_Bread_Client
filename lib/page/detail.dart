@@ -13,7 +13,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk_template.dart';
+import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
@@ -196,8 +196,15 @@ class _DetailContentViewState extends State<DetailContentView> {
       ),
       actions: [
         IconButton(
-            onPressed: () {
+            onPressed: () async {
               print("공유하기버튼이 눌렸습니다");
+              bool result =
+                  await ShareClient.instance.isKakaoTalkSharingAvailable();
+              if (result) {
+                print('카카오톡으로 공유 가능');
+              } else {
+                print('카카오톡 미설치: 웹 공유 기능 사용 권장');
+              }
             },
             icon: const Icon(
               Icons.share,
