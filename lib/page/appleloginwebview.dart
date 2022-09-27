@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -61,7 +62,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print("splash에서의 list : ${list}");
-    if (list['code'] == 200) {
+      if (list['code'] == 200) {
         print("코드가 200입니다. 홈화면으로 리다이렉트합니다.");
         final prefs = await SharedPreferences.getInstance();
         String? curLocation = prefs.getString("loc3");
@@ -87,6 +88,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
               prefs.setString("loc1", list['result']['loc1']);
               prefs.setString("loc2", list['result']['loc2']);
               prefs.setString("loc3", list['result']['addr']);
+              currentLocation = prefs.getString("loc3");
               print(
                   "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('loc3')}입니다");
             }
@@ -97,18 +99,11 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
           //https://www.chocobread.shop/users/1
         }
         Airbridge.event.send(SignInEvent(
-          user: User(
-            id: userId,
-            email : list['result']['email'],
-            attributes: {
-              "provider" : userProvider,
-              "curLocation" : prefs.getString('loc3')
-            }
-          )
-        ));
-        await FirebaseAnalytics.instance.logLogin(
-          loginMethod: userProvider
-        );
+            user: User(id: userId, email: list['result']['email'], attributes: {
+          "provider": userProvider,
+          "curLocation": prefs.getString('loc3')
+        })));
+        await FirebaseAnalytics.instance.logLogin(loginMethod: userProvider);
 
         Navigator.pushAndRemoveUntil(
             context,
@@ -117,16 +112,8 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       } else if (list['code'] == 300 || list['code'] == 404) {
         print("코드가 ${list['code']}입니다. 약관동의 화면으로 리다이렉트합니다.");
         Airbridge.event.send(SignUpEvent(
-              user: User(
-                id: userId,
-                attributes: {
-                  "provider" : userProvider
-                }
-          )
-        ));
-        await FirebaseAnalytics.instance.logSignUp(
-          signUpMethod: userProvider
-        );
+            user: User(id: userId, attributes: {"provider": userProvider})));
+        await FirebaseAnalytics.instance.logSignUp(signUpMethod: userProvider);
         Navigator.pushNamedAndRemoveUntil(
             context, '/termscheck', (route) => false);
       } else {
@@ -162,7 +149,6 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
     return InAppWebView(
       initialUrlRequest:
           URLRequest(url: Uri.parse("https://chocobread.shop/auth/apple")),
-          
       onReceivedServerTrustAuthRequest: (controller, challenge) async {
         //Do some checks here to decide if CANCELS or PROCEEDS
         return ServerTrustAuthResponse(

@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/widgets/snackbar.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,10 +17,13 @@ import 'package:amplitude_flutter/identify.dart';
 
 import '../constants/sizes_helper.dart';
 import '../style/colorstyles.dart';
+import 'alerterrorexitapp.dart';
+import 'alertnoservice.dart';
 import 'app.dart';
+import 'onboarding/onboarding.dart';
 
 bool nicknameoverlap = true;
-late String currentLocation = "";
+String? currentLocation; // 현재 위치를 저장하는 변수
 
 class NicknameSet extends StatefulWidget {
   NicknameSet({Key? key}) : super(key: key);
@@ -29,7 +34,11 @@ class NicknameSet extends StatefulWidget {
 
 class _NicknameSetState extends State<NicknameSet> {
   late Geolocator _geolocator;
-  Position? _currentPosition;
+  Position? geoLocation; // 회원가입하기 버튼을 눌렀을 때 새로 받아온 유저의 현재 위치를 넣는 변수
+  String? loc1;
+  String? loc2;
+  String? loc3;
+  // Position? _currentPosition;
   String basicLatitude = "37.5037142";
   String basicLongitude = "127.0447821";
 
@@ -43,45 +52,34 @@ class _NicknameSetState extends State<NicknameSet> {
   String nicknametosubmit = "";
 
   Future<bool> checkLocationPermission() async {
-    // 위지 권한을 받았는지 확인하는 함수
+    // 위치 권한을 받았는지 확인하는 함수
+    print("*** checkLocationPermission 함수가 실행되었습니다! ***");
     bool serviceEnabled;
     LocationPermission permission;
 
+    // 1. Location Service 가 enable 되었는지 확인하는 과정
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 serviceEnabled : " +
+        serviceEnabled.toString());
+
+    // serviceEnabled 가 false인 경우 : snackbar 보여줌
     if (!serviceEnabled) {
       await Geolocator.openLocationSettings();
-      const snackBar = SnackBar(
-        content: Text(
-          "위치 서비스 사용이 불가능합니다.",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: ColorStyle.darkMainColor,
-        duration: Duration(milliseconds: 2000),
-        // behavior: SnackBarBehavior.floating,
-        elevation: 50,
-        shape: StadiumBorder(),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(MySnackBar("위치 서비스 사용이 불가능합니다."));
       return false;
       // Future.error("Location services are disabled");
     }
 
+    // 2. permission 을 받았는지 확인하는 과정
     permission = await Geolocator.checkPermission();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 permission : " +
+        permission.toString());
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        const snackBar = SnackBar(
-          content: Text(
-            "위치 권한이 거부됐습니다!",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: ColorStyle.darkMainColor,
-          duration: Duration(milliseconds: 2000),
-          // behavior: SnackBarBehavior.floating,
-          elevation: 50,
-          shape: StadiumBorder(),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(MySnackBar("위치 권한이 거부됐습니다!"));
         return false;
         // Future.error('Location permission are denied');
       }
@@ -95,11 +93,15 @@ class _NicknameSetState extends State<NicknameSet> {
         ),
         backgroundColor: ColorStyle.darkMainColor,
         duration: Duration(milliseconds: 2000),
-        // behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
         elevation: 50,
-        shape: StadiumBorder(),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
       );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(MySnackBar("위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요."));
       return false;
       // Future.error('Location permissions are permanently denied, we cannot request permissions');
     }
@@ -107,29 +109,25 @@ class _NicknameSetState extends State<NicknameSet> {
     // 여기까지 도달한다는 것은, permissions granted 된 것이고, 디바이스의 위치를 access 할 수 있다는 것
     // 현재 device의 position 을 return 한다.
     return true;
-    // return await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
-
-    // var currentPosition = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high);
-    // var lastPosition = await Geolocator.getLastKnownPosition();
-    // print("currentPosition : " + currentPosition.toString());
-    // print("lastPosition : " + lastPosition.toString());
-    // print(currentPosition.latitude);
-    // print(currentPosition.longitude);
   }
 
-  Future<Position?> _getCurrentPosition() async {
+  Future<Position?> getCurrentPosition() async {
+    // 1. 위치 권한을 허용받았는지 확인한다.
     final hasPermission = await checkLocationPermission();
+    print("[home.dart] getCurrentPosition 함수 안에서의 hasPermission : " +
+        hasPermission.toString());
 
     if (hasPermission) {
-      return await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      // 2. 위치 권한이 허용된 경우 : geolocator package로 현재 위도와 경도를 받아온다.
+      geoLocation = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high); // 권한이 허용되었으면, 현재 위치를 가져오는 함수
+      var latitude = geoLocation?.latitude ?? basicLatitude;
+      var longitude = geoLocation?.longitude ?? basicLongitude;
+      // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
+      await findLocation(latitude.toString(),
+          longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
     }
-
-    print("_getCurrentPosition 함수 내에서는 현재 위치는 " + _currentPosition.toString());
   }
-
 
   PreferredSizeWidget _appBarWidget() {
     return AppBar(
@@ -148,16 +146,6 @@ class _NicknameSetState extends State<NicknameSet> {
       color: ColorStyle.mainColor,
       size: 100,
     );
-    // return IconButton(
-    //   onPressed: () {},
-    //   icon: const Icon(
-    //     Icons.circle,
-    //     color: Color(0xffF6BD60),
-    //     size: 100,
-    //   ),
-    //   constraints: const BoxConstraints(),
-    //   padding: EdgeInsets.zero,
-    // );
   }
 
   Widget _nicknameTextField() {
@@ -223,15 +211,6 @@ class _NicknameSetState extends State<NicknameSet> {
     );
   }
 
-  // _loadCheckNickname() {
-  //   String nicknameoverlap = "true";
-  //   showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return CheckNicknameOverlap();
-  //       });
-  // }
-
   Widget _bottomNavigationBarWidget() {
     return Container(
         width: displayWidth(context),
@@ -292,19 +271,16 @@ class _NicknameSetState extends State<NicknameSet> {
 
                 nicknametocheck = nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                 print("닉네임 중복을 확인하려는 닉네임은 " + nicknametocheck);
-                if(nicknametocheck==""){
+                if (nicknametocheck == "") {
                   print("닉네임을 입력하지 않았습니다.");
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(snackBarNullNick);
-                }
-                else{
+                  ScaffoldMessenger.of(context).showSnackBar(snackBarNullNick);
+                } else {
                   await checkNickname(nicknametocheck);
                   print("nicknameoverlap is ${nicknameoverlap}");
                   // *** 닉네임이 중복되는지 확인하는 API 넣기 ***
                   // 닉네임이 오버랩되는지 확인하기 위한 변수
                   // 닉네임이 오버랩되는지 여부를 나타내는 bool 값을 위 변수에 넣어주세요!
                 }
-                
 
                 if (nicknameoverlap == false &&
                     _formKey.currentState!.validate()) {
@@ -341,38 +317,37 @@ class _NicknameSetState extends State<NicknameSet> {
                       nicknametosubmit =
                           nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                       print("닉네임 제출하려는 닉네임은 " + nicknametosubmit);
-                      //SET NICKNAME API CALL
-                      await nicknameSet(nicknametosubmit);  //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
-                      await _getCurrentPosition().then(((value) async {
-                        _currentPosition = value;
-                        var latitude =
-                            _currentPosition?.latitude ?? basicLatitude;
-                        var longitude =
-                            _currentPosition?.longitude ?? basicLongitude;
-                        print(
-                            "닉네임 설정하기 버튼을 눌렀을 때의 위도 : " + latitude.toString());
-                        print(
-                            "닉네임 설정하기 버튼을 눌렀을 때의 경도 : " + longitude.toString());
-                        await setUserLocation(
-                            latitude.toString(), longitude.toString());
-                        final prefs = await SharedPreferences.getInstance();
-                        var temp = prefs.getString("loc3");
-                        print(
-                            "닉네임 설정하기 버튼을 눌렀을 때, userLocation 안에 저장되는 currentLocation 값은" +
-                                temp.toString());
-                        currentLocation = temp!;
-                        print("닉네임 설정하기 버튼을 눌렀을 때의 currentLocation : " +
-                            currentLocation);
-                      }));
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => const App()),
-                          (route) => false);
+                      await getCurrentPosition();
+                      // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
+                      print("$loc1 $loc2 $loc3");
+                      if (loc1 == null && loc2 == null && loc3 == null) {
+                        print("null인 경우입니다.");
+                        showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertNoService();
+                            });
+                        nicknameSetController.text =
+                            nicknametosubmit; // selectionOverlay error 해결 위해 추가
+                      } else {
+                        // 설정할 닉네임을 받아와서 서버로 보내준다.
+                        //SET NICKNAME API CALL
+                        await nicknameSet(
+                            nicknametocheck); //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
+                        print("온보딩 화면으로 이동합니다.");
+                        // 온보딩 화면으로 이동한다.
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    Onboarding()),
+                            (route) => false);
+                      }
                     }
                   : null,
               child: const Text(
-                "닉네임 설정 완료",
+                "회원가입하기",
               ),
             ),
           )
@@ -412,11 +387,24 @@ class _NicknameSetState extends State<NicknameSet> {
         setState(() {
           nicknameoverlap = false;
         });
-      } else {
+      } else if (list['code'] == 409) {
+        // 409 : user는 찾음. 근데 닉네임 중복. (진짜 닉네임 중복)
         print("사용불가능한 닉네임입니다!");
         setState(() {
           nicknameoverlap = true;
         });
+      } else {
+        // 404 : userId에 해당하는 사람을 찾을 수 없음(지금 상황 -> 로그인하고 닉네임 설정 안한뒤에 다른 기기에서 로그인 후 회원 탈퇴) (local Storage의 userToken 삭제, 앱 강제 종료)
+        // 500 : 알 수 없는 에러 (else 로 처리) 알 수 없는 에러가 발생했습니다. 앱을 다시 실행해주세요!
+        // 1. local storage에서 userToken 삭제
+        await prefs.remove('userToken');
+        // 2. alert ("알 수 없는 에러가 발생했습니다. 앱을 다시 실행해주세요!") 확인 버튼만 있음 / 취소 불가능하게 만들기
+        showDialog(
+            barrierDismissible: false, // 확인을 누르지 않고는 dialog를 없앨 수 없도록 처리
+            context: context,
+            builder: (BuildContext context) {
+              return AlertErrorExitApp();
+            });
       }
     }
   }
@@ -442,38 +430,36 @@ class _NicknameSetState extends State<NicknameSet> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print("RESPONSE : ${response.body}");
-      await FirebaseAnalytics.instance.logEvent(
-        name: "nickname_set",
-        parameters: {
-          "userId" : list['result']['id'],
-          "provider" : payload['provider'].toString(),
-          "changedNick" : list['result']['nick']
-        }
-      );
+      await FirebaseAnalytics.instance
+          .logEvent(name: "nickname_set", parameters: {
+        "userId": list['result']['id'],
+        "provider": payload['provider'].toString(),
+        "changedNick": list['result']['nick']
+      });
       Airbridge.event.send(Event(
-            'Nickname Set',
-            option: EventOption(
-              attributes: {
-                "userId" : list['result']['id'],
-                "provider" : payload['provider'].toString(),
-                "changedNick" : list['result']['nick']
-              },
-            ),
-          ));
+        'Nickname Set',
+        option: EventOption(
+          attributes: {
+            "userId": list['result']['id'],
+            "provider": payload['provider'].toString(),
+            "changedNick": list['result']['nick']
+          },
+        ),
+      ));
     }
   }
 
-  Future<void> setUserLocation(String latitude, String longitude) async {
-    print("setUserLocation으로 전달된 latitude : " + latitude);
-    print("setUserLocation으로 전달된 longitude : " + longitude);
+  Future<void> findLocation(String latitude, String longitude) async {
+    print("findrLocation으로 전달된 latitude : " + latitude);
+    print("findLocation으로 전달된 longitude : " + longitude);
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
 
       String userId = payload['id'].toString();
-      print("setUserLocation on kakaoLogin, getTokenPayload is ${payload}");
-      print("setUserLocation was called on mypage with userId is ${userId}");
+      print("findLocation on kakaoLogin, getTokenPayload is ${payload}");
+      print("findLocation was called on mypage with userId is ${userId}");
 
       String tmpUrl = 'https://www.chocobread.shop/users/location/' +
           userId +
@@ -491,8 +477,14 @@ class _NicknameSetState extends State<NicknameSet> {
         print("length of list is 0");
       } else {
         try {
-          prefs.setString(
-              'loc3', list['result']['location3'].toString());
+          prefs.setString('loc1', list['result']['location1'].toString());
+          prefs.setString('loc2', list['result']['location2'].toString());
+          prefs.setString('loc3', list['result']['location3'].toString());
+          loc1 = list['result']['location1'];
+          loc2 = list['result']['location2'];
+          loc3 = list['result']['location3'];
+          print("locs: $loc1 $loc2 $loc3");
+          currentLocation = loc3;
           print("nicknameset : list value is ${list['result']}");
           print(
               'nicknameset : currnetLocation in setUserLocation Function is ${list['result']['location3'].toString()}');

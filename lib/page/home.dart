@@ -53,33 +53,38 @@ class _HomeState extends State<Home> {
 
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    await SharedPreferences.getInstance().then(
-      (prefs) {
-        setState(() {
-          print(
-              "*** [home.dart] getCurrentLocationFromPref 함수 안에서 setState 함수가 실행되었습니다! ***");
-          currentLocation = prefs.getString("loc3")!;
-          print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
-        });
-      },
-    ).then((value) => {
-          setState(() {
-            print("*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
-          })
-        });
-    print(
-        "[home.dart] getCurrentLocationFromPref 함수 안에서 prefs로 가져온 currentLocation : " +
-            currentLocation);
+    final prefs = await SharedPreferences.getInstance();
+    currentLocation = prefs.getString("loc3");
+    setState(() {
+      print("getCurrentLocationFromPref에서의 currentLocation은 : " +
+          currentLocation.toString());
+      currentLocation;
+    });
+    // await SharedPreferences.getInstance().then(
+    //   (prefs) {
+    //     setState(() {
+    //       print(
+    //           "*** [home.dart] getCurrentLocationFromPref 함수 안에서 setState 함수가 실행되었습니다! ***");
+    //       currentLocation = prefs.getString("loc3")!;
+    //       print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
+    //       print("curloc ${currentLocation}");
+    //     });
+    //   },
+    // ).then((value) => {
+    //       setState(() {
+    //         print("*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
+    //       })
+    //     });
   }
 
   @override
   void initState() {
     super.initState();
     // 1. home.dart에서 처음으로 실행되는 곳
-    print("[home.dart] initState 에서의 currentLocation은 " + currentLocation);
+    // print("home화면에서의 init state 에서의 currentLocation은 :" +
+    //     currentLocation.toString());
+    // currentLocation = "역삼동";
     getCurrentLocationFromPref();
-    print("[home.dart] initState 에서의 currentLocation은 " + currentLocation);
   }
 
   Future<bool> checkLocationPermission() async {
@@ -222,81 +227,8 @@ class _HomeState extends State<Home> {
         //   //   width: 100,
         //   // )
         // ), // logo, hamburger,
-        title: GestureDetector(
-          onTap: () {
-            print("### 새로고침 버튼이 눌러졌습니다. : click! ###");
-            //채은 : 새로고침 버튼을 눌렀을 때, 좌표넣기
-            // _getCurrentPosition();
-            // print("새로고침 버튼을 눌렀을 때 _getCurrentPosition 의 결과 : " +
-            //     _getCurrentPosition().toString());
-            _getCurrentPosition().then((value) {
-              _currentPosition = value;
-              print("_getCurrentPosition의 결과를 저장한 _currentPosition : " +
-                  _currentPosition.toString());
-              return _currentPosition;
-            }).then((curposition) {
-              setUserLocation(curposition!.latitude.toString(),
-                  curposition.longitude.toString());
-              print("새로고침 버튼을 누른 결과로 얻은 currentLocation : " + currentLocation);
-            }).then((value) {
-              setState(() {
-                print("*** 새로고침 버튼을 누른 후, setState가 실행되었습니다! ***");
-              });
-            });
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: Row(children: [
-              //혜연->채은 요청사항 : currentLocation에 값을 넣음에도 불구하고(loadcontents함수에서)화면에는 초기값인 ""만 보임.
-              Text(currentLocation),
-              // const SizedBox(
-              //   width: 10,
-              // ),
-              // const FaIcon(
-              //   FontAwesomeIcons.rotateRight,
-              //   size: 17,
-              // ),
-              // PopupMenuButton<String>(
-              //   offset: const Offset(-5, 30),
-              //   shape: ShapeBorder.lerp(
-              //       RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(10.0)),
-              //       RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(10.0)),
-              //       1),
-              //   onSelected: (String where) {
-              //     print(where);
-              //     setState(() {
-              //       currentLocation = where;
-              //     });
-              //   },
-              //   itemBuilder: (BuildContext context) {
-              //     return [
-              //       const PopupMenuItem(value: "yeoksam", child: Text("역삼동")),
-              //       const PopupMenuItem(value: "bangbae", child: Text("방배동")),
-              //     ];
-              //   },
-              //   child: Row(
-              //     children: [
-              //       Text(locationTypeToString[currentLocation] ?? ""),
-              //       const Icon(Icons.arrow_drop_down_rounded),
-              //     ],
-              //   ),
-              // ),
-              // IconButton(
-              //     onPressed: () {
-              //       // 새로고침 버튼을 눌렀을 때, 위치가 바뀌도록 처리
-              //       setState(() {
-              //         currentLocation = "bangbae";
-              //       });
-              //     },
-              //     icon: const FaIcon(
-              //       FontAwesomeIcons.rotateRight,
-              //       size: 18,
-              //     ))
-            ]),
-          ),
-        ), // name of the app
+        // name of the app
+        title: Text(currentLocation!),
         actions: [
           IconButton(
               onPressed: () {
@@ -332,7 +264,7 @@ class _HomeState extends State<Home> {
           //     icon: const Icon(Icons.info_outline_rounded))
         ],
         centerTitle: false,
-        titleSpacing: 0,
+        titleSpacing: 23,
         elevation: 0,
         bottomOpacity: 0,
         backgroundColor: Colors.transparent,
@@ -588,34 +520,10 @@ class _HomeState extends State<Home> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Status Chip
-                            // Container(
-                            //   padding: const EdgeInsets.only(
-                            //       left: 7, right: 7, bottom: 4, top: 3),
-                            //   decoration: BoxDecoration(
-                            //       borderRadius: BorderRadius.circular(30),
-                            //       color: _colorStatus(dataContents[index]
-                            //               ["status"]
-                            //           .toString())),
-                            //   child: _currentTotal(dataContents[index]),
-                            // ),
                             const SizedBox(height: 5),
                             // 첫번째 줄 : status, title
                             Row(
                               children: [
-                                // Container(
-                                //   padding: const EdgeInsets.only(
-                                //       left: 7, right: 7, bottom: 4, top: 3),
-                                //   decoration: BoxDecoration(
-                                //       borderRadius: BorderRadius.circular(30),
-                                //       color: _colorStatus(dataContents[index]
-                                //               ["status"]
-                                //           .toString())),
-                                //   child: _currentTotal(dataContents[index]),
-                                // ),
-                                // const SizedBox(
-                                //   width: 5,
-                                // ),
                                 Expanded(
                                   // text overflow 해결 위한 것
                                   child: Text(
@@ -667,41 +575,7 @@ class _HomeState extends State<Home> {
                                                   .toString())),
                                     ),
                                   ),
-                                  // createdAt 후보 1 : 1인당 가격 옆에 작성 시간 표시하기
-                                  // Text(
-                                  //     MyDateUtils.dateTimeDifference(
-                                  //         dataContents[index]["createdAt"]),
-                                  //     // "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
-                                  //     style: TextStyle(
-                                  //       fontSize: 12,
-                                  //       color: Colors.black.withOpacity(0.3),
-                                  //     )),
                                 ]),
-                            // const SizedBox(height: 5),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     // Expanded(
-                            //     //   child: Text(
-                            //     //     '${dataContents[index]["current"]}/${dataContents[index]["total"]}',
-                            //     //     style: TextStyle(
-                            //     //         color: _colorDeterminant(
-                            //     //             dataContents[index]["status"]
-                            //     //                 .toString())),
-                            //     //   ),
-                            //     // ),
-                            //     Container(
-                            //       padding: const EdgeInsets.symmetric(
-                            //           horizontal: 7, vertical: 3),
-                            //       decoration: BoxDecoration(
-                            //           borderRadius: BorderRadius.circular(20),
-                            //           color: _colorStatus(dataContents[index]
-                            //                   ["status"]
-                            //               .toString())),
-                            //       child: _currentTotal(dataContents[index]),
-                            //     ),
-                            //   ],
-                            // ),
                             const SizedBox(height: 5),
                             // 셋째줄 : Dealdate
                             Row(
@@ -778,23 +652,6 @@ class _HomeState extends State<Home> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                // createdAt 후보 2 :  장소 옆에 작성 시간 보여주기
-                                // Expanded(
-                                //   child: Row(
-                                //     mainAxisAlignment: MainAxisAlignment.end,
-                                //     children: [
-                                //       Text(
-                                //           MyDateUtils.dateTimeDifference(
-                                //               dataContents[index]["createdAt"]),
-                                //           // "${dataContents[index]["createdAt"].toString().substring(5, 7)}.${dataContents[index]["createdAt"].toString().substring(8, 10)} ${dataContents[index]["createdAt"].toString().substring(11, 16)}",
-                                //           style: TextStyle(
-                                //             fontSize: 12,
-                                //             color:
-                                //                 Colors.black.withOpacity(0.3),
-                                //           )),
-                                //     ],
-                                //   ),
-                                // ),
                               ],
                             ),
                             // createdAt 후보 3 : 맨 마지막 줄 오른쪽 아래에 작성 시간 표시
@@ -935,65 +792,7 @@ class _HomeState extends State<Home> {
       floatingActionButton: _floatingActionButtonWidget(),
     );
   }
-
-  Future<void> setUserLocation(String latitude, String longitude) async {
-    print("*** setUserLocation 함수가 실행되었습니다! ***");
-    print("[home.dart] setUserLocation 함수로 전달된 latitude : " + latitude);
-    print("[home.dart] setUserLocation 함수로 전달된 longitude : " + longitude);
-
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-    if (token != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-
-      String userId = payload['id'].toString();
-      //9월21일,불러오는 api가 변경될 예정이라 건드리지 않았습니다. 이제 홈 화면에서 새로고침 없앨 것 이기 때문.
-      String tmpUrl = 'https://www.chocobread.shop/users/location/' +
-          userId +
-          '/' +
-          latitude +
-          '/' +
-          longitude;
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var response = await http.post(url);
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      if (list.length == 0) {
-        print("length of list is 0");
-      } else {
-        try {
-          currentLocation = list['result']['location3'].toString();
-          prefs.setString('loc3', currentLocation);
-          print(
-              "[home.dart] setUserLocation 함수 안에서의 list value : ${list['result']}");
-          print(
-              '[home.dart] setUserLocation 함수 안에서의 currentLocation : ${currentLocation}');
-          print("=== [home.dart] setUserLocation 함수 안에서의 list 시작 ===");
-          print(list);
-          print("=== [home.dart] setUserLocation 함수 안에서의 list 끝 ===");
-        } catch (e) {
-          print(e);
-        }
-      }
-    }
-  }
 }
-
-// void _getUserNick(String userId) async {
-//   String tmpUrl = 'https://www.chocobread.shop/users/' + userId;
-//   var url = Uri.parse(
-//     tmpUrl,
-//   );
-//   print(tmpUrl);
-//   var response = await http.get(url);
-//   String responseBody = utf8.decode(response.bodyBytes);
-//   Map<String, dynamic> list = jsonDecode(responseBody);
-//   print("response is");
-//   print(list);
-//   //return list['result']['nick'];
-// }
 
 Future<void> faSelectContent(
     double value, String itemId, String itemName) async {

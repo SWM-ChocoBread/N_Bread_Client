@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -51,28 +52,31 @@ class _SplashState extends State<Splash> {
 
         //로컬스토리지 loc 123을 채우는 코드
         String? loc3 = prefs.getString("loc3");
-        if(loc3==null){
+        if (loc3 == null) {
           String tmpUrl =
-            'https://www.chocobread.shop/users/' + userId.toString();
-        var url = Uri.parse(
-          tmpUrl,
-        );
-        var response = await http.get(url);
-        String responseBody = utf8.decode(response.bodyBytes);
-        Map<String, dynamic> list = jsonDecode(responseBody);
-        String userProvider = list['result']['provider'];
-        if (list['result']['addr'] == null) {
-          prefs.setString("loc3", "위치를 알 수 없는 사용자입니다");
-          print(
-              "loc3를 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 loc3는 ${prefs.getString('loc3')}입니다");
+              'https://www.chocobread.shop/users/' + userId.toString();
+          var url = Uri.parse(
+            tmpUrl,
+          );
+          var response = await http.get(url);
+          String responseBody = utf8.decode(response.bodyBytes);
+          Map<String, dynamic> list = jsonDecode(responseBody);
+          String userProvider = list['result']['provider'];
+          if (list['result']['addr'] == null) {
+            prefs.setString("loc3", "위치를 알 수 없는 사용자입니다");
+            print(
+                "loc3를 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 loc3는 ${prefs.getString('loc3')}입니다");
+          } else {
+            prefs.setString("loc1", list['result']['loc1']);
+            prefs.setString("loc2", list['result']['loc2']);
+            prefs.setString("loc3", list['result']['addr']);
+            currentLocation = prefs.getString("loc3");
+            print(
+                "loc1,2,3을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
+          }
+          print("스플래시에서 loc 123채우기 완료");
         } else {
-          prefs.setString("loc1", list['result']['loc1']);
-          prefs.setString("loc2", list['result']['loc2']);
-          prefs.setString("loc3", list['result']['addr']);
-          print(
-              "loc1,2,3을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
-        }
-        print("스플래시에서 loc 123채우기 완료");
+          currentLocation = prefs.getString("loc3");
         }
         //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
         Navigator.pushAndRemoveUntil(

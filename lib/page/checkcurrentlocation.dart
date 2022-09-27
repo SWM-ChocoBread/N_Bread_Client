@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -96,6 +97,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
     prefs.setString("loc1", loc1);
     prefs.setString("loc2", loc2);
     prefs.setString("loc3", loc3);
+    currentLocation = loc3;
     String? userToken = prefs.getString('userToken');
     if (userToken != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
