@@ -37,7 +37,6 @@ import 'termslook.dart';
 import 'home.dart' as home;
 
 String setUserNickName = "";
-Position? _currentPosition;
 UserInfoRepository userInfoRepository = UserInfoRepository();
 String? newloc1;
 String? newloc2;
@@ -351,7 +350,7 @@ class _MyPageState extends State<MyPage> {
               side: BorderSide.none,
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(100))),
-              minimumSize: Size.zero, // Set this
+              minimumSize: Size.zero,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             ),
             child: Row(
@@ -777,8 +776,6 @@ class _MyPageState extends State<MyPage> {
 
     if (hasPermission) {
       // 2. 위치 권한이 허용된 경우 : geolocator package로 현재 위도와 경도를 받아온다.
-      print("[home.dart] getCurrentPosition 함수 내에서 위치를 가져오기 전까지의 현재 위치는 " +
-          _currentPosition.toString());
       geoLocation = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high); // 권한이 허용되었으면, 현재 위치를 가져오는 함수
       var latitude = geoLocation?.latitude ?? basicLatitude;

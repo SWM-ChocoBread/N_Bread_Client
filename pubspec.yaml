@@ -66,6 +66,7 @@ dependencies:
   flutter_markdown: ^0.6.10+3
   amplitude_flutter: ^3.7.0
   sign_in_with_apple: ^4.1.0
+  smooth_page_indicator: ^1.0.0+2
 
 flutter_native_splash:
  color: “#ffffff”

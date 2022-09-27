@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:chocobread/page/nicknameset.dart';
+import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:chocobread/page/mypage.dart';
@@ -136,7 +138,7 @@ class _LoginState extends State<Login> {
                 print("code 가 ${code}로 설정되었습니다.");
               } catch (error) {
                 print('사용자 정보 요청 실패 $error');
-              } 
+              }
             } catch (error) {
               print('로그인 실패 $error');
             }
@@ -256,6 +258,7 @@ class _LoginState extends State<Login> {
                 prefs.setString("loc1", list['result']['loc1']);
                 prefs.setString("loc2", list['result']['loc2']);
                 prefs.setString("loc3", list['result']['addr']);
+                currentLocation = prefs.getString("loc3");
                 print(
                     "loc1,2,3을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
               }
@@ -355,7 +358,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-   Widget _applelogin() {
+  Widget _applelogin() {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
@@ -407,6 +410,15 @@ class _LoginState extends State<Login> {
         ));
   }
 
+  Widget _whichLogin() {
+    if (Platform.isAndroid) {
+      return _kakaologinSDK();
+    } else if (Platform.isIOS) {
+      return _applelogin();
+    }
+    return _kakaologinSDK();
+  }
+
   Widget _bodyWidget() {
     return Container(
       color: ColorStyle.mainColor,
@@ -437,18 +449,23 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 15,
               ),
-              // _naverlogin(),
+              _whichLogin(),
+              OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return Onboarding();
+                    }));
+                  },
+                  child: const Text("온보딩")),
+              _kakaologinSDK(),
               // const SizedBox(
               //   height: 10,
               // ),
-              _kakaologinSDK(),
-              const SizedBox(
-                height: 10,
-              ),
-              _applelogin(),
-              const SizedBox(
-                height: 10,
-              ),
+              // _applelogin(),
+              // const SizedBox(
+              //   height: 10,
+              // ),
             ],
           ),
         ),
