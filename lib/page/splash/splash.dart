@@ -82,6 +82,8 @@ class _SplashState extends State<Splash> {
                 "loc1,2,3을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 loc3은 ${prefs.getString('loc3')}입니다");
           }
           print("스플래시에서 loc 123채우기 완료");
+        } else {
+          currentLocation = prefs.getString("loc3");
         }
         //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
         Navigator.pushAndRemoveUntil(
