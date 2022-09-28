@@ -44,6 +44,9 @@
         <!-- "kakao${YOUR_NATIVE_APP_KEY}://kakaolink" 형식의 앱 실행 스킴을 설정하는데 사용 -->
         <data android:host="kakaolink"
                 android:scheme="kakaocfd53361fe092dba3d8960f5697f97b4" />
+                <data
+        android:host="chocobread.page.link/6RQi"
+        android:scheme="https"/>
     </intent-filter>
 </activity>
 
