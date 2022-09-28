@@ -798,7 +798,7 @@ class _MyPageState extends State<MyPage> {
             context: context,
             builder: (BuildContext context) {
               return CheckCurrentLocation(
-                  prev: prevLocation, now: "$newloc2 $newloc3");
+                  prev: prevLocation, now: "$newloc1 $newloc2 $newloc3");
             }).then((_) async {
           final prefs = await SharedPreferences.getInstance();
           setState(() {

@@ -450,15 +450,15 @@ class _LoginState extends State<Login> {
                 height: 15,
               ),
               _whichLogin(),
-              OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return Onboarding();
-                    }));
-                  },
-                  child: const Text("온보딩")),
-              _kakaologinSDK(),
+              // OutlinedButton(
+              //     onPressed: () {
+              //       Navigator.push(context,
+              //           MaterialPageRoute(builder: (BuildContext context) {
+              //         return Onboarding();
+              //       }));
+              //     },
+              //     child: const Text("온보딩")),
+              // _kakaologinSDK(),
               // const SizedBox(
               //   height: 10,
               // ),

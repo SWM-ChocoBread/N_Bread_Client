@@ -238,14 +238,14 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return Onboarding();
-                }));
-              },
-              icon: const Icon(Icons.mood)),
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return Onboarding();
+          //       }));
+          //     },
+          //     icon: const Icon(Icons.mood)),
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,
