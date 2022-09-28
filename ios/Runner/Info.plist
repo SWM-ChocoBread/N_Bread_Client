@@ -48,6 +48,16 @@
 				<string>kakaocfd53361fe092dba3d8960f5697f97b4</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.chocobread.shop</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>chocobread.page.link</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>

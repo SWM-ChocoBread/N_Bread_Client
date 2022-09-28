@@ -52,7 +52,8 @@ class _SplashState extends State<Splash> {
 
         //로컬스토리지 loc 123을 채우는 코드
         String? loc3 = prefs.getString("loc3");
-        if (loc3 == null) {
+        if (loc3 == null || loc3 == "null") {
+          print("loc3 is null");
           String tmpUrl =
               'https://www.chocobread.shop/users/' + userId.toString();
           var url = Uri.parse(
