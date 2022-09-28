@@ -210,77 +210,78 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
       ),
       actions: [
-        // IconButton(
-        //     onPressed: () async {
-        //       print("공유하기버튼이 눌렸습니다");
-        //       bool result =
-        //           await ShareClient.instance.isKakaoTalkSharingAvailable();
+        IconButton(
+            onPressed: () async {
+              print("공유하기버튼이 눌렸습니다");
+              bool result =
+                  await ShareClient.instance.isKakaoTalkSharingAvailable();
 
-        //       //형식만들기
-        //       if (imgUrl == "") {
-        //         imgUrl =
-        //             'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
-        //       }
-        //       final CommerceTemplate defaultCommerce = CommerceTemplate(
-        //         content: Content(
-        //           title: title,
-        //           imageUrl: Uri.parse(imgUrl),
-        //           link: Link(
-        //             webUrl: Uri.parse('https://developers.kakao.com'),
-        //             mobileWebUrl: Uri.parse('https://developers.kakao.com'),
-        //           ),
-        //         ),
-        //         commerce: Commerce(
-        //           regularPrice: personalPrice,
-        //           // discountPrice: personalPrice,
-        //           // discountRate: member,
-        //           productName: productName,
-        //           currencyUnit: "원",
-        //           currencyUnitPosition: 0,
-        //         ),
-        //         buttons: [
-        //           Button(
-        //             title: '구매하기',
-        //             link: Link(
-        //               webUrl: Uri.parse('https://developers.kakao.com'),
-        //               mobileWebUrl: Uri.parse('https://developers.kakao.com'),
-        //             ),
-        //           ),
-        //           // Button(
-        //           //   title: '공유하기',
-        //           //   link: Link(
-        //           //     androidExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-        //           //     iosExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-        //           //   ),
-        //           // )
-        //         ],
-        //       );
-        //       if (result) {
-        //         print('카카오톡으로 공유 가능');
+              //형식만들기
+              if (imgUrl == "") {
+                imgUrl =
+                    'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
+              }
+              final CommerceTemplate defaultCommerce = CommerceTemplate(
+                content: Content(
+                  title: title,
+                  imageUrl: Uri.parse(imgUrl),
+                  link: Link(
+                    webUrl: Uri.parse('https://developers.kakao.com'),
+                    mobileWebUrl: Uri.parse('https://developers.kakao.com'),
+                  ),
+                ),
+                commerce: Commerce(
+                  regularPrice: personalPrice,
+                  // discountPrice: personalPrice,
+                  // discountRate: member,
+                  productName: productName,
+                  currencyUnit: "원",
+                  currencyUnitPosition: 0,
+                ),
+                buttons: [
+                  Button(
+                    title: '구매하기',
+                    link: Link(
+                      webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                      mobileWebUrl:
+                          Uri.parse('https://chocobread.page.link/6RQi'),
+                    ),
+                  ),
+                  // Button(
+                  //   title: '공유하기',
+                  //   link: Link(
+                  //     androidExecutionParams: {'key1': 'value1', 'key2': 'value2'},
+                  //     iosExecutionParams: {'key1': 'value1', 'key2': 'value2'},
+                  //   ),
+                  // )
+                ],
+              );
+              if (result) {
+                print('카카오톡으로 공유 가능');
 
-        //         try {
-        //           Uri uri = await ShareClient.instance
-        //               .shareDefault(template: defaultCommerce);
-        //           await ShareClient.instance.launchKakaoTalk(uri);
-        //           print('카카오톡 공유 완료');
-        //         } catch (error) {
-        //           print('카카오톡 공유 실패 $error');
-        //         }
-        //       } else {
-        //         print('카카오톡 미설치: 웹 공유 기능 사용 권장');
-        //         try {
-        //           Uri shareUrl = await WebSharerClient.instance
-        //               .makeDefaultUrl(template: defaultCommerce);
-        //           await launchBrowserTab(shareUrl);
-        //         } catch (error) {
-        //           print('카카오톡 공유 실패 $error');
-        //         }
-        //       }
-        //     },
-        //     icon: const Icon(
-        //       Icons.share,
-        //       color: Colors.white,
-            // )),
+                try {
+                  Uri uri = await ShareClient.instance
+                      .shareDefault(template: defaultCommerce);
+                  await ShareClient.instance.launchKakaoTalk(uri);
+                  print('카카오톡 공유 완료');
+                } catch (error) {
+                  print('카카오톡 공유 실패 $error');
+                }
+              } else {
+                print('카카오톡 미설치: 웹 공유 기능 사용 권장');
+                try {
+                  Uri shareUrl = await WebSharerClient.instance
+                      .makeDefaultUrl(template: defaultCommerce);
+                  await launchBrowserTab(shareUrl);
+                } catch (error) {
+                  print('카카오톡 공유 실패 $error');
+                }
+              }
+            },
+            icon: const Icon(
+              Icons.share,
+              color: Colors.white,
+            )),
         _popupMenuButtonSelector(),
         // IconButton(
         //     onPressed: () {},
@@ -1509,27 +1510,6 @@ class _DetailContentViewState extends State<DetailContentView> {
       //     : _bottomNavigationBarWidgetSelector(),
     );
   }
-
-  // Future getUserStatus() async {
-  //   String dealId = widget.data['id'].toString();
-  //   Map<String, dynamic> getTokenPayload =
-  //       await userInfoRepository.getUserInfo();
-  //   String userId = getTokenPayload['id'].toString();
-  //   String tmpUrl =
-  //       'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
-  //   var url = Uri.parse(
-  //     tmpUrl,
-  //   );
-  //   var response = await http.get(url);
-  //   String responseBody = utf8.decode(response.bodyBytes);
-  //   Map<String, dynamic> list = jsonDecode(responseBody);
-  //   if (list.length == 0) {
-  //     print("length of list is 0");
-  //   } else {
-  //     print('getuserStatus function ${list['result']['description']}');
-  //     currentuserstatus = list['result']['description'];
-  //   }
-  // }
 
   void deleteDeal(String dealId) async {
     final prefs = await SharedPreferences.getInstance();
