@@ -36,6 +36,8 @@ import 'detail.dart';
 import 'termslook.dart';
 import 'home.dart' as home;
 
+bool showindicator = false;
+
 String setUserNickName = "";
 UserInfoRepository userInfoRepository = UserInfoRepository();
 String? newloc1;
@@ -340,11 +342,19 @@ class _MyPageState extends State<MyPage> {
             width: 15,
           ),
           OutlinedButton(
-            onPressed: () async {
-              // 동네 새로고침 버튼을 눌렀을 때
-              //await testSetLocation();
-              await getCurrentPosition();
-            },
+            onPressed: showindicator
+                ? () => null
+                : () async {
+                    // 동네 새로고침 버튼을 눌렀을 때
+                    //await testSetLocation();
+                    setState(() {
+                      showindicator = true;
+                    });
+                    await getCurrentPosition();
+                    setState(() {
+                      showindicator = false;
+                    });
+                  },
             style: OutlinedButton.styleFrom(
               backgroundColor: Color.fromARGB(255, 186, 186, 186),
               side: BorderSide.none,
@@ -354,21 +364,31 @@ class _MyPageState extends State<MyPage> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             ),
             child: Row(
-              children: const [
-                Icon(
-                  FontAwesomeIcons.rotateRight,
-                  size: 15,
-                  color: Colors.white,
-                ),
+              children: [
                 SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "동네 새로고침",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700),
+                    child: !showindicator
+                        ? Icon(
+                            FontAwesomeIcons.rotateRight,
+                            size: 15,
+                            color: Colors.white,
+                          )
+                        : SizedBox()),
+                SizedBox(
+                    child: !showindicator ? SizedBox(width: 10) : SizedBox()),
+                SizedBox(
+                  child: !showindicator
+                      ? Text(
+                          "동네 새로고침",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700),
+                        )
+                      : const SizedBox(
+                          child: CircularProgressIndicator(),
+                          height: 20,
+                          width: 20,
+                        ),
                 ),
               ],
             ),
