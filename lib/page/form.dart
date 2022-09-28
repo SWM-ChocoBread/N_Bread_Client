@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:chocobread/page/imageuploader.dart' as imageFile;
 import 'package:chocobread/page/widgets/snackbar.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -14,10 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/datetime_utils.dart';
+import 'checkmovetophotosettings.dart';
 import 'repository/contents_repository.dart' as contents;
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
@@ -99,7 +101,7 @@ class _customFormState extends State<customForm> {
 
   List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
 
-  void selectImagesFromGallery() async {
+  Future selectImagesFromGallery() async {
     final List<XFile>? selectedImagesFromGallery =
         await imagePickerFromGallery.pickMultiImage();
     setState(() {});
@@ -123,7 +125,7 @@ class _customFormState extends State<customForm> {
     setState(() {});
   }
 
-  void selectImagesFromCamera() async {
+  Future selectImagesFromCamera() async {
     final XFile? selectedImageFromCamera =
         await imagePickerFromCamera.pickImage(source: ImageSource.camera);
     setState(() {});
@@ -172,31 +174,35 @@ class _customFormState extends State<customForm> {
                       Column(
                         children: [
                           OutlinedButton(
-                            onPressed: () {
-                              selectImagesFromGallery();
-                              Navigator.pop(context);
-
-                              const snackBar = SnackBar(
-                                content: Text(
-                                  "사진은 3장까지 업로드할 수 있습니다!",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                // backgroundColor: Colors.black,
-                                duration: Duration(milliseconds: 2000),
-                                behavior: SnackBarBehavior.floating,
-                                elevation: 50,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                  Radius.circular(5),
-                                )),
-                                // StadiumBorder(),
-                                // RoundedRectangleBorder(
-                                //     borderRadius: BorderRadius.only(
-                                //         topLeft: Radius.circular(30),
-                                //         topRight: Radius.circular(30))),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
+                            onPressed: () async {
+                              PermissionStatus status;
+                              if (Platform.isAndroid) {
+                                // android 인 경우 : storage 권한을 묻는다.
+                                status = await Permission.storage.request();
+                              } else if (Platform.isIOS) {
+                                // iOS 인 경우 : photos 권한을 묻는다.
+                                status = await Permission.photos.request();
+                              } else {
+                                // android 도 아니고, iOS 도 아닌 경우 : storage 권한을 묻는다.
+                                status = await Permission.storage.request();
+                              }
+                              if (status.isGranted) {
+                                // Either the permission was already granted before or the user just granted it.
+                                // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
+                                print("권한을 허용했습니다.");
+                                await selectImagesFromGallery();
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    MySnackBar("사진은 3장까지 업로드할 수 있습니다!"));
+                              } else {
+                                // 권한을 허용하지 않은 경우 : 설정으로 이동해서 권한 허용을 요청하는 alert dialog 띄우기
+                                print("권한을 허용하지 않았습니다.");
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CheckMoveToPhotoSettings();
+                                    });
+                              }
                             }, // 갤러리에서 사진 가져오고
                             style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.all(20),
@@ -219,8 +225,23 @@ class _customFormState extends State<customForm> {
                       Column(
                         children: [
                           OutlinedButton(
-                            onPressed: () {
-                              selectImagesFromCamera();
+                            onPressed: () async {
+                              var status = await Permission.camera.request();
+                              if (status.isGranted) {
+                                // Either the permission was already granted before or the user just granted it.
+                                // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
+                                print("권한을 허용했습니다.");
+                                await selectImagesFromCamera();
+                                Navigator.pop(context);
+                              } else {
+                                // 권한을 허용하지 않은 경우 : 설정으로 이동해서 권한 허용을 요청하는 alert dialog 띄우기
+                                print("권한을 허용하지 않았습니다.");
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CheckMoveToPhotoSettings();
+                                    });
+                              }
                             }, // 카메라로 사진 찍기
                             style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.all(20),
@@ -1072,34 +1093,29 @@ Future getApiTest(Map jsonbody, FormData formData) async {
       imgCreateUrl,
       data: formData,
     );
-
-    await FirebaseAnalytics.instance.logSelectContent(
-      contentType: "image",
-      itemId: 'TEST',
-    );
-
-    await FirebaseAnalytics.instance.logEvent(name: "dealCreate", parameters: {
-      "id": list['result']['id'].toString(),
-      "title": list['result']['title'].toString()
-      // productLink : productLink,
-      // totalPrice : totalPrice,
-      // numOfParticipants : numOfParticipants,
-      // personalPrice : personalPrice,
-      // dateToSend : dateToSend,
-      // place : place,
-      // extra : extra
+    var dealCreateResponseResult = list['result'];
+    await FirebaseAnalytics.instance.logEvent(name: "deal_create", parameters: {
+      "dealId": dealCreateResponseResult['id'].toString(),
+      "title": dealCreateResponseResult['title'].toString(),
+      "productLink": dealCreateResponseResult['link'].toString(),
+      "totalPrice": dealCreateResponseResult['totalPrice'].toString(),
+      "totalMember": dealCreateResponseResult['totalMember'].toString(),
+      "personalPrice": dealCreateResponseResult['personalPrice'].toString(),
+      "dealDate": dealCreateResponseResult['dealDate'].toString(),
+      "dealPlace": dealCreateResponseResult['dealPlace'].toString(),
+      "content": dealCreateResponseResult['content'].toString(),
     });
 
     Airbridge.event.send(Event(
-      'dealCreateEvent',
+      'Deal Create',
       option: EventOption(
         semantics: {
           'transactionID': list['result']['id'].toString(),
           'products': [
             {
               'productID': jsonbody['id'],
-              'name': list['result']['title'].toString(),
-              "price": 1000,
+              'name': dealCreateResponseResult['totalPrice'].toString(),
+              "price": dealCreateResponseResult['totalPrice'].toString(),
               "currency": 'KRW',
               "quantity": 1,
             }

@@ -211,7 +211,7 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
           await http.post(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
-      await faPurchase('KRW', widget.data["id"].toString(), widget.data["totalPrice"].toDouble());
+      await faPurchase('KRW', widget.data["id"].toString(), widget.data["personalPrice"].toDouble());
       print(list);
       print("RESPONSE BODY");
       print(responseBody);

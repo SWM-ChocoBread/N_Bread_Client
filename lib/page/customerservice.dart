@@ -1,6 +1,13 @@
 import 'package:chocobread/constants/sizes_helper.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
 
@@ -67,6 +74,28 @@ class _CustomerServiceState extends State<CustomerService> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 13, horizontal: 20)),
                   onPressed: () async {
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    String? token = prefs.getString("userToken");
+                    print("TOKEN : ${token}");
+                    if (token != null) {
+                      Map<String, dynamic> payload = Jwt.parseJwt(token);
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: "kakao_cs",
+                        parameters: {
+                          "userId" : payload['id'].toString(),
+                          "provider" : payload['provider'].toString() 
+                        }
+                      );
+                      Airbridge.event.send(Event(
+                            'Kakao CS',
+                            option: EventOption(
+                              attributes: {
+                                "userId" : payload['id'].toString(),
+                                "provider" : payload['provider'].toString() 
+                              },
+                            ),
+                          ));
+                    }
                     if (await canLaunchUrl(
                         Uri.parse("https://open.kakao.com/o/sa4gFgpe"))) {
                       await launchUrl(

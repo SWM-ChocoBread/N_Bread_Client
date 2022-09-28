@@ -6,6 +6,10 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import 'app.dart';
 
@@ -47,6 +51,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
 
       String userId = payload['id'].toString();
+      String userProvider = payload['provider'].toString();
 
       String tmpUrl = 'https://www.chocobread.shop/users/check/' + userId;
       var url = Uri.parse(
@@ -56,15 +61,70 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
       print("splash에서의 list : ${list}");
-      if (list['code'] == 200) {
+    if (list['code'] == 200) {
         print("코드가 200입니다. 홈화면으로 리다이렉트합니다.");
-        //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
+        final prefs = await SharedPreferences.getInstance();
+        String? curLocation = prefs.getString("userLocation");
+        if (curLocation == null) {
+          print('curLocation이 null입니다. db에서 위치를 가져옵니다');
+          String? token = prefs.getString("userToken");
+          if (token != null) {
+            Map<String, dynamic> payload = Jwt.parseJwt(token);
+            int userId = payload['id'];
+            String tmpUrl =
+                'https://www.chocobread.shop/users/' + userId.toString();
+            var url = Uri.parse(
+              tmpUrl,
+            );
+            var response = await http.get(url);
+            String responseBody = utf8.decode(response.bodyBytes);
+            Map<String, dynamic> list = jsonDecode(responseBody);
+            if (list['result']['addr'] == null) {
+              prefs.setString("userLocation", "위치를 알 수 없는 사용자입니다");
+              print(
+                  "curLocation을 db에서 가져오려했으나 null입니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+            } else {
+              prefs.setString("userLocation", list['result']['addr']);
+              print(
+                  "curLocation을 db에서 가져왔습니다. 현재 로컬 스토리지에 저장된 curLocation은 ${prefs.getString('userLocation')}입니다");
+            }
+          } else {
+            print("token is null");
+            // null이면 어떻게 되는데?
+          }
+          //https://www.chocobread.shop/users/1
+        }
+        Airbridge.event.send(SignInEvent(
+          user: User(
+            id: userId,
+            email : list['result']['email'],
+            attributes: {
+              "provider" : userProvider,
+              "curLocation" : prefs.getString('userLocation')
+            }
+          )
+        ));
+        await FirebaseAnalytics.instance.logLogin(
+          loginMethod: userProvider
+        );
+
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (BuildContext context) => const App()),
             (route) => false);
       } else if (list['code'] == 300 || list['code'] == 404) {
         print("코드가 ${list['code']}입니다. 약관동의 화면으로 리다이렉트합니다.");
+        Airbridge.event.send(SignUpEvent(
+              user: User(
+                id: userId,
+                attributes: {
+                  "provider" : userProvider
+                }
+          )
+        ));
+        await FirebaseAnalytics.instance.logSignUp(
+          signUpMethod: userProvider
+        );
         Navigator.pushNamedAndRemoveUntil(
             context, '/termscheck', (route) => false);
       } else {
@@ -115,7 +175,7 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
           final prefs = await SharedPreferences.getInstance();
           if (cookie != null) {
             prefs.setString("userToken", cookie.value);
-            sendSignupToAirbridge();
+            //sendSignupToAirbridge();
             checkStatus();
             // Navigator.pushNamedAndRemoveUntil(
             //     context, "/termscheck", (r) => false);

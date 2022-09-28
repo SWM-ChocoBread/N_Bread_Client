@@ -70,7 +70,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
   Widget _userStatusChip(String userstatus) {
     if (userstatus == "") {
-      return Container();
+      return const SizedBox.shrink();
     } else {
       return Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -642,7 +642,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                   IconButton(
                     // enableSend 가 false이면, 댓글창에 아무것도 없으면, send 버튼 비활성화 (send 버튼 눌러도 변화 없음)
                     onPressed: enableSend
-                        ? () async{
+                        ? () async {
                             // send 버튼을 누르면 작동한다.
                             // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
                             print(commentToServer + " 2"); //

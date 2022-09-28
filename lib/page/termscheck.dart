@@ -12,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../style/colorstyles.dart';
+import 'checkmovetolocationsettings.dart';
 import 'terms.dart';
 import 'package:http/http.dart' as http;
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
@@ -90,7 +91,7 @@ class _TermsCheckState extends State<TermsCheck> {
     if (permission == LocationPermission.deniedForever) {
       const snackBar = SnackBar(
         content: Text(
-          "위치 권한이 영구적으로 거부됐습니다! 권한을 요청할 수 없습니다.",
+          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: ColorStyle.darkMainColor,
@@ -135,7 +136,6 @@ class _TermsCheckState extends State<TermsCheck> {
 
   @override
   initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await checkIfPermissionGranted()) {
@@ -152,7 +152,12 @@ class _TermsCheckState extends State<TermsCheck> {
         //   }));
         // });
       } else {
-        openAppSettings();
+        // 권한이 허용되지 않았다면, 설정으로 이동해서 권한을 허용해달라고 요청하는 alert dialog가 뜬다.
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CheckMoveToLocationSettings();
+            });
       }
     });
   }
@@ -381,13 +386,8 @@ class _TermsCheckState extends State<TermsCheck> {
   // }
 
   Future<bool> checkIfPermissionGranted() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.camera,
-      Permission.storage,
-      Permission.location,
-      // Permission.locationAlways,
-      Permission.locationWhenInUse
-    ].request();
+    Map<Permission, PermissionStatus> statuses =
+        await [Permission.locationWhenInUse].request();
 
     bool permitted = true;
 
@@ -413,11 +413,11 @@ class _TermsCheckState extends State<TermsCheck> {
           ),
           onPressed: (isServiceChecked && isPersonalChecked) // 모두 체크한 경우
               ? () {
-                //혜연 : 임시로 추가한 nickname set 페이지 이동 코드
-                Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return NicknameSet();
-                      }));
+                  //혜연 : 임시로 추가한 nickname set 페이지 이동 코드
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return NicknameSet();
+                  }));
                   // .then((_) async {
                   //   if (await checkIfPermissionGranted()) {
                   //     // 만약 모든 권한이 허용되었다면, 닉네임 설정 페이지로 이동
@@ -490,5 +490,4 @@ class _TermsCheckState extends State<TermsCheck> {
       bottomNavigationBar: _bottomNavigationBar(),
     );
   }
-   
 }

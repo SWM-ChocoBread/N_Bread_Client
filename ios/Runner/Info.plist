@@ -58,23 +58,26 @@
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
 	</dict>
+	<!-- 카메라 권한 -->
 	<key>NSCameraUsageDescription</key>
-	<string>Used to demonstrate image picker plugin</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Always and when in use!</string>
+	<string>To take a photo that goes into your deal suggestion, please allow permission to access your camera</string>
+	<!-- <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Always and when in use!</string> -->
 	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 	<dict>
 		<key>YourPurposeKey</key>
 		<string>The example App requires temporary access to the device's precise location.</string>
 	</dict>
-	<key>NSLocationUsageDescription</key>
-	<string>Older devices need location.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need location when in use</string>
+	<!-- <key>NSLocationUsageDescription</key>
+	<string>Older devices need location.</string> -->
+	<!-- 사용중에 위치 받아오기 -->
+	<key>NSLocationWhenInUseUsageDescription</key> 
+	<string>Need location when user first signs up and refreshes location in order to get deals that are open in that specific location</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Used to capture audio for image picker plugin</string>
+	<!-- 갤러리 권한 -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To upload photos, please allow permission to access your photo library.</string>
+	<string>To upload photos for deal suggestion, please allow permission to access your photo library.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

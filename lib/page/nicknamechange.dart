@@ -1,11 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:chocobread/page/widgets/snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import '../style/colorstyles.dart';
 import 'checknicknameoverlap.dart';
@@ -207,10 +212,11 @@ class _NicknameChangeState extends State<NicknameChange> {
                     "${nicknametocheck}의 checknickname실행 결과 nicknameoverlap : ${nicknameoverlap}");
                 // 닉네임이 오버랩되는지 확인하기 위한 변수
                 if (currentNickname == nicknametocheck) {
-                  // 원래 닉네임과 바꾼 중복 확인하는 닉네임이 동일한 경우 : nickname은 overlap 되지 않는다.
-                  nicknameoverlap = false;
-                }
-                if (nicknameoverlap == false &&
+                  // 원래 닉네임과 바꾼 중복 확인하는 닉네임이 동일한 경우 : nickname은 overlap 되게 처리해서 닉네임 변경 완료 버튼이 활성화되지 않도록 처리한다.
+                  nicknameoverlap = true;
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(MySnackBar("현재 닉네임으로 변경할 수 없습니다."));
+                } else if (nicknameoverlap == false &&
                     _formKey.currentState!.validate()) {
                   // 닉네임이 오버랩되지 않고, 닉네임 변경 완료 버튼 활성화위해 enablebutton bool을 true로 변경
                   setState(() {
@@ -285,6 +291,22 @@ class _NicknameChangeState extends State<NicknameChange> {
       var response = await http.put(url, headers: headerss, body: jsonString);
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
+      await FirebaseAnalytics.instance
+          .logEvent(name: "nickname_change", parameters: {
+        "userId": list['result']['id'],
+        "provider": payload['provider'].toString(),
+        "changedNick": list['result']['nick']
+      });
+      Airbridge.event.send(Event(
+        'Nickname Change',
+        option: EventOption(
+          attributes: {
+            "userId": list['result']['id'],
+            "provider": payload['provider'].toString(),
+            "changedNick": list['result']['nick']
+          },
+        ),
+      ));
       print(list);
     }
   }

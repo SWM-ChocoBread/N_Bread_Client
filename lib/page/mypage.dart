@@ -4,6 +4,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'dart:convert';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/checkresign.dart';
 import 'package:chocobread/page/home.dart';
 import 'package:chocobread/page/kakaoLogout.dart';
 import 'package:chocobread/page/login.dart';
@@ -20,6 +21,10 @@ import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/identify.dart';
 
 import 'accountdelete.dart';
 import 'detail.dart';
@@ -114,6 +119,11 @@ class _MyPageState extends State<MyPage> {
                                     prefs.remove('userToken');
                                     try {
                                       await UserApi.instance.logout();
+                                      await FirebaseAnalytics.instance.logEvent(name: "logout", parameters: {
+                                        "userId" : payload['id'],
+                                        "provier" : "kakao"
+                                      });
+                                      Airbridge.event.send(SignOutEvent());
                                       print('로그아웃 성공, SDK에서 토큰 삭제');
                                     } catch (error) {
                                       print('로그아웃 실패, SDK에서 토큰 삭제 $error');
@@ -126,6 +136,11 @@ class _MyPageState extends State<MyPage> {
                                     print(
                                         'logout provider is ${payload['provider']}');
                                     prefs.remove('userToken');
+                                    await FirebaseAnalytics.instance.logEvent(name: "logout", parameters: {
+                                        "userId" : payload['id'],
+                                        "provier" : "apple"
+                                      });
+                                    Airbridge.event.send(SignOutEvent());
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
@@ -156,14 +171,12 @@ class _MyPageState extends State<MyPage> {
                                   ),
                               onPressed: () async {
                                 print("탈퇴하기 버튼이 눌렸습니다.");
-                                Airbridge.event.send(SignOutEvent());
-                                await resign();
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            Login()),
-                                    (route) => false);
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CheckResign();
+                                    });
+                                
                                 // 로그아웃을 하면 이동하는 페이지 넣기
                                 // Navigator.push(context, MaterialPageRoute(
                                 //     builder: (BuildContext context) {
@@ -591,52 +604,6 @@ class _MyPageState extends State<MyPage> {
       var response = await http.get(url);
       String responseBody = utf8.decode(response.bodyBytes);
       print(responseBody);
-      //Map<String, dynamic> list = jsonDecode(responseBody);
-      // if (list.length == 0) {
-      //   print("length of list is 0");
-      // } else {
-      //   print(list);
-      // }
-    }
-  }
-
-  //kakao apple resign api
-  Future<void> resign() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("userToken");
-
-    if (token != null) {
-      Map<String, dynamic> payload = Jwt.parseJwt(token);
-      print('payload value is ${payload}');
-
-      String provider = payload['provider'].toString();
-      print("provider is ${provider} on resign api");
-
-      if (provider == "kakao") {
-        provider = "kakaosdk";
-        try {
-          await UserApi.instance.unlink();
-          print('연결 끊기 성공, SDK에서 토큰 삭제');
-        } catch (error) {
-          print('연결 끊기 실패 $error');
-        }
-      }
-
-      String tmpUrl =
-          'https://www.chocobread.shop/auth/' + provider + '/signout';
-      print("tmpUrl value is ${tmpUrl}");
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var response = await http.delete(url, headers: {
-        'Authorization': token,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      });
-      String responseBody = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> list = jsonDecode(responseBody);
-      prefs.remove("userToken");
-      print("prefs setting done");
-      print(list);
       //Map<String, dynamic> list = jsonDecode(responseBody);
       // if (list.length == 0) {
       //   print("length of list is 0");
