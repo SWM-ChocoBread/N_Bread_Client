@@ -411,12 +411,10 @@ class _LoginState extends State<Login> {
   }
 
   Widget _whichLogin() {
-    if (Platform.isAndroid) {
-      return _kakaologinSDK();
-    } else if (Platform.isIOS) {
+    if (Platform.isIOS) {
       return _applelogin();
     }
-    return _kakaologinSDK();
+    return const SizedBox.shrink();
   }
 
   Widget _bodyWidget() {
@@ -449,7 +447,6 @@ class _LoginState extends State<Login> {
               const SizedBox(
                 height: 15,
               ),
-              _whichLogin(),
               // OutlinedButton(
               //     onPressed: () {
               //       Navigator.push(context,
@@ -458,10 +455,11 @@ class _LoginState extends State<Login> {
               //       }));
               //     },
               //     child: const Text("온보딩")),
-              // _kakaologinSDK(),
-              // const SizedBox(
-              //   height: 10,
-              // ),
+              _kakaologinSDK(),
+              const SizedBox(
+                height: 10,
+              ),
+              _whichLogin(),
               // _applelogin(),
               // const SizedBox(
               //   height: 10,
