@@ -58,7 +58,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
               crossAxisCellCount: 8,
               mainAxisCellCount: 2,
               child: Text(
-                widget.now,
+                "${widget.now.split(" ")[1]} ${widget.now.split(" ")[2]}",
                 softWrap: true,
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
@@ -70,7 +70,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
           height: 15,
         ),
         Text(
-          "동네를 ${widget.now}(으)로 변경하겠습니까?",
+          "동네를 ${widget.now.split(" ")[1]} ${widget.now.split(" ")[2]}(으)로 변경하겠습니까?",
           style: TextStyle(fontSize: 15),
         )
       ]),
@@ -82,6 +82,8 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
             child: const Text("취소")),
         TextButton(
             onPressed: () async {
+              print("widget.now :  ${widget.now.toString()}");
+              print("변경하기 버튼 click");
               var temp = widget.now.split(" ");
               await setLocation(temp[0], temp[1], temp[2]);
               Navigator.of(context).pop();
@@ -92,7 +94,7 @@ class _CheckCurrentLocationState extends State<CheckCurrentLocation> {
   }
 
   // 변경버튼 눌렀을 때
-  setLocation(String loc1, String loc2, String loc3) async {
+  Future<void> setLocation(String loc1, String loc2, String loc3) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString("loc1", loc1);
     prefs.setString("loc2", loc2);

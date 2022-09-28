@@ -1,4 +1,5 @@
 import 'package:chocobread/page/onboarding/firstonboarding.dart';
+import 'package:chocobread/page/onboarding/fourthonboarding.dart';
 import 'package:chocobread/page/onboarding/secondonboarding.dart';
 import 'package:chocobread/page/onboarding/thirdonboarding.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -16,7 +17,8 @@ class Onboarding extends StatefulWidget {
 
 class _OnboardingState extends State<Onboarding> {
   // page counter : 페이지 개수
-  int pageCounter = 3;
+  int pageCounter = 4;
+  int myDuration = 100;
 
   // controller to keep track of which page we're on
   PageController _controller = PageController();
@@ -32,7 +34,7 @@ class _OnboardingState extends State<Onboarding> {
           controller: _controller,
           onPageChanged: (index) {
             _controller.animateToPage(index,
-                duration: const Duration(milliseconds: 500),
+                duration: Duration(milliseconds: myDuration),
                 curve: Curves.easeIn);
             if (index == (pageCounter - 1)) {
               setState(() {
@@ -48,6 +50,7 @@ class _OnboardingState extends State<Onboarding> {
             FirstOnboarding(),
             SecondOnboarding(),
             ThirdOnboarding(),
+            FourthOnboarding(),
           ],
         ),
 
@@ -62,7 +65,7 @@ class _OnboardingState extends State<Onboarding> {
                   activeDotColor: ColorStyle.mainColor),
               onDotClicked: (index) {
                 _controller.animateToPage(index,
-                    duration: const Duration(milliseconds: 500),
+                    duration: Duration(milliseconds: myDuration),
                     curve: Curves.easeIn);
                 if (index == (pageCounter - 1)) {
                   setState(() {
@@ -119,7 +122,7 @@ class _OnboardingState extends State<Onboarding> {
                               vertical: 13, horizontal: 20)),
                       onPressed: () {
                         _controller.nextPage(
-                            duration: const Duration(milliseconds: 500),
+                            duration: Duration(milliseconds: myDuration),
                             curve: Curves.easeIn);
                       },
                       child: const Text(

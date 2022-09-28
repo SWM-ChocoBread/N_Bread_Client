@@ -1,14 +1,14 @@
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 
-class FirstOnboarding extends StatefulWidget {
-  FirstOnboarding({Key? key}) : super(key: key);
+class FourthOnboarding extends StatefulWidget {
+  FourthOnboarding({Key? key}) : super(key: key);
 
   @override
-  State<FirstOnboarding> createState() => _FirstOnboardingState();
+  State<FourthOnboarding> createState() => _FourthOnboardingState();
 }
 
-class _FirstOnboardingState extends State<FirstOnboarding> {
+class _FourthOnboardingState extends State<FourthOnboarding> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,28 +18,28 @@ class _FirstOnboardingState extends State<FirstOnboarding> {
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             const Text(
-              "동네 이웃과 함께 구매해요",
+              "동네 이웃과 함께 산 물품을 나눠요",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 20,
             ),
             Image.asset(
-              "assets/onboardings/firstonboarding.png",
-              width: 320,
+              "assets/onboardings/fourthonboarding.png",
+              width: 300,
             ),
             const SizedBox(
-              height: 50,
+              height: 5,
             ),
             const Text(
-              "혼자서는 선뜻 구매하지 못했던 물건들을",
+              "약속 시간에 약속 장소에서 만나",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(
               height: 5,
             ),
             const Text(
-              "N빵에서 구매해요!",
+              "함께 구매한 물품을 나눠요",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(
