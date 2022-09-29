@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
+import 'package:chocobread/page/mypage.dart';
 import 'package:chocobread/page/nicknameset.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -22,11 +25,28 @@ class _SplashState extends State<Splash> {
   // static String routeName = "/splash";
 
   void checkStatus() async {
+    print("딥링크 체커도 여기서 실행");
+    //deep link checker
+    final PendingDynamicLinkData? initialLink =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    if (initialLink != null) {
+      final Uri deepLink = initialLink.link;
+      print(deepLink);
+      // Example of using the dynamic link to push the user to a different screen
+      Navigator.push(context,
+          MaterialPageRoute(builder: (BuildContext context) {
+        return MyPage();
+      }));
+    } else {
+      print("image picker가 null입니다");
+    }
+
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
     // prefs.clear();
     // TODO : 닉네임 설정 완료 여부를 확인하는 API를 호출하는 부분
+    print("range 채우기");
     String? range = prefs.getString('range');
     if (range == null) {
       prefs.setString('range', 'loc2');
@@ -99,11 +119,14 @@ class _SplashState extends State<Splash> {
     print("[*] 유저 토큰 : " + userToken.toString());
   }
 
+  //dynamic link 처리를 위한 코드
+
   @override
   void initState() {
     super.initState();
     Timer(Duration(seconds: 2), () {
       // clearSharedPreferences(); // sharedPreferences 초기화 위해 사용하는 함수
+
       checkStatus();
     });
   }

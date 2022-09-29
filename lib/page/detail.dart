@@ -10,6 +10,7 @@ import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -212,7 +213,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       actions: [
         IconButton(
             onPressed: () async {
-              print("공유하기버튼이 눌렸습니다");
+              await _getDynamicLink();
+              print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
               bool result =
                   await ShareClient.instance.isKakaoTalkSharingAvailable();
 
@@ -242,9 +244,10 @@ class _DetailContentViewState extends State<DetailContentView> {
                   Button(
                     title: '구매하기',
                     link: Link(
-                      webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
-                      mobileWebUrl:
-                          Uri.parse('https://chocobread.page.link/6RQi'),
+                      webUrl: Uri.parse(
+                          'https://chocobread.page.link/6RQi?dataId=${widget.data['id']}'),
+                      mobileWebUrl: Uri.parse(
+                          'https://chocobread.page.link/6RQi${widget.data['id']}'),
                     ),
                   ),
                   // Button(
@@ -1574,5 +1577,49 @@ class _DetailContentViewState extends State<DetailContentView> {
       userId = payload['id'];
       print("userId : " + userId.toString());
     }
+  }
+
+  //dynamic link 처리
+  // void shareMyCode(String code) async {
+  //   try {
+  //     var dynamicLink = await _getDynamicLink(code);
+  //     var template = _getTemplate(dynamicLink, code);
+  //     var uri = await LinkClient.instance.defaultWithTalk(template);
+  //     await LinkClient.instance.launchKakaoTalk(uri);
+  //   } catch (error) {
+  //     print(error.toString());
+  //   }
+  // }
+
+  Future<ShortDynamicLink> _getDynamicLink() async {
+    final dynamicLinkParams = DynamicLinkParameters(
+      link: Uri.parse(
+          "https://chocobread.page.link/6RQi?dataId=${widget.data['id']}"),
+      uriPrefix: "https://chocobread.page.link",
+      androidParameters: const AndroidParameters(
+        packageName: "com.chocobraed.nbread2",
+        minimumVersion: 1,
+      ),
+      iosParameters: const IOSParameters(
+        bundleId: "com.chocobraed.nbread",
+        appStoreId: "1640045290",
+        minimumVersion: "1.0.0",
+      ),
+      // googleAnalyticsParameters: const GoogleAnalyticsParameters(
+      //   source: "twitter",
+      //   medium: "social",
+      //   campaign: "example-promo",
+      // ),
+      // socialMetaTagParameters: SocialMetaTagParameters(
+      //   title: "Example of a Dynamic Link",
+      //   imageUrl: Uri.parse("https://example.com/image.png"),
+      // ),
+    );
+    final dynamicLink =
+        await FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams);
+    String link = dynamicLink.toString();
+    print("dynamic link is : ${link}");
+    print("dynamic link is : ${dynamicLink.shortUrl}");
+    return dynamicLink;
   }
 }
