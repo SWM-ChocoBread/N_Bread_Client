@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:chocobread/page/nicknameset.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -33,6 +34,39 @@ class _SplashState extends State<Splash> {
       print('range의 값이 null입니다. range를 loc2로 설정하였습니다');
     }
     String? userToken = prefs.getString("userToken");
+
+    // FCM 토큰
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    print("[*]SPLASH 에서 이 기기의 fcmToken = ${fcmToken}");
+    FirebaseMessaging.instance.onTokenRefresh
+    .listen((fcmToken) {
+      // TODO: If necessary send token to application server.
+
+      // Note: This callback is fired at each app startup and whenever a new
+      // token is generated.
+    })
+    .onError((err) {
+      // Error getting token.
+    });
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('Splash : User granted permission');
+    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      print('Splash : User granted provisional permission');
+    } else {
+      print('Splash : User declined or has not accepted permission');
+    }
 
     if (userToken != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
@@ -97,6 +131,7 @@ class _SplashState extends State<Splash> {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
     print("[*] 유저 토큰 : " + userToken.toString());
+
   }
 
   @override
