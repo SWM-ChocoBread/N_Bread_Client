@@ -58,8 +58,8 @@ class _MyPageState extends State<MyPage> {
       ""; // 로컬 스토리지에서 꺼낸 유저의 현재 위치를 넣는 변수 (dialog에 표시되는 이전 위치)
   Position? geoLocation; // 새로 받아온 유저의 현재 위치를 넣는 변수
   String newLocation = ""; // 새로 받아온 유저의 위경도를 바탕으로 얻은 새로운 위치
-  String basicLatitude = "37.5037142";
-  String basicLongitude = "127.0447821";
+  String basicLatitude = "37.707769133317036";
+  String basicLongitude = "127.04095039540755";
 
   getUserLocation() async {
     // Shared Preferences 를 활용해서 유저의 현재 위치를 local storage에서 가져오는 함수 (마이페이지에 표시됨)
@@ -801,8 +801,8 @@ class _MyPageState extends State<MyPage> {
       var latitude = geoLocation?.latitude ?? basicLatitude;
       var longitude = geoLocation?.longitude ?? basicLongitude;
       // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
-      await findLocation(latitude.toString(),
-          longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
+      await findLocation(
+          basicLatitude, basicLongitude); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
       // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
       if (newloc1 == null && newloc2 == null && newloc3 == null) {
         showDialog(

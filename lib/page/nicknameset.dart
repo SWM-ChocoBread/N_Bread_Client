@@ -39,8 +39,8 @@ class _NicknameSetState extends State<NicknameSet> {
   String? loc2;
   String? loc3;
   // Position? _currentPosition;
-  String basicLatitude = "37.5037142";
-  String basicLongitude = "127.0447821";
+  String basicLatitude = "37.707769133317036";
+  String basicLongitude = "127.04095039540755";
 
   bool enablebutton = false;
   final GlobalKey<FormState> _formKey = GlobalKey<
@@ -124,8 +124,8 @@ class _NicknameSetState extends State<NicknameSet> {
       var latitude = geoLocation?.latitude ?? basicLatitude;
       var longitude = geoLocation?.longitude ?? basicLongitude;
       // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
-      await findLocation(latitude.toString(),
-          longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
+      await findLocation(
+          basicLatitude, basicLongitude); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
     }
   }
 
