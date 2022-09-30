@@ -54,7 +54,9 @@ class _SplashState extends State<Splash> {
         // Navigator.push
         print("idx is not null");
         // 서버에서 데이터를 모두 가져올 때까지 화면을 이동하지 않는다.
+        print("loadContents on splash");
         dataForSharedUser = await contentsRepository.loadContentsFromLocation();
+        print("loadContents done");
         print('data for share user = ${dataForSharedUser}');
         Navigator.pushAndRemoveUntil(
             context,
