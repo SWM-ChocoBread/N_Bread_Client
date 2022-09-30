@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
+import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/mypage.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,6 +14,8 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../main.dart';
 
 //test comment
 class Splash extends StatefulWidget {
@@ -42,46 +45,28 @@ class _SplashState extends State<Splash> {
     }
 
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
-      var str = dynamicLinkData.android?.asMap();
-      print('str : ${str}');
       print('딥링크 인식');
-      print(dynamicLinkData.link.queryParametersAll);
-      print(dynamicLinkData.link);
-      print(dynamicLinkData.ios);
-      print(dynamicLinkData.android);
-      print(dynamicLinkData.link.data);
-      print(dynamicLinkData.link.host);
-      print(dynamicLinkData.link.queryParameters);
-      print(dynamicLinkData.link);
-
-//       Stream collectionStream = _firestore.collection('messages').snapshots();
-// collectionStream.listen((QuerySnapshot querySnapshot) {
-//     querySnapshot.documents.forEach((document) => print(document.data()));
-// }
-
-      Navigator.push(context,
-          MaterialPageRoute(builder: (BuildContext context) {
-        return MyPage();
-      }));
+      print(dynamicLinkData.link.queryParameters['id']);
+      String? idx = dynamicLinkData.link.queryParameters['id'];
+      if (idx != null) {
+        // Navigator.push
+        print("idx is not null");
+          // 서버에서 데이터를 모두 가져올 때까지 화면을 이동하지 않는다.
+          
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => DetailContentView(
+                        data: dataForSharedUser[int.parse(idx)],
+                        isFromHome: true,
+                      )),
+              (route) => false);
+        
+      }
     }).onError((error) {
       print('딥링크 인식 중 에러 발생');
       // Handle errors
     });
-
-    // //deep link checker
-    // final PendingDynamicLinkData? initialLink =
-    //     await FirebaseDynamicLinks.instance.getInitialLink();
-    // if (initialLink != null) {
-    //   final Uri deepLink = initialLink.link;
-    //   print(deepLink);
-    //   // Example of using the dynamic link to push the user to a different screen
-    //   Navigator.push(context,
-    //       MaterialPageRoute(builder: (BuildContext context) {
-    //     return MyPage();
-    //   }));
-    // } else {
-    //   print("딥링크가 비어있습니다. ${initialLink}");
-    // }
 
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
@@ -166,11 +151,11 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
+    
       // clearSharedPreferences(); // sharedPreferences 초기화 위해 사용하는 함수
 
       checkStatus();
-    });
+  
   }
 
   @override

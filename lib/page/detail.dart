@@ -1594,14 +1594,14 @@ class _DetailContentViewState extends State<DetailContentView> {
   Future<void> _getDynamicLink() async {
     final dynamicLinkParams = DynamicLinkParameters(
       link: Uri.parse(
-          "https://chocobread.page.link/6RQi?dataId=${widget.data['id']}"),
+          "https://chocobread.page.link/6RQi?id=${widget.data['id']}"),
       uriPrefix: "https://chocobread.page.link",
       androidParameters: const AndroidParameters(
-        packageName: "com.chocobraed.nbread2",
+        packageName: "com.chocobread.nbread2",
         minimumVersion: 1,
       ),
       iosParameters: const IOSParameters(
-        bundleId: "com.chocobraed.nbread",
+        bundleId: "com.chocobread.nbread",
         appStoreId: "1640045290",
         minimumVersion: "1.0.0",
       ),
@@ -1615,7 +1615,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       //   imageUrl: Uri.parse("https://example.com/image.png"),
       // ),
     );
-     
+
     final dynamicLink =
         await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
     linkWithDataId = dynamicLink;

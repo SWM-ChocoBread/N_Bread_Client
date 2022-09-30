@@ -230,11 +230,7 @@ class ContentsRepository {
   };
 
   Future<List<Map<String, dynamic>>> loadContentsFromLocation() async {
-    //prefTest();
-    await Future.delayed(const Duration(microseconds: 1), () {});
     final prefs = await SharedPreferences.getInstance();
-    //토큰값 임의 삭제
-    // prefs.remove('userToken');
     print(
         "[contents_repository.dart] loadContentsFromLocation 함수 안에서의 userToken : ${prefs.getString('userToken')}");
     String range = prefs.getString('range') ?? 'loc2';
