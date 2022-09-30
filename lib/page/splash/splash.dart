@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../main.dart';
+import '../repository/contents_repository.dart';
 
 //test comment
 class Splash extends StatefulWidget {
@@ -27,6 +27,18 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   // static String routeName = "/splash";
+  ContentsRepository contentsRepository = ContentsRepository();
+  List<Map<String, dynamic>> dataForSharedUser = [];
+
+  loadContents() async {
+    print("*** [splash.dart] loadContents 가 실행되었습니다! ***");
+    final prefs = await SharedPreferences.getInstance();
+    String? locate = prefs.getString("loc3");
+    if (locate != null) {
+      currentLocation = locate;
+      dataForSharedUser = await contentsRepository.loadContentsFromLocation();
+    }
+  }
 
   void checkStatus() async {
     // WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +64,8 @@ class _SplashState extends State<Splash> {
         // Navigator.push
         print("idx is not null");
           // 서버에서 데이터를 모두 가져올 때까지 화면을 이동하지 않는다.
-          
+          dataForSharedUser = await loadContents();
+          print('data for share user = ${dataForSharedUser}');
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
@@ -67,6 +80,21 @@ class _SplashState extends State<Splash> {
       print('딥링크 인식 중 에러 발생');
       // Handle errors
     });
+
+    // //deep link checker
+    // final PendingDynamicLinkData? initialLink =
+    //     await FirebaseDynamicLinks.instance.getInitialLink();
+    // if (initialLink != null) {
+    //   final Uri deepLink = initialLink.link;
+    //   print(deepLink);
+    //   // Example of using the dynamic link to push the user to a different screen
+    //   Navigator.push(context,
+    //       MaterialPageRoute(builder: (BuildContext context) {
+    //     return MyPage();
+    //   }));
+    // } else {
+    //   print("딥링크가 비어있습니다. ${initialLink}");
+    // }
 
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
@@ -151,11 +179,11 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    
+    Timer(Duration(seconds: 2), () {
       // clearSharedPreferences(); // sharedPreferences 초기화 위해 사용하는 함수
 
       checkStatus();
-  
+    });
   }
 
   @override

@@ -1,7 +1,6 @@
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
-import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:chocobread/page/splash/splash.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -13,8 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 import 'firebase_options.dart';
 
@@ -39,9 +36,6 @@ const snackBar = SnackBar(
   )),
 );
 
-ContentsRepository contentsRepository = ContentsRepository();
-List<Map<String, dynamic>> dataForSharedUser = [];
-
 Future<void> main() async {
   KakaoSdk.init(nativeAppKey: 'cfd53361fe092dba3d8960f5697f97b4');
   WidgetsFlutterBinding
@@ -49,10 +43,12 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final PendingDynamicLinkData? initialLink =
       await FirebaseDynamicLinks.instance.getInitialLink();
- 
-  dataForSharedUser = await contentsRepository.loadContentsFromLocation();
-  print('data for share user = ${dataForSharedUser}');
-
+  if (initialLink != null) {
+    final Uri deepLink = initialLink.link;
+    // Example of using the dynamic link to push the user to a different screen
+    //Navigator.pushNamed(context, deepLink.path);
+  }
+  
   runApp(const MyApp());
 }
 
