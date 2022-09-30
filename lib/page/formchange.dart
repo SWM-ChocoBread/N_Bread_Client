@@ -139,7 +139,7 @@ class _customFormChangeState extends State<customFormChange> {
   final ImagePicker imagePickerFromGallery =
       ImagePicker(); // 갤러리에서 사진 가져오기 위한 것
   final ImagePicker imagePickerFromCamera = ImagePicker();
-  int? currentnumofimages = 0;
+  int? selectedNumOfImages = 0;
 
   List<XFile>? imageFileList = []; // 갤러리에서 가져온 사진을 여기에 넣는다.
 
@@ -151,19 +151,16 @@ class _customFormChangeState extends State<customFormChange> {
     setState(() {
       imageFileList = []; // 갤러리 버튼을 누를 때마다 이미지 리스트가 비워진다. (새로 다시 선택)
       if (selectedImagesFromGallery != null) {
-        imageFileList!.addAll(selectedImagesFromGallery);
+        if (selectedImagesFromGallery.length < 4) {
+          // 4장 미만의 사진을 선택하는 경우, 모든 사진을 넣는다.
+          imageFileList!.addAll(selectedImagesFromGallery);
+        } else {
+          // 4장 이상의 사진을 선택하는 경우, 앞에 선택한 3개의 사진까지만 넣는다.
+          imageFileList!.addAll(selectedImagesFromGallery.sublist(0, 3));
+        }
       }
-      currentnumofimages = imageFileList?.length;
+      selectedNumOfImages = selectedImagesFromGallery!.length;
     });
-    // imageFileList = []; // 갤러리 버튼을 누를 때마다 이미지 리스트가 비워진다. (새로 다시 선택)
-    // if (selectedImagesFromGallery != null) {
-    //   imageFileList!.addAll(selectedImagesFromGallery);
-    // }
-    // currentnumofimages = imageFileList?.length;
-
-    //else if (selectedImagesFromGallery.isNotEmpty) {
-    //   imageFileList!.addAll(selectedImagesFromGallery);
-    // }
     setState(() {});
   }
 
@@ -247,9 +244,15 @@ class _customFormChangeState extends State<customFormChange> {
                                 // 이전에 권한에 동의를 했거나, 방금 유저가 권한을 허용한 경우 : 사진 선택하고, bottom sheet 빠져나온 뒤, snackbar를 보여준다.
                                 print("권한을 허용했습니다.");
                                 await selectImagesFromGallery();
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    MySnackBar("사진은 3장까지 업로드할 수 있습니다!"));
+                                if (selectedNumOfImages! > 3) {
+                                  // 4장 이상의 이미지를 선택하는 경우 : bottom sheet 없애고, snackbar 띄우기
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      MySnackBar("사진은 3장까지 업로드할 수 있습니다!"));
+                                } else {
+                                  // 4장 미만의 이미지를 선택하는 경우 : bottom sheet 없애기
+                                  Navigator.pop(context);
+                                }
                               } else {
                                 // 권한을 허용하지 않은 경우 : 설정으로 이동해서 권한 허용을 요청하는 alert dialog 띄우기
                                 print("권한을 허용하지 않았습니다.");
