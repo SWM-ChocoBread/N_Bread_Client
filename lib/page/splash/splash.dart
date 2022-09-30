@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:chocobread/page/mypage.dart';
 import 'package:chocobread/page/nicknameset.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -25,21 +26,62 @@ class _SplashState extends State<Splash> {
   // static String routeName = "/splash";
 
   void checkStatus() async {
-    print("딥링크 체커도 여기서 실행");
-    //deep link checker
-    final PendingDynamicLinkData? initialLink =
-        await FirebaseDynamicLinks.instance.getInitialLink();
-    if (initialLink != null) {
-      final Uri deepLink = initialLink.link;
-      print(deepLink);
-      // Example of using the dynamic link to push the user to a different screen
+    // WidgetsFlutterBinding.ensureInitialized();
+    // await Firebase.initializeApp();
+
+    print("deep link checker start");
+    // final PendingDynamicLinkData data =
+    //     await FirebaseDynamicLinks.instance.getInitialLink();
+    // https: //chocobread.page.link/6RQi?dealId=123;final data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final data = await FirebaseDynamicLinks.instance.getInitialLink();
+    var deeplink = data?.link;
+    if (deeplink != null) {
+      print('deep link value is ${deeplink}');
+    } else {
+      print('deep link value is null');
+    }
+
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
+      var str = dynamicLinkData.android?.asMap();
+      print('str : ${str}');
+      print('딥링크 인식');
+      print(dynamicLinkData.link.queryParametersAll);
+      print(dynamicLinkData.link);
+      print(dynamicLinkData.ios);
+      print(dynamicLinkData.android);
+      print(dynamicLinkData.link.data);
+      print(dynamicLinkData.link.host);
+      print(dynamicLinkData.link.queryParameters);
+      print(dynamicLinkData.link);
+
+//       Stream collectionStream = _firestore.collection('messages').snapshots();
+// collectionStream.listen((QuerySnapshot querySnapshot) {
+//     querySnapshot.documents.forEach((document) => print(document.data()));
+// }
+
       Navigator.push(context,
           MaterialPageRoute(builder: (BuildContext context) {
         return MyPage();
       }));
-    } else {
-      print("image picker가 null입니다");
-    }
+    }).onError((error) {
+      print('딥링크 인식 중 에러 발생');
+      // Handle errors
+    });
+
+    // //deep link checker
+    // final PendingDynamicLinkData? initialLink =
+    //     await FirebaseDynamicLinks.instance.getInitialLink();
+    // if (initialLink != null) {
+    //   final Uri deepLink = initialLink.link;
+    //   print(deepLink);
+    //   // Example of using the dynamic link to push the user to a different screen
+    //   Navigator.push(context,
+    //       MaterialPageRoute(builder: (BuildContext context) {
+    //     return MyPage();
+    //   }));
+    // } else {
+    //   print("딥링크가 비어있습니다. ${initialLink}");
+    // }
 
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.

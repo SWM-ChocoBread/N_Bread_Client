@@ -39,6 +39,7 @@ int member = 0;
 String productName = "";
 
 int userId = 0;
+Uri? linkWithDataId;
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -215,6 +216,7 @@ class _DetailContentViewState extends State<DetailContentView> {
             onPressed: () async {
               await _getDynamicLink();
               print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
+              print('linkWithDataId is ${linkWithDataId}');
               bool result =
                   await ShareClient.instance.isKakaoTalkSharingAvailable();
 
@@ -225,11 +227,11 @@ class _DetailContentViewState extends State<DetailContentView> {
               }
               final CommerceTemplate defaultCommerce = CommerceTemplate(
                 content: Content(
-                  title: title,
+                  title: linkWithDataId.toString(),
                   imageUrl: Uri.parse(imgUrl),
                   link: Link(
-                    webUrl: Uri.parse('https://developers.kakao.com'),
-                    mobileWebUrl: Uri.parse('https://developers.kakao.com'),
+                    webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                    mobileWebUrl: linkWithDataId,
                   ),
                 ),
                 commerce: Commerce(
@@ -244,10 +246,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                   Button(
                     title: '구매하기',
                     link: Link(
-                      webUrl: Uri.parse(
-                          'https://chocobread.page.link/6RQi?dataId=${widget.data['id']}'),
-                      mobileWebUrl: Uri.parse(
-                          'https://chocobread.page.link/6RQi${widget.data['id']}'),
+                      webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                      mobileWebUrl: linkWithDataId,
                     ),
                   ),
                   // Button(
@@ -1591,7 +1591,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   //   }
   // }
 
-  Future<ShortDynamicLink> _getDynamicLink() async {
+  Future<void> _getDynamicLink() async {
     final dynamicLinkParams = DynamicLinkParameters(
       link: Uri.parse(
           "https://chocobread.page.link/6RQi?dataId=${widget.data['id']}"),
@@ -1615,11 +1615,9 @@ class _DetailContentViewState extends State<DetailContentView> {
       //   imageUrl: Uri.parse("https://example.com/image.png"),
       // ),
     );
+     
     final dynamicLink =
-        await FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams);
-    String link = dynamicLink.toString();
-    print("dynamic link is : ${link}");
-    print("dynamic link is : ${dynamicLink.shortUrl}");
-    return dynamicLink;
+        await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
+    linkWithDataId = dynamicLink;
   }
 }
