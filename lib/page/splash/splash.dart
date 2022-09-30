@@ -30,16 +30,6 @@ class _SplashState extends State<Splash> {
   ContentsRepository contentsRepository = ContentsRepository();
   List<Map<String, dynamic>> dataForSharedUser = [];
 
-  loadContents() async {
-    print("*** [splash.dart] loadContents 가 실행되었습니다! ***");
-    final prefs = await SharedPreferences.getInstance();
-    String? locate = prefs.getString("loc3");
-    if (locate != null) {
-      currentLocation = locate;
-      dataForSharedUser = await contentsRepository.loadContentsFromLocation();
-    }
-  }
-
   void checkStatus() async {
     // WidgetsFlutterBinding.ensureInitialized();
     // await Firebase.initializeApp();
@@ -63,18 +53,17 @@ class _SplashState extends State<Splash> {
       if (idx != null) {
         // Navigator.push
         print("idx is not null");
-          // 서버에서 데이터를 모두 가져올 때까지 화면을 이동하지 않는다.
-          dataForSharedUser = await loadContents();
-          print('data for share user = ${dataForSharedUser}');
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => DetailContentView(
-                        data: dataForSharedUser[int.parse(idx)],
-                        isFromHome: true,
-                      )),
-              (route) => false);
-        
+        // 서버에서 데이터를 모두 가져올 때까지 화면을 이동하지 않는다.
+        dataForSharedUser = await contentsRepository.loadContentsFromLocation();
+        print('data for share user = ${dataForSharedUser}');
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => DetailContentView(
+                      data: dataForSharedUser[int.parse(idx)],
+                      isFromHome: true,
+                    )),
+            (route) => false);
       }
     }).onError((error) {
       print('딥링크 인식 중 에러 발생');
