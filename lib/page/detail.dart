@@ -28,6 +28,7 @@ import 'blockuser.dart';
 import 'checkdeletecomment.dart';
 import 'checkdeletecontents.dart';
 import 'comments.dart';
+import 'detailimageview.dart';
 import 'done.dart';
 
 String title = "";
@@ -280,7 +281,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         //     icon: const Icon(
         //       Icons.share,
         //       color: Colors.white,
-            // )),
+        // )),
         _popupMenuButtonSelector(),
         // IconButton(
         //     onPressed: () {},
@@ -340,7 +341,7 @@ class _DetailContentViewState extends State<DetailContentView> {
           cache: true,
           enableLoadState: true,
           width: size.width,
-          fit: BoxFit.fill,
+          fit: BoxFit.fitWidth,
         );
       }).toList();
     } else {
@@ -357,7 +358,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   }
 
   Widget _makeSliderImage() {
-    return Container(
+    return GestureDetector(
+      // 이미지를 클릭하면 전체 화면에서 상세하게 확인할 수 있다.
       child: Stack(
         // 이미지와 indicator가 겹치게 만들어야 하므로
         children: [
@@ -391,6 +393,26 @@ class _DetailContentViewState extends State<DetailContentView> {
             bottom: 0,
             left: 0,
             right: 0,
+            child: Container(
+              // 사진 위에 그래디언트 container stack으로 추가해서 indicator 명확하게 보이도록 처리
+              width: 10.0,
+              height: 50.0,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                    Colors.black.withOpacity(0.2),
+                    Colors.black.withOpacity(0.001),
+                  ])),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: imgList.map((map) {
@@ -413,6 +435,17 @@ class _DetailContentViewState extends State<DetailContentView> {
           ),
         ],
       ),
+      onTap: () {
+        if (widget.data["DealImages"].length == 0) {
+          // 사진이 없는 경우, 사진을 눌러도 아무 일도 발생하지 않는다.
+          return null;
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return DetailImageView(imgList: imgList,);
+          }));
+        }
+      },
     );
   }
 
