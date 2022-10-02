@@ -442,7 +442,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         } else {
           Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
-            return DetailImageView(imgList: imgList,);
+            return DetailImageView(imgList: imgList, currentIndex: _current);
           }));
         }
       },

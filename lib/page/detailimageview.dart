@@ -5,7 +5,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DetailImageView extends StatefulWidget {
   List<Map<String, String>> imgList;
-  DetailImageView({Key? key, required this.imgList}) : super(key: key);
+  int currentIndex;
+  DetailImageView({Key? key, required this.imgList, required this.currentIndex})
+      : super(key: key);
 
   @override
   State<DetailImageView> createState() => _DetailImageViewState();
@@ -15,9 +17,15 @@ class _DetailImageViewState extends State<DetailImageView> {
   late int _current; // _current 변수 선언
 
   @override
+  void initState() {
+    super.initState();
+    _current = widget.currentIndex; // _current 인덱스를 0으로 초기화
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _current = 0; // _current 인덱스를 0으로 초기화
+    // _current = widget.currentIndex; // _current 인덱스를 0으로 초기화
   }
 
   PreferredSizeWidget _appBarWidget() {
@@ -62,7 +70,7 @@ class _DetailImageViewState extends State<DetailImageView> {
               items: _itemsForSliderImage(),
               options: CarouselOptions(
                   height: double.infinity,
-                  initialPage: 0, //첫번째 페이지
+                  initialPage: widget.currentIndex, // 첫번째 페이지는 detail에서 유저가 클릭해서 들어온 페이지
                   enableInfiniteScroll: false, // 무한 스크롤 방지
                   viewportFraction: 1, // 전체 화면 사용
                   onPageChanged: (firstIndex, reason) {
