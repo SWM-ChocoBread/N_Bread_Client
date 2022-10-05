@@ -238,6 +238,14 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return NotionInfo();
+                }));
+              },
+              icon: const Icon(Icons.thumb_up)),
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,
@@ -558,6 +566,7 @@ class _HomeState extends State<Home> {
                                               .toString()),
                                     ),
                                   ),
+
                                   const SizedBox(
                                     width: 6,
                                   ),
