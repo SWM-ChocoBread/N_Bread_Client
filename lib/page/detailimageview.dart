@@ -70,7 +70,8 @@ class _DetailImageViewState extends State<DetailImageView> {
               items: _itemsForSliderImage(),
               options: CarouselOptions(
                   height: double.infinity,
-                  initialPage: widget.currentIndex, // 첫번째 페이지는 detail에서 유저가 클릭해서 들어온 페이지
+                  initialPage:
+                      widget.currentIndex, // 첫번째 페이지는 detail에서 유저가 클릭해서 들어온 페이지
                   enableInfiniteScroll: false, // 무한 스크롤 방지
                   viewportFraction: 1, // 전체 화면 사용
                   onPageChanged: (firstIndex, reason) {
@@ -81,27 +82,22 @@ class _DetailImageViewState extends State<DetailImageView> {
                   }),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: widget.imgList.map((map) {
-                return Container(
-                  width: 10.0,
-                  height: 10.0,
-                  margin: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 4.0),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _current == int.parse(map["id"].toString())
-                          // (Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.4)),
-                );
-              }).toList(),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: widget.imgList.map((map) {
+              return Container(
+                width: 10.0,
+                height: 10.0,
+                margin:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _current == int.parse(map["id"].toString())
+                        // (Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.4)),
+              );
+            }).toList(),
           ),
         ],
       ),
