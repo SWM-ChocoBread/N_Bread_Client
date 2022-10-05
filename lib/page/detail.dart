@@ -12,6 +12,7 @@ import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
@@ -181,6 +182,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       backgroundColor: Colors.transparent, // 투명 처리
       flexibleSpace: Container(
         // appbar에 그래디언트 추가해서 아이콘 명확하게 보이도록 처리
