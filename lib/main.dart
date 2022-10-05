@@ -41,13 +41,6 @@ Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  final PendingDynamicLinkData? initialLink =
-      await FirebaseDynamicLinks.instance.getInitialLink();
-  if (initialLink != null) {
-    final Uri deepLink = initialLink.link;
-    // Example of using the dynamic link to push the user to a different screen
-    //Navigator.pushNamed(context, deepLink.path);
-  }
   
   runApp(const MyApp());
 }

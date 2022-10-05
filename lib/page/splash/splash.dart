@@ -16,6 +16,7 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../repository/contents_repository.dart';
+import 'package:uni_links/uni_links.dart';
 
 //test comment
 class Splash extends StatefulWidget {
@@ -30,63 +31,75 @@ class _SplashState extends State<Splash> {
   ContentsRepository contentsRepository = ContentsRepository();
   List<Map<String, dynamic>> dataForSharedUser = [];
 
-  void checkStatus() async {
-    // WidgetsFlutterBinding.ensureInitialized();
-    // await Firebase.initializeApp();
+  // void _handleDynamicLink(Uri deepLink) async {
+  //   String? code = deepLink.queryParameters['id'];
+  //   if (code != null) {
+  //     print('deep link 로부터 받은 코드는 ${code}입니다.');
+  //     print("loadContents on splash");
+  //     dataForSharedUser = await contentsRepository.loadContentsFromLocation();
+  //     print("loadContents done");
+  //     print('data for share user = ${dataForSharedUser}');
+  //     Navigator.pushAndRemoveUntil(
+  //         context,
+  //         MaterialPageRoute(
+  //             builder: (BuildContext context) => DetailContentView(
+  //                   data: dataForSharedUser[int.parse(code)],
+  //                   isFromHome: true,
+  //                 )),
+  //         (route) => false);
+  //   }
+  // }
 
-    print("deep link checker start");
-    // final PendingDynamicLinkData data =
-    //     await FirebaseDynamicLinks.instance.getInitialLink();
-    // https: //chocobread.page.link/6RQi?dealId=123;final data = await FirebaseDynamicLinks.instance.getInitialLink();
-    final data = await FirebaseDynamicLinks.instance.getInitialLink();
-    var deeplink = data?.link;
-    if (deeplink != null) {
-      print('deep link value is ${deeplink}');
+  Future<void> getDeepLink() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    print('오프라인에서 deepLink 수신');
+
+    //계획 :
+    // 아이폰 오프라인 딥링크 -> 약관동의
+    // 갤럭시 오프라인 딥링크 -> 로그인
+    // 백그라운드 딥링크 -> 약관동의 -> 이왜안?
+
+    final String? deepLink = await getInitialLink();
+    print('deep link is ${deepLink}');
+    if (deepLink != null) {
+      print('getInitial Link에서 deeplink는 null이 아닙니다. 약관 동의로 이동합니다.');
+      PendingDynamicLinkData? dynamicLinkData = await FirebaseDynamicLinks
+          .instance
+          .getDynamicLink(Uri.parse(deepLink));
+      if (dynamicLinkData != null) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/termscheck', (route) => false);
+        //_handleDynamicLink(dynamicLinkData.link);
+      }
     } else {
-      print('deep link value is null');
+      print("getInitial Link에서 deep link가 null이므로 아무 일도 일어나지 않습니다");
     }
 
-    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
-      print('딥링크 인식');
-      print(dynamicLinkData.link.queryParameters['id']);
-      String? idx = dynamicLinkData.link.queryParameters['id'];
-      if (idx != null) {
-        // Navigator.push
-        print("idx is not null");
-        // 서버에서 데이터를 모두 가져올 때까지 화면을 이동하지 않는다.
-        print("loadContents on splash");
-        dataForSharedUser = await contentsRepository.loadContentsFromLocation();
-        print("loadContents done");
-        print('data for share user = ${dataForSharedUser}');
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => DetailContentView(
-                      data: dataForSharedUser[int.parse(idx)],
-                      isFromHome: true,
-                    )),
-            (route) => false);
-      }
-    }).onError((error) {
-      print('딥링크 인식 중 에러 발생');
-      // Handle errors
-    });
+    final PendingDynamicLinkData? initialLink =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    print("initial link");
+    if (initialLink != null) {
+      final Uri deepLink = initialLink.link;
+      //_handleDynamicLink(deepLink);
+      // Example of using the dynamic link to push the user to a different screen
+      print('오프라인에서 deepLink 수신');
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } else {
+      FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
+        print('백그라운드에서 deepLink 수신');
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/termscheck', (route) => false);
+        //_handleDynamicLink(dynamicLinkData.link);
+      }).onError((error) {
+        print('딥링크 인식 중 에러 발생');
+        // Handle errors
+      });
+    }
+  }
 
-    // //deep link checker
-    // final PendingDynamicLinkData? initialLink =
-    //     await FirebaseDynamicLinks.instance.getInitialLink();
-    // if (initialLink != null) {
-    //   final Uri deepLink = initialLink.link;
-    //   print(deepLink);
-    //   // Example of using the dynamic link to push the user to a different screen
-    //   Navigator.push(context,
-    //       MaterialPageRoute(builder: (BuildContext context) {
-    //     return MyPage();
-    //   }));
-    // } else {
-    //   print("딥링크가 비어있습니다. ${initialLink}");
-    // }
-
+  void checkStatus() async {
+    await getDeepLink();
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
@@ -170,11 +183,7 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
-      // clearSharedPreferences(); // sharedPreferences 초기화 위해 사용하는 함수
-
-      checkStatus();
-    });
+    checkStatus();
   }
 
   @override
