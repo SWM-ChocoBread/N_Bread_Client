@@ -7,6 +7,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/app.dart';
@@ -30,27 +31,49 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   // static String routeName = "/splash";
-  ContentsRepository contentsRepository = ContentsRepository();
-  List<Map<String, dynamic>> dataForSharedUser = [];
+  late ContentsRepository contentsRepository;
+  late List<Map<String, dynamic>> datasForSharedUser;
+  late Map<String, dynamic> dataForSharedUser;
 
-  // void _handleDynamicLink(Uri deepLink) async {
-  //   String? code = deepLink.queryParameters['id'];
-  //   if (code != null) {
-  //     print('deep link 로부터 받은 코드는 ${code}입니다.');
-  //     print("loadContents on splash");
-  //     dataForSharedUser = await contentsRepository.loadContentsFromLocation();
-  //     print("loadContents done");
-  //     print('data for share user = ${dataForSharedUser}');
-  //     Navigator.pushAndRemoveUntil(
-  //         context,
-  //         MaterialPageRoute(
-  //             builder: (BuildContext context) => DetailContentView(
-  //                   data: dataForSharedUser[int.parse(code)],
-  //                   isFromHome: true,
-  //                 )),
-  //         (route) => false);
-  //   }
-  // }
+  @override
+  void initState() {
+    super.initState();
+    contentsRepository = ContentsRepository();
+    datasForSharedUser = [];
+    dataForSharedUser = {};
+    checkStatus();
+  }
+
+  void _handleDynamicLink(Uri deepLink) async {
+    String? code = deepLink.queryParameters['id'];
+    print(int.parse(code!));
+    if (code != null) {
+      print('deep link 로부터 받은 코드는 ${code}입니다.');
+      print("loadContents on splash");
+      datasForSharedUser = await contentsRepository.loadContentsFromLocation();
+      print("loadContents done");
+      print('data for share user = ${datasForSharedUser}');
+
+      for (int i = 0; i < datasForSharedUser.length; i++) {
+        if (datasForSharedUser[i]["id"] == int.parse(code)) {
+          dataForSharedUser = datasForSharedUser[i];
+          print("[*] dataForSharedUSer : $dataForSharedUser");
+        }
+      }
+      if (dataForSharedUser == {}) {
+        // 공유받은 거래가 존재하지 않는 경우 : 홈 화면으로 이동
+        print("공유받은 거래가 존재하지 않습니다. 홈 화면으로 이동합니다.");
+        Get.offAll(const App());
+      } else {
+        // 공유받은 거래가 존재하는 경우 : 상세 페이지로 이동
+        print("공유받은 거래가 존재합니다. 상세 피이지로 이동합니다.");
+        Get.offAll(DetailContentView(
+          data: dataForSharedUser,
+          isFromHome: true,
+        ));
+      }
+    }
+  }
 
   Future<void> getDeepLink() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -71,9 +94,7 @@ class _SplashState extends State<Splash> {
           .instance
           .getDynamicLink(Uri.parse(deepLink));
       if (dynamicLinkData != null) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/termscheck', (route) => false);
-        //_handleDynamicLink(dynamicLinkData.link);
+        _handleDynamicLink(dynamicLinkData.link);
       }
     } else {
       print("getInitial Link에서 deep link가 null이므로 아무 일도 일어나지 않습니다");
@@ -85,21 +106,14 @@ class _SplashState extends State<Splash> {
     print("initial link");
     if (initialLink != null) {
       final Uri deepLink = initialLink.link;
-      //_handleDynamicLink(deepLink);
+      _handleDynamicLink(deepLink);
       // Example of using the dynamic link to push the user to a different screen
       print('오프라인에서 deepLink 수신');
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     } else {
       //아이폰, 안드로이드 deepLink 수신. 마이페이지 이동(근데 안됨)
       FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
         print('백그라운드에서 deepLink 수신');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MyPage()),
-        );
-
-  
-        //_handleDynamicLink(dynamicLinkData.link);
+        _handleDynamicLink(dynamicLinkData.link);
       }).onError((error) {
         print('딥링크 인식 중 에러 발생');
         // Handle errors
@@ -188,12 +202,6 @@ class _SplashState extends State<Splash> {
   }
 
   //dynamic link 처리를 위한 코드
-
-  @override
-  void initState() {
-    super.initState();
-    checkStatus();
-  }
 
   @override
   Widget build(BuildContext context) {
