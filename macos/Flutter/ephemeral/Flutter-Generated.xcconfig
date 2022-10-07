@@ -1,8 +1,8 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/Users/yeon/flutter
-FLUTTER_APPLICATION_PATH=/Users/yeon/dev/vscode/flutter/N_Bread
+FLUTTER_ROOT=/Users/chaeeunseo/Downloads/flutter
+FLUTTER_APPLICATION_PATH=/Users/chaeeunseo/swm_projects/n-bread/frontend
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/yeon/dev/vscode/flutter/N_Bread/lib/main.dart
+FLUTTER_TARGET=/Users/chaeeunseo/swm_projects/n-bread/frontend/lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=2.0.1
 FLUTTER_BUILD_NUMBER=4
@@ -10,4 +10,4 @@ DART_DEFINES=RkxVVFRFUl9XRUJfQVVUT19ERVRFQ1Q9dHJ1ZQ==
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=/Users/yeon/dev/vscode/flutter/N_Bread/.dart_tool/package_config.json
+PACKAGE_CONFIG=/Users/chaeeunseo/swm_projects/n-bread/frontend/.dart_tool/package_config.json
