@@ -22,6 +22,7 @@ import 'app.dart';
 import 'appleloginwebview.dart';
 import 'kakaologinwebview.dart';
 import 'naverloginwebview.dart';
+import 'package:sendbird_sdk/sendbird_sdk.dart' as sendbird_sdk;
 
 //혜연
 //아래 코드는 300일 경우 약관 동의 화면으로, 200일 경우 홈 화면으로 리다이렉트 시켜줘야합니다.
@@ -518,6 +519,20 @@ class _LoginState extends State<Login> {
     userId = list['result']['id'].toString();
     userEmail = list['result']['email'].toString();
 
+    connect(userId); // connecting to sendbird 
+
     return list;
+  }
+
+  Future<sendbird_sdk.User> connect(String userId) async {
+    try {
+      final sendbird = sendbird_sdk.SendbirdSdk(
+          appId: "44524844-8579-440B-A05D-6B504A8C39C3");
+      final user = await sendbird.connect(userId);
+      return user;
+    } catch (e) {
+      print("connect : ERROR $e");
+      throw e;
+    }
   }
 }

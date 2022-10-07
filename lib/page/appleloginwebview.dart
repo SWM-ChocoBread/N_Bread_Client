@@ -11,6 +11,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
+import 'package:sendbird_sdk/sendbird_sdk.dart' as sendbird_sdk;
 
 import 'app.dart';
 
@@ -63,6 +64,8 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
       Map<String, dynamic> list = jsonDecode(responseBody);
       print("splash에서의 list : ${list}");
       if (list['code'] == 200) {
+        connect(userId); // connecting to sendbird
+
         print("코드가 200입니다. 홈화면으로 리다이렉트합니다.");
         final prefs = await SharedPreferences.getInstance();
         String? curLocation = prefs.getString("loc3");
@@ -236,6 +239,18 @@ class _AppleLoginWebviewState extends State<AppleLoginWebview> {
           print(e);
         }
       }
+    }
+  }
+
+  Future<sendbird_sdk.User> connect(String userId) async {
+    try {
+      final sendbird = sendbird_sdk.SendbirdSdk(
+          appId: "44524844-8579-440B-A05D-6B504A8C39C3");
+      final user = await sendbird.connect(userId);
+      return user;
+    } catch (e) {
+      print("connect : ERROR $e");
+      throw e;
     }
   }
 }
