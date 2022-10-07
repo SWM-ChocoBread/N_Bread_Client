@@ -24,6 +24,7 @@ import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:wiredash/wiredash.dart';
 
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
@@ -240,10 +241,17 @@ class _HomeState extends State<Home> {
               icon: const Icon(Icons.help_outline_rounded)),
           IconButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return NotionInfo();
-                }));
+                Wiredash.of(context).showPromoterSurvey(
+                  inheritMaterialTheme: true,
+                  options: PsOptions(
+                    // minimum time between two surveys
+                    frequency: Duration(days: 0),
+                    // delay before the first survey is available
+                    initialDelay: Duration(days: 0),
+                    // minimum number of app starts before the survey will be shown
+                    minimumAppStarts: 0,
+                  ),
+                );
               },
               icon: const Icon(Icons.thumb_up)),
           // IconButton(
