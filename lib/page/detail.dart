@@ -216,6 +216,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
       ),
       actions: [
+        _popupMenuButtonSelector(),
         IconButton(
             onPressed: () async {
               await _getDynamicLink();
