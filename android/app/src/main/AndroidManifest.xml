@@ -45,6 +45,14 @@
         <data android:host="kakaolink"
                 android:scheme="kakaocfd53361fe092dba3d8960f5697f97b4" />
     </intent-filter>
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+                <data
+        android:host="chocobread.page.link/6RQi/"
+        android:scheme="https"/>
+    </intent-filter>
 </activity>
 
         <activity

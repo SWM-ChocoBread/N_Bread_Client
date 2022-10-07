@@ -5,10 +5,12 @@ import 'package:chocobread/page/splash/splash.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:chocobread/page/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
@@ -20,12 +22,27 @@ import 'firebase_options.dart';
 // void main() {
 //   runApp(const MyApp());
 // }
+const snackBar = SnackBar(
+  content: Text(
+    "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
+    style: TextStyle(color: Colors.white),
+  ),
+  backgroundColor: ColorStyle.darkMainColor,
+  duration: Duration(milliseconds: 2000),
+  behavior: SnackBarBehavior.floating,
+  elevation: 50,
+  shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(
+    Radius.circular(5),
+  )),
+);
 
 Future<void> main() async {
   KakaoSdk.init(nativeAppKey: 'cfd53361fe092dba3d8960f5697f97b4');
   WidgetsFlutterBinding
       .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
   runApp(const MyApp());
 }
 
@@ -35,7 +52,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter 1/N',
       theme: ThemeData(
         // This is the theme of your application.
@@ -51,7 +68,8 @@ class MyApp extends StatelessWidget {
             Colors.white, // 모든 scaffold 의 background color 는 white
         primaryColor: ColorStyle.mainColor,
         appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.white, foregroundColor: Colors.black,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarIconBrightness: Brightness.dark,
               statusBarBrightness: Brightness.light,

@@ -10,7 +10,9 @@ import 'package:chocobread/page/repository/comments_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
@@ -22,6 +24,7 @@ import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'mypage.dart';
 
 import '../utils/price_utils.dart';
 import 'blockuser.dart';
@@ -39,6 +42,7 @@ int member = 0;
 String productName = "";
 
 int userId = 0;
+Uri? linkWithDataId;
 
 class DetailContentView extends StatefulWidget {
   Map<String, dynamic> data;
@@ -180,6 +184,7 @@ class _DetailContentViewState extends State<DetailContentView> {
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       backgroundColor: Colors.transparent, // 투명 처리
       flexibleSpace: Container(
         // appbar에 그래디언트 추가해서 아이콘 명확하게 보이도록 처리
@@ -211,78 +216,79 @@ class _DetailContentViewState extends State<DetailContentView> {
         ),
       ),
       actions: [
-        // IconButton(
-        //     onPressed: () async {
-        //       print("공유하기버튼이 눌렸습니다");
-        //       bool result =
-        //           await ShareClient.instance.isKakaoTalkSharingAvailable();
+        IconButton(
+            onPressed: () async {
+              await _getDynamicLink();
+              print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
+              print('linkWithDataId is ${linkWithDataId}');
+              bool result =
+                  await ShareClient.instance.isKakaoTalkSharingAvailable();
 
-        //       //형식만들기
-        //       if (imgUrl == "") {
-        //         imgUrl =
-        //             'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
-        //       }
-        //       final CommerceTemplate defaultCommerce = CommerceTemplate(
-        //         content: Content(
-        //           title: title,
-        //           imageUrl: Uri.parse(imgUrl),
-        //           link: Link(
-        //             webUrl: Uri.parse('https://developers.kakao.com'),
-        //             mobileWebUrl: Uri.parse('https://developers.kakao.com'),
-        //           ),
-        //         ),
-        //         commerce: Commerce(
-        //           regularPrice: personalPrice,
-        //           // discountPrice: personalPrice,
-        //           // discountRate: member,
-        //           productName: productName,
-        //           currencyUnit: "원",
-        //           currencyUnitPosition: 0,
-        //         ),
-        //         buttons: [
-        //           Button(
-        //             title: '구매하기',
-        //             link: Link(
-        //               webUrl: Uri.parse('https://developers.kakao.com'),
-        //               mobileWebUrl: Uri.parse('https://developers.kakao.com'),
-        //             ),
-        //           ),
-        //           // Button(
-        //           //   title: '공유하기',
-        //           //   link: Link(
-        //           //     androidExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-        //           //     iosExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-        //           //   ),
-        //           // )
-        //         ],
-        //       );
-        //       if (result) {
-        //         print('카카오톡으로 공유 가능');
+              //형식만들기
+              if (imgUrl == "") {
+                imgUrl =
+                    'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
+              }
+              final CommerceTemplate defaultCommerce = CommerceTemplate(
+                content: Content(
+                  title: linkWithDataId.toString(),
+                  imageUrl: Uri.parse(imgUrl),
+                  link: Link(
+                    webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                    mobileWebUrl: linkWithDataId,
+                  ),
+                ),
+                commerce: Commerce(
+                  regularPrice: personalPrice,
+                  // discountPrice: personalPrice,
+                  // discountRate: member,
+                  productName: productName,
+                  currencyUnit: "원",
+                  currencyUnitPosition: 0,
+                ),
+                buttons: [
+                  Button(
+                    title: '구매하기',
+                    link: Link(
+                      webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                      mobileWebUrl: linkWithDataId,
+                    ),
+                  ),
+                  // Button(
+                  //   title: '공유하기',
+                  //   link: Link(
+                  //     androidExecutionParams: {'key1': 'value1', 'key2': 'value2'},
+                  //     iosExecutionParams: {'key1': 'value1', 'key2': 'value2'},
+                  //   ),
+                  // )
+                ],
+              );
+              if (result) {
+                print('카카오톡으로 공유 가능');
 
-        //         try {
-        //           Uri uri = await ShareClient.instance
-        //               .shareDefault(template: defaultCommerce);
-        //           await ShareClient.instance.launchKakaoTalk(uri);
-        //           print('카카오톡 공유 완료');
-        //         } catch (error) {
-        //           print('카카오톡 공유 실패 $error');
-        //         }
-        //       } else {
-        //         print('카카오톡 미설치: 웹 공유 기능 사용 권장');
-        //         try {
-        //           Uri shareUrl = await WebSharerClient.instance
-        //               .makeDefaultUrl(template: defaultCommerce);
-        //           await launchBrowserTab(shareUrl);
-        //         } catch (error) {
-        //           print('카카오톡 공유 실패 $error');
-        //         }
-        //       }
-        //     },
-        //     icon: const Icon(
-        //       Icons.share,
-        //       color: Colors.white,
-        // )),
-        _popupMenuButtonSelector(),
+                try {
+                  Uri uri = await ShareClient.instance
+                      .shareDefault(template: defaultCommerce);
+                  await ShareClient.instance.launchKakaoTalk(uri);
+                  print('카카오톡 공유 완료');
+                } catch (error) {
+                  print('카카오톡 공유 실패 $error');
+                }
+              } else {
+                print('카카오톡 미설치: 웹 공유 기능 사용 권장');
+                try {
+                  Uri shareUrl = await WebSharerClient.instance
+                      .makeDefaultUrl(template: defaultCommerce);
+                  await launchBrowserTab(shareUrl);
+                } catch (error) {
+                  print('카카오톡 공유 실패 $error');
+                }
+              }
+            },
+            icon: const Icon(
+              Icons.share,
+              color: Colors.white,
+            )),
         // IconButton(
         //     onPressed: () {},
         //     icon: const Icon(
@@ -1543,27 +1549,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  // Future getUserStatus() async {
-  //   String dealId = widget.data['id'].toString();
-  //   Map<String, dynamic> getTokenPayload =
-  //       await userInfoRepository.getUserInfo();
-  //   String userId = getTokenPayload['id'].toString();
-  //   String tmpUrl =
-  //       'https://www.chocobread.shop/deals/' + dealId + '/users/' + userId;
-  //   var url = Uri.parse(
-  //     tmpUrl,
-  //   );
-  //   var response = await http.get(url);
-  //   String responseBody = utf8.decode(response.bodyBytes);
-  //   Map<String, dynamic> list = jsonDecode(responseBody);
-  //   if (list.length == 0) {
-  //     print("length of list is 0");
-  //   } else {
-  //     print('getuserStatus function ${list['result']['description']}');
-  //     currentuserstatus = list['result']['description'];
-  //   }
-  // }
-
   void deleteDeal(String dealId) async {
     final prefs = await SharedPreferences.getInstance();
     print(prefs.getString('userToken'));
@@ -1627,5 +1612,47 @@ class _DetailContentViewState extends State<DetailContentView> {
       userId = payload['id'];
       print("userId : " + userId.toString());
     }
+  }
+
+  //dynamic link 처리
+  // void shareMyCode(String code) async {
+  //   try {
+  //     var dynamicLink = await _getDynamicLink(code);
+  //     var template = _getTemplate(dynamicLink, code);
+  //     var uri = await LinkClient.instance.defaultWithTalk(template);
+  //     await LinkClient.instance.launchKakaoTalk(uri);
+  //   } catch (error) {
+  //     print(error.toString());
+  //   }
+  // }
+
+  Future<void> _getDynamicLink() async {
+    final dynamicLinkParams = DynamicLinkParameters(
+      link: Uri.parse(
+          "https://chocobread.page.link/6RQi?id=${widget.data['id']}"),
+      uriPrefix: "https://chocobread.page.link",
+      androidParameters: const AndroidParameters(
+        packageName: "com.chocobread.nbread2",
+        minimumVersion: 1,
+      ),
+      iosParameters: const IOSParameters(
+        bundleId: "com.chocobread.nbread",
+        appStoreId: "1640045290",
+        minimumVersion: "1.0.0",
+      ),
+      // googleAnalyticsParameters: const GoogleAnalyticsParameters(
+      //   source: "twitter",
+      //   medium: "social",
+      //   campaign: "example-promo",
+      // ),
+      // socialMetaTagParameters: SocialMetaTagParameters(
+      //   title: "Example of a Dynamic Link",
+      //   imageUrl: Uri.parse("https://example.com/image.png"),
+      // ),
+    );
+
+    final dynamicLink =
+        await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
+    linkWithDataId = dynamicLink;
   }
 }
