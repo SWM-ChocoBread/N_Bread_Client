@@ -39,28 +39,42 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
     contentsRepository = ContentsRepository();
-    datasForSharedUser = [];
-    dataForSharedUser = {};
     checkStatus();
   }
 
   void _handleDynamicLink(Uri deepLink) async {
+    datasForSharedUser = [];
+    dataForSharedUser = {};
+    print(deepLink);
     String? code = deepLink.queryParameters['id'];
     print(int.parse(code!));
     if (code != null) {
       print('deep link 로부터 받은 코드는 ${code}입니다.');
       print("loadContents on splash");
+      final prefs = await SharedPreferences.getInstance();
+      String range = prefs.getString('range') ?? 'loc2';
+      String location = prefs.getString(range) ?? "기본값";
+      String tmpUrl =
+        'https://www.chocobread.shop/deals/all/' + range + '/' + location; // 
+      var url = Uri.parse(
+        tmpUrl,
+      );
+      var tmp = List<Map<String, dynamic>>.empty(growable: true);
+
       datasForSharedUser = await contentsRepository.loadContentsFromLocation();
       print("loadContents done");
       print('data for share user = ${datasForSharedUser}');
 
       for (int i = 0; i < datasForSharedUser.length; i++) {
+        print("API id : ${datasForSharedUser[i]["id"]} || ${int.parse(code)}");
         if (datasForSharedUser[i]["id"] == int.parse(code)) {
           dataForSharedUser = datasForSharedUser[i];
           print("[*] dataForSharedUSer : $dataForSharedUser");
         }
       }
-      if (dataForSharedUser == {}) {
+
+      print("Deep link after For Loop ${dataForSharedUser}");
+      if (dataForSharedUser.isEmpty) {
         // 공유받은 거래가 존재하지 않는 경우 : 홈 화면으로 이동
         print("공유받은 거래가 존재하지 않습니다. 홈 화면으로 이동합니다.");
         Get.offAll(const App());
@@ -122,7 +136,6 @@ class _SplashState extends State<Splash> {
   }
 
   void checkStatus() async {
-    await getDeepLink();
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
@@ -137,6 +150,7 @@ class _SplashState extends State<Splash> {
     String? userToken = prefs.getString("userToken");
 
     if (userToken != null) {
+      await getDeepLink();
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
 
       String userId = payload['id'].toString();
