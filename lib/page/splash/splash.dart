@@ -16,10 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../repository/content_repository.dart';
 import '../repository/contents_repository.dart';
 import 'package:uni_links/uni_links.dart';
-
-bool doLogin = true;
 
 //test comment
 class Splash extends StatefulWidget {
@@ -31,14 +30,15 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   // static String routeName = "/splash";
-  late ContentsRepository contentsRepository;
+  // late ContentsRepository contentsRepository;
+  late List<Map<String, dynamic>> contentByDealId;
   late List<Map<String, dynamic>> datasForSharedUser;
   late Map<String, dynamic> dataForSharedUser;
 
   @override
   void initState() {
     super.initState();
-    contentsRepository = ContentsRepository();
+    // contentsRepository = ContentsRepository();
     checkStatus();
   }
 
@@ -50,28 +50,30 @@ class _SplashState extends State<Splash> {
     print(int.parse(code!));
     if (code != null) {
       print('deep link 로부터 받은 코드는 ${code}입니다.');
-      print("loadContents on splash");
-      final prefs = await SharedPreferences.getInstance();
-      String range = prefs.getString('range') ?? 'loc2';
-      String location = prefs.getString(range) ?? "기본값";
-      String tmpUrl =
-        'https://www.chocobread.shop/deals/all/' + range + '/' + location; // 
-      var url = Uri.parse(
-        tmpUrl,
-      );
-      var tmp = List<Map<String, dynamic>>.empty(growable: true);
+      // print("loadContents on splash");
+      // final prefs = await SharedPreferences.getInstance();
+      // String range = prefs.getString('range') ?? 'loc2';
+      // String location = prefs.getString(range) ?? "기본값";
+      // String tmpUrl =
+      //   'https://www.chocobread.shop/deals/all/' + range + '/' + location; //
+      // var url = Uri.parse(
+      //   tmpUrl,
+      // );
+      // var tmp = List<Map<String, dynamic>>.empty(growable: true);
 
-      datasForSharedUser = await contentsRepository.loadContentsFromLocation();
+      // datasForSharedUser = await contentsRepository.loadContentsFromLocation();
+      dataForSharedUser = await loadContentByDealId(int.parse(code));
       print("loadContents done");
-      print('data for share user = ${datasForSharedUser}');
+      print('[*] datas for share user = ${datasForSharedUser}');
+      print('[*] data for share user = ${dataForSharedUser}');
 
-      for (int i = 0; i < datasForSharedUser.length; i++) {
-        print("API id : ${datasForSharedUser[i]["id"]} || ${int.parse(code)}");
-        if (datasForSharedUser[i]["id"] == int.parse(code)) {
-          dataForSharedUser = datasForSharedUser[i];
-          print("[*] dataForSharedUSer : $dataForSharedUser");
-        }
-      }
+      // for (int i = 0; i < datasForSharedUser.length; i++) {
+      //   print("API id : ${datasForSharedUser[i]["id"]} || ${int.parse(code)}");
+      //   if (datasForSharedUser[i]["id"] == int.parse(code)) {
+      //     dataForSharedUser = datasForSharedUser[i];
+      //     print("[*] dataForSharedUSer : $dataForSharedUser");
+      //   }
+      // }
 
       print("Deep link after For Loop ${dataForSharedUser}");
       if (dataForSharedUser.isEmpty) {
@@ -150,6 +152,7 @@ class _SplashState extends State<Splash> {
     String? userToken = prefs.getString("userToken");
 
     if (userToken != null) {
+      print("splash 화면에서의 checkStatus 에서의 userToken은 : ${userToken}");
       await getDeepLink();
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);
 
