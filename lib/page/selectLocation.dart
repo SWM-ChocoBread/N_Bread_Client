@@ -1,3 +1,5 @@
+import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/home.dart';
 import 'package:flutter/material.dart';
 
 import '../style/colorstyles.dart';
@@ -237,6 +239,12 @@ class SelectLocation extends State<MainPage> {
                                       selectedValue2 = newValue!;
                                       print(
                                           "${selectedValue} ${selectedValue2}이 선택되었습니다. API를 호출해주세요");
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  const App()),
+                                          (route) => false);
                                     });
                                   } else {
                                     //스낵바 호출
