@@ -32,6 +32,10 @@
                 <data android:scheme="kakaocfd53361fe092dba3d8960f5697f97b4
                 " android:host="oauth"/>
             </intent-filter>
+            <meta-data
+            android:name="io.flutter.embedding.android.SplashScreenDrawable"
+            android:resource="@drawable/launch_background"
+            />
         </activity>
         <activity 
     android:name=".cfd53361fe092dba3d8960f5697f97b4"

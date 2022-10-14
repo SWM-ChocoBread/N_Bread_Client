@@ -28,6 +28,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
 import 'create.dart';
+import 'event/event_banner.dart';
 
 // develop
 // late String currentLocation;
@@ -467,6 +468,9 @@ class _HomeState extends State<Home> {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
+        if (index == 0) {
+          return EventBanner();
+        }
         return GestureDetector(
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () async {
