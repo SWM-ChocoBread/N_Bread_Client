@@ -94,6 +94,12 @@ String selectedValue2 = "";
 
 class SelectLocation extends State<MainPage> {
   @override
+  void initState() {
+    selectedValue = "";
+    selectedValue2 = "";
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         //ackgroundColor: Colors.amber[800],
