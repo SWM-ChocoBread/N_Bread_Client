@@ -330,7 +330,8 @@ class _NicknameSetState extends State<NicknameSet> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (BuildContext context) => MainPage()),
+                              builder: (BuildContext context) =>
+                                  LocationPage()),
                           (route) => false);
                       // Navigator.pushAndRemoveUntil(
                       //     context,

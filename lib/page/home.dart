@@ -207,28 +207,6 @@ class _HomeState extends State<Home> {
   PreferredSizeWidget _appbarWidget() {
     print("[home.dart] appbarWidget 빌드 시작");
     return AppBar(
-        // leading: IconButton(
-        //   onPressed: () {
-        //     print(DateTime.now());
-        //     print(MyDateUtils.dateTimeDifference(
-        //         DateTime.now(), '2022-07-30T20:37:12.000Z'));
-        //     print(MyDateUtils.dateTimeDifference(
-        //         DateTime.now(), '2022-07-30 20:37:12'));
-        //     print(DateFormat('hh: MM')
-        //         .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
-        //   },
-        //   icon: const FaIcon(
-        //     FontAwesomeIcons.locationDot,
-        //     size: 18,
-        //   ),
-        //   padding: EdgeInsets.zero,
-        //   constraints: const BoxConstraints(),
-        //   // SvgPicture.asset(
-        //   //   "assets/svg/logo.svg",
-        //   //   width: 100,
-        //   // )
-        // ), // logo, hamburger,
-        // name of the app
         title: Text(currentLocation!),
         actions: [
           IconButton(
@@ -239,11 +217,11 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-              IconButton(
+          IconButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MainPage()),
+                  MaterialPageRoute(builder: (context) => LocationPage()),
                 );
               },
               icon: const Icon(Icons.airplane_ticket)),

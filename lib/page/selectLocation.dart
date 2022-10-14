@@ -17,7 +17,7 @@ void comeFromNick() async {
   prefs.setBool("isComeFromNick", false);
 }
 
-class MainPage extends StatefulWidget {
+class LocationPage extends StatefulWidget {
   SelectLocation createState() => SelectLocation();
 }
 
@@ -107,7 +107,7 @@ List<DropdownMenuItem<String>> get guangjin {
 String selectedValue = "";
 String selectedValue2 = "";
 
-class SelectLocation extends State<MainPage> {
+class SelectLocation extends State<LocationPage> {
   @override
   void initState() {
     selectedValue = "";
