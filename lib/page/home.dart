@@ -24,6 +24,7 @@ import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:get/get.dart';
 
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
@@ -238,6 +239,11 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
+              IconButton(
+              onPressed: () {
+                 Get.toNamed('/GroupChannelRoute');
+              },
+              icon: const Icon(Icons.forum))
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,
