@@ -326,7 +326,7 @@ class _NicknameSetState extends State<NicknameSet> {
                       // 온보딩 화면으로 이동한다.
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      prefs.setBool("isComeFromNick", true);
+                      await prefs.setBool("isComeFromNick", true);
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(

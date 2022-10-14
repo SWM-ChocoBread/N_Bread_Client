@@ -55,6 +55,8 @@ class _HomeState extends State<Home> {
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isComeFromNick", false);
+    print("isComefromnick on home is ${prefs.getBool("isComeFromNick")}");
     currentLocation = prefs.getString("loc3");
     setState(() {
       print("getCurrentLocationFromPref에서의 currentLocation은 : " +
@@ -207,7 +209,26 @@ class _HomeState extends State<Home> {
   PreferredSizeWidget _appbarWidget() {
     print("[home.dart] appbarWidget 빌드 시작");
     return AppBar(
-        title: Text(currentLocation!),
+        title: GestureDetector(
+          child: Row(
+            children: [
+              Text(currentLocation!),
+              const SizedBox(
+                width: 10,
+              ),
+              const FaIcon(
+                FontAwesomeIcons.chevronDown,
+                size: 18,
+              ),
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LocationPage()),
+            );
+          },
+        ),
         actions: [
           IconButton(
               onPressed: () {
@@ -217,14 +238,7 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LocationPage()),
-                );
-              },
-              icon: const Icon(Icons.airplane_ticket)),
+
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,

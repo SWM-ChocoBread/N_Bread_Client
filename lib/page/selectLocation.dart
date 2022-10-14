@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:chocobread/page/onboarding/onboarding.dart';
+import 'package:http/http.dart' as http;
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
@@ -12,9 +17,12 @@ void comeFromNick() async {
   if (prefs.getBool("isComeFromNick") == true) {
     print("isComeFromNick이 true로 설정되었습니다");
     isComeFromNick = true;
+  } else {
+    isComeFromNick = false;
   }
   print("comefromnick is ${isComeFromNick}");
-  prefs.setBool("isComeFromNick", false);
+  await prefs.setBool("isComeFromNick", false);
+  //print("comefromnick is ${isComeFromNick}");
 }
 
 class LocationPage extends StatefulWidget {
@@ -256,7 +264,6 @@ class SelectLocation extends State<LocationPage> {
                                     print("${selectedValue != ""}");
                                     setState(() {
                                       selectedValue2 = newValue!;
-
                                       prefs.setString("loc1", "서울특별시");
                                       prefs.setString("loc2", selectedValue);
                                       prefs.setString("loc3", selectedValue2);
@@ -264,18 +271,30 @@ class SelectLocation extends State<LocationPage> {
                                           "isLocationCertification", false);
                                       print(
                                           "${prefs.getString("loc2")} ${prefs.getString("loc3")}이 선택되었습니다. API를 호출해주세요");
+
                                       if (isComeFromNick) {
+                                        prefs.setBool("showEventPopUp", true);
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        Onboarding()),
+                                            (route) => false);
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(signUpComplete);
+                                      } else {
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        const App()),
+                                            (route) => false);
                                       }
-
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  const App()),
-                                          (route) => false);
                                     });
+                                    await setLocation(
+                                        "서울특별시", selectedValue, selectedValue2);
                                   } else {
                                     //스낵바 호출
                                     ScaffoldMessenger.of(context)
@@ -318,4 +337,27 @@ class SelectLocation extends State<LocationPage> {
       Radius.circular(5),
     )),
   );
+
+  Future<void> setLocation(String loc1, String loc2, String loc3) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('userToken');
+    if (userToken != null) {
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      String userId = payload['id'].toString();
+      String tmpurl = 'https://www.chocobread.shop/users/location/' +
+          userId +
+          '/' +
+          loc1 +
+          '/' +
+          loc2 +
+          '/' +
+          loc3;
+      var url = Uri.parse(tmpurl);
+      var response = await http.post(url);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print('on setlocation, list is ${list}');
+    }
+    print('setUserLocation실행완료');
+  }
 }
