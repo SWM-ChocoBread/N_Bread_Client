@@ -429,6 +429,8 @@ class _MyPageState extends State<MyPage> {
         return ColorStyle.recruitcomplete; // 모집완료인 경우의 색
       case "모집실패":
         return ColorStyle.fail; // 모집실패인 경우의 색
+      case "거래완료": // 거래완료인 경우의 색
+        return ColorStyle.dealcomplete;
     }
     return const Color(0xffF6BD60);
   }
@@ -441,14 +443,14 @@ class _MyPageState extends State<MyPage> {
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       );
     } else if (productOngoing["status"] == "모집완료" ||
-        productOngoing["status"] == "모집실패") {
+        productOngoing["status"] == "모집실패" || productOngoing["status"] == "거래완료") {
       return Text(
         productOngoing["status"].toString(),
         style: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       );
     }
-    return const Text("데이터에 문제가 있습니다.");
+    return const Text(" "); // 데이터에 문제가 있습니다.
   }
 
   _loadOngoing() async {

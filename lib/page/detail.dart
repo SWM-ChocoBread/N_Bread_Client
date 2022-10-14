@@ -1309,7 +1309,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         productContents["status"] == "거래완료") {
       return productContents["status"].toString();
     }
-    return "데이터에 문제가 있습니다.";
+    return " "; // 데이터에 문제가 있습니다.
   }
 
   _bottomNavigationBarWidgetForParticipant() {

@@ -520,4 +520,43 @@ class _LoginState extends State<Login> {
 
     return list;
   }
+
+  Future<void> saveTokenToDynamo(String fcmToken) async {
+    print("saveTokenToDyanmostart");
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      try{
+        Map<String, dynamic> payload = Jwt.parseJwt(token);
+        String userId = payload['id'].toString();
+        var userToken = prefs.getString("userToken");
+        DateTime now = DateTime.now();
+        var epochTime = now.millisecondsSinceEpoch / 1000;
+        const expireTime = 5260000;
+        Map jsonBody = {
+          "userId": userId,
+          "fcmToken" : fcmToken,
+          "createTime" : epochTime,
+          "deleteTime" : epochTime + expireTime,
+        };
+        var encodedBody = json.encode(jsonBody);
+        String targetUrl = 'https://d3wcvzzxce.execute-api.ap-northeast-2.amazonaws.com/tokens';
+        var url = Uri.parse(
+          targetUrl,
+        );
+        var response = await http.put(url,
+            body: encodedBody);
+        String responseBody = utf8.decode(response.bodyBytes);
+        Map<String, dynamic> list = jsonDecode(responseBody);
+        print("fcm Store reponse list ${list}");
+        if (list.length == 0) {
+          print("length of list is 0");
+        } else {
+          print("fcm Store reponse list");
+        }
+      }catch(error){
+        print("dynamoDB store ${error}");
+      }
+    }
+  }
 }

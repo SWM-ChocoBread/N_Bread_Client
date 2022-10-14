@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:chocobread/page/nicknameset.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -47,6 +48,11 @@ class _SplashState extends State<Splash> {
       carPlay: false,
       criticalAlert: false,
       provisional: false,
+      sound: true,
+    );
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
       sound: true,
     );
 
