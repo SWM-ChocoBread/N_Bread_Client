@@ -9,6 +9,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
+import 'package:chocobread/page/selectLocation.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
@@ -238,6 +239,14 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
+              IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
+              },
+              icon: const Icon(Icons.airplane_ticket)),
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,
