@@ -1,6 +1,7 @@
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/home.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
 
@@ -232,13 +233,22 @@ class SelectLocation extends State<MainPage> {
                                             textAlign: TextAlign.end,
                                           )),
                                 ),
-                                onChanged: (String? newValue) {
+                                onChanged: (String? newValue) async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
                                   if (selectedValue != "") {
                                     print("${selectedValue != ""}");
                                     setState(() {
                                       selectedValue2 = newValue!;
+
+                                      prefs.setString("loc1", "서울특별시");
+                                      prefs.setString("loc2", selectedValue);
+                                      prefs.setString("loc3", selectedValue2);
+                                      prefs.setBool(
+                                          "isLocationCertification", false);
                                       print(
-                                          "${selectedValue} ${selectedValue2}이 선택되었습니다. API를 호출해주세요");
+                                          "${prefs.getString("loc2")} ${prefs.getString("loc3")}이 선택되었습니다. API를 호출해주세요");
+
                                       Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(
