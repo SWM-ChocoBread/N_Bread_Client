@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/selectLocation.dart';
 import 'package:chocobread/page/widgets/snackbar.dart';
 
 import 'package:flutter/material.dart';
@@ -317,33 +318,25 @@ class _NicknameSetState extends State<NicknameSet> {
                       nicknametosubmit =
                           nicknameSetController.text; // 현재 닉네임을 나타내는 변수
                       print("닉네임 제출하려는 닉네임은 " + nicknametosubmit);
-                      await getCurrentPosition();
+                      //await getCurrentPosition();
                       // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
-                      print("$loc1 $loc2 $loc3");
-                      if (loc1 == null && loc2 == null && loc3 == null) {
-                        print("null인 경우입니다.");
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertNoService();
-                            });
-                        nicknameSetController.text =
-                            nicknametosubmit; // selectionOverlay error 해결 위해 추가
-                      } else {
-                        // 설정할 닉네임을 받아와서 서버로 보내준다.
-                        //SET NICKNAME API CALL
-                        await nicknameSet(
-                            nicknametocheck); //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
-                        print("온보딩 화면으로 이동합니다.");
-                        // 온보딩 화면으로 이동한다.
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    Onboarding()),
-                            (route) => false);
-                      }
+                      await nicknameSet(
+                          nicknametocheck); //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
+                      print("지역 설정 화면으로 이동.");
+                      // 온보딩 화면으로 이동한다.
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isComeFromNick", true);
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => MainPage()),
+                          (route) => false);
+                      // Navigator.pushAndRemoveUntil(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (BuildContext context) => Onboarding()),
+                      //     (route) => false);
                     }
                   : null,
               child: const Text(

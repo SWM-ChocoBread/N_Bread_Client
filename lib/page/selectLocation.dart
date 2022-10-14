@@ -1,9 +1,21 @@
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/home.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
+
+bool isComeFromNick = false;
+void comeFromNick() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool("isComeFromNick") == true) {
+    print("isComeFromNick이 true로 설정되었습니다");
+    isComeFromNick = true;
+  }
+  print("comefromnick is ${isComeFromNick}");
+  prefs.setBool("isComeFromNick", false);
+}
 
 class MainPage extends StatefulWidget {
   SelectLocation createState() => SelectLocation();
@@ -100,18 +112,22 @@ class SelectLocation extends State<MainPage> {
   void initState() {
     selectedValue = "";
     selectedValue2 = "";
+    comeFromNick();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         //ackgroundColor: Colors.amber[800],
-        appBar: AppBar(
-          //title: Text(''),
-          //backgroundColor: Colors.amber[700],
-          centerTitle: true,
-          elevation: 0.0,
-        ),
+        appBar: !isComeFromNick
+            ? AppBar(
+                centerTitle: true,
+                elevation: 0.0,
+              )
+            : AppBar(
+                centerTitle: true,
+                elevation: 0.0,
+                automaticallyImplyLeading: false),
         body: Padding(
           padding: EdgeInsets.fromLTRB(30.0, 0, 30.0, 0.0),
           child:
@@ -248,6 +264,10 @@ class SelectLocation extends State<MainPage> {
                                           "isLocationCertification", false);
                                       print(
                                           "${prefs.getString("loc2")} ${prefs.getString("loc3")}이 선택되었습니다. API를 호출해주세요");
+                                      if (isComeFromNick) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(signUpComplete);
+                                      }
 
                                       Navigator.pushAndRemoveUntil(
                                           context,
@@ -273,6 +293,20 @@ class SelectLocation extends State<MainPage> {
   static const snackBarSelectDong = SnackBar(
     content: Text(
       "자치구 선택 후 법정동 선택이 가능합니다!",
+      style: TextStyle(color: Colors.white),
+    ),
+    backgroundColor: ColorStyle.darkMainColor,
+    duration: Duration(milliseconds: 2000),
+    behavior: SnackBarBehavior.floating,
+    elevation: 3,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+      Radius.circular(5),
+    )),
+  );
+  static const signUpComplete = SnackBar(
+    content: Text(
+      "회원가입이 완료되었습니다!",
       style: TextStyle(color: Colors.white),
     ),
     backgroundColor: ColorStyle.darkMainColor,
