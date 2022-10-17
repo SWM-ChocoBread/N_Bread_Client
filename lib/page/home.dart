@@ -55,8 +55,6 @@ class _HomeState extends State<Home> {
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("isComeFromNick", false);
-    print("isComefromnick on home is ${prefs.getBool("isComeFromNick")}");
     currentLocation = prefs.getString("loc3");
     setState(() {
       print("getCurrentLocationFromPref에서의 currentLocation은 : " +
