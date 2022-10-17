@@ -87,7 +87,7 @@ class _DetailContentViewState extends State<DetailContentView> {
     totalPrice = widget.data["totalPrice"];
     personalPrice = widget.data["personalPrice"];
     member = ((1 - (personalPrice / totalPrice)) * 100).round();
-    productName = widget.data["title"];
+    productName = "[${widget.data["loc3"]}] " + widget.data["title"];
     imgUrl = "";
 
     //getUserStatus();
@@ -231,7 +231,7 @@ class _DetailContentViewState extends State<DetailContentView> {
               }
               final CommerceTemplate defaultCommerce = CommerceTemplate(
                 content: Content(
-                  title: linkWithDataId.toString(),
+                  title: title,
                   imageUrl: Uri.parse(imgUrl),
                   link: Link(
                     webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
@@ -254,13 +254,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                       mobileWebUrl: linkWithDataId,
                     ),
                   ),
-                  // Button(
-                  //   title: '공유하기',
-                  //   link: Link(
-                  //     androidExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-                  //     iosExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-                  //   ),
-                  // )
                 ],
               );
               if (result) {
