@@ -9,6 +9,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
+import 'package:chocobread/page/selectLocation.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
@@ -206,29 +207,26 @@ class _HomeState extends State<Home> {
   PreferredSizeWidget _appbarWidget() {
     print("[home.dart] appbarWidget 빌드 시작");
     return AppBar(
-        // leading: IconButton(
-        //   onPressed: () {
-        //     print(DateTime.now());
-        //     print(MyDateUtils.dateTimeDifference(
-        //         DateTime.now(), '2022-07-30T20:37:12.000Z'));
-        //     print(MyDateUtils.dateTimeDifference(
-        //         DateTime.now(), '2022-07-30 20:37:12'));
-        //     print(DateFormat('hh: MM')
-        //         .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
-        //   },
-        //   icon: const FaIcon(
-        //     FontAwesomeIcons.locationDot,
-        //     size: 18,
-        //   ),
-        //   padding: EdgeInsets.zero,
-        //   constraints: const BoxConstraints(),
-        //   // SvgPicture.asset(
-        //   //   "assets/svg/logo.svg",
-        //   //   width: 100,
-        //   // )
-        // ), // logo, hamburger,
-        // name of the app
-        title: Text(currentLocation!),
+        title: GestureDetector(
+          child: Row(
+            children: [
+              Text(currentLocation!),
+              const SizedBox(
+                width: 10,
+              ),
+              const FaIcon(
+                FontAwesomeIcons.chevronDown,
+                size: 18,
+              ),
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LocationPage(isComeFromNick: false,)),
+            );
+          },
+        ),
         actions: [
           IconButton(
               onPressed: () {
@@ -238,6 +236,7 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
+
           // IconButton(
           //     onPressed: () {
           //       Navigator.push(context,
