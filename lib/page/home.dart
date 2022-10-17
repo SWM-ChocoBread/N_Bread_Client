@@ -225,7 +225,7 @@ class _HomeState extends State<Home> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LocationPage()),
+              MaterialPageRoute(builder: (context) => LocationPage(isComeFromNick: false,)),
             );
           },
         ),

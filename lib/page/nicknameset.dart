@@ -324,14 +324,12 @@ class _NicknameSetState extends State<NicknameSet> {
                           nicknametocheck); //태현 : 닉네임 설정 api가 여기서 호출. 즉 신규회원가입 완료.
                       print("지역 설정 화면으로 이동.");
                       // 온보딩 화면으로 이동한다.
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      await prefs.setBool("isComeFromNick", true);
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  LocationPage()),
+                              builder: (BuildContext context) => LocationPage(
+                                    isComeFromNick: true,
+                                  )),
                           (route) => false);
                       // Navigator.pushAndRemoveUntil(
                       //     context,

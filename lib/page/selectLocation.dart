@@ -11,21 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../style/colorstyles.dart';
 
-bool isComeFromNick = false;
-void comeFromNick() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (prefs.getBool("isComeFromNick") == true) {
-    print("isComeFromNick이 true로 설정되었습니다");
-    isComeFromNick = true;
-  } else {
-    isComeFromNick = false;
-  }
-  print("comefromnick is ${isComeFromNick}");
-  await prefs.setBool("isComeFromNick", false);
-  //print("comefromnick is ${isComeFromNick}");
-}
-
 class LocationPage extends StatefulWidget {
+  late bool isComeFromNick;
+  LocationPage({super.key, required this.isComeFromNick});
   SelectLocation createState() => SelectLocation();
 }
 
@@ -120,19 +108,20 @@ class SelectLocation extends State<LocationPage> {
   void initState() {
     selectedValue = "";
     selectedValue2 = "";
-    comeFromNick();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         //ackgroundColor: Colors.amber[800],
-        appBar: !isComeFromNick
+        appBar: !widget.isComeFromNick
             ? AppBar(
+                //뒤로가기 보임
                 centerTitle: true,
                 elevation: 0.0,
               )
             : AppBar(
+                //뒤로가기 안보임
                 centerTitle: true,
                 elevation: 0.0,
                 automaticallyImplyLeading: false),
@@ -272,7 +261,7 @@ class SelectLocation extends State<LocationPage> {
                                       print(
                                           "${prefs.getString("loc2")} ${prefs.getString("loc3")}이 선택되었습니다. API를 호출해주세요");
 
-                                      if (isComeFromNick) {
+                                      if (widget.isComeFromNick) {
                                         prefs.setBool("showEventPopUp", true);
                                         Navigator.pushAndRemoveUntil(
                                             context,
@@ -359,5 +348,19 @@ class SelectLocation extends State<LocationPage> {
       print('on setlocation, list is ${list}');
     }
     print('setUserLocation실행완료');
+  }
+}
+
+class name extends StatefulWidget {
+  const name({super.key});
+
+  @override
+  State<name> createState() => _nameState();
+}
+
+class _nameState extends State<name> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
