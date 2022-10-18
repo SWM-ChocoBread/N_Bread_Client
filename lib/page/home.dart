@@ -769,11 +769,16 @@ class _HomeState extends State<Home> {
           showDialog(
               context: context,
               barrierDismissible: true,
-              builder: (BuildContext context) {
+              builder: (BuildContext ctx) {
                 return AlertDialog(
                   content: Text("지역 인증이 필요한 서비스입니다!"),
                   actions: [
-                    FlatButton(onPressed: null, child: Text("지금 인증하기")),
+                    FlatButton(
+                      child: Text("지금 인증하기"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
                     FlatButton(
                       child: Text("나중에 인증하기"),
                       onPressed: () {
@@ -794,43 +799,12 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
-  Widget _testpopup() {
-    // 유저 신고하기 팝업 버튼
-    return PopupMenuButton(
-      // 신고하기가 나오는 팝업메뉴버튼
-      icon: const Icon(
-        Icons.more_vert,
-        color: Colors.grey,
-      ),
-      offset: const Offset(-5, 50),
-      shape: ShapeBorder.lerp(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          1),
-      itemBuilder: (BuildContext context) {
-        return [
-          const PopupMenuItem(
-            value: "block",
-            child: Text("차단하기"),
-          ),
-        ];
-      },
-      onSelected: (String val) {
-        if (val == "block") {
-          // 차단하기를 누른 경우, 해당 detail page 에 있는 정보 중 유저의 정보를 그대로 blockuser에 전달해서 navigator
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) {
-            return BlockUser(
-              userid: 1,
-              usernickname: "string",
-              isfromdetail: true,
-            );
-          }));
-        }
-      },
-    );
+  
+  void checkLocation(){
+    
   }
+
+ 
 
   @override
   Widget build(BuildContext context) {
