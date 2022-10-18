@@ -23,7 +23,7 @@ List tempEventImages = [
 ];
 
 Future<List> loadEventBanner() async {
-  String tmpUrl = '';
+  String tmpUrl = 'https://www.chocobread.shop/events';
   var url = Uri.parse(tmpUrl);
   late Map<String, dynamic> list; // 요청의 결과를 받아올 임시 리스트
 
@@ -35,10 +35,16 @@ Future<List> loadEventBanner() async {
   print("responseHeaders: ${responseHeaders}");
   print("responseBody: ${responseBody}");
   list = jsonDecode(responseBody);
-
+  print("list length ${list["result"].length}");
+  print("list list ${list["result"][0]["eventImage"]}");
+  var imageList = List<Map<String, dynamic>>.empty(growable: true);
+  for (int i = 0 ; i < list["result"].length ; i++){
+    // print(list["result"][i]);
+    // imageList.add(list["result"][i]);
+  }
   print("loadContentByDealId called");
-  print("loadContentByDealId에 의해 받아온 data : ${list}");
+  print("loadContentByDealId에 의해 받아온 data : ${list["result"]}");
 
-  // return list["result"]["DealImages"];
+  return list["result"];
   return tempEventImages;
 }

@@ -26,19 +26,27 @@ class _EventBannerState extends State<EventBanner> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    // eventBannerImages = await loadEventBanner(); // 나중에 주석 해제해서 사용할 것!
+    eventBannerImages = await loadEventBanner(); // 나중에 주석 해제해서 사용할 것!
+    print("eventBannerImage : ${eventBannerImages}");
   }
 
   // detail.dart 의 _itemsForSliderImage 참고
   List<Widget> _itemsForEventBanner() {
     // 이벤트 배너 이미지가 있는 경우 : 이미지 배너를 보여준다.
     return eventBannerImages.map((map) {
-      return ExtendedImage.network(map["eventImage"].toString());
+      print("map[eventImage] : ${map["eventImage"]}");
+      return ExtendedImage.network(map["eventImage"]);
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    // print("itemsForEventBanner: ${_itemsForEventBanner()}"
+    // );
+    print(
+      "itemsforeventbanner ${eventBannerImages.map((map) {
+      return ExtendedImage.network(map["eventImage"]);
+    }).toList()}");
     return CarouselSlider(
       options: CarouselOptions(
         autoPlay: true,
@@ -48,18 +56,18 @@ class _EventBannerState extends State<EventBanner> {
         viewportFraction: 1, // 전체 화면 사용
       ),
       items:
-          // (eventBannerImages.length != 0)
-          //     ? _itemsForEventBanner()
-          //     : List.empty(),
-          [
-        Container(color: ColorStyle.darkMainColor),
-        Container(
-          color: ColorStyle.lightMainColor,
-        ),
-        Container(
-          color: ColorStyle.mainColor,
-        )
-      ],
+          (eventBannerImages.length != 0)
+              ? _itemsForEventBanner()
+              : List.empty(),
+      //     [
+      //   Container(color: ColorStyle.darkMainColor),
+      //   Container(
+      //     color: ColorStyle.lightMainColor,
+      //   ),
+      //   Container(
+      //     color: ColorStyle.mainColor,
+      //   )
+      // ],
     );
   }
 }

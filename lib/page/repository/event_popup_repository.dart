@@ -13,7 +13,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<List> loadEventPopUp() async {
-  String tmpUrl = '';
+  Map mapToSend = {
+    "recentId" : "1"
+  };
+  var body = json.encode(mapToSend);
+  var recentId = "1";
+  String tmpUrl = 'https://www.chocobread.shop/events/popup/' + recentId;
   var url = Uri.parse(tmpUrl);
   late Map<String, dynamic> list; // 요청의 결과를 받아올 임시 리스트
 
@@ -29,6 +34,6 @@ Future<List> loadEventPopUp() async {
   print("loadEventPopUp called");
   print("loadEventPopUp에 의해 받아온 data : ${list}");
 
-  // return list["result"]["DealImages"];
+  return list["result"];
   return [];
 }
