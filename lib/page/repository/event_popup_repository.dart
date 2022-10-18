@@ -11,14 +11,16 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List> loadEventPopUp() async {
-  Map mapToSend = {
-    "recentId" : "1"
-  };
-  var body = json.encode(mapToSend);
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setInt("hihi", 0);
   var recentId = "1";
   String tmpUrl = 'https://www.chocobread.shop/events/popup/' + recentId;
+
+  // 300 다시 보지 않기 ->
+  // 400
   var url = Uri.parse(tmpUrl);
   late Map<String, dynamic> list; // 요청의 결과를 받아올 임시 리스트
 
