@@ -29,6 +29,7 @@ import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
 import 'create.dart';
 import 'event/event_banner.dart';
+import 'event/event_popup.dart';
 
 // develop
 // late String currentLocation;
@@ -51,6 +52,7 @@ class _HomeState extends State<Home> {
   Position? _currentPosition;
   String basicLatitude = "37.5037142"; // "37.5037142";
   String basicLongitude = "127.0447821"; // "127.0447821";
+  late ExtendedImage eventPopUpImage; // 이벤트 팝업 이미지 미리 받아오기 위한 변수
 
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
@@ -78,6 +80,29 @@ class _HomeState extends State<Home> {
     //     });
   }
 
+  showEventDialog() async {
+    // 회원가입했을 때 처음 showEventPopUp bool 에 true 설정하기
+    // 다시보지 않기 버튼을 눌렀을 때 : showEventPopUp bool 에 false 설정하기
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool showEventPopUp = prefs.getBool("showEventPopUp") ?? true;
+    print(
+        "showEventDialog 안에서의 local Storage 내의 showEventPopUp : ${showEventPopUp}");
+    showEventPopUp = true;
+    print("showEventPopUp 을 true로 바꾼 뒤의 showEventPopUp : ${showEventPopUp}");
+    if (showEventPopUp) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return EventPopUp(
+              eventPopUpImage: eventPopUpImage,
+            );
+          });
+      print("eventPopUpImage : $eventPopUpImage");
+      print("eventPopUpImage.image : ${eventPopUpImage.image}");
+      print("eventPopUpImage.image[url] : ${eventPopUpImage.image}");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -86,6 +111,13 @@ class _HomeState extends State<Home> {
     //     currentLocation.toString());
     // currentLocation = "역삼동";
     getCurrentLocationFromPref();
+    eventPopUpImage = ExtendedImage.network(
+        "https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1665128209671_af112cdd-5037-4a12-ae83-975f0e4939bb5989351294237273237.jpg"); // 미리 받아오는 이미지의 링크가 들어가는 곳
+    // 이벤트 팝업 보여주기
+    Future.delayed(Duration.zero, () {
+      print("이벤트 popup이 실행되었습니다!");
+      showEventDialog();
+    });
   }
 
   Future<bool> checkLocationPermission() async {
@@ -202,6 +234,7 @@ class _HomeState extends State<Home> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     contentsRepository = ContentsRepository();
+    precacheImage(eventPopUpImage.image, context); // precache 해서 넣어두기
   }
 
   PreferredSizeWidget _appbarWidget() {

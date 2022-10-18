@@ -110,6 +110,8 @@ flutter:
   assets:
     - assets/svg/
     - assets/images/
+    - assets/banners/
+    - assets/popups/
     - assets/logo/
     - assets/airbridge.json
     - assets/markdown/

@@ -2,6 +2,26 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+// 이벤트 배너에 들어갈 이미지를 받을 함수
+// 이미지 링크, 이미지를 클릭했을 때 어디로 가야 하는지 리다이렉션 type, 상세 페이지 dealId
+
+List tempEventImages = [
+  {
+    // "eventImage": "assets/banners/코스트코_구매대행_배너.png",
+    "eventImage":
+        "https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1665128209671_af112cdd-5037-4a12-ae83-975f0e4939bb5989351294237273237.jpg",
+    "type": "detail",
+    "keyId": 300
+  },
+  {
+    // "eventImage": "assets/banners/N빵_서비스소개_배너.png",
+    "eventImage":
+        "https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1665128209671_af112cdd-5037-4a12-ae83-975f0e4939bb5989351294237273237.jpg",
+    "type": "detail",
+    "keyId": 300
+  },
+];
+
 Future<List> loadEventBanner() async {
   String tmpUrl = '';
   var url = Uri.parse(tmpUrl);
@@ -19,5 +39,6 @@ Future<List> loadEventBanner() async {
   print("loadContentByDealId called");
   print("loadContentByDealId에 의해 받아온 data : ${list}");
 
-  return list["result"]["DealImages"];
+  // return list["result"]["DealImages"];
+  return tempEventImages;
 }

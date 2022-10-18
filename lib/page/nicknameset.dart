@@ -412,6 +412,7 @@ class _NicknameSetState extends State<NicknameSet> {
   Future<void> nicknameSet(String nick) async {
     final prefs = await SharedPreferences.getInstance();
     String? userToken = prefs.getString('userToken');
+    prefs.setBool("showEventPopUp", true); // 처음 회원가입한 사람은 이벤트 배너가 보이도록 처리
 
     if (userToken != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(userToken);

@@ -33,7 +33,7 @@ class _EventBannerState extends State<EventBanner> {
   List<Widget> _itemsForEventBanner() {
     // 이벤트 배너 이미지가 있는 경우 : 이미지 배너를 보여준다.
     return eventBannerImages.map((map) {
-      return ExtendedImage.network(map["dealImage"].toString());
+      return ExtendedImage.network(map["eventImage"].toString());
     }).toList();
   }
 
@@ -42,7 +42,7 @@ class _EventBannerState extends State<EventBanner> {
     return CarouselSlider(
       options: CarouselOptions(
         autoPlay: true,
-        height: 100,
+        height: displayWidth(context) * 0.25,
         initialPage: 0, //첫번째 페이지
         enableInfiniteScroll: true, // 무한 스크롤 가능하게 하기
         viewportFraction: 1, // 전체 화면 사용
