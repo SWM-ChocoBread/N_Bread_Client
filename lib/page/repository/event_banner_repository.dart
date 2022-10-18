@@ -46,5 +46,5 @@ Future<List> loadEventBanner() async {
   print("loadContentByDealId에 의해 받아온 data : ${list["result"]}");
 
   return list["result"];
-  return tempEventImages;
+  // return tempEventImages;
 }

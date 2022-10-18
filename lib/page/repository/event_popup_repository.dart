@@ -35,5 +35,5 @@ Future<List> loadEventPopUp() async {
   print("loadEventPopUp에 의해 받아온 data : ${list}");
 
   return list["result"];
-  return [];
+  // return [];
 }
