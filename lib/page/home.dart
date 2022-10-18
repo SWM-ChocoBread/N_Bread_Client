@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:chocobread/page/blockuser.dart';
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
@@ -33,6 +34,7 @@ import 'create.dart';
 // develop
 // late String currentLocation;
 late String location = "";
+late bool isLocationCertification;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -61,21 +63,10 @@ class _HomeState extends State<Home> {
           currentLocation.toString());
       currentLocation;
     });
-    // await SharedPreferences.getInstance().then(
-    //   (prefs) {
-    //     setState(() {
-    //       print(
-    //           "*** [home.dart] getCurrentLocationFromPref 함수 안에서 setState 함수가 실행되었습니다! ***");
-    //       currentLocation = prefs.getString("loc3")!;
-    //       print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
-    //       print("curloc ${currentLocation}");
-    //     });
-    //   },
-    // ).then((value) => {
-    //       setState(() {
-    //         print("*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
-    //       })
-    //     });
+    isLocationCertification =
+        await prefs.getBool("isLocationCertification") ?? false;
+    print(
+        "isLocationCertification이 home.dart에서 ${isLocationCertification} 으로 설정되었습니다");
   }
 
   @override
@@ -223,7 +214,10 @@ class _HomeState extends State<Home> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LocationPage(isComeFromNick: false,)),
+              MaterialPageRoute(
+                  builder: (context) => LocationPage(
+                        isComeFromNick: false,
+                      )),
             );
           },
         ),
@@ -764,12 +758,32 @@ class _HomeState extends State<Home> {
   Widget _floatingActionButtonWidget() {
     return FloatingActionButton(
       onPressed: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return CreateNew();
-        })).then((_) => setState(() {
-              _bodyWidget();
-            }));
+        if (isLocationCertification) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return CreateNew();
+          })).then((_) => setState(() {
+                _bodyWidget();
+              }));
+        } else {
+          showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: Text("지역 인증이 필요한 서비스입니다!"),
+                  actions: [
+                    FlatButton(onPressed: null, child: Text("지금 인증하기")),
+                    FlatButton(
+                      child: Text("나중에 인증하기"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                );
+              });
+        }
       }, // 새로운 제안 글을 쓰는 페이지로 이동
       backgroundColor: ColorStyle.mainColor, // floactingactionbutton의 색
       splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
@@ -778,6 +792,43 @@ class _HomeState extends State<Home> {
         Icons.add_rounded,
         size: 37,
       ),
+    );
+  }
+
+  Widget _testpopup() {
+    // 유저 신고하기 팝업 버튼
+    return PopupMenuButton(
+      // 신고하기가 나오는 팝업메뉴버튼
+      icon: const Icon(
+        Icons.more_vert,
+        color: Colors.grey,
+      ),
+      offset: const Offset(-5, 50),
+      shape: ShapeBorder.lerp(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          1),
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem(
+            value: "block",
+            child: Text("차단하기"),
+          ),
+        ];
+      },
+      onSelected: (String val) {
+        if (val == "block") {
+          // 차단하기를 누른 경우, 해당 detail page 에 있는 정보 중 유저의 정보를 그대로 blockuser에 전달해서 navigator
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return BlockUser(
+              userid: 1,
+              usernickname: "string",
+              isfromdetail: true,
+            );
+          }));
+        }
+      },
     );
   }
 
