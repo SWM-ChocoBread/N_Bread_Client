@@ -780,11 +780,28 @@ class _HomeState extends State<Home> {
                 return StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
                   return AlertDialog(
-                    content: Text("N빵에 참여하기 위해서는 최초 1회의 지역인증이 필요합니다."),
+                    content: RichText(
+                      text: TextSpan(
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(text: 'N빵에 참여하기 위해서는 최초 1회의 '),
+                          TextSpan(
+                              text: '지역인증',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              )),
+                          TextSpan(text: '이 필요합니다.'),
+                        ],
+                      ),
+                    ),
                     actions: [
                       FlatButton(
                         child: !showIndicator
-                            ? const Text("지금 인증하기")
+                            ? const Text("지금 인증하기",
+                                style: TextStyle(color: ColorStyle.mainColor))
                             : const SizedBox(
                                 child: CircularProgressIndicator(),
                                 height: 20,
@@ -830,14 +847,20 @@ class _HomeState extends State<Home> {
                                                   color: Colors.black,
                                                 ),
                                                 children: <TextSpan>[
-                                                  TextSpan(text: '현재 위치는'),
+                                                  TextSpan(text: '현재 동네 :'),
                                                   TextSpan(
                                                       text:
-                                                          ' ${newloc2} ${newloc3}',
+                                                          ' ${newloc2} ${newloc3}\n\n',
                                                       style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold)),
-                                                  TextSpan(text: '입니다.\n'),
+                                                  TextSpan(text: '선택 동네 :'),
+                                                  TextSpan(
+                                                      text:
+                                                          ' ${prefs.getString("loc2")} ${prefs.getString("loc3")}\n\n\n',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                   TextSpan(
                                                       text:
                                                           '${prefs.getString("loc2")}',
@@ -854,7 +877,10 @@ class _HomeState extends State<Home> {
                                             //     "현재 위치는 ${newloc2} ${newloc3}입니다.\n${prefs.getString("loc2")}로 이동하여 동네 인증을 진행해주세요."),
                                             actions: [
                                               FlatButton(
-                                                child: Text("닫기"),
+                                                child: const Text("닫기",
+                                                    style: TextStyle(
+                                                        color: ColorStyle
+                                                            .mainColor)),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
@@ -870,7 +896,10 @@ class _HomeState extends State<Home> {
                               },
                       ),
                       FlatButton(
-                        child: !showIndicator ? Text("닫기") : SizedBox(),
+                        child: !showIndicator
+                            ? Text("닫기",
+                                style: TextStyle(color: ColorStyle.mainColor))
+                            : SizedBox(),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
