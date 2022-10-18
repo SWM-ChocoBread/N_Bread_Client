@@ -6,7 +6,7 @@ import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
-import 'package:chocobread/page/notioninfo.dart';
+import 'package:chocobread/page/serviceinfo.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:chocobread/page/selectLocation.dart';
@@ -223,7 +223,10 @@ class _HomeState extends State<Home> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LocationPage(isComeFromNick: false,)),
+              MaterialPageRoute(
+                  builder: (context) => LocationPage(
+                        isComeFromNick: false,
+                      )),
             );
           },
         ),
@@ -232,35 +235,10 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (BuildContext context) {
-                  return NotionInfo();
+                  return ServiceInfo();
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return Onboarding();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.mood)),
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return NicknameSet();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.ac_unit)),
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return TermsCheck();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.info_outline_rounded))
         ],
         centerTitle: false,
         titleSpacing: 23,
@@ -272,8 +250,6 @@ class _HomeState extends State<Home> {
         // actions: [
         //   IconButton(onPressed: () {}, icon: Icon(Icons.search)),
         //   IconButton(onPressed: () {}, icon: Icon(Icons.tune)),
-        //   IconButton(
-        //       onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
         //   IconButton(
         //       onPressed: () {}, icon: const Icon(Icons.border_color_rounded)),
         // ], // buttons at the end
