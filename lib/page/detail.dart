@@ -13,6 +13,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
@@ -1111,119 +1112,125 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  Widget _contentsTable() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: StaggeredGrid.count(
+        crossAxisCount: 12,
+        children: [
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "모집 인원",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              "${widget.data["currentMember"]} / ${widget.data["totalMember"]}",
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "1인당 가격",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              "${PriceUtils.calcStringToWonOnly(widget.data["personalPrice"].toString())} 원",
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "판매 링크",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: _linkonoff(),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "거래 일시",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              MyDateUtils.formatMyDateTime(widget.data["dealDate"].toString()),
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "거래 장소",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              widget.data["dealPlace"].toString(),
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _bodyWidget() {
     return GestureDetector(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: CustomScrollView(
-        // list 를 그리드뷰로 처리할 때는 CustomScrollView로 처리한다.
-        // SingleChildScrollView : scroll 가능하게 만들기, 한 화면에 안 들어가면 생기는 에러 해결
-        controller: _scrollControllerForAppBar,
-        slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _makeSliderImage(),
-                _sellerSimpleInfo(),
-                _line(),
-                _contentsTitle(),
-              ],
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 한 줄에 몇 개의 아이템
-                  mainAxisSpacing: 10, // 가로 간격 생김
-                  crossAxisSpacing: 10, // 세로 간격 생김
-                  childAspectRatio:
-                      8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
-              delegate: SliverChildListDelegate([
-                const Text(
-                  "판매 링크",
-                ),
-                _linkonoff(),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text("1인당 가격"),
-                      // const SizedBox(
-                      //   width: 7,
-                      // ),
-                      // IconButton(
-                      //     onPressed: () {},
-                      //     padding: EdgeInsets.zero,
-                      //     constraints: const BoxConstraints(),
-                      //     iconSize: 17,
-                      //     icon: const Icon(
-                      //       Icons.help_outline,
-                      //     )),
-                    ]),
-                Text(
-                  PriceUtils.calcStringToWon(
-                      widget.data["personalPrice"].toString()),
-                ),
-                const Text("모집 인원"),
-                Text(
-                    '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
-                // 모집 마감 일자 Text + tooltip
-                // Row(
-                //   children: const [
-                //     Text("모집 마감 일자"),
-                //     SizedBox(
-                //       width: 7,
-                //     ),
-                //     Tooltip(
-                //       triggerMode:
-                //           TooltipTriggerMode.tap, // tap을 했을 때 tooltip이 나타나도록 함
-                //       // showDuration: Duration(milliseconds: 1),
-                //       verticalOffset: 15,
-                //       message: "모집 마감 일자는 거래 일시 3일 전입니다.",
-                //       child: Icon(
-                //         Icons.help_outline,
-                //         size: 17,
-                //       ),
-                //       // child: IconButton(
-                //       //     onPressed: () {},
-                //       //     padding: EdgeInsets.zero,
-                //       //     constraints: const BoxConstraints(),
-                //       //     iconSize: 17,
-                //       //     icon: const Icon(
-                //       //       Icons.help_outline,
-                //       //     )),
-                //     ),
-                //   ],
-                // ),
-                // 실제 보여지는 모집 마감 일자
-                // Text(MyDateUtils.formatMyDateTimeDone(
-                //     widget.data["dealDate"].toString())), // TODO : 수정 필요함
-                const Text("거래 일시"),
-                Text(MyDateUtils.formatMyDateTime(
-                    widget.data["dealDate"].toString())),
-                const Text("거래 장소"),
-                Text(
-                  widget.data["dealPlace"].toString(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ]),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _contentsDetail(),
-                _policeReport(),
-                _line(),
-                _commentTitle(),
-                _commentsWidget(),
-                // _commentsTextField(),
-              ],
-            ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _makeSliderImage(),
+            _sellerSimpleInfo(),
+            _line(),
+            _contentsTitle(),
+            _contentsTable(),
+            const SizedBox(height: 10),
+            _contentsDetail(),
+            _policeReport(),
+            _line(),
+            _commentTitle(),
+            _commentsWidget(),
+          ],
+        ),
       ),
     );
   }
