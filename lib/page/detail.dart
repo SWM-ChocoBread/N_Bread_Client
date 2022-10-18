@@ -40,6 +40,7 @@ int totalPrice = 0;
 int personalPrice = 0;
 int member = 0;
 String productName = "";
+late bool isLocationCertification;
 
 int userId = 0;
 Uri? linkWithDataId;
@@ -82,6 +83,7 @@ class _DetailContentViewState extends State<DetailContentView> {
   @override
   void initState() {
     // TODO: implement initState
+    getIsLocationCert();
     super.initState();
     title = widget.data["content"];
     totalPrice = widget.data["totalPrice"];
@@ -112,6 +114,14 @@ class _DetailContentViewState extends State<DetailContentView> {
       ];
     }
     currentuserstatus = widget.data["mystatus"];
+  }
+
+  Future<void> getIsLocationCert() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    isLocationCertification =
+        await prefs.getBool("isLocationCertification") ?? false;
+    print(
+        "isLocationCertification value is ${isLocationCertification} on detail.dart");
   }
 
   @override

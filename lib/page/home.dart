@@ -3,8 +3,10 @@ import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
+import 'package:chocobread/page/alertnoservice.dart';
 import 'package:chocobread/page/blockuser.dart';
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/form.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
@@ -35,6 +37,11 @@ import 'create.dart';
 // late String currentLocation;
 late String location = "";
 late bool isLocationCertification;
+Position? geoLocation;
+String? newloc1;
+String? newloc2;
+String? newloc3;
+bool showIndicator = false;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -769,24 +776,112 @@ class _HomeState extends State<Home> {
           showDialog(
               context: context,
               barrierDismissible: true,
-              builder: (BuildContext ctx) {
-                return AlertDialog(
-                  content: Text("지역 인증이 필요한 서비스입니다!"),
-                  actions: [
-                    FlatButton(
-                      child: Text("지금 인증하기"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("나중에 인증하기"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
-                );
+              builder: (context) {
+                return StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                  return AlertDialog(
+                    content: Text("지역 인증이 필요한 서비스입니다!"),
+                    actions: [
+                      FlatButton(
+                        child: !showIndicator
+                            ? const Text("지금 인증하기")
+                            : const SizedBox(
+                                child: CircularProgressIndicator(),
+                                height: 20,
+                                width: 20,
+                              ),
+                        onPressed: showIndicator
+                            ? () => null
+                            : () async {
+                                setState(() {
+                                  print('hhehehehehe');
+                                  showIndicator = true;
+                                });
+                                print("showIndicator ${showIndicator} changed");
+
+                                int isCertification =
+                                    await getCurrentPosition();
+                                setState(() {
+                                  showIndicator = false;
+                                });
+                                print("${showIndicator} changed");
+                                Navigator.of(context).pop();
+                                final SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                switch (isCertification) {
+                                  case 1:
+                                    setState(() {
+                                      isLocationCertification = true;
+                                    });
+                                    prefs.setBool(
+                                        "isLocationCertification", true);
+
+                                    Navigator.push(context, MaterialPageRoute(
+                                        builder: (BuildContext context) {
+                                      return CreateNew();
+                                    }));
+                                    break;
+                                  case 2:
+                                    showDialog(
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            content: RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.black,
+                                                ),
+                                                children: <TextSpan>[
+                                                  TextSpan(text: '현재 위치는'),
+                                                  TextSpan(
+                                                      text:
+                                                          ' ${newloc2} ${newloc3}',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  TextSpan(text: '입니다.\n'),
+                                                  TextSpan(
+                                                      text:
+                                                          '${prefs.getString("loc2")}',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  TextSpan(
+                                                      text:
+                                                          '로 이동하여 동네 인증을 진행해주세요.'),
+                                                ],
+                                              ),
+                                            ),
+                                            // Text(
+                                            //     "현재 위치는 ${newloc2} ${newloc3}입니다.\n${prefs.getString("loc2")}로 이동하여 동네 인증을 진행해주세요."),
+                                            actions: [
+                                              FlatButton(
+                                                child: Text("닫기"),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                    break;
+
+                                  default:
+                                    break;
+                                }
+                              },
+                      ),
+                      FlatButton(
+                        child: !showIndicator ? Text("나중에 인증하기") : SizedBox(),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  );
+                });
               });
         }
       }, // 새로운 제안 글을 쓰는 페이지로 이동
@@ -799,12 +894,83 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  
-  void checkLocation(){
-    
+
+  void checkLocation() {}
+  findLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+        latitude +
+        '/' +
+        longitude;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list['code'] == 200) {
+      print('code 200 return');
+      newloc1 = list['result']['location1'];
+      newloc2 = list['result']['location2'];
+      newloc3 = list['result']['location3'];
+      print('newloc123에 리턴값 저장 완료');
+    }
+    print("on getUserLocation, response is ${list}");
   }
 
- 
+  Future<int> getCurrentPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    // 1. 위치 권한을 허용받았는지 확인한다.
+    final hasPermission = await checkLocationPermission();
+    print("[home.dart] getCurrentPosition 함수 안에서의 hasPermission : " +
+        hasPermission.toString());
+
+    if (hasPermission) {
+      // 2. 위치 권한이 허용된 경우 : geolocator package로 현재 위도와 경도를 받아온다.
+      geoLocation = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high); // 권한이 허용되었으면, 현재 위치를 가져오는 함수
+      var latitude = geoLocation?.latitude ?? basicLatitude;
+      var longitude = geoLocation?.longitude ?? basicLongitude;
+      // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
+      await findLocation(latitude.toString(),
+          longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
+      // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
+      if (newloc1 == null && newloc2 == null && newloc3 == null) {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return AlertNoService();
+            });
+      } else {
+        // 지역 인증에 성공하면 지역 인증에 성공했다는 메시지와 true리턴
+        //지역 인증에 실패하면 지역 인증에 실패했다는 팝업 창 띄워줌.false리턴.
+        if (prefs.getString("loc2") == newloc2) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(snackBarSuccessCertification);
+          return 1;
+        } else {
+          return 2;
+        }
+      }
+    }
+    return 3;
+  }
+
+  static const snackBarSuccessCertification = SnackBar(
+    content: Text(
+      "지역 인증에 성공하였습니다!",
+      style: TextStyle(color: Colors.white),
+    ),
+    backgroundColor: ColorStyle.darkMainColor,
+    duration: Duration(milliseconds: 2000),
+    behavior: SnackBarBehavior.floating,
+    elevation: 3,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+      Radius.circular(5),
+    )),
+  );
 
   @override
   Widget build(BuildContext context) {
