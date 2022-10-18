@@ -284,6 +284,7 @@ class SelectLocation extends State<LocationPage> {
                                     });
                                     await setLocation(
                                         "서울특별시", selectedValue, selectedValue2);
+                                        
                                   } else {
                                     //스낵바 호출
                                     ScaffoldMessenger.of(context)

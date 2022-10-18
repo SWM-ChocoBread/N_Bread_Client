@@ -794,17 +794,13 @@ class _HomeState extends State<Home> {
                             ? () => null
                             : () async {
                                 setState(() {
-                                  print('hhehehehehe');
                                   showIndicator = true;
                                 });
-                                print("showIndicator ${showIndicator} changed");
-
                                 int isCertification =
                                     await getCurrentPosition();
                                 setState(() {
                                   showIndicator = false;
                                 });
-                                print("${showIndicator} changed");
                                 Navigator.of(context).pop();
                                 final SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
@@ -895,7 +891,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void checkLocation() {}
   findLocation(String latitude, String longitude) async {
     final prefs = await SharedPreferences.getInstance();
     String tmpUrl = 'https://www.chocobread.shop/users/location/' +
@@ -945,7 +940,13 @@ class _HomeState extends State<Home> {
       } else {
         // 지역 인증에 성공하면 지역 인증에 성공했다는 메시지와 true리턴
         //지역 인증에 실패하면 지역 인증에 실패했다는 팝업 창 띄워줌.false리턴.
-        if (prefs.getString("loc2") == newloc2) {
+        if ((newloc2 == "서초구" || newloc2 == "강남구") &&
+            (prefs.getString("loc2") == "서초구" ||
+                prefs.getString("loc2") == "강남구")) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(snackBarSuccessCertification);
+          return 1;
+        } else if (prefs.getString("loc2") == newloc2) {
           ScaffoldMessenger.of(context)
               .showSnackBar(snackBarSuccessCertification);
           return 1;
