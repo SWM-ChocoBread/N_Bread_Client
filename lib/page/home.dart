@@ -91,6 +91,7 @@ class _HomeState extends State<Home> {
     print("showEventPopUp 을 true로 바꾼 뒤의 showEventPopUp : ${showEventPopUp}");
     if (showEventPopUp) {
       showDialog(
+          // barrierDismissible: false, // 혜연 : 작업 마무리 된 뒤에 주석 해제해야 다른 곳을 눌렀을 때도 해제되지 않음
           context: context,
           builder: (BuildContext context) {
             return EventPopUp(
