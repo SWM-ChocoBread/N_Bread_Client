@@ -780,7 +780,7 @@ class _HomeState extends State<Home> {
                 return StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
                   return AlertDialog(
-                    content: Text("지역 인증이 필요한 서비스입니다!"),
+                    content: Text("N빵에 참여하기 위해서는 최초 1회의 지역인증이 필요합니다."),
                     actions: [
                       FlatButton(
                         child: !showIndicator
@@ -870,7 +870,7 @@ class _HomeState extends State<Home> {
                               },
                       ),
                       FlatButton(
-                        child: !showIndicator ? Text("나중에 인증하기") : SizedBox(),
+                        child: !showIndicator ? Text("닫기") : SizedBox(),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
