@@ -251,15 +251,20 @@ class SelectLocation extends State<LocationPage> {
                                       await SharedPreferences.getInstance();
                                   if (selectedValue != "") {
                                     print("${selectedValue != ""}");
+                                    selectedValue2 = newValue!;
                                     setState(() {
-                                      selectedValue2 = newValue!;
-                                      prefs.setString("loc1", "서울특별시");
-                                      prefs.setString("loc2", selectedValue);
-                                      prefs.setString("loc3", selectedValue2);
-                                      prefs.setBool(
-                                          "isLocationCertification", false);
-                                      print(
-                                          "${prefs.getString("loc2")} ${prefs.getString("loc3")}이 선택되었습니다. API를 호출해주세요");
+                                      if (!(prefs.getString("loc2") ==
+                                              selectedValue &&
+                                          prefs.getString("loc3") ==
+                                              selectedValue2)) {
+                                        prefs.setString("loc1", "서울특별시");
+                                        prefs.setString("loc2", selectedValue);
+                                        prefs.setString("loc3", selectedValue2);
+                                        prefs.setBool(
+                                            "isLocationCertification", false);
+                                        print(
+                                            "${prefs.getString("loc2")} ${prefs.getString("loc3")}이 선택되었습니다. API를 호출해주세요");
+                                      }
 
                                       if (widget.isComeFromNick) {
                                         prefs.setBool("showEventPopUp", true);
@@ -282,8 +287,13 @@ class SelectLocation extends State<LocationPage> {
                                             (route) => false);
                                       }
                                     });
-                                    await setLocation(
-                                        "서울특별시", selectedValue, selectedValue2);
+                                    if (!(prefs.getString("loc2") ==
+                                            selectedValue &&
+                                        prefs.getString("loc3") ==
+                                            selectedValue2)) {
+                                      await setLocation("서울특별시", selectedValue,
+                                          selectedValue2);
+                                    }
                                   } else {
                                     //스낵바 호출
                                     ScaffoldMessenger.of(context)

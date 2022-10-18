@@ -141,6 +141,10 @@ class _SplashState extends State<Splash> {
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
 
+    bool isLocationCertification =
+        await prefs.getBool("isLocationCertification") ?? false;
+    await prefs.setBool("isLocationCertification", isLocationCertification);
+
     // prefs.clear();
     // TODO : 닉네임 설정 완료 여부를 확인하는 API를 호출하는 부분
     print("range 채우기");
