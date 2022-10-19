@@ -13,10 +13,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<List> loadEventPopUp() async {
+List eventBannerImages = [];
+
+Future<Map<String, dynamic>> loadEventPopUp(String recentId) async {
   final prefs = await SharedPreferences.getInstance();
   prefs.setInt("hihi", 0);
-  var recentId = "1";
   String tmpUrl = 'https://www.chocobread.shop/events/popup/' + recentId;
 
   // 300 다시 보지 않기 ->
@@ -34,8 +35,8 @@ Future<List> loadEventPopUp() async {
   list = jsonDecode(responseBody);
 
   print("loadEventPopUp called");
-  print("loadEventPopUp에 의해 받아온 data : ${list}");
+  print("loadEventPopUp에 의해 받아온 data : ${list['result']}");
 
-  return list["result"];
+  return list['result'];
   // return [];
 }

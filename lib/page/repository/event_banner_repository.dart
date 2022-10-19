@@ -38,13 +38,13 @@ Future<List> loadEventBanner() async {
   print("list length ${list["result"].length}");
   print("list list ${list["result"][0]["eventImage"]}");
   var imageList = List<Map<String, dynamic>>.empty(growable: true);
-  for (int i = 0 ; i < list["result"].length ; i++){
-    // print(list["result"][i]);
-    // imageList.add(list["result"][i]);
+  for (int i = 0; i < list["result"].length; i++) {
+    print(list["result"][i]);
+    imageList.add(list["result"][i]);
   }
-  print("loadContentByDealId called");
-  print("loadContentByDealId에 의해 받아온 data : ${list["result"]}");
-
+  print("배너 가져오기");
+  print("배너 가져오기에 의해 받아온 data : ${list["result"].length}");
+  print(imageList);
   return list["result"];
   // return tempEventImages;
 }

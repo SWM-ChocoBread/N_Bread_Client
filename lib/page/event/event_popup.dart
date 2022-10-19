@@ -1,10 +1,22 @@
+import 'package:chocobread/page/detail.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../app.dart';
+import '../repository/content_repository.dart';
 
 class EventPopUp extends StatefulWidget {
   ExtendedImage eventPopUpImage;
-  EventPopUp({Key? key, required this.eventPopUpImage}) : super(key: key);
+  String type;
+  String target;
+  EventPopUp(
+      {Key? key,
+      required this.eventPopUpImage,
+      required this.type,
+      required this.target})
+      : super(key: key);
 
   @override
   State<EventPopUp> createState() => _EventPopUpState();
@@ -15,8 +27,15 @@ class _EventPopUpState extends State<EventPopUp> {
   Widget build(BuildContext context) {
     print("event_popup에 들어오는 eventPopUpImage : ${widget.eventPopUpImage}");
     return AlertDialog(
-      title: const Text("이벤트 popup"),
-      content: widget.eventPopUpImage,
+      content: GestureDetector(
+          onTap: () async {
+            if (widget.type == "Detail") {
+              var temp = await loadContentByDealId(int.parse(widget.target));
+              Get.to(DetailContentView(data: temp, isFromHome: true));
+            }
+            Get.to(const App());
+          },
+          child: widget.eventPopUpImage),
       // const Text("이벤트 popup 테스트"),
       actions: [
         TextButton(

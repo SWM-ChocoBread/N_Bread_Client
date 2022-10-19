@@ -9,6 +9,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/notioninfo.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
+import 'package:chocobread/page/repository/event_popup_repository.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
@@ -53,6 +54,8 @@ class _HomeState extends State<Home> {
   String basicLatitude = "37.5037142"; // "37.5037142";
   String basicLongitude = "127.0447821"; // "127.0447821";
   late ExtendedImage eventPopUpImage; // 이벤트 팝업 이미지 미리 받아오기 위한 변수
+  late String type; // 이벤트 팝업 이미지를 클릭했을 때 어떤 화면으로 넘어가야 할 지 받아오는 변수
+  late String target; // 이벤트 팝업 이미지를 클릭했을 때 어떤 거래 혹은 이미지 화면으로 넘어가야 할 지 받아오는 변수
 
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
@@ -83,19 +86,15 @@ class _HomeState extends State<Home> {
   showEventDialog() async {
     // 회원가입했을 때 처음 showEventPopUp bool 에 true 설정하기
     // 다시보지 않기 버튼을 눌렀을 때 : showEventPopUp bool 에 false 설정하기
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool showEventPopUp = prefs.getBool("showEventPopUp") ?? true;
-    print(
-        "showEventDialog 안에서의 local Storage 내의 showEventPopUp : ${showEventPopUp}");
-    showEventPopUp = true;
-    print("showEventPopUp 을 true로 바꾼 뒤의 showEventPopUp : ${showEventPopUp}");
-    if (showEventPopUp) {
+    if (true) {
       showDialog(
           // barrierDismissible: false, // 혜연 : 작업 마무리 된 뒤에 주석 해제해야 다른 곳을 눌렀을 때도 해제되지 않음
           context: context,
           builder: (BuildContext context) {
             return EventPopUp(
               eventPopUpImage: eventPopUpImage,
+              type: type,
+              target: target,
             );
           });
       print("eventPopUpImage : $eventPopUpImage");
@@ -111,14 +110,27 @@ class _HomeState extends State<Home> {
     // print("home화면에서의 init state 에서의 currentLocation은 :" +
     //     currentLocation.toString());
     // currentLocation = "역삼동";
-    getCurrentLocationFromPref();
-    eventPopUpImage = ExtendedImage.network(
-        "https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1665128209671_af112cdd-5037-4a12-ae83-975f0e4939bb5989351294237273237.jpg"); // 미리 받아오는 이미지의 링크가 들어가는 곳
+    eventPopUpImage = ExtendedImage.network("");
+    doOnInit();
+    // 미리 받아오는 이미지의 링크가 들어가는 곳
     // 이벤트 팝업 보여주기
+  }
+
+  Future<void> doOnInit() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int recentId = prefs.getInt('recentId') ?? 0;
+    await getCurrentLocationFromPref();
+    Map<String, dynamic> tmp = await loadEventPopUp(recentId.toString());
+    print('tmp init state test on home : ${tmp}');
+
     Future.delayed(Duration.zero, () {
       print("이벤트 popup이 실행되었습니다!");
       showEventDialog();
     });
+    String eventImg = tmp['eventImage'];
+    type = tmp['type'];
+    target = tmp['target'];
+    eventPopUpImage = ExtendedImage.network(eventImg);
   }
 
   Future<bool> checkLocationPermission() async {
