@@ -101,7 +101,6 @@ class _HomeState extends State<Home> {
     // print("home화면에서의 init state 에서의 currentLocation은 :" +
     //     currentLocation.toString());
     // currentLocation = "역삼동";
-    eventPopUpImage = ExtendedImage.network("");
     doOnInit();
     // 미리 받아오는 이미지의 링크가 들어가는 곳
     // 이벤트 팝업 보여주기
@@ -244,7 +243,6 @@ class _HomeState extends State<Home> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     contentsRepository = ContentsRepository();
-    precacheImage(eventPopUpImage.image, context); // precache 해서 넣어두기
   }
 
   PreferredSizeWidget _appbarWidget() {
@@ -456,11 +454,11 @@ class _HomeState extends State<Home> {
   _makeDataList(List<Map<String, dynamic>> dataContents) {
     print("*** [home.dart] _makeDataList 가 실행되었습니다! ***");
     return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(), // 리스트뷰는 스크롤이 안되도록 처리하기
+      // scrollDirection: Axis.vertical,
+      shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
-        if (index == 0) {
-          return EventBanner();
-        }
         return GestureDetector(
           behavior: HitTestBehavior.translucent, // 빈 부분까지 모두 클릭되도록 처리한다.
           onTap: () async {
@@ -708,7 +706,15 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData && snapshot.data.toString().length != 2) {
-            return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
+            return SingleChildScrollView(
+              child: Column(children: [
+                EventBanner(
+                  target: '',
+                  type: '',
+                ),
+                _makeDataList(snapshot.data as List<Map<String, dynamic>>)
+              ]),
+            );
           }
 
           return Center(

@@ -31,11 +31,21 @@ class _EventPopUpState extends State<EventPopUp> {
     return AlertDialog(
       content: GestureDetector(
           onTap: () async {
+            print("[*] popup clicked!");
             if (widget.type == "Detail") {
+              print("[*] detail 화면으로 이동합니다!");
               var temp = await loadContentByDealId(int.parse(widget.target));
-              Get.to(DetailContentView(data: temp, isFromHome: true));
+              print("[*] detail 화면으로 보내지는 data : ${temp}");
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return DetailContentView(
+                  data: temp,
+                  isFromHome: true,
+                );
+              }));
+            } else {
+              Get.to(() => const App());
             }
-            Get.to(const App());
           },
           child: widget.eventPopUpImage),
       // const Text("이벤트 popup 테스트"),
