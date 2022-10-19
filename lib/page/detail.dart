@@ -45,6 +45,7 @@ int member = 0;
 String productName = "";
 late bool isLocationCertification;
 bool showIndicator = false;
+bool indicatorForShare = false;
 Position? geoLocation;
 String basicLatitude = "37.5037142"; // "37.5037142";
 String basicLongitude = "127.0447821"; // "127.0447821";
@@ -234,71 +235,86 @@ class _DetailContentViewState extends State<DetailContentView> {
       ),
       actions: [
         IconButton(
-            onPressed: () async {
-              await _getDynamicLink();
-              print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
-              print('linkWithDataId is ${linkWithDataId}');
-              bool result =
-                  await ShareClient.instance.isKakaoTalkSharingAvailable();
+          onPressed: indicatorForShare
+              ? null
+              : () async {
+                  setState(() {
+                    indicatorForShare = true;
+                  });
+                  await _getDynamicLink();
+                  print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
+                  print('linkWithDataId is ${linkWithDataId}');
+                  bool result =
+                      await ShareClient.instance.isKakaoTalkSharingAvailable();
 
-              //형식만들기
-              if (imgUrl == "") {
-                imgUrl =
-                    'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
-              }
-              final CommerceTemplate defaultCommerce = CommerceTemplate(
-                content: Content(
-                  title: title,
-                  imageUrl: Uri.parse(imgUrl),
-                  link: Link(
-                    webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
-                    mobileWebUrl: linkWithDataId,
-                  ),
-                ),
-                commerce: Commerce(
-                  regularPrice: personalPrice,
-                  // discountPrice: personalPrice,
-                  // discountRate: member,
-                  productName: productName,
-                  currencyUnit: "원",
-                  currencyUnitPosition: 0,
-                ),
-                buttons: [
-                  Button(
-                    title: '구매하기',
-                    link: Link(
-                      webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
-                      mobileWebUrl: linkWithDataId,
+                  //형식만들기
+                  if (imgUrl == "") {
+                    imgUrl =
+                        'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
+                  }
+                  final CommerceTemplate defaultCommerce = CommerceTemplate(
+                    content: Content(
+                      title: title,
+                      imageUrl: Uri.parse(imgUrl),
+                      link: Link(
+                        webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                        mobileWebUrl: linkWithDataId,
+                      ),
                     ),
-                  ),
-                ],
-              );
-              if (result) {
-                print('카카오톡으로 공유 가능');
+                    commerce: Commerce(
+                      regularPrice: personalPrice,
+                      // discountPrice: personalPrice,
+                      // discountRate: member,
+                      productName: productName,
+                      currencyUnit: "원",
+                      currencyUnitPosition: 0,
+                    ),
+                    buttons: [
+                      Button(
+                        title: '구매하기',
+                        link: Link(
+                          webUrl:
+                              Uri.parse('https://chocobread.page.link/6RQi'),
+                          mobileWebUrl: linkWithDataId,
+                        ),
+                      ),
+                    ],
+                  );
+                  if (result) {
+                    print('카카오톡으로 공유 가능');
 
-                try {
-                  Uri uri = await ShareClient.instance
-                      .shareDefault(template: defaultCommerce);
-                  await ShareClient.instance.launchKakaoTalk(uri);
-                  print('카카오톡 공유 완료');
-                } catch (error) {
-                  print('카카오톡 공유 실패 $error');
-                }
-              } else {
-                print('카카오톡 미설치: 웹 공유 기능 사용 권장');
-                try {
-                  Uri shareUrl = await WebSharerClient.instance
-                      .makeDefaultUrl(template: defaultCommerce);
-                  await launchBrowserTab(shareUrl);
-                } catch (error) {
-                  print('카카오톡 공유 실패 $error');
-                }
-              }
-            },
-            icon: const Icon(
-              Icons.share,
-              color: Colors.white,
-            )),
+                    try {
+                      Uri uri = await ShareClient.instance
+                          .shareDefault(template: defaultCommerce);
+                      await ShareClient.instance.launchKakaoTalk(uri);
+                      print('카카오톡 공유 완료');
+                    } catch (error) {
+                      print('카카오톡 공유 실패 $error');
+                    }
+                  } else {
+                    print('카카오톡 미설치: 웹 공유 기능 사용 권장');
+                    try {
+                      Uri shareUrl = await WebSharerClient.instance
+                          .makeDefaultUrl(template: defaultCommerce);
+                      await launchBrowserTab(shareUrl);
+                    } catch (error) {
+                      print('카카오톡 공유 실패 $error');
+                    }
+                  }
+                  setState(() {
+                    indicatorForShare = false;
+                  });
+                },
+          icon: !indicatorForShare
+              ? const Icon(
+                  Icons.share,
+                  color: Colors.white,
+                )
+              : SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(color: Colors.white)),
+        ),
         // IconButton(
         //     onPressed: () {},
         //     icon: const Icon(
@@ -1408,8 +1424,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                                                   ],
                                                 ),
                                               ),
-                                              // Text(
-                                              //     "현재 위치는 ${newloc2} ${newloc3}입니다.\n${prefs.getString("loc2")}로 이동하여 동네 인증을 진행해주세요."),
                                               actions: [
                                                 FlatButton(
                                                   child: Text("닫기"),
@@ -1627,9 +1641,6 @@ class _DetailContentViewState extends State<DetailContentView> {
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
-      // enablecommentsbox
-      //     ? _bottomTextfield()
-      //     : _bottomNavigationBarWidgetSelector(),
     );
   }
 
@@ -1697,18 +1708,6 @@ class _DetailContentViewState extends State<DetailContentView> {
       print("userId : " + userId.toString());
     }
   }
-
-  //dynamic link 처리
-  // void shareMyCode(String code) async {
-  //   try {
-  //     var dynamicLink = await _getDynamicLink(code);
-  //     var template = _getTemplate(dynamicLink, code);
-  //     var uri = await LinkClient.instance.defaultWithTalk(template);
-  //     await LinkClient.instance.launchKakaoTalk(uri);
-  //   } catch (error) {
-  //     print(error.toString());
-  //   }
-  // }
 
   Future<void> _getDynamicLink() async {
     final dynamicLinkParams = DynamicLinkParameters(
