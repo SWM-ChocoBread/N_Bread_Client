@@ -66,27 +66,16 @@ class _HomeState extends State<Home> {
           currentLocation.toString());
       currentLocation;
     });
-    // await SharedPreferences.getInstance().then(
-    //   (prefs) {
-    //     setState(() {
-    //       print(
-    //           "*** [home.dart] getCurrentLocationFromPref 함수 안에서 setState 함수가 실행되었습니다! ***");
-    //       currentLocation = prefs.getString("loc3")!;
-    //       print("SharedPreferences 로 prefs 를 가져오기를 완료했습니다!");
-    //       print("curloc ${currentLocation}");
-    //     });
-    //   },
-    // ).then((value) => {
-    //       setState(() {
-    //         print("*** init 에서 prefs로 loc3을 가져온 다음에 setState가 실행되었습니다! ***");
-    //       })
-    //     });
   }
 
   showEventDialog() async {
-    // 회원가입했을 때 처음 showEventPopUp bool 에 true 설정하기
-    // 다시보지 않기 버튼을 눌렀을 때 : showEventPopUp bool 에 false 설정하기
-    if (true) {
+    //로드로드로드
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isComeFromSplash = prefs.getBool("isComeFromSplash") ?? false;
+    int recentId = prefs.getInt("recentId") ?? 0;
+    if (isComeFromSplash) {
+      print("comeFromSplash입니다.");
+      prefs.setBool("isComeFromSplash", false);
       showDialog(
           // barrierDismissible: false, // 혜연 : 작업 마무리 된 뒤에 주석 해제해야 다른 곳을 눌렀을 때도 해제되지 않음
           context: context,
@@ -120,6 +109,7 @@ class _HomeState extends State<Home> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     int recentId = prefs.getInt('recentId') ?? 0;
     await getCurrentLocationFromPref();
+    //로드이벤트팝업
     Map<String, dynamic> tmp = await loadEventPopUp(recentId.toString());
     print('tmp init state test on home : ${tmp}');
 
@@ -253,28 +243,6 @@ class _HomeState extends State<Home> {
   PreferredSizeWidget _appbarWidget() {
     print("[home.dart] appbarWidget 빌드 시작");
     return AppBar(
-        // leading: IconButton(
-        //   onPressed: () {
-        //     print(DateTime.now());
-        //     print(MyDateUtils.dateTimeDifference(
-        //         DateTime.now(), '2022-07-30T20:37:12.000Z'));
-        //     print(MyDateUtils.dateTimeDifference(
-        //         DateTime.now(), '2022-07-30 20:37:12'));
-        //     print(DateFormat('hh: MM')
-        //         .format(DateTime.parse('2020-01-02T07:12:50.000Z')));
-        //   },
-        //   icon: const FaIcon(
-        //     FontAwesomeIcons.locationDot,
-        //     size: 18,
-        //   ),
-        //   padding: EdgeInsets.zero,
-        //   constraints: const BoxConstraints(),
-        //   // SvgPicture.asset(
-        //   //   "assets/svg/logo.svg",
-        //   //   width: 100,
-        //   // )
-        // ), // logo, hamburger,
-        // name of the app
         title: Text(currentLocation!),
         actions: [
           IconButton(
@@ -285,30 +253,6 @@ class _HomeState extends State<Home> {
                 }));
               },
               icon: const Icon(Icons.help_outline_rounded)),
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return Onboarding();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.mood)),
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return NicknameSet();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.ac_unit)),
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return TermsCheck();
-          //       }));
-          //     },
-          //     icon: const Icon(Icons.info_outline_rounded))
         ],
         centerTitle: false,
         titleSpacing: 23,
@@ -317,14 +261,7 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading:
             false // 이전 버튼 자동 생성 막기 (닉네임 초기 설정 후 홈으로 돌아오는 경우 이전 버튼 없애기 위한 것)
-        // actions: [
-        //   IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-        //   IconButton(onPressed: () {}, icon: Icon(Icons.tune)),
-        //   IconButton(
-        //       onPressed: () {}, icon: const Icon(Icons.arrow_back_rounded)),
-        //   IconButton(
-        //       onPressed: () {}, icon: const Icon(Icons.border_color_rounded)),
-        // ], // buttons at the end
+
         );
   }
 
