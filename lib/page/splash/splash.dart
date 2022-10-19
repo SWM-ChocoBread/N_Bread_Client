@@ -145,6 +145,10 @@ class _SplashState extends State<Splash> {
     prefs.setBool("isComeFromSplash", true);
     print('isComeFromNick set true on splash');
 
+    bool isLocationCertification =
+        await prefs.getBool("isLocationCertification") ?? false;
+    await prefs.setBool("isLocationCertification", isLocationCertification);
+
     // prefs.clear();
     // TODO : 닉네임 설정 완료 여부를 확인하는 API를 호출하는 부분
     print("range 채우기");

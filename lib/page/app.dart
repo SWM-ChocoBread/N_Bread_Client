@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'mypage.dart';
-import 'notioninfo.dart';
+import 'serviceinfo.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 
 class App extends StatefulWidget {

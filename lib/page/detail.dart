@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
+import 'package:chocobread/page/alertnoservice.dart';
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
@@ -13,7 +14,9 @@ import 'package:extended_image/extended_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -40,6 +43,12 @@ int totalPrice = 0;
 int personalPrice = 0;
 int member = 0;
 String productName = "";
+late bool isLocationCertification;
+bool showIndicator = false;
+bool indicatorForShare = false;
+Position? geoLocation;
+String basicLatitude = "37.5037142"; // "37.5037142";
+String basicLongitude = "127.0447821"; // "127.0447821";
 
 int userId = 0;
 Uri? linkWithDataId;
@@ -82,12 +91,13 @@ class _DetailContentViewState extends State<DetailContentView> {
   @override
   void initState() {
     // TODO: implement initState
+    getIsLocationCert();
     super.initState();
     title = widget.data["content"];
     totalPrice = widget.data["totalPrice"];
     personalPrice = widget.data["personalPrice"];
     member = ((1 - (personalPrice / totalPrice)) * 100).round();
-    productName = widget.data["title"];
+    productName = "[${widget.data["loc3"]}] " + widget.data["title"];
     imgUrl = "";
 
     //getUserStatus();
@@ -112,6 +122,14 @@ class _DetailContentViewState extends State<DetailContentView> {
       ];
     }
     currentuserstatus = widget.data["mystatus"];
+  }
+
+  Future<void> getIsLocationCert() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    isLocationCertification =
+        await prefs.getBool("isLocationCertification") ?? false;
+    print(
+        "isLocationCertification value is ${isLocationCertification} on detail.dart");
   }
 
   @override
@@ -217,78 +235,86 @@ class _DetailContentViewState extends State<DetailContentView> {
       ),
       actions: [
         IconButton(
-            onPressed: () async {
-              await _getDynamicLink();
-              print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
-              print('linkWithDataId is ${linkWithDataId}');
-              bool result =
-                  await ShareClient.instance.isKakaoTalkSharingAvailable();
+          onPressed: indicatorForShare
+              ? null
+              : () async {
+                  setState(() {
+                    indicatorForShare = true;
+                  });
+                  await _getDynamicLink();
+                  print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
+                  print('linkWithDataId is ${linkWithDataId}');
+                  bool result =
+                      await ShareClient.instance.isKakaoTalkSharingAvailable();
 
-              //형식만들기
-              if (imgUrl == "") {
-                imgUrl =
-                    'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
-              }
-              final CommerceTemplate defaultCommerce = CommerceTemplate(
-                content: Content(
-                  title: linkWithDataId.toString(),
-                  imageUrl: Uri.parse(imgUrl),
-                  link: Link(
-                    webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
-                    mobileWebUrl: linkWithDataId,
-                  ),
-                ),
-                commerce: Commerce(
-                  regularPrice: personalPrice,
-                  // discountPrice: personalPrice,
-                  // discountRate: member,
-                  productName: productName,
-                  currencyUnit: "원",
-                  currencyUnitPosition: 0,
-                ),
-                buttons: [
-                  Button(
-                    title: '구매하기',
-                    link: Link(
-                      webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
-                      mobileWebUrl: linkWithDataId,
+                  //형식만들기
+                  if (imgUrl == "") {
+                    imgUrl =
+                        'https://nbreadimg.s3.ap-northeast-2.amazonaws.com/original/1664191726680_image_picker3417005700537511439.png';
+                  }
+                  final CommerceTemplate defaultCommerce = CommerceTemplate(
+                    content: Content(
+                      title: title,
+                      imageUrl: Uri.parse(imgUrl),
+                      link: Link(
+                        webUrl: Uri.parse('https://chocobread.page.link/6RQi'),
+                        mobileWebUrl: linkWithDataId,
+                      ),
                     ),
-                  ),
-                  // Button(
-                  //   title: '공유하기',
-                  //   link: Link(
-                  //     androidExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-                  //     iosExecutionParams: {'key1': 'value1', 'key2': 'value2'},
-                  //   ),
-                  // )
-                ],
-              );
-              if (result) {
-                print('카카오톡으로 공유 가능');
+                    commerce: Commerce(
+                      regularPrice: personalPrice,
+                      // discountPrice: personalPrice,
+                      // discountRate: member,
+                      productName: productName,
+                      currencyUnit: "원",
+                      currencyUnitPosition: 0,
+                    ),
+                    buttons: [
+                      Button(
+                        title: '구매하기',
+                        link: Link(
+                          webUrl:
+                              Uri.parse('https://chocobread.page.link/6RQi'),
+                          mobileWebUrl: linkWithDataId,
+                        ),
+                      ),
+                    ],
+                  );
+                  if (result) {
+                    print('카카오톡으로 공유 가능');
 
-                try {
-                  Uri uri = await ShareClient.instance
-                      .shareDefault(template: defaultCommerce);
-                  await ShareClient.instance.launchKakaoTalk(uri);
-                  print('카카오톡 공유 완료');
-                } catch (error) {
-                  print('카카오톡 공유 실패 $error');
-                }
-              } else {
-                print('카카오톡 미설치: 웹 공유 기능 사용 권장');
-                try {
-                  Uri shareUrl = await WebSharerClient.instance
-                      .makeDefaultUrl(template: defaultCommerce);
-                  await launchBrowserTab(shareUrl);
-                } catch (error) {
-                  print('카카오톡 공유 실패 $error');
-                }
-              }
-            },
-            icon: const Icon(
-              Icons.share,
-              color: Colors.white,
-            )),
+                    try {
+                      Uri uri = await ShareClient.instance
+                          .shareDefault(template: defaultCommerce);
+                      await ShareClient.instance.launchKakaoTalk(uri);
+                      print('카카오톡 공유 완료');
+                    } catch (error) {
+                      print('카카오톡 공유 실패 $error');
+                    }
+                  } else {
+                    print('카카오톡 미설치: 웹 공유 기능 사용 권장');
+                    try {
+                      Uri shareUrl = await WebSharerClient.instance
+                          .makeDefaultUrl(template: defaultCommerce);
+                      await launchBrowserTab(shareUrl);
+                    } catch (error) {
+                      print('카카오톡 공유 실패 $error');
+                    }
+                  }
+                  setState(() {
+                    indicatorForShare = false;
+                  });
+                },
+          icon: !indicatorForShare
+              ? const Icon(
+                  Icons.share,
+                  color: Colors.white,
+                )
+              : SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(color: Colors.white)),
+        ),
         // IconButton(
         //     onPressed: () {},
         //     icon: const Icon(
@@ -1111,119 +1137,125 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
+  Widget _contentsTable() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: StaggeredGrid.count(
+        crossAxisCount: 12,
+        children: [
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "모집 인원",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              "${widget.data["currentMember"]} / ${widget.data["totalMember"]}",
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "1인당 가격",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              "${PriceUtils.calcStringToWonOnly(widget.data["personalPrice"].toString())} 원",
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "판매 링크",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: _linkonoff(),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "거래 일시",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              MyDateUtils.formatMyDateTime(widget.data["dealDate"].toString()),
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          const StaggeredGridTile.count(
+            crossAxisCellCount: 4,
+            mainAxisCellCount: 1,
+            child: Text(
+              "거래 장소",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          StaggeredGridTile.count(
+            crossAxisCellCount: 8,
+            mainAxisCellCount: 1,
+            child: Text(
+              widget.data["dealPlace"].toString(),
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _bodyWidget() {
     return GestureDetector(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: CustomScrollView(
-        // list 를 그리드뷰로 처리할 때는 CustomScrollView로 처리한다.
-        // SingleChildScrollView : scroll 가능하게 만들기, 한 화면에 안 들어가면 생기는 에러 해결
-        controller: _scrollControllerForAppBar,
-        slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _makeSliderImage(),
-                _sellerSimpleInfo(),
-                _line(),
-                _contentsTitle(),
-              ],
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 한 줄에 몇 개의 아이템
-                  mainAxisSpacing: 10, // 가로 간격 생김
-                  crossAxisSpacing: 10, // 세로 간격 생김
-                  childAspectRatio:
-                      8), // childAspectRatio 는 grid의 높이를 조절하기 위한 것, 클수록 높이 줄어든다.
-              delegate: SliverChildListDelegate([
-                const Text(
-                  "판매 링크",
-                ),
-                _linkonoff(),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text("1인당 가격"),
-                      // const SizedBox(
-                      //   width: 7,
-                      // ),
-                      // IconButton(
-                      //     onPressed: () {},
-                      //     padding: EdgeInsets.zero,
-                      //     constraints: const BoxConstraints(),
-                      //     iconSize: 17,
-                      //     icon: const Icon(
-                      //       Icons.help_outline,
-                      //     )),
-                    ]),
-                Text(
-                  PriceUtils.calcStringToWon(
-                      widget.data["personalPrice"].toString()),
-                ),
-                const Text("모집 인원"),
-                Text(
-                    '${widget.data["currentMember"]}/${widget.data["totalMember"]}'),
-                // 모집 마감 일자 Text + tooltip
-                // Row(
-                //   children: const [
-                //     Text("모집 마감 일자"),
-                //     SizedBox(
-                //       width: 7,
-                //     ),
-                //     Tooltip(
-                //       triggerMode:
-                //           TooltipTriggerMode.tap, // tap을 했을 때 tooltip이 나타나도록 함
-                //       // showDuration: Duration(milliseconds: 1),
-                //       verticalOffset: 15,
-                //       message: "모집 마감 일자는 거래 일시 3일 전입니다.",
-                //       child: Icon(
-                //         Icons.help_outline,
-                //         size: 17,
-                //       ),
-                //       // child: IconButton(
-                //       //     onPressed: () {},
-                //       //     padding: EdgeInsets.zero,
-                //       //     constraints: const BoxConstraints(),
-                //       //     iconSize: 17,
-                //       //     icon: const Icon(
-                //       //       Icons.help_outline,
-                //       //     )),
-                //     ),
-                //   ],
-                // ),
-                // 실제 보여지는 모집 마감 일자
-                // Text(MyDateUtils.formatMyDateTimeDone(
-                //     widget.data["dealDate"].toString())), // TODO : 수정 필요함
-                const Text("거래 일시"),
-                Text(MyDateUtils.formatMyDateTime(
-                    widget.data["dealDate"].toString())),
-                const Text("거래 장소"),
-                Text(
-                  widget.data["dealPlace"].toString(),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ]),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _contentsDetail(),
-                _policeReport(),
-                _line(),
-                _commentTitle(),
-                _commentsWidget(),
-                // _commentsTextField(),
-              ],
-            ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _makeSliderImage(),
+            _sellerSimpleInfo(),
+            _line(),
+            _contentsTitle(),
+            _contentsTable(),
+            const SizedBox(height: 10),
+            _contentsDetail(),
+            _policeReport(),
+            _line(),
+            _commentTitle(),
+            _commentsWidget(),
+          ],
+        ),
       ),
     );
   }
@@ -1295,15 +1327,142 @@ class _DetailContentViewState extends State<DetailContentView> {
       color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: OutlinedButton(
-        onPressed: () async {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return CheckParticipation(
-                  data: widget.data,
-                );
-              });
-        },
+        onPressed: () {
+          if (isLocationCertification) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CheckParticipation(
+                    data: widget.data,
+                  );
+                });
+          } else {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) {
+                  return StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                    return AlertDialog(
+                      content: Text("지역 인증이 필요한 서비스입니다!"),
+                      actions: [
+                        FlatButton(
+                          child: !showIndicator
+                              ? const Text("지금 인증하기")
+                              : const SizedBox(
+                                  child: CircularProgressIndicator(),
+                                  height: 20,
+                                  width: 20,
+                                ),
+                          onPressed: showIndicator
+                              ? () => null
+                              : () async {
+                                  setState(() {
+                                    print('hhehehehehe');
+                                    showIndicator = true;
+                                  });
+                                  print(
+                                      "showIndicator ${showIndicator} changed");
+
+                                  int isCertification =
+                                      await getCurrentPosition();
+                                  setState(() {
+                                    showIndicator = false;
+                                  });
+                                  print("${showIndicator} changed");
+                                  Navigator.of(context).pop();
+                                  final SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  switch (isCertification) {
+                                    case 1:
+                                      setState(() {
+                                        isLocationCertification = true;
+                                      });
+                                      prefs.setBool(
+                                          "isLocationCertification", true);
+
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return CheckParticipation(
+                                              data: widget.data,
+                                            );
+                                          });
+                                      break;
+                                    case 2:
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              content: RichText(
+                                                text: TextSpan(
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    color: Colors.black,
+                                                  ),
+                                                  children: <TextSpan>[
+                                                    TextSpan(text: '현재 위치는'),
+                                                    TextSpan(
+                                                        text:
+                                                            ' ${newloc2} ${newloc3}',
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    TextSpan(text: '입니다.\n'),
+                                                    TextSpan(
+                                                        text:
+                                                            '${prefs.getString("loc2")}',
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    TextSpan(
+                                                        text:
+                                                            '로 이동하여 동네 인증을 진행해주세요.'),
+                                                  ],
+                                                ),
+                                              ),
+                                              actions: [
+                                                FlatButton(
+                                                  child: Text("닫기"),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          });
+                                      break;
+
+                                    default:
+                                      break;
+                                  }
+                                },
+                        ),
+                        FlatButton(
+                          child: !showIndicator ? Text("나중에 인증하기") : SizedBox(),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    );
+                  });
+                });
+          }
+        }, // 새로운 제안 글을 쓰는 페이지로 이동
+
+        // onPressed: () async {
+        //   showDialog(
+        //       context: context,
+        //       builder: (BuildContext context) {
+        //         return CheckParticipation(
+        //           data: widget.data,
+        //         );
+        //       });
+        // },
         child: RichText(
           // "${PriceUtils.calcStringToWon(widget.data["price"].toString())} 에 거래 참여하기",
           text: TextSpan(children: [
@@ -1473,67 +1632,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     return _bottomNavigationBarWidgetForNormal();
   }
 
-  // Widget _bottomTextfield() {
-  //   return Padding(
-  //     padding: MediaQuery.of(context).viewInsets, // 키보드 위로 댓글 입력창이 올라오도록 처리
-  //     child: Material(
-  //       elevation: 55,
-  //       child: Container(
-  //         height: 55,
-  //         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0),
-  //         child: Row(
-  //           children: [
-  //             IconButton(
-  //               onPressed: () {
-  //                 setState(() {
-  //                   enablecommentsbox = false;
-  //                 });
-  //               },
-  //               icon: const Icon(Icons.clear_rounded),
-  //               color: Colors.grey,
-  //               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-  //               constraints: const BoxConstraints(),
-  //             ),
-  //             Expanded(
-  //               child: TextFormField(
-  //                 // focusNode: currentfocusnode,
-  //                 maxLines: null,
-  //                 decoration: InputDecoration(
-  //                   hintText: "댓글을 입력해주세요.",
-  //                   contentPadding:
-  //                       const EdgeInsets.only(left: 10, right: 10, top: 7),
-  //                   border: OutlineInputBorder(
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                   // focus 가 사라졌을 때
-  //                   enabledBorder: OutlineInputBorder(
-  //                     borderSide:
-  //                         const BorderSide(width: 0.7, color: Colors.grey),
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                   // focus 가 맞춰졌을 때
-  //                   focusedBorder: OutlineInputBorder(
-  //                     borderSide:
-  //                         const BorderSide(width: 1, color: Colors.grey),
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //             IconButton(
-  //               onPressed: () {},
-  //               icon: const Icon(Icons.send_rounded),
-  //               padding:
-  //                   const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-  //               constraints: const BoxConstraints(),
-  //             )
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     print("***build***");
@@ -1543,9 +1641,6 @@ class _DetailContentViewState extends State<DetailContentView> {
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
-      // enablecommentsbox
-      //     ? _bottomTextfield()
-      //     : _bottomNavigationBarWidgetSelector(),
     );
   }
 
@@ -1614,18 +1709,6 @@ class _DetailContentViewState extends State<DetailContentView> {
     }
   }
 
-  //dynamic link 처리
-  // void shareMyCode(String code) async {
-  //   try {
-  //     var dynamicLink = await _getDynamicLink(code);
-  //     var template = _getTemplate(dynamicLink, code);
-  //     var uri = await LinkClient.instance.defaultWithTalk(template);
-  //     await LinkClient.instance.launchKakaoTalk(uri);
-  //   } catch (error) {
-  //     print(error.toString());
-  //   }
-  // }
-
   Future<void> _getDynamicLink() async {
     final dynamicLinkParams = DynamicLinkParameters(
       link: Uri.parse(
@@ -1640,19 +1723,181 @@ class _DetailContentViewState extends State<DetailContentView> {
         appStoreId: "1640045290",
         minimumVersion: "1.0.0",
       ),
-      // googleAnalyticsParameters: const GoogleAnalyticsParameters(
-      //   source: "twitter",
-      //   medium: "social",
-      //   campaign: "example-promo",
-      // ),
-      // socialMetaTagParameters: SocialMetaTagParameters(
-      //   title: "Example of a Dynamic Link",
-      //   imageUrl: Uri.parse("https://example.com/image.png"),
-      // ),
     );
 
     final dynamicLink =
         await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
     linkWithDataId = dynamicLink;
   }
+
+  findLocation(String latitude, String longitude) async {
+    final prefs = await SharedPreferences.getInstance();
+    String tmpUrl = 'https://www.chocobread.shop/users/location/' +
+        latitude +
+        '/' +
+        longitude;
+    var url = Uri.parse(
+      tmpUrl,
+    );
+    var response = await http.get(url);
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    if (list['code'] == 200) {
+      print('code 200 return');
+      newloc1 = list['result']['location1'];
+      newloc2 = list['result']['location2'];
+      newloc3 = list['result']['location3'];
+      print('newloc123에 리턴값 저장 완료');
+    }
+    print("on getUserLocation, response is ${list}");
+  }
+
+  Future<int> getCurrentPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    // 1. 위치 권한을 허용받았는지 확인한다.
+    final hasPermission = await checkLocationPermission();
+    print("[home.dart] getCurrentPosition 함수 안에서의 hasPermission : " +
+        hasPermission.toString());
+
+    if (hasPermission) {
+      // 2. 위치 권한이 허용된 경우 : geolocator package로 현재 위도와 경도를 받아온다.
+      geoLocation = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high); // 권한이 허용되었으면, 현재 위치를 가져오는 함수
+      var latitude = geoLocation?.latitude ?? basicLatitude;
+      var longitude = geoLocation?.longitude ?? basicLongitude;
+      // 3. 받아온 위경도를 바탕으로 주소를 찾아서 받아온다.
+      await findLocation(latitude.toString(),
+          longitude.toString()); // 위경도를 바탕으로 현재 위치를 주소로 가져오는 함수
+      // findLocation으로 null 을 받아오는 경우 : 서비스가 불가능한 지역입니다.
+      if (newloc1 == null && newloc2 == null && newloc3 == null) {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return AlertNoService();
+            });
+      } else {
+        // 지역 인증에 성공하면 지역 인증에 성공했다는 메시지와 true리턴
+        //지역 인증에 실패하면 지역 인증에 실패했다는 팝업 창 띄워줌.false리턴.
+        if ((newloc2 == "서초구" || newloc2 == "강남구") &&
+            (prefs.getString("loc2") == "서초구" ||
+                prefs.getString("loc2") == "강남구")) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(snackBarSuccessCertification);
+          setState(() {
+            isLocationCertification = true;
+          });
+          prefs.setBool("isLocationCertification", true);
+          return 1;
+        } else if (prefs.getString("loc2") == newloc2) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(snackBarSuccessCertification);
+          setState(() {
+            isLocationCertification = true;
+          });
+          prefs.setBool("isLocationCertification", true);
+          return 1;
+        } else {
+          return 2;
+        }
+      }
+    }
+    return 3;
+  }
+
+  Future<bool> checkLocationPermission() async {
+    // 위치 권한을 받았는지 확인하는 함수
+    print("*** checkLocationPermission 함수가 실행되었습니다! ***");
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // 1. Location Service 가 enable 되었는지 확인하는 과정
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 serviceEnabled : " +
+        serviceEnabled.toString());
+
+    // serviceEnabled 가 false인 경우 : snackbar 보여줌
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 서비스 사용이 불가능합니다.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+      // Future.error("Location services are disabled");
+    }
+
+    // 2. permission 을 받았는지 확인하는 과정
+    permission = await Geolocator.checkPermission();
+    print("[home.dart] checkLocationPermisssion 함수 안에서의 permission : " +
+        permission.toString());
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        const snackBar = SnackBar(
+          content: Text(
+            "위치 권한이 거부됐습니다!",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: ColorStyle.darkMainColor,
+          duration: Duration(milliseconds: 2000),
+          behavior: SnackBarBehavior.floating,
+          elevation: 50,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+            Radius.circular(5),
+          )),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return false;
+        // Future.error('Location permission are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      const snackBar = SnackBar(
+        content: Text(
+          "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: ColorStyle.darkMainColor,
+        duration: Duration(milliseconds: 2000),
+        behavior: SnackBarBehavior.floating,
+        elevation: 50,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        )),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return false;
+    }
+    return true;
+  }
+
+  static const snackBarSuccessCertification = SnackBar(
+    content: Text(
+      "지역 인증에 성공하였습니다!",
+      style: TextStyle(color: Colors.white),
+    ),
+    backgroundColor: ColorStyle.darkMainColor,
+    duration: Duration(milliseconds: 2000),
+    behavior: SnackBarBehavior.floating,
+    elevation: 3,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+      Radius.circular(5),
+    )),
+  );
 }
