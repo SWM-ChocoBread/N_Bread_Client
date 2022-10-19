@@ -56,6 +56,7 @@ class _HomeState extends State<Home> {
   late ExtendedImage eventPopUpImage; // 이벤트 팝업 이미지 미리 받아오기 위한 변수
   late String type; // 이벤트 팝업 이미지를 클릭했을 때 어떤 화면으로 넘어가야 할 지 받아오는 변수
   late String target; // 이벤트 팝업 이미지를 클릭했을 때 어떤 거래 혹은 이미지 화면으로 넘어가야 할 지 받아오는 변수
+  late int id; // 이벤트 팝업 이미지를 클릭했을 때 이벤트 팝업의 고유 번호 (다시보지 않기 검증)
 
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
@@ -69,7 +70,7 @@ class _HomeState extends State<Home> {
   }
 
   showEventDialog() async {
-    //로드로드로드
+    //로드
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isComeFromSplash = prefs.getBool("isComeFromSplash") ?? false;
     int recentId = prefs.getInt("recentId") ?? 0;
@@ -84,6 +85,7 @@ class _HomeState extends State<Home> {
               eventPopUpImage: eventPopUpImage,
               type: type,
               target: target,
+              id: id,
             );
           });
       print("eventPopUpImage : $eventPopUpImage");
@@ -111,16 +113,21 @@ class _HomeState extends State<Home> {
     await getCurrentLocationFromPref();
     //로드이벤트팝업
     Map<String, dynamic> tmp = await loadEventPopUp(recentId.toString());
-    print('tmp init state test on home : ${tmp}');
+    print('tmp init state test on home : ${tmp['result']}');
+    print('resentID on home : ${recentId}');
 
-    Future.delayed(Duration.zero, () {
-      print("이벤트 popup이 실행되었습니다!");
-      showEventDialog();
-    });
-    String eventImg = tmp['eventImage'];
-    type = tmp['type'];
-    target = tmp['target'];
-    eventPopUpImage = ExtendedImage.network(eventImg);
+    print('tmp is null : ${tmp['result'] == null}');
+    if (tmp['result'] != null) {
+      Future.delayed(Duration.zero, () {
+        print("이벤트 popup이 실행되었습니다!");
+        showEventDialog();
+      });
+      String eventImg = tmp['result']['eventImage'];
+      type = tmp['result']['type'];
+      target = tmp['result']['target'];
+      id = tmp['result']['id'];
+      eventPopUpImage = ExtendedImage.network(eventImg);
+    }
   }
 
   Future<bool> checkLocationPermission() async {

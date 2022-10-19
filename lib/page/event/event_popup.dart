@@ -11,12 +11,14 @@ class EventPopUp extends StatefulWidget {
   ExtendedImage eventPopUpImage;
   String type;
   String target;
-  EventPopUp(
-      {Key? key,
-      required this.eventPopUpImage,
-      required this.type,
-      required this.target})
-      : super(key: key);
+  int id;
+  EventPopUp({
+    Key? key,
+    required this.eventPopUpImage,
+    required this.type,
+    required this.target,
+    required this.id,
+  }) : super(key: key);
 
   @override
   State<EventPopUp> createState() => _EventPopUpState();
@@ -42,7 +44,7 @@ class _EventPopUpState extends State<EventPopUp> {
             onPressed: () async {
               // 다시보지 않기를 누르면
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.setBool("showEventPopUp", false);
+              prefs.setInt('recentId', widget.id);
               Navigator.of(context).pop();
             },
             child: const Text("다시보지 않기")),

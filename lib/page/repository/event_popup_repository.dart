@@ -17,7 +17,6 @@ List eventBannerImages = [];
 
 Future<Map<String, dynamic>> loadEventPopUp(String recentId) async {
   final prefs = await SharedPreferences.getInstance();
-  prefs.setInt("hihi", 0);
   String tmpUrl = 'https://www.chocobread.shop/events/popup/' + recentId;
 
   // 300 다시 보지 않기 ->
@@ -36,7 +35,7 @@ Future<Map<String, dynamic>> loadEventPopUp(String recentId) async {
 
   print("loadEventPopUp called");
   print("loadEventPopUp에 의해 받아온 data : ${list['result']}");
+  return list;
 
-  return list['result'];
   // return [];
 }
