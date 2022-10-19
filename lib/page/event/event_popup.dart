@@ -36,13 +36,10 @@ class _EventPopUpState extends State<EventPopUp> {
               print("[*] detail 화면으로 이동합니다!");
               var temp = await loadContentByDealId(int.parse(widget.target));
               print("[*] detail 화면으로 보내지는 data : ${temp}");
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return DetailContentView(
-                  data: temp,
-                  isFromHome: true,
-                );
-              }));
+              Get.to(() => DetailContentView(
+                    data: temp,
+                    isFromHome: true,
+                  ));
             } else {
               Get.to(() => const App());
             }
@@ -59,11 +56,18 @@ class _EventPopUpState extends State<EventPopUp> {
             },
             child: const Text("다시보지 않기")),
         TextButton(
-            onPressed: () {
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (BuildContext context) {
-              //   return const App();
-              // }));
+            onPressed: () async {
+              if (widget.type == "Detail") {
+              print("[*] detail 화면으로 이동합니다!");
+              var temp = await loadContentByDealId(int.parse(widget.target));
+              print("[*] detail 화면으로 보내지는 data : ${temp}");
+              Get.to(() => DetailContentView(
+                    data: temp,
+                    isFromHome: true,
+                  ));
+            } else {
+              Get.to(() => const App());
+            }
             },
             child: const Text("자세히 보기"))
       ],
