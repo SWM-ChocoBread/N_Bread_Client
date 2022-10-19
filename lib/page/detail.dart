@@ -1408,8 +1408,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                                                   ],
                                                 ),
                                               ),
-                                              // Text(
-                                              //     "현재 위치는 ${newloc2} ${newloc3}입니다.\n${prefs.getString("loc2")}로 이동하여 동네 인증을 진행해주세요."),
                                               actions: [
                                                 FlatButton(
                                                   child: Text("닫기"),
@@ -1627,9 +1625,6 @@ class _DetailContentViewState extends State<DetailContentView> {
       appBar: _appbarWidget(),
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
-      // enablecommentsbox
-      //     ? _bottomTextfield()
-      //     : _bottomNavigationBarWidgetSelector(),
     );
   }
 
@@ -1697,18 +1692,6 @@ class _DetailContentViewState extends State<DetailContentView> {
       print("userId : " + userId.toString());
     }
   }
-
-  //dynamic link 처리
-  // void shareMyCode(String code) async {
-  //   try {
-  //     var dynamicLink = await _getDynamicLink(code);
-  //     var template = _getTemplate(dynamicLink, code);
-  //     var uri = await LinkClient.instance.defaultWithTalk(template);
-  //     await LinkClient.instance.launchKakaoTalk(uri);
-  //   } catch (error) {
-  //     print(error.toString());
-  //   }
-  // }
 
   Future<void> _getDynamicLink() async {
     final dynamicLinkParams = DynamicLinkParameters(
