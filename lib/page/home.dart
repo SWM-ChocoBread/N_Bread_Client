@@ -708,10 +708,7 @@ class _HomeState extends State<Home> {
           if (snapshot.hasData && snapshot.data.toString().length != 2) {
             return SingleChildScrollView(
               child: Column(children: [
-                EventBanner(
-                  target: '',
-                  type: '',
-                ),
+                EventBanner(),
                 _makeDataList(snapshot.data as List<Map<String, dynamic>>)
               ]),
             );
