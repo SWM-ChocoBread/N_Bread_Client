@@ -1346,14 +1346,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                     return AlertDialog(
                       content: Text("지역 인증이 필요한 서비스입니다!"),
                       actions: [
-                        FlatButton(
-                          child: !showIndicator
-                              ? const Text("지금 인증하기")
-                              : const SizedBox(
-                                  child: CircularProgressIndicator(),
-                                  height: 20,
-                                  width: 20,
-                                ),
+                        TextButton(
                           onPressed: showIndicator
                               ? () => null
                               : () async {
@@ -1410,7 +1403,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold)),
-                                                    TextSpan(text: '입니다.\n'),
+                                                    const TextSpan(text: '입니다.\n'),
                                                     TextSpan(
                                                         text:
                                                             '${prefs.getString("loc2")}',
@@ -1418,15 +1411,15 @@ class _DetailContentViewState extends State<DetailContentView> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold)),
-                                                    TextSpan(
+                                                    const TextSpan(
                                                         text:
                                                             '로 이동하여 동네 인증을 진행해주세요.'),
                                                   ],
                                                 ),
                                               ),
                                               actions: [
-                                                FlatButton(
-                                                  child: Text("닫기"),
+                                                TextButton(
+                                                  child: const Text("닫기"),
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
@@ -1440,9 +1433,16 @@ class _DetailContentViewState extends State<DetailContentView> {
                                       break;
                                   }
                                 },
+                          child: !showIndicator
+                              ? const Text("지금 인증하기")
+                              : const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(),
+                                ),
                         ),
-                        FlatButton(
-                          child: !showIndicator ? Text("나중에 인증하기") : SizedBox(),
+                        TextButton(
+                          child: !showIndicator ? const Text("나중에 인증하기") : const SizedBox(),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },

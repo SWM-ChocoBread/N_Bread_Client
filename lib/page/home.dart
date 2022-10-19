@@ -106,7 +106,7 @@ class _HomeState extends State<Home> {
       print("eventPopUpImage.image : ${eventPopUpImage.image}");
       print("eventPopUpImage.image[url] : ${eventPopUpImage.image}");
     }
-
+  }
   @override
   void initState() {
     super.initState();
@@ -812,8 +812,8 @@ class _HomeState extends State<Home> {
                     builder: (BuildContext context, StateSetter setState) {
                   return AlertDialog(
                     content: RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
+                      text: const TextSpan(
+                        style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
                         ),
@@ -821,7 +821,7 @@ class _HomeState extends State<Home> {
                           TextSpan(text: 'N빵에 참여하기 위해서는 최초 1회의 '),
                           TextSpan(
                               text: '지역인증',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                               )),
                           TextSpan(text: '이 필요합니다.'),
@@ -829,15 +829,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     actions: [
-                      FlatButton(
-                        child: !showIndicator
-                            ? const Text("지금 인증하기",
-                                style: TextStyle(color: ColorStyle.mainColor))
-                            : const SizedBox(
-                                child: CircularProgressIndicator(),
-                                height: 20,
-                                width: 20,
-                              ),
+                      TextButton(
                         onPressed: showIndicator
                             ? () => null
                             : () async {
@@ -878,14 +870,14 @@ class _HomeState extends State<Home> {
                                                   color: Colors.black,
                                                 ),
                                                 children: <TextSpan>[
-                                                  TextSpan(text: '현재 동네 :'),
+                                                  const TextSpan(text: '현재 동네 :'),
                                                   TextSpan(
                                                       text:
                                                           ' ${newloc2} ${newloc3}\n\n',
                                                       style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold)),
-                                                  TextSpan(text: '선택 동네 :'),
+                                                  const TextSpan(text: '선택 동네 :'),
                                                   TextSpan(
                                                       text:
                                                           ' ${prefs.getString("loc2")} ${prefs.getString("loc3")}\n\n\n',
@@ -898,7 +890,7 @@ class _HomeState extends State<Home> {
                                                       style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold)),
-                                                  TextSpan(
+                                                  const TextSpan(
                                                       text:
                                                           '로 이동하여 동네 인증을 진행해주세요.'),
                                                 ],
@@ -907,7 +899,7 @@ class _HomeState extends State<Home> {
                                             // Text(
                                             //     "현재 위치는 ${newloc2} ${newloc3}입니다.\n${prefs.getString("loc2")}로 이동하여 동네 인증을 진행해주세요."),
                                             actions: [
-                                              FlatButton(
+                                              TextButton(
                                                 child: const Text("닫기",
                                                     style: TextStyle(
                                                         color: ColorStyle
@@ -925,8 +917,16 @@ class _HomeState extends State<Home> {
                                     break;
                                 }
                               },
+                        child: !showIndicator
+                            ? const Text("지금 인증하기",
+                                style: TextStyle(color: ColorStyle.mainColor))
+                            : const SizedBox(
+                                child: CircularProgressIndicator(),
+                                height: 20,
+                                width: 20,
+                              ),
                       ),
-                      FlatButton(
+                      TextButton(
                         child: !showIndicator
                             ? Text("닫기",
                                 style: TextStyle(color: ColorStyle.mainColor))
