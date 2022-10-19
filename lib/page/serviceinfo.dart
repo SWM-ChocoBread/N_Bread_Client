@@ -38,6 +38,7 @@ class _ServiceInfoState extends State<ServiceInfo> {
   List introTextList = [
     {
       "subtitle": "N빵 서비스 소개",
+      "tags": ["#원하는_만큼", "#저렴한_가격", "#이웃과_함께"],
       "bullets": [
         "이웃과 함께하는 구매를 통해 원하는 상품을 필요한 만큼 저렴한 가격에 가져갈 수 있는 플랫폼입니다.",
         "이웃과 함께 구매하고 싶은 물품이 있다면, 거래를 제안할 수 있어요.",
@@ -46,6 +47,7 @@ class _ServiceInfoState extends State<ServiceInfo> {
     },
     {
       "subtitle": "이런 경우, 저희 서비스가 유용해요!",
+      "tags": ["#배송비_N빵", "#대용량_N빵"],
       "bullets": [
         "배송비를 아끼고 싶은 경우",
         "상품이 배송비보다 싼 경우",
@@ -54,7 +56,8 @@ class _ServiceInfoState extends State<ServiceInfo> {
       ]
     },
     {
-      "subtitle": "이웃과 함께 구매라고 싶은 게 생겼어요!",
+      "subtitle": "이웃과 함께 구매하고 싶은 게 생겼어요!",
+      "tags": ["#원하는_상품_제안", "#거래일시", "#거래장소", "#분배하면_끝"],
       "bullets": [
         "거래하고 싶은 상품의 이름, 해당 상품의 가격, 나를 포함해서 거래에 참여할 사람의 수, 거래하고 싶은 날짜와 시간, 장소를 정해서 거래를 제안할 수 있어요.",
         "추가적으로 상품 사진과 상품 판매 링크를 추가할 수 있어요.",
@@ -62,6 +65,7 @@ class _ServiceInfoState extends State<ServiceInfo> {
     },
     {
       "subtitle": "N빵에 올라와 있는 물품을 구매하고 싶어요!",
+      "tags": ["#이웃과_함께", "#참여", "#약속장소에서"],
       "bullets": [
         "N빵에 올라와 있는 상품 구매에 참여할 수 있어요!",
       ]
@@ -88,10 +92,40 @@ class _ServiceInfoState extends State<ServiceInfo> {
     );
   }
 
+  Widget _tag(List tags) {
+    return SizedBox(
+        height: 30,
+        child: ListView(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            children: tags.map((tag) {
+              return Row(
+                children: [
+                  Chip(
+                    backgroundColor: Color.fromARGB(255, 239, 233, 255),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    label: Text(
+                      tag,
+                      style: const TextStyle(
+                          fontSize: 13, color: ColorStyle.mainColor),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  )
+                ],
+              );
+            }).toList()));
+  }
+
   Widget _subTitle(String content) {
     return Text(
       content,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 
@@ -133,9 +167,20 @@ class _ServiceInfoState extends State<ServiceInfo> {
         const SizedBox(
           height: 10,
         ),
+        _tag(data["tags"]),
+        const SizedBox(
+          height: 10,
+        ),
         _bullets(data["bullets"]),
         const SizedBox(
-          height: 40,
+          height: 30,
+        ),
+        Container(
+          height: 0.1,
+          color: Colors.black,
+        ),
+        const SizedBox(
+          height: 30,
         ),
       ],
     );
@@ -146,17 +191,16 @@ class _ServiceInfoState extends State<ServiceInfo> {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-                _title(),
-                const SizedBox(
-                  height: 25,
-                )
-              ] +
-              introTextList.map((map) {
-                return _introBox(map);
-              }).toList(),
-        ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                  _title(),
+                  const SizedBox(
+                    height: 25,
+                  )
+                ] +
+                introTextList.map((map) {
+                  return _introBox(map);
+                }).toList()),
       ),
     );
   }
