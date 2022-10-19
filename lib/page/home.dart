@@ -12,6 +12,7 @@ import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/serviceinfo.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:chocobread/page/repository/contents_repository.dart';
+import 'package:chocobread/page/repository/event_popup_repository.dart';
 import 'package:chocobread/page/selectLocation.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -32,6 +33,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import '../utils/datetime_utils.dart';
 import '../utils/price_utils.dart';
 import 'create.dart';
+import 'event/event_banner.dart';
+import 'event/event_popup.dart';
 
 // develop
 // late String currentLocation;
@@ -60,6 +63,10 @@ class _HomeState extends State<Home> {
   Position? _currentPosition;
   String basicLatitude = "37.5037142"; // "37.5037142";
   String basicLongitude = "127.0447821"; // "127.0447821";
+  late ExtendedImage eventPopUpImage; // 이벤트 팝업 이미지 미리 받아오기 위한 변수
+  late String type; // 이벤트 팝업 이미지를 클릭했을 때 어떤 화면으로 넘어가야 할 지 받아오는 변수
+  late String target; // 이벤트 팝업 이미지를 클릭했을 때 어떤 거래 혹은 이미지 화면으로 넘어가야 할 지 받아오는 변수
+  late int id; // 이벤트 팝업 이미지를 클릭했을 때 이벤트 팝업의 고유 번호 (다시보지 않기 검증)
 
   getCurrentLocationFromPref() async {
     print("*** [home.dart] getCurrentLocationFromPref 함수가 실행되었습니다! ***");
@@ -76,6 +83,30 @@ class _HomeState extends State<Home> {
         "isLocationCertification이 home.dart에서 ${isLocationCertification} 으로 설정되었습니다");
   }
 
+  showEventDialog() async {
+    //로드
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isComeFromSplash = prefs.getBool("isComeFromSplash") ?? false;
+    int recentId = prefs.getInt("recentId") ?? 0;
+    if (isComeFromSplash) {
+      print("comeFromSplash입니다.");
+      prefs.setBool("isComeFromSplash", false);
+      showDialog(
+          // barrierDismissible: false, // 혜연 : 작업 마무리 된 뒤에 주석 해제해야 다른 곳을 눌렀을 때도 해제되지 않음
+          context: context,
+          builder: (BuildContext context) {
+            return EventPopUp(
+              eventPopUpImage: eventPopUpImage,
+              type: type,
+              target: target,
+              id: id,
+            );
+          });
+      print("eventPopUpImage : $eventPopUpImage");
+      print("eventPopUpImage.image : ${eventPopUpImage.image}");
+      print("eventPopUpImage.image[url] : ${eventPopUpImage.image}");
+    }
+
   @override
   void initState() {
     super.initState();
@@ -83,7 +114,32 @@ class _HomeState extends State<Home> {
     // print("home화면에서의 init state 에서의 currentLocation은 :" +
     //     currentLocation.toString());
     // currentLocation = "역삼동";
-    getCurrentLocationFromPref();
+    doOnInit();
+    // 미리 받아오는 이미지의 링크가 들어가는 곳
+    // 이벤트 팝업 보여주기
+  }
+
+  Future<void> doOnInit() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int recentId = prefs.getInt('recentId') ?? 0;
+    await getCurrentLocationFromPref();
+    //로드이벤트팝업
+    Map<String, dynamic> tmp = await loadEventPopUp(recentId.toString());
+    print('tmp init state test on home : ${tmp['result']}');
+    print('resentID on home : ${recentId}');
+
+    print('tmp is null : ${tmp['result'] == null}');
+    if (tmp['result'] != null) {
+      Future.delayed(Duration.zero, () {
+        print("이벤트 popup이 실행되었습니다!");
+        showEventDialog();
+      });
+      String eventImg = tmp['result']['eventImage'];
+      type = tmp['result']['type'];
+      target = tmp['result']['target'];
+      id = tmp['result']['id'];
+      eventPopUpImage = ExtendedImage.network(eventImg);
+    }
   }
 
   Future<bool> checkLocationPermission() async {
@@ -245,12 +301,6 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading:
             false // 이전 버튼 자동 생성 막기 (닉네임 초기 설정 후 홈으로 돌아오는 경우 이전 버튼 없애기 위한 것)
-        // actions: [
-        //   IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-        //   IconButton(onPressed: () {}, icon: Icon(Icons.tune)),
-        //   IconButton(
-        //       onPressed: () {}, icon: const Icon(Icons.border_color_rounded)),
-        // ], // buttons at the end
         );
   }
 
@@ -438,6 +488,9 @@ class _HomeState extends State<Home> {
   _makeDataList(List<Map<String, dynamic>> dataContents) {
     print("*** [home.dart] _makeDataList 가 실행되었습니다! ***");
     return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(), // 리스트뷰는 스크롤이 안되도록 처리하기
+      // scrollDirection: Axis.vertical,
+      shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 0),
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
@@ -687,7 +740,12 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData && snapshot.data.toString().length != 2) {
-            return _makeDataList(snapshot.data as List<Map<String, dynamic>>);
+            return SingleChildScrollView(
+              child: Column(children: [
+                EventBanner(),
+                _makeDataList(snapshot.data as List<Map<String, dynamic>>)
+              ]),
+            );
           }
 
           return Center(

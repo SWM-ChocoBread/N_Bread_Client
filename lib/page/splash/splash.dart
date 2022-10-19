@@ -20,6 +20,8 @@ import '../repository/content_repository.dart';
 import '../repository/contents_repository.dart';
 import 'package:uni_links/uni_links.dart';
 
+bool isComeFromSplash = true;
+
 //test comment
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -140,6 +142,8 @@ class _SplashState extends State<Splash> {
   void checkStatus() async {
     SharedPreferences prefs = await SharedPreferences
         .getInstance(); // getInstance로 기기 내 shared_prefs 객체를 가져온다.
+    prefs.setBool("isComeFromSplash", true);
+    print('isComeFromNick set true on splash');
 
     bool isLocationCertification =
         await prefs.getBool("isLocationCertification") ?? false;
