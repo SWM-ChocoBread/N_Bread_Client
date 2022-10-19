@@ -8,9 +8,9 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 
 import '../app.dart';
-import '../notioninfo.dart';
 import '../repository/content_repository.dart';
 import '../repository/event_banner_repository.dart';
+import '../serviceinfo.dart';
 
 class EventBanner extends StatefulWidget {
   EventBanner({Key? key}) : super(key: key);
@@ -58,7 +58,7 @@ class _EventBannerState extends State<EventBanner> {
             var temp = await loadContentByDealId(int.parse(target));
             Get.to(() => DetailContentView(data: temp, isFromHome: true));
           } else if (map["type"] == "Intro") {
-            Get.to(() => NotionInfo());
+            Get.to(() => ServiceInfo());
           } else {
             Get.to(const App());
           }
