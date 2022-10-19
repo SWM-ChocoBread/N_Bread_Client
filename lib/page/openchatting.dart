@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'notioninfo.dart';
+import 'serviceinfo.dart';
 
 class OpenChatting extends StatefulWidget {
   const OpenChatting({Key? key}) : super(key: key);
