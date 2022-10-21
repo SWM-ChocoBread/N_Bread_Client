@@ -1156,7 +1156,7 @@ class _customFormChangeState extends State<customFormChange> {
                                       return const App();
                                     }), (route) => false);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        MySnackBar("성공적으로 제안되었습니다!"));
+                                        MySnackBar("성공적으로 수정되었습니다!"));
                                   } else {
                                     // form 이 유효하지 않은 경우
                                     ScaffoldMessenger.of(context).showSnackBar(
