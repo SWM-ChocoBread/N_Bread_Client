@@ -287,13 +287,8 @@ class SelectLocation extends State<LocationPage> {
                                             (route) => false);
                                       }
                                     });
-                                    if (!(prefs.getString("loc2") ==
-                                            selectedValue &&
-                                        prefs.getString("loc3") ==
-                                            selectedValue2)) {
-                                      await setLocation("서울특별시", selectedValue,
-                                          selectedValue2);
-                                    }
+                                    await setLocation(
+                                        "서울특별시", selectedValue, selectedValue2);
                                   } else {
                                     //스낵바 호출
                                     ScaffoldMessenger.of(context)
