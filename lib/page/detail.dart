@@ -315,6 +315,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                   height: 20,
                   child: CircularProgressIndicator(color: Colors.white)),
         ),
+        _popupMenuButtonSelector(),
         // IconButton(
         //     onPressed: () {},
         //     icon: const Icon(
@@ -1403,7 +1404,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold)),
-                                                    const TextSpan(text: '입니다.\n'),
+                                                    const TextSpan(
+                                                        text: '입니다.\n'),
                                                     TextSpan(
                                                         text:
                                                             '${prefs.getString("loc2")}',
@@ -1442,7 +1444,9 @@ class _DetailContentViewState extends State<DetailContentView> {
                                 ),
                         ),
                         TextButton(
-                          child: !showIndicator ? const Text("나중에 인증하기") : const SizedBox(),
+                          child: !showIndicator
+                              ? const Text("나중에 인증하기")
+                              : const SizedBox(),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
