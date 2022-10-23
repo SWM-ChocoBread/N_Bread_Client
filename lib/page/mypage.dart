@@ -524,7 +524,7 @@ class _MyPageState extends State<MyPage> {
                       const Padding(
                         padding: EdgeInsets.only(bottom: 2.0), // 아이콘 위치 조정
                         child: FaIcon(
-                          FontAwesomeIcons.calendar,
+                          FontAwesomeIcons.clock,
                           size: 12,
                         ),
                       ),
