@@ -1108,6 +1108,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // icon name : attachment, link_rounded
               // const Icon(Icons.link_rounded),
