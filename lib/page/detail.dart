@@ -8,6 +8,7 @@ import 'package:chocobread/page/checkparticipation.dart';
 import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/policereport.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
+import 'package:chocobread/page/widgets/mychip.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:extended_image/extended_image.dart';
@@ -27,6 +28,7 @@ import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'colordeterminants/coloruserstatus.dart';
 import 'mypage.dart';
 
 import '../utils/price_utils.dart';
@@ -642,34 +644,28 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  Color _colorUserStatus(String userstatus) {
-    switch (userstatus) {
-      case "제안자": // 제안자의 색
-        return ColorStyle.seller;
-      // Colors.red;
-      case "참여자": // 참여자의 색
-        return ColorStyle.participant;
-      // Colors.blue;
-    }
-    return Colors.grey; // 지나가는 사람의 색
-  }
-
   Widget _userStatusChip(String userstatus) {
     if (userstatus == "") {
       return const SizedBox.shrink();
     } else {
-      return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: _colorUserStatus(userstatus),
-          ),
-          // const Color.fromARGB(255, 137, 82, 205)),
-          child: Text(
-            userstatus,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-          ));
+      return MyChip(
+          color: colorUserStatusText(userstatus),
+          backgroundcolor: colorUserStatusBack(userstatus),
+          content: userstatus);
+      // return Container(
+      //     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      //     decoration: BoxDecoration(
+      //       borderRadius: BorderRadius.circular(20),
+      //       color: colorUserStatusBack(userstatus),
+      //     ),
+      //     // const Color.fromARGB(255, 137, 82, 205)),
+      //     child: Text(
+      //       userstatus,
+      //       style: TextStyle(
+      //           fontSize: 12,
+      //           fontWeight: FontWeight.w500,
+      //           color: colorUserStatusText(userstatus)),
+      //     ));
     }
   }
 
@@ -790,12 +786,13 @@ class _DetailContentViewState extends State<DetailContentView> {
                           children: [
                             Icon(
                               Icons.circle,
-                              color: _colorUserStatus(dataComments[firstIndex]
-                                  ['User']["userStatus"]),
+                              color: colorUserStatusBack(
+                                  dataComments[firstIndex]['User']
+                                      ["userStatus"]),
                               // size: 30,
                             ),
                             const SizedBox(
-                              width: 5,
+                              width: 10,
                             ),
                             Text(
                               "${dataComments[firstIndex]["User"]["nick"]}",
@@ -803,13 +800,13 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   const TextStyle(fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(
-                              width: 5,
+                              width: 7,
                             ),
                             _userStatusChip(dataComments[firstIndex]['User']
                                     ["userStatus"]
                                 .toString()),
                             const SizedBox(
-                              width: 5,
+                              width: 7,
                             ),
                             Text(
                               MyDateUtils.dateTimeDifference(DateTime.now(),
@@ -916,14 +913,14 @@ class _DetailContentViewState extends State<DetailContentView> {
                                       children: [
                                         Icon(
                                           Icons.circle,
-                                          color: _colorUserStatus(
+                                          color: colorUserStatusBack(
                                               dataComments[firstIndex]
                                                       ["Replies"][secondIndex]
                                                   ["User"]["userStatus"]),
                                           // size: 30,
                                         ),
                                         const SizedBox(
-                                          width: 5,
+                                          width: 10,
                                         ),
                                         Text(
                                           "${dataComments[firstIndex]["Replies"][secondIndex]["User"]["nick"]}",
@@ -931,14 +928,14 @@ class _DetailContentViewState extends State<DetailContentView> {
                                               fontWeight: FontWeight.w500),
                                         ),
                                         const SizedBox(
-                                          width: 5,
+                                          width: 7,
                                         ),
                                         _userStatusChip(dataComments[firstIndex]
                                                     ["Replies"][secondIndex]
                                                 ["User"]["userStatus"]
                                             .toString()),
                                         const SizedBox(
-                                          width: 5,
+                                          width: 7,
                                         ),
                                         Text(
                                           MyDateUtils.dateTimeDifference(

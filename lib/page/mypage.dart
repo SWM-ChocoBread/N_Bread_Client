@@ -12,7 +12,8 @@ import 'package:chocobread/page/kakaoLogout.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknamechange.dart';
 import 'package:chocobread/page/repository/ongoing_repository.dart';
-import 'package:chocobread/page/widgets/snackbar.dart';
+import 'package:chocobread/page/widgets/mychip.dart';
+import 'package:chocobread/page/widgets/mysnackbar.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'colordeterminants/colorstatus.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
 import 'package:http/http.dart' as http;
@@ -35,6 +37,7 @@ import 'accountdelete.dart';
 import 'detail.dart';
 import 'termslook.dart';
 import 'home.dart' as home;
+import 'colordeterminants/colormystatus.dart';
 
 bool showindicator = false;
 
@@ -411,47 +414,34 @@ class _MyPageState extends State<MyPage> {
         ));
   }
 
-  Color _colorMyStatus(String mystatus) {
-    switch (mystatus) {
-      case "제안":
-        return ColorStyle.seller; // 제안하는 경우의 색
-      case "참여":
-        return ColorStyle.participant; // 참여하는 경우의 색
-    }
-    return ColorStyle.mainColor;
-  }
+  // Widget _currentTotal(Map productOngoing) {
+  //   if (productOngoing["status"] == "모집중") {
+  //     return Text(
+  //       "${productOngoing["status"].toString()}: ${productOngoing["currentMember"]}/${productOngoing["totalMember"]}",
+  //       style: const TextStyle(
+  //           fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+  //     );
+  //   } else if (productOngoing["status"] == "모집완료" ||
+  //       productOngoing["status"] == "모집실패" ||
+  //       productOngoing["status"] == "거래완료") {
+  //     return Text(
+  //       productOngoing["status"].toString(),
+  //       style: const TextStyle(
+  //           fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+  //     );
+  //   }
+  //   return const Text("데이터에 문제가 있습니다.");
+  // }
 
-  Color _colorStatus(String status) {
-    switch (status) {
-      case "모집중":
-        return ColorStyle.ongoing; // 모집중인 경우의 색
-      case "모집완료":
-        return ColorStyle.recruitcomplete; // 모집완료인 경우의 색
-      case "거래완료": // 거래완료인 경우의 색
-        return ColorStyle.dealcomplete;
-      case "모집실패":
-        return ColorStyle.fail; // 모집실패인 경우의 색
-    }
-    return const Color(0xffF6BD60);
-  }
-
-  Widget _currentTotal(Map productOngoing) {
+  String _currentTotal(Map productOngoing) {
     if (productOngoing["status"] == "모집중") {
-      return Text(
-        "${productOngoing["status"].toString()}: ${productOngoing["currentMember"]}/${productOngoing["totalMember"]}",
-        style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-      );
+      return "${productOngoing["status"].toString()}: ${productOngoing["currentMember"]}/${productOngoing["totalMember"]}";
     } else if (productOngoing["status"] == "모집완료" ||
         productOngoing["status"] == "모집실패" ||
         productOngoing["status"] == "거래완료") {
-      return Text(
-        productOngoing["status"].toString(),
-        style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-      );
+      return productOngoing["status"].toString();
     }
-    return const Text("데이터에 문제가 있습니다.");
+    return "데이터에 문제가 있습니다.";
   }
 
   _loadOngoing() async {
@@ -490,59 +480,36 @@ class _MyPageState extends State<MyPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: _colorMyStatus(dataOngoing[index]["mystatus"]
-                                .toString()
-                                .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
-                          ),
-                          // const Color.fromARGB(255, 137, 82, 205)),
-                          child: Text(
-                            dataOngoing[index]["mystatus"]
-                                .toString()
-                                .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                          )),
+                      MyChip(
+                        color: colorMyStatusText(dataOngoing[index]["mystatus"]
+                            .toString()
+                            .substring(0, 2)), // 제안자 참여자를 제안 참여로 처리
+                        backgroundcolor: colorMyStatusBack(dataOngoing[index]
+                                ["mystatus"]
+                            .toString()
+                            .substring(0, 2)),
+                        content: dataOngoing[index]["mystatus"]
+                            .toString()
+                            .substring(0, 2), // 제안자 참여자를 제안 참여로 처리
+                      ),
                       const SizedBox(
                         width: 5,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 3),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: _colorStatus(
+                      MyChip(
+                          color: colorStatusText(
                               dataOngoing[index]["status"].toString()),
-                        ),
-                        // const Color.fromARGB(255, 137, 82, 205)),
-                        child: _currentTotal(dataOngoing[index]),
-                        // Text(
-                        //   "${dataOngoing[index]["status"].toString()}: ${dataOngoing[index]["current"]}/${dataOngoing[index]["total"]}",
-                        //   style: const TextStyle(
-                        //       fontSize: 12,
-                        //       fontWeight: FontWeight.w500,
-                        //       color: Colors.white),
-                        // )
-                      ),
+                          backgroundcolor: colorStatusBack(
+                              dataOngoing[index]["status"].toString()),
+                          content: _currentTotal(dataOngoing[index])),
                       const SizedBox(
                         width: 5,
                       ),
-                      // Text(
-                      //   dataOngoing[index]["date"].toString(),
-                      //   style: const TextStyle(
-                      //       fontSize: 18, fontWeight: FontWeight.w500),
-                      // ),
                     ],
                   ),
                   const SizedBox(
-                    height: 7,
+                    height: 15,
                   ),
                   Text(
                     dataOngoing[index]["title"].toString(),

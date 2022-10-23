@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/alertnoservice.dart';
 import 'package:chocobread/page/blockuser.dart';
+import 'package:chocobread/page/colordeterminants/colorstatus.dart';
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/form.dart';
 import 'package:chocobread/page/login.dart';
@@ -15,6 +16,7 @@ import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:chocobread/page/repository/event_popup_repository.dart';
 import 'package:chocobread/page/selectLocation.dart';
 import 'package:chocobread/page/termscheck.dart';
+import 'package:chocobread/page/widgets/mychip.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -107,6 +109,7 @@ class _HomeState extends State<Home> {
       print("eventPopUpImage.image[url] : ${eventPopUpImage.image}");
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -445,20 +448,21 @@ class _HomeState extends State<Home> {
     if (productContents["status"] == "모집중") {
       return Text(
         "${productContents["status"].toString()}: ${productContents["currentMember"]}/${productContents["totalMember"]}",
-        style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: colorStatusText(productContents["status"])),
       );
     } else if (productContents["status"] == "모집완료" ||
         productContents["status"] == "거래완료" ||
         productContents["status"] == "모집실패") {
       return Text(
         productContents["status"].toString(),
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
-          // height: 1.2
-        ),
+        style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: colorStatusText(productContents["status"])),
+        // height: 1.2
       );
     }
     return const Text("데이터에 문제가 있습니다.");
@@ -870,14 +874,16 @@ class _HomeState extends State<Home> {
                                                   color: Colors.black,
                                                 ),
                                                 children: <TextSpan>[
-                                                  const TextSpan(text: '현재 동네 :'),
+                                                  const TextSpan(
+                                                      text: '현재 동네 :'),
                                                   TextSpan(
                                                       text:
                                                           ' ${newloc2} ${newloc3}\n\n',
                                                       style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold)),
-                                                  const TextSpan(text: '선택 동네 :'),
+                                                  const TextSpan(
+                                                      text: '선택 동네 :'),
                                                   TextSpan(
                                                       text:
                                                           ' ${prefs.getString("loc2")} ${prefs.getString("loc3")}\n\n\n',

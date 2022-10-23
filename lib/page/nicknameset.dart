@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/selectLocation.dart';
-import 'package:chocobread/page/widgets/snackbar.dart';
+import 'package:chocobread/page/widgets/mysnackbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

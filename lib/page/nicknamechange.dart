@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:chocobread/page/widgets/snackbar.dart';
+import 'package:chocobread/page/widgets/mysnackbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/nicknameset.dart';

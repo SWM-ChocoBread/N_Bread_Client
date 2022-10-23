@@ -102,7 +102,7 @@ class _ServiceInfoState extends State<ServiceInfo> {
               return Row(
                 children: [
                   Chip(
-                    backgroundColor: Color.fromARGB(255, 239, 233, 255),
+                    backgroundColor: ColorStyle.extraLightMainColor,
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5))),
                     label: Text(
