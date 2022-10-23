@@ -619,7 +619,7 @@ class _HomeState extends State<Home> {
                                   padding: const EdgeInsets.only(
                                       bottom: 2.0), // 아이콘 위치 조정
                                   child: FaIcon(
-                                    FontAwesomeIcons.calendar,
+                                    FontAwesomeIcons.clock,
                                     size: 12,
                                     color: _iconColorDeterminant(
                                       dataContents[index]["status"].toString(),
