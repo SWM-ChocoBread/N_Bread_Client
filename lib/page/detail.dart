@@ -28,6 +28,7 @@ import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/identify.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'colordeterminants/colorstatus.dart';
 import 'colordeterminants/coloruserstatus.dart';
 import 'mypage.dart';
 
@@ -1484,22 +1485,22 @@ class _DetailContentViewState extends State<DetailContentView> {
     );
   }
 
-  Color _colorStatus(String status) {
-    switch (status) {
-      case "모집중": // 모집중인 경우의 색
-        return ColorStyle.ongoing;
-      // Colors.green;
-      case "모집완료": // 모집완료인 경우의 색
-        return ColorStyle.recruitcomplete;
-      // Colors.brown;
-      case "거래완료": // 거래완료인 경우의 색
-        return ColorStyle.dealcomplete;
-      // Colors.grey;
-      case "모집실패":
-        return ColorStyle.fail; // 거래완료인 경우의 색
-    }
-    return const Color(0xffF6BD60);
-  }
+  // Color _colorStatus(String status) {
+  //   switch (status) {
+  //     case "모집중": // 모집중인 경우의 색
+  //       return ColorStyle.ongoing;
+  //     // Colors.green;
+  //     case "모집완료": // 모집완료인 경우의 색
+  //       return ColorStyle.recruitcomplete;
+  //     // Colors.brown;
+  //     case "거래완료": // 거래완료인 경우의 색
+  //       return ColorStyle.dealcomplete;
+  //     // Colors.grey;
+  //     case "모집실패":
+  //       return ColorStyle.fail; // 거래완료인 경우의 색
+  //   }
+  //   return const Color(0xffF6BD60);
+  // }
 
   String _currentTotal(Map productContents) {
     if (productContents["status"] == "모집중") {
@@ -1529,7 +1530,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 text: _currentTotal(widget.data),
                 // "${widget.data["status"]}: ${widget.data["current"]}/${widget.data["total"]}",
                 style: TextStyle(
-                    color: _colorStatus(widget.data["status"].toString()),
+                    color: colorStatusText(widget.data["status"].toString()),
                     fontWeight: FontWeight.w700,
                     fontSize: 16)),
             const TextSpan(
@@ -1551,14 +1552,14 @@ class _DetailContentViewState extends State<DetailContentView> {
           style: OutlinedButton.styleFrom(
               side: BorderSide(
             width: 1.0,
-            color: _colorStatus(widget.data["status"].toString()),
+            color: colorStatusText(widget.data["status"].toString()),
           )),
           onPressed: () {},
           child: Text(_currentTotal(widget.data),
               style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
-                  color: _colorStatus(widget.data["status"].toString())))),
+                  color: colorStatusText(widget.data["status"].toString())))),
     );
   }
 
