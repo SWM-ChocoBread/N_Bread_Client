@@ -46,6 +46,7 @@ class _EventPopUpState extends State<EventPopUp> {
           },
           child: widget.eventPopUpImage),
       // const Text("이벤트 popup 테스트"),
+      actionsOverflowButtonSpacing: 20,
       actions: [
         TextButton(
             onPressed: () async {
