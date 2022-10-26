@@ -7,6 +7,7 @@ import 'package:chocobread/page/alertnoservice.dart';
 import 'package:chocobread/page/blockuser.dart';
 import 'package:chocobread/page/colordeterminants/colorstatus.dart';
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/event/event_page.dart';
 import 'package:chocobread/page/form.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
@@ -288,6 +289,17 @@ class _HomeState extends State<Home> {
           },
         ),
         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return const EventPage();
+                }));
+              },
+              icon: const FaIcon(
+                FontAwesomeIcons.gift,
+                size: 18,
+              )),
           IconButton(
               onPressed: () {
                 Navigator.push(context,
