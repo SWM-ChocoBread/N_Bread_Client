@@ -19,8 +19,8 @@ class EventPage extends StatefulWidget {
 
 class _EventPageState extends State<EventPage> {
   late List eventBannerImages; // loadEventBanner의 결과를 받아오기 위한 변수
-  late String type; // loadEventBanner의 type을 받아오기 위한 변수
-  late String target; // loadEventBanner의 target을 받아오기 위한 변수
+  // late String type; // loadEventBanner의 type을 받아오기 위한 변수
+  // late String target; // loadEventBanner의 target을 받아오기 위한 변수
 
   @override
   void initState() {
@@ -55,27 +55,31 @@ class _EventPageState extends State<EventPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             eventBannerImages = snapshot.data as List<dynamic>;
-            return Column(
-                children: eventBannerImages.map((map) {
-              print("map[eventImage] : ${map["eventImage"]}");
-              type = map["type"];
-              target = map["target"];
-              return GestureDetector(
-                child: ExtendedImage.network(map["eventImage"]),
-                onTap: () async {
-                  print("click된 배너의 type : ${type}");
-                  if (map["type"] == "Detail") {
-                    var temp = await loadContentByDealId(int.parse(target));
-                    Get.to(
-                        () => DetailContentView(data: temp, isFromHome: true));
-                  } else if (map["type"] == "Intro") {
-                    Get.to(() => ServiceInfo());
-                  } else {
-                    Get.to(const App());
-                  }
+            return ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    child: ExtendedImage.network(
+                        eventBannerImages[index]["eventImage"]),
+                    onTap: () async {
+                      print(
+                          "click된 배너의 type : ${eventBannerImages[index]["type"]}");
+                      if (eventBannerImages[index]["type"] == "Detail") {
+                        var temp = await loadContentByDealId(
+                            int.parse(eventBannerImages[index]["target"]));
+                        Get.to(() =>
+                            DetailContentView(data: temp, isFromHome: true));
+                      } else if (eventBannerImages[index]["type"] == "Intro") {
+                        Get.to(() => ServiceInfo());
+                      } else {
+                        Get.to(const App());
+                      }
+                    },
+                  );
                 },
-              );
-            }).toList());
+                separatorBuilder: (BuildContext context, int index) {
+                  return Container(height: 15, color: Colors.white);
+                },
+                itemCount: eventBannerImages.length);
           }
           return const Center(
             child: CircularProgressIndicator(),

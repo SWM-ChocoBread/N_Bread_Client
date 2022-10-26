@@ -5,6 +5,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 
 import '../app.dart';
@@ -53,6 +54,8 @@ class _EventBannerState extends State<EventBanner> {
             Get.to(() => DetailContentView(data: temp, isFromHome: true));
           } else if (map["type"] == "Intro") {
             Get.to(() => ServiceInfo());
+          } else if (map["type"] == "Link") {
+            Get.to(() => InAppWebView());
           } else {
             Get.to(const App());
           }
