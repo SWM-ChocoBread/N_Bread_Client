@@ -3,9 +3,12 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
 import '../repository/content_repository.dart';
+import '../serviceinfo.dart';
+import '../webview/webviewin.dart';
 
 class EventPopUp extends StatefulWidget {
   ExtendedImage eventPopUpImage;
@@ -40,8 +43,21 @@ class _EventPopUpState extends State<EventPopUp> {
                     data: temp,
                     isFromHome: true,
                   ));
+            } else if (widget.type == "Intro") {
+              Get.to(() => ServiceInfo());
+            } else if (widget.type == "LinkIn") {
+              // 인 앱 웹뷰를 띄우고 싶은 경우
+              Get.to(() => WebViewIn(mylink: widget.target));
+            } else if (widget.type == "LinkOut") {
+              // 외부 브라우저로 띄우고 싶은 경우
+              if (await canLaunchUrl(Uri.parse(widget.target))) {
+                await launchUrl(Uri.parse(widget.target),
+                    mode: LaunchMode.externalApplication);
+              } else {
+                throw '인 앱 웹뷰를 띄울 수 없습니다! : ${widget.target}';
+              }
             } else {
-              Get.to(() => const App());
+              Get.to(const App());
             }
           },
           child: widget.eventPopUpImage),
@@ -59,16 +75,16 @@ class _EventPopUpState extends State<EventPopUp> {
         TextButton(
             onPressed: () async {
               if (widget.type == "Detail") {
-              print("[*] detail 화면으로 이동합니다!");
-              var temp = await loadContentByDealId(int.parse(widget.target));
-              print("[*] detail 화면으로 보내지는 data : ${temp}");
-              Get.to(() => DetailContentView(
-                    data: temp,
-                    isFromHome: true,
-                  ));
-            } else {
-              Get.to(() => const App());
-            }
+                print("[*] detail 화면으로 이동합니다!");
+                var temp = await loadContentByDealId(int.parse(widget.target));
+                print("[*] detail 화면으로 보내지는 data : ${temp}");
+                Get.to(() => DetailContentView(
+                      data: temp,
+                      isFromHome: true,
+                    ));
+              } else {
+                Get.to(() => const App());
+              }
             },
             child: const Text("자세히 보기"))
       ],
