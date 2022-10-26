@@ -17,6 +17,7 @@ import 'package:chocobread/page/repository/contents_repository.dart';
 import 'package:chocobread/page/repository/event_popup_repository.dart';
 import 'package:chocobread/page/selectLocation.dart';
 import 'package:chocobread/page/termscheck.dart';
+import 'package:chocobread/page/widgets/certifiedchip.dart';
 import 'package:chocobread/page/widgets/mychip.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
@@ -565,7 +566,9 @@ class _HomeState extends State<Home> {
                             const SizedBox(height: 5),
                             // 첫번째 줄 : status, title
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                const CertifiedChip(),
                                 Expanded(
                                   // text overflow 해결 위한 것
                                   child: Text(
