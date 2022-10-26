@@ -76,32 +76,32 @@ class _CustomerServiceState extends State<CustomerService> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 13, horizontal: 20)),
                   onPressed: () async {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
                     String? token = prefs.getString("userToken");
                     print("TOKEN : ${token}");
                     if (token != null) {
                       Map<String, dynamic> payload = Jwt.parseJwt(token);
                       await FirebaseAnalytics.instance.logEvent(
-                        name: "kakao_cs",
-                        parameters: {
-                          "userId" : payload['id'].toString(),
-                          "provider" : payload['provider'].toString() 
-                        }
-                      );
+                          name: "kakao_cs",
+                          parameters: {
+                            "userId": payload['id'].toString(),
+                            "provider": payload['provider'].toString()
+                          });
                       Airbridge.event.send(Event(
-                            'Kakao CS',
-                            option: EventOption(
-                              attributes: {
-                                "userId" : payload['id'].toString(),
-                                "provider" : payload['provider'].toString() 
-                              },
-                            ),
-                          ));
+                        'Kakao CS',
+                        option: EventOption(
+                          attributes: {
+                            "userId": payload['id'].toString(),
+                            "provider": payload['provider'].toString()
+                          },
+                        ),
+                      ));
                     }
                     if (await canLaunchUrl(
-                        Uri.parse("https://open.kakao.com/o/sa4gFgpe"))) {
+                        Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
                       await launchUrl(
-                          Uri.parse("https://open.kakao.com/o/sa4gFgpe"),
+                          Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
                           mode: LaunchMode.externalApplication);
                     } else {
                       throw 'Could not launch Kakao Openchatting';
@@ -152,7 +152,6 @@ class _CustomerServiceState extends State<CustomerService> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appBarWidget(),
       body: _bodyWidget(),
