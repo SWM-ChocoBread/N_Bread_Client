@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
 import '../repository/content_repository.dart';
 import '../repository/event_banner_repository.dart';
 import '../serviceinfo.dart';
+import '../webview/webviewin.dart';
 
 class EventPage extends StatefulWidget {
   const EventPage({super.key});
@@ -63,13 +65,25 @@ class _EventPageState extends State<EventPage> {
                     onTap: () async {
                       print(
                           "click된 배너의 type : ${eventBannerImages[index]["type"]}");
-                      if (eventBannerImages[index]["type"] == "Detail") {
-                        var temp = await loadContentByDealId(
-                            int.parse(eventBannerImages[index]["target"]));
+                      var type = eventBannerImages[index]["type"];
+                      var target = eventBannerImages[index]["target"];
+                      if (type == "Detail") {
+                        var temp = await loadContentByDealId(int.parse(target));
                         Get.to(() =>
                             DetailContentView(data: temp, isFromHome: true));
-                      } else if (eventBannerImages[index]["type"] == "Intro") {
+                      } else if (type == "Intro") {
                         Get.to(() => ServiceInfo());
+                      } else if (type == "LinkIn") {
+                        // 인 앱 웹뷰를 띄우고 싶은 경우
+                        Get.to(() => WebViewIn(mylink: target));
+                      } else if (type == "LinkOut") {
+                        // 외부 브라우저로 띄우고 싶은 경우
+                        if (await canLaunchUrl(Uri.parse(target))) {
+                          await launchUrl(Uri.parse(target),
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          throw '인 앱 웹뷰를 띄울 수 없습니다! : $target';
+                        }
                       } else {
                         Get.to(const App());
                       }
