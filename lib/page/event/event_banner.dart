@@ -20,31 +20,25 @@ class EventBanner extends StatefulWidget {
 }
 
 class _EventBannerState extends State<EventBanner> {
-  late List eventBannerImages; // loadEventBanner의 결과를 받아오기 위한 변수
+  // late List eventBannerImages; // loadEventBanner의 결과를 받아오기 위한 변수
   late String type; // loadEventBanner의 type을 받아오기 위한 변수
   late String target; // loadEventBanner의 target을 받아오기 위한 변수
 
-  @override
-  void initState() {
-    super.initState();
-    eventBannerImages = [];
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   eventBannerImages = [];
+  // }
 
-  @override
-  void didChangeDependencies() async {
-    super.didChangeDependencies();
-    eventBannerImages = await loadEventBanner(); // 나중에 주석 해제해서 사용할 것!
-    print("eventBannerImage : ${eventBannerImages}");
-  }
-
-  Future<void> tmp() async {
-    print("tmp run");
-    eventBannerImages = await loadEventBanner();
-    print('tmp tmp ${eventBannerImages}');
-  }
+  // @override
+  // void didChangeDependencies() async {
+  //   super.didChangeDependencies();
+  //   eventBannerImages = await loadEventBanner(); // 나중에 주석 해제해서 사용할 것!
+  //   print("eventBannerImage : ${eventBannerImages}");
+  // }
 
   // detail.dart 의 _itemsForSliderImage 참고
-  List<Widget> _itemsForEventBanner() {
+  List<Widget> _itemsForEventBanner(List<dynamic> eventBannerImages) {
     // 이벤트 배너 이미지가 있는 경우 : 이미지 배너를 보여준다.
     return eventBannerImages.map((map) {
       print("map[eventImage] : ${map["eventImage"]}");
@@ -86,7 +80,7 @@ class _EventBannerState extends State<EventBanner> {
                 enableInfiniteScroll: true, // 무한 스크롤 가능하게 하기
                 viewportFraction: 1, // 전체 화면 사용
               ),
-              items: _itemsForEventBanner(),
+              items: _itemsForEventBanner(snapshot.data as List<dynamic>),
             );
           }
           // if (!snapshot.hasData) {
