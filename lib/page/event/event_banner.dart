@@ -1,12 +1,14 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/webview/webviewin.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
 import '../repository/content_repository.dart';
@@ -54,8 +56,17 @@ class _EventBannerState extends State<EventBanner> {
             Get.to(() => DetailContentView(data: temp, isFromHome: true));
           } else if (map["type"] == "Intro") {
             Get.to(() => ServiceInfo());
-          } else if (map["type"] == "Link") {
-            Get.to(() => InAppWebView());
+          } else if (map["type"] == "LinkIn") {
+            // 인 앱 웹뷰를 띄우고 싶은 경우
+            Get.to(() => WebViewIn(mylink: target));
+          } else if (map["type"] == "LinkOut") {
+            // 외부 브라우저로 띄우고 싶은 경우
+            if (await canLaunchUrl(Uri.parse(target))) {
+              await launchUrl(Uri.parse(target),
+                  mode: LaunchMode.externalApplication);
+            } else {
+              throw '인 앱 웹뷰를 띄울 수 없습니다! : $target';
+            }
           } else {
             Get.to(const App());
           }
