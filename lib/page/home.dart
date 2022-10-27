@@ -578,6 +578,7 @@ class _HomeState extends State<Home> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         fontSize: 15,
+                                        fontWeight: FontWeight.bold,
                                         color: _colorDeterminant(
                                             dataContents[index]["status"]
                                                 .toString())),
@@ -616,7 +617,7 @@ class _HomeState extends State<Home> {
                                       //'${dataContents[index]["price"]}원/묶음',
                                       style: TextStyle(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.bold,
+                                          // fontWeight: FontWeight.bold,
                                           color: _colorDeterminant(
                                               dataContents[index]["status"]
                                                   .toString())),

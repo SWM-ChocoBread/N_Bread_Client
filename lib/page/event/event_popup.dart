@@ -102,14 +102,14 @@ class _EventPopUpState extends State<EventPopUp> {
                           padding: EdgeInsets.all(8.0),
                           child: Text(
                             "다시보지 않기",
-                            style: TextStyle(color: ColorStyle.mainColor),
+                            style: TextStyle(color: Colors.grey),
                           ),
                         ))),
                       ),
                     ),
-                    const VerticalDivider(
-                      color: ColorStyle.mainColor,
-                      thickness: 1,
+                    VerticalDivider(
+                      color: Colors.grey.withOpacity(0.5),
+                      thickness: 0.6,
                     ),
                     Expanded(
                       child: GestureDetector(
