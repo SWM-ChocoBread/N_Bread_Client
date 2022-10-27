@@ -70,7 +70,7 @@ class _EventListState extends State<EventList> {
                       if (type == "Detail") {
                         var temp = await loadContentByDealId(int.parse(target));
                         Get.to(() =>
-                            DetailContentView(data: temp, isFromHome: true));
+                            DetailContentView(data: temp, isFromHome: false));
                       } else if (type == "Intro") {
                         Get.to(() => ServiceInfo());
                       } else if (type == "LinkIn") {
