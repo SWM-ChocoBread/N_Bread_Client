@@ -1650,8 +1650,8 @@ class _DetailContentViewState extends State<DetailContentView> {
       splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
       elevation: 3,
       child: const FaIcon(
-        FontAwesomeIcons.message,
-        size: 20,
+        FontAwesomeIcons.commentDots,
+        size: 27,
       ),
     );
   }
