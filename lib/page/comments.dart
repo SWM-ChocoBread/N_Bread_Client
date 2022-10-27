@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:chocobread/page/colordeterminants/coloruserstatus.dart';
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/widgets/mychip.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
@@ -22,11 +25,13 @@ class DetailCommentsView extends StatefulWidget {
       required this.replyTo,
       required this.replyToId,
       required this.id,
+      required this.title,
       required this.currentUserId})
       : super(key: key);
   String replyTo;
   String replyToId;
   String id;
+  String title;
   String currentUserId;
 
   @override
@@ -56,34 +61,26 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     );
   }
 
-  Color _colorUserStatus(String userstatus) {
-    switch (userstatus) {
-      case "제안자":
-        return ColorStyle.seller;
-      // Colors.red; // 제안자의 색
-      case "참여자":
-        return ColorStyle.participant;
-      // Colors.blue; // 참여자의 색
-    }
-    return Colors.grey; // 지나가는 사람의 색
-  }
+  // Color _colorUserStatus(String userstatus) {
+  //   switch (userstatus) {
+  //     case "제안자":
+  //       return ColorStyle.seller;
+  //     // Colors.red; // 제안자의 색
+  //     case "참여자":
+  //       return ColorStyle.participant;
+  //     // Colors.blue; // 참여자의 색
+  //   }
+  //   return Colors.grey; // 지나가는 사람의 색
+  // }
 
   Widget _userStatusChip(String userstatus) {
     if (userstatus == "") {
       return const SizedBox.shrink();
     } else {
-      return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: _colorUserStatus(userstatus),
-          ),
-          // const Color.fromARGB(255, 137, 82, 205)),
-          child: Text(
-            userstatus,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-          ));
+      return MyChip(
+          color: colorUserStatusText(userstatus),
+          backgroundcolor: colorUserStatusBack(userstatus),
+          content: userstatus);
     }
   }
 
@@ -240,8 +237,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             children: [
                               Icon(
                                 Icons.circle,
-                                color: _colorUserStatus(widget.data[firstIndex]
-                                    ["User"]["userStatus"]),
+                                color: colorUserStatusBack(widget
+                                    .data[firstIndex]["User"]["userStatus"]),
                                 // size: 30,
                               ),
                               const SizedBox(
@@ -253,13 +250,13 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                     fontWeight: FontWeight.w500),
                               ),
                               const SizedBox(
-                                width: 5,
+                                width: 7,
                               ),
                               _userStatusChip(widget.data[firstIndex]["User"]
                                       ["userStatus"]
                                   .toString()),
                               const SizedBox(
-                                width: 5,
+                                width: 7,
                               ),
                               Text(
                                 MyDateUtils.dateTimeDifference(
@@ -381,7 +378,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                         children: [
                                           Icon(
                                             Icons.circle,
-                                            color: _colorUserStatus(
+                                            color: colorUserStatusBack(
                                                 widget.data[firstIndex]
                                                         ["Replies"][secondIndex]
                                                     ["User"]["userStatus"]),
@@ -396,7 +393,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           const SizedBox(
-                                            width: 5,
+                                            width: 7,
                                           ),
                                           _userStatusChip(widget
                                               .data[firstIndex]["Replies"]
@@ -404,7 +401,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                                   ["userStatus"]
                                               .toString()),
                                           const SizedBox(
-                                            width: 5,
+                                            width: 7,
                                           ),
                                           Text(
                                             MyDateUtils.dateTimeDifference(
@@ -710,9 +707,15 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
   //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
   Future createComment(String comment) async {
-    print("create Comment called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('userToken');
+    String? userToken = prefs.getString("userToken");
+    int userId = 0;
+    if (userToken != null) {
+      userId = Jwt.parseJwt(userToken)['id'];
+    }
+    await sendSlackMessage('[댓글 생성]',
+        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 댓글을 생성하였습니다.\n\n "${comment}"');
+    print("create Comment called");
 
     var jsonString = '{"content":""}';
     Map mapToSend = jsonDecode(jsonString);
@@ -738,9 +741,16 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   }
 
   Future createReply(String comment, String parId) async {
-    print("createReply called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('userToken');
+    String? userToken = prefs.getString("userToken");
+    int userId = 0;
+    if (userToken != null) {
+      userId = Jwt.parseJwt(userToken)['id'];
+    }
+    await sendSlackMessage('[대댓글 생성]',
+        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 대댓글을 생성하였습니다. \n\n "${comment}"');
+    print("createReply called");
+
     print("create Reply usertoken is ${userToken}");
 
     var jsonString = '{"content": "", "parentId": ""}';
@@ -762,4 +772,17 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
       print('failed to create comment');
     }
   }
+}
+
+Future<void> sendSlackMessage(String title, String text) async {
+  String url = 'https://www.chocobread.shop/slack/send';
+  var tmpurl = Uri.parse(url);
+  Map bodyToSend = {'title': title, 'text': text};
+  var body = json.encode(bodyToSend);
+  print("slack body ${body}");
+  var response = await http.post(tmpurl, body: bodyToSend);
+
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  print('slack send response : ${list}');
 }

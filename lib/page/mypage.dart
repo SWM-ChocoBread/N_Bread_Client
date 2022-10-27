@@ -514,7 +514,7 @@ class _MyPageState extends State<MyPage> {
                   Text(
                     dataOngoing[index]["title"].toString(),
                     style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w500),
+                        fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(
                     height: 5,

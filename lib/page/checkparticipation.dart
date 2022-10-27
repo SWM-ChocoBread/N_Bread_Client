@@ -7,6 +7,7 @@ import 'package:chocobread/page/repository/userInfo_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
@@ -161,23 +162,30 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
         TextButton(
           onPressed: () async {
             // 여기서  호출
+            final prefs = await SharedPreferences.getInstance();
+            String? userToken = prefs.getString("userToken");
+            int userId = 0;
+            if (userToken != null) {
+              userId = Jwt.parseJwt(userToken)['id'];
+            }
+            await sendSlackMessage('[거래 참여]',
+                '${widget.data['title']}(${widget.data['id']}번 거래글)에서 ${userId}번 유저가 참여하기 버튼을 눌렀습니다.');
             joinDeal();
             Navigator.push(context,
                 MaterialPageRoute(builder: (BuildContext context) {
-                  Airbridge.event.send(PurchaseEvent(
-              products: [
-                Product(
-                  id: widget.data["id"].toString(),
-                  name: widget.data["title"].toString(),
-                  price: widget.data["totalPrice"],
-                  currency: 'KRW',
-                  quantity: num.parse(widget.data['totalMember'].toString()),
-                ),
-              ],
-              isInAppPurchase: true,
-              currency: 'KRW',
-            ));
-            
+              Airbridge.event.send(PurchaseEvent(
+                products: [
+                  Product(
+                    id: widget.data["id"].toString(),
+                    name: widget.data["title"].toString(),
+                    price: widget.data["totalPrice"],
+                    currency: 'KRW',
+                    quantity: num.parse(widget.data['totalMember'].toString()),
+                  ),
+                ],
+                isInAppPurchase: true,
+                currency: 'KRW',
+              ));
 
               return ConfirmParticipation(
                 data: widget.data,
@@ -211,7 +219,8 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
           await http.post(url, headers: {"Authorization": userToken});
       String responseBody = utf8.decode(response.bodyBytes);
       Map<String, dynamic> list = jsonDecode(responseBody);
-      await faPurchase('KRW', widget.data["id"].toString(), widget.data["personalPrice"].toDouble());
+      await faPurchase('KRW', widget.data["id"].toString(),
+          widget.data["personalPrice"].toDouble());
       print(list);
       print("RESPONSE BODY");
       print(responseBody);
@@ -219,12 +228,23 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
   }
 }
 
-Future<void> faPurchase(String currency, String transactionId, double value) async {
+Future<void> faPurchase(
+    String currency, String transactionId, double value) async {
   // Create the instance
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   await FirebaseAnalytics.instance.logPurchase(
-    currency: currency,
-    transactionId: transactionId,
-    value : value
-  );
+      currency: currency, transactionId: transactionId, value: value);
+}
+
+Future<void> sendSlackMessage(String title, String text) async {
+  String url = 'https://www.chocobread.shop/slack/send';
+  var tmpurl = Uri.parse(url);
+  Map bodyToSend = {'title': title, 'text': text};
+  var body = json.encode(bodyToSend);
+  print("slack body ${body}");
+  var response = await http.post(tmpurl, body: bodyToSend);
+
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  print('slack send response : ${list}');
 }

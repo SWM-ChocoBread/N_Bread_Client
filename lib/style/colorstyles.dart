@@ -11,6 +11,8 @@ class ColorStyle {
   static const myGrey =
       Color.fromARGB(255, 240, 238, 242); // 0xfff5f3f6, 0xffe8e4ec
 
+  static const certificated = Color(0xffFF6464);
+
   static const myRed = Color(0xffE43D40); // 0xffFF8882
   static const myOrange = Color(0xffFFB067);
   static const myYellow = Color(0xffFDB750);

@@ -869,6 +869,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   replyToId:
                                       dataComments[firstIndex]["id"].toString(),
                                   id: widget.data["id"].toString(),
+                                  title: widget.data["title"].toString(),
                                   currentUserId: currentUserId,
                                 );
                               })).then((_) => setState(() {
@@ -1278,6 +1279,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (BuildContext context) {
                   return DetailCommentsView(
+                    title: widget.data['title'].toString(),
                     data: dataComments,
                     replyTo: "",
                     replyToId: "",
@@ -1635,6 +1637,36 @@ class _DetailContentViewState extends State<DetailContentView> {
     return _bottomNavigationBarWidgetForNormal();
   }
 
+  Widget _floatingActionButtonWidget() {
+    return FloatingActionButton(
+      onPressed: () async {
+        //카카오
+        final prefs = await SharedPreferences.getInstance();
+        String? userToken = prefs.getString("userToken");
+        int userId = 0;
+        if (userToken != null) {
+          userId = Jwt.parseJwt(userToken)['id'];
+        }
+        await sendSlackMessage('[판매자에게 문의]',
+            '${widget.data['title']}(${widget.data['id']}번 거래글)에서 ${userId}번 유저가 판매자에게 문의하기 버튼을 눌렀습니다.');
+        if (await canLaunchUrl(
+            Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
+          await launchUrl(Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
+              mode: LaunchMode.externalApplication);
+        } else {
+          throw 'Could not launch Kakao Openchatting';
+        }
+      },
+      backgroundColor: ColorStyle.mainColor, // floactingactionbutton의 색
+      splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
+      elevation: 3,
+      child: const FaIcon(
+        FontAwesomeIcons.commentDots,
+        size: 27,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print("***build***");
@@ -1643,6 +1675,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
+      floatingActionButton: _floatingActionButtonWidget(),
       bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
     );
   }
@@ -1806,6 +1839,19 @@ class _DetailContentViewState extends State<DetailContentView> {
       }
     }
     return 3;
+  }
+
+  Future<void> sendSlackMessage(String title, String text) async {
+    String url = 'https://www.chocobread.shop/slack/send';
+    var tmpurl = Uri.parse(url);
+    Map bodyToSend = {'title': title, 'text': text};
+    var body = json.encode(bodyToSend);
+    print("slack body ${body}");
+    var response = await http.post(tmpurl, body: bodyToSend);
+
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print('slack send response : ${list}');
   }
 
   Future<bool> checkLocationPermission() async {
