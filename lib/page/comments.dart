@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
@@ -721,7 +723,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
     if (userToken != null) {
       print("id is ${widget.id}");
-
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      int userId = payload['id'];
       String tmpUrl = 'https://www.chocobread.shop/comments/${widget.id}';
       var url = Uri.parse(tmpUrl);
       var response = await http.post(url,
@@ -729,9 +732,21 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      Airbridge.event.send(Event(
+        'Create Comment',
+        option: EventOption(
+          attributes: {
+            "userId" : userId,
+            "dealId" : widget.id.toString(),
+            "commentId" : list["result"]["id"].toString(),
+          },
+        ),
+      ));
       print("create comment functon's token is ${userToken}");
 
-      print("create comment functon's response is ${response.body}");
+      print("create comment functon's response is ${list}");
     } else {
       print('failed to create comment');
     }
@@ -750,6 +765,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
     if (userToken != null) {
       //아래 링크 2 대신에 게시글 번호 (dealId가져올 수 있어?)
+      Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+      int userId = payload['id'];
       String tmpUrl = 'https://www.chocobread.shop/comments/reply/${widget.id}';
       var url = Uri.parse(tmpUrl);
       var response = await http.post(url,
@@ -757,6 +774,18 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
             'Authorization': userToken,
           },
           body: mapToSend);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      Airbridge.event.send(Event(
+        'Create Reply',
+        option: EventOption(
+          attributes: {
+            "userId" : userId,
+            "dealId" : widget.id.toString(),
+            "replyId" : list["result"]["id"].toString(),
+          },
+        ),
+      ));
       print("response is ${response.body}");
     } else {
       print('failed to create comment');

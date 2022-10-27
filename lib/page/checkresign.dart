@@ -87,6 +87,15 @@ class _CheckResignState extends State<CheckResign> {
       // } else {
       //   print(list);
       // }
+      Airbridge.event.send(Event(
+        'User Resign',
+        option: EventOption(
+          attributes: {
+            "userId": payload['id'].toString(),
+            "provider": payload['provider'].toString(),
+          },
+        ),
+      ));
     }
   }
 }

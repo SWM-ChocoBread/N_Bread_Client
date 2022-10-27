@@ -263,6 +263,7 @@ class _HomeState extends State<Home> {
 
   PreferredSizeWidget _appbarWidget() {
     print("[home.dart] appbarWidget 빌드 시작");
+    Airbridge.event.send(ViewHomeEvent());
     return AppBar(
         title: GestureDetector(
           child: Row(
@@ -800,6 +801,7 @@ class _HomeState extends State<Home> {
   Widget _floatingActionButtonWidget() {
     return FloatingActionButton(
       onPressed: () {
+        abrDealCreateButton();
         if (isLocationCertification) {
           Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
@@ -808,6 +810,7 @@ class _HomeState extends State<Home> {
                 _bodyWidget();
               }));
         } else {
+          abrRegionCertificationRequest();
           showDialog(
               context: context,
               barrierDismissible: true,
@@ -850,12 +853,13 @@ class _HomeState extends State<Home> {
                                     await SharedPreferences.getInstance();
                                 switch (isCertification) {
                                   case 1:
+                                    
                                     setState(() {
                                       isLocationCertification = true;
                                     });
                                     prefs.setBool(
                                         "isLocationCertification", true);
-
+                                    abrRegionCertificationCompleted();
                                     Navigator.push(context, MaterialPageRoute(
                                         builder: (BuildContext context) {
                                       return CreateNew();
@@ -866,6 +870,7 @@ class _HomeState extends State<Home> {
                                         barrierDismissible: false,
                                         context: context,
                                         builder: (BuildContext context) {
+                                          abrRegionCertificationFailed();
                                           return AlertDialog(
                                             content: RichText(
                                               text: TextSpan(
@@ -1059,4 +1064,91 @@ Future<void> faSelectContent(
       currency: "KRW",
       value: value,
       items: [AnalyticsEventItem(itemId: itemId, itemName: itemName)]);
+}
+
+Future<void> abrDealCreateButton() async {
+  // Create the instance
+    final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Check participation");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Deal Create Clicked',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "provider": payload['provider'].toString(),
+        },
+      ),
+    ));
+  }
+}
+
+Future<void> abrRegionCertificationRequest() async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Check participation");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Region Certfication Request',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "provider" : payload['provider'].toString()
+        },
+      ),
+    ));
+  }
+}
+
+Future<void> abrRegionCertificationCompleted() async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Check participation");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Region Certfication Completed',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "realLoc": "${newloc2} ${newloc3}",
+          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+        },
+      ),
+    ));
+  }
+}
+
+
+Future<void> abrRegionCertificationFailed() async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Region Certification Failed");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Region Certfication Failed',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "realLoc": "${newloc2} ${newloc3}",
+          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+        },
+      ),
+    ));
+  }
 }
