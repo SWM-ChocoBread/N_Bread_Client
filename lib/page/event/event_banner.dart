@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/event/event_page.dart';
 import 'package:chocobread/page/webview/webviewin.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
@@ -67,6 +68,9 @@ class _EventBannerState extends State<EventBanner> {
             } else {
               throw '인 앱 웹뷰를 띄울 수 없습니다! : $target';
             }
+          } else if (map["type"] == "EventPage") {
+            // 이벤트 페이지로 이동
+            Get.to(() => const EventPage());
           } else {
             Get.to(const App());
           }
