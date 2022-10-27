@@ -1639,7 +1639,14 @@ class _DetailContentViewState extends State<DetailContentView> {
     return FloatingActionButton(
       onPressed: () async {
         //카카오
-        //sendSlackMessage('title', text)
+        final prefs = await SharedPreferences.getInstance();
+        String? userToken = prefs.getString("userToken");
+        int userId = 0;
+        if (userToken != null) {
+          userId = Jwt.parseJwt(userToken)['id'];
+        }
+        await sendSlackMessage('[판매자에게 문의하기 버튼]',
+            '${widget.data['id']}번 거래글(${widget.data['title']})에서 ${userId}번 유저가 판매자에게 문의하기 버튼을 눌렀습니다.');
         if (await canLaunchUrl(
             Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
           await launchUrl(Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
@@ -1837,7 +1844,8 @@ class _DetailContentViewState extends State<DetailContentView> {
     var tmpurl = Uri.parse(url);
     Map bodyToSend = {'title': title, 'text': text};
     var body = json.encode(bodyToSend);
-    var response = await http.post(tmpurl, body: body);
+    print("slack body ${body}");
+    var response = await http.post(tmpurl, body: bodyToSend);
 
     String responseBody = utf8.decode(response.bodyBytes);
     Map<String, dynamic> list = jsonDecode(responseBody);
