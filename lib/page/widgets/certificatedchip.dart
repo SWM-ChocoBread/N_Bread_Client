@@ -21,7 +21,7 @@ class _CertificatedChipState extends State<CertificatedChip> {
         FaIcon(
           FontAwesomeIcons.medal,
           size: 12,
-          color: Color(0xffFF6464),
+          color: ColorStyle.certificated,
         ),
         SizedBox(
           width: 5,
@@ -29,7 +29,7 @@ class _CertificatedChipState extends State<CertificatedChip> {
         Text(
           "인증",
           style: TextStyle(
-              color: Color(0xffFF6464),
+              color: ColorStyle.certificated,
               fontSize: 12,
               fontWeight: FontWeight.bold),
         ),
