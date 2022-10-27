@@ -78,20 +78,6 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           color: colorUserStatusText(userstatus),
           backgroundcolor: colorUserStatusBack(userstatus),
           content: userstatus);
-      // Container(
-      //     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      //     decoration: BoxDecoration(
-      //       borderRadius: BorderRadius.circular(20),
-      //       color: colorUserStatusBack(userstatus),
-      //     ),
-      //     // const Color.fromARGB(255, 137, 82, 205)),
-      //     child: Text(
-      //       userstatus,
-      //       style: TextStyle(
-      //           fontSize: 12,
-      //           fontWeight: FontWeight.w500,
-      //           color: colorUserStatusText(userstatus)),
-      //     ));
     }
   }
 
