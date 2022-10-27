@@ -34,28 +34,60 @@ class _EventPageState extends State<EventPage> {
 
   Widget _bodyWidget() {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: SingleChildScrollView(
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                      onPressed: () async {
-                        if (await canLaunchUrl(
-                            Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
-                          await launchUrl(
-                              Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
-                              mode: LaunchMode.externalApplication);
-                        } else {
-                          throw 'Could not launch Kakao Openchatting';
-                        }
-                      },
-                      child: const Text("이벤트 인증하기")),
-                ),
-              ],
-            )
+            Image.asset("assets/eventpageimages/starbucks_cardnews.png"),
+            const SizedBox(
+              height: 15,
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: OutlinedButton(
+            //             onPressed: () async {
+            //               if (await canLaunchUrl(Uri.parse(
+            //                   "http://pf.kakao.com/_xotxibxj/chat"))) {
+            //                 await launchUrl(
+            //                     Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
+            //                     mode: LaunchMode.externalApplication);
+            //               } else {
+            //                 throw 'Could not launch Kakao Openchatting';
+            //               }
+            //             },
+            //             child: const Text("이벤트 인증하기")),
+            //       ),
+            //     ],
+            //   ),
+            // )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bottomNavigationBarWidget() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                  onPressed: () async {
+                    if (await canLaunchUrl(
+                        Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
+                      await launchUrl(
+                          Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
+                          mode: LaunchMode.externalApplication);
+                    } else {
+                      throw 'Could not launch Kakao Openchatting';
+                    }
+                  },
+                  child: const Text("이벤트 인증하기")),
+            ),
           ],
         ),
       ),
@@ -67,6 +99,7 @@ class _EventPageState extends State<EventPage> {
     return Scaffold(
       appBar: _appBarWidget(),
       body: _bodyWidget(),
+      bottomNavigationBar: _bottomNavigationBarWidget(),
     );
   }
 }

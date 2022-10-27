@@ -249,8 +249,8 @@ class _DetailContentViewState extends State<DetailContentView> {
                     'Kakao Share',
                     option: EventOption(
                       attributes: {
-                        "userId" : currentUserId,
-                        "dealId" : widget.data["id"].toString(),
+                        "userId": currentUserId,
+                        "dealId": widget.data["id"].toString(),
                       },
                     ),
                   ));
@@ -1355,7 +1355,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 barrierDismissible: true,
                 builder: (context) {
                   return StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
+                      builder: (BuildContext context, StateSetter setState) {
                     return AlertDialog(
                       content: Text("지역 인증이 필요한 서비스입니다!"),
                       actions: [
@@ -1661,8 +1661,8 @@ class _DetailContentViewState extends State<DetailContentView> {
         await sendSlackMessage('[판매자에게 문의]',
             '${widget.data['title']}(${widget.data['id']}번 거래글)에서 ${userId}번 유저가 판매자에게 문의하기 버튼을 눌렀습니다.');
         if (await canLaunchUrl(
-            Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
-          await launchUrl(Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
+            Uri.parse("https://open.kakao.com/o/svYIWoKe"))) {
+          await launchUrl(Uri.parse("https://open.kakao.com/o/svYIWoKe"),
               mode: LaunchMode.externalApplication);
         } else {
           throw 'Could not launch Kakao Openchatting';
@@ -1962,14 +1962,12 @@ class _DetailContentViewState extends State<DetailContentView> {
   );
 }
 
-
 Future<void> abrCheckParticipation(String dealId) async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Check participation");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -1978,8 +1976,8 @@ Future<void> abrCheckParticipation(String dealId) async {
         attributes: {
           "userId": payload['id'].toString(),
           "provider": payload['provider'].toString(),
-          "dealId" : dealId,
-          "title" : title
+          "dealId": dealId,
+          "title": title
         },
       ),
     ));
@@ -1988,11 +1986,10 @@ Future<void> abrCheckParticipation(String dealId) async {
 
 Future<void> abrRegionCertificationRequest() async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Check participation");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -2000,7 +1997,7 @@ Future<void> abrRegionCertificationRequest() async {
       option: EventOption(
         attributes: {
           "userId": payload['id'].toString(),
-          "provider" : payload['provider'].toString()
+          "provider": payload['provider'].toString()
         },
       ),
     ));
@@ -2009,11 +2006,10 @@ Future<void> abrRegionCertificationRequest() async {
 
 Future<void> abrRegionCertificationCompleted() async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Check participation");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -2022,21 +2018,20 @@ Future<void> abrRegionCertificationCompleted() async {
         attributes: {
           "userId": payload['id'].toString(),
           "realLoc": "${newloc2} ${newloc3}",
-          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+          "requestLoc3":
+              "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
         },
       ),
     ));
   }
 }
 
-
 Future<void> abrRegionCertificationFailed() async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Region Certification Failed");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -2045,7 +2040,8 @@ Future<void> abrRegionCertificationFailed() async {
         attributes: {
           "userId": payload['id'].toString(),
           "realLoc": "${newloc2} ${newloc3}",
-          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+          "requestLoc3":
+              "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
         },
       ),
     ));

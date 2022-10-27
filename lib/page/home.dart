@@ -321,24 +321,6 @@ class _HomeState extends State<Home> {
         );
   }
 
-  Color _colorStatus(String status) {
-    switch (status) {
-      case "모집중": // 모집중인 경우의 색
-        return ColorStyle.ongoing;
-      // Colors.green;
-      case "모집완료": // 모집완료인 경우의 색
-        return ColorStyle.recruitcomplete;
-      // Colors.brown;
-      case "거래완료": // 거래완료인 경우의 색
-        return ColorStyle.dealcomplete;
-      // Colors.grey;
-      case "모집실패": // 모집실패인 경우의 색
-        return ColorStyle.fail;
-      // Colors.orange;
-    }
-    return const Color(0xffF6BD60);
-  }
-
   Widget _imageHolder(Map productContents) {
     if (productContents["DealImages"].length == 0) {
       // 이미지가 없는 경우, 빈 회색 화면에 물음표 넣기
@@ -488,7 +470,7 @@ class _HomeState extends State<Home> {
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-          color: _colorStatus(productContents["status"].toString())),
+          color: colorStatusBack(productContents["status"].toString())),
       child: _currentTotal(productContents),
     );
   }
@@ -871,7 +853,6 @@ class _HomeState extends State<Home> {
                                     await SharedPreferences.getInstance();
                                 switch (isCertification) {
                                   case 1:
-                                    
                                     setState(() {
                                       isLocationCertification = true;
                                     });
@@ -1086,11 +1067,10 @@ Future<void> faSelectContent(
 
 Future<void> abrDealCreateButton() async {
   // Create the instance
-    final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Check participation");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -1107,11 +1087,10 @@ Future<void> abrDealCreateButton() async {
 
 Future<void> abrRegionCertificationRequest() async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Check participation");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -1119,7 +1098,7 @@ Future<void> abrRegionCertificationRequest() async {
       option: EventOption(
         attributes: {
           "userId": payload['id'].toString(),
-          "provider" : payload['provider'].toString()
+          "provider": payload['provider'].toString()
         },
       ),
     ));
@@ -1128,11 +1107,10 @@ Future<void> abrRegionCertificationRequest() async {
 
 Future<void> abrRegionCertificationCompleted() async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Check participation");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -1141,21 +1119,20 @@ Future<void> abrRegionCertificationCompleted() async {
         attributes: {
           "userId": payload['id'].toString(),
           "realLoc": "${newloc2} ${newloc3}",
-          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+          "requestLoc3":
+              "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
         },
       ),
     ));
   }
 }
 
-
 Future<void> abrRegionCertificationFailed() async {
   // Create the instance
-  final SharedPreferences prefs =
-  await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("userToken");
   print("participation token ${token}");
-  if(token != null) {
+  if (token != null) {
     print("Region Certification Failed");
     Map<String, dynamic> payload = Jwt.parseJwt(token);
     Airbridge.event.send(Event(
@@ -1164,7 +1141,8 @@ Future<void> abrRegionCertificationFailed() async {
         attributes: {
           "userId": payload['id'].toString(),
           "realLoc": "${newloc2} ${newloc3}",
-          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+          "requestLoc3":
+              "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
         },
       ),
     ));

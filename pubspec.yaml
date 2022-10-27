@@ -110,6 +110,7 @@ flutter:
   assets:
     - assets/svg/
     - assets/images/
+    - assets/eventpageimages/
     - assets/banners/
     - assets/popups/
     - assets/logo/
