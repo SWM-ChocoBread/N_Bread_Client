@@ -46,21 +46,20 @@ class _EventBannerState extends State<EventBanner> {
     // 이벤트 배너 이미지가 있는 경우 : 이미지 배너를 보여준다.
     return eventBannerImages.map((map) {
       print("map[eventImage] : ${map["eventImage"]}");
-      type = map["type"];
-      target = map["target"];
       return GestureDetector(
         child: ExtendedImage.network(map["eventImage"]),
         onTap: () async {
-          print("click된 배너의 type : ${type}");
-          if (map["type"] == "Detail") {
+          type = map["type"];
+          target = map["target"];
+          if (type == "Detail") {
             var temp = await loadContentByDealId(int.parse(target));
             Get.to(() => DetailContentView(data: temp, isFromHome: true));
-          } else if (map["type"] == "Intro") {
+          } else if (type == "Intro") {
             Get.to(() => ServiceInfo());
-          } else if (map["type"] == "LinkIn") {
+          } else if (type == "LinkIn") {
             // 인 앱 웹뷰를 띄우고 싶은 경우
             Get.to(() => WebViewIn(mylink: target));
-          } else if (map["type"] == "LinkOut") {
+          } else if (type == "LinkOut") {
             // 외부 브라우저로 띄우고 싶은 경우
             if (await canLaunchUrl(Uri.parse(target))) {
               await launchUrl(Uri.parse(target),

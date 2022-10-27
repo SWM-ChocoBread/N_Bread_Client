@@ -1635,6 +1635,27 @@ class _DetailContentViewState extends State<DetailContentView> {
     return _bottomNavigationBarWidgetForNormal();
   }
 
+  Widget _floatingActionButtonWidget() {
+    return FloatingActionButton(
+      onPressed: () async {
+        if (await canLaunchUrl(
+            Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
+          await launchUrl(Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
+              mode: LaunchMode.externalApplication);
+        } else {
+          throw 'Could not launch Kakao Openchatting';
+        }
+      },
+      backgroundColor: ColorStyle.mainColor, // floactingactionbutton의 색
+      splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
+      elevation: 3,
+      child: const FaIcon(
+        FontAwesomeIcons.message,
+        size: 20,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print("***build***");
@@ -1643,6 +1664,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       extendBodyBehindAppBar: true, // 앱 바 위에까지 침범 허용
       appBar: _appbarWidget(),
       body: _bodyWidget(),
+      floatingActionButton: _floatingActionButtonWidget(),
       bottomNavigationBar: _bottomNavigationBarWidgetSelector(),
     );
   }
