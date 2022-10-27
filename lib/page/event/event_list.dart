@@ -11,6 +11,7 @@ import '../repository/content_repository.dart';
 import '../repository/event_banner_repository.dart';
 import '../serviceinfo.dart';
 import '../webview/webviewin.dart';
+import 'event_page.dart';
 
 class EventList extends StatefulWidget {
   const EventList({super.key});
@@ -84,6 +85,9 @@ class _EventListState extends State<EventList> {
                         } else {
                           throw '인 앱 웹뷰를 띄울 수 없습니다! : $target';
                         }
+                      } else if (type == "EventPage") {
+                        // 이벤트 페이지로 이동
+                        Get.to(() => const EventPage());
                       } else {
                         Get.to(const App());
                       }
