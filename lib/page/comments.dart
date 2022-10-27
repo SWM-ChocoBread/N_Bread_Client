@@ -714,7 +714,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
       userId = Jwt.parseJwt(userToken)['id'];
     }
     await sendSlackMessage('[댓글 생성]',
-        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 댓글을 생성하였습니다.');
+        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 댓글을 생성하였습니다.\n\n "${comment}"');
     print("create Comment called");
 
     var jsonString = '{"content":""}';
@@ -748,7 +748,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
       userId = Jwt.parseJwt(userToken)['id'];
     }
     await sendSlackMessage('[대댓글 생성]',
-        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 대댓글을 생성하였습니다.');
+        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 대댓글을 생성하였습니다. \n\n "${comment}"');
     print("createReply called");
 
     print("create Reply usertoken is ${userToken}");
