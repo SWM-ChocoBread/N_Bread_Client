@@ -245,6 +245,15 @@ class _DetailContentViewState extends State<DetailContentView> {
                     indicatorForShare = true;
                   });
                   await _getDynamicLink();
+                  Airbridge.event.send(Event(
+                    'Kakao Share',
+                    option: EventOption(
+                      attributes: {
+                        "userId" : currentUserId,
+                        "dealId" : widget.data["id"].toString(),
+                      },
+                    ),
+                  ));
                   print("공유하기버튼이 눌렸습니다. getdynamic link도 실행되었습니다.");
                   print('linkWithDataId is ${linkWithDataId}');
                   bool result =
@@ -1330,6 +1339,7 @@ class _DetailContentViewState extends State<DetailContentView> {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: OutlinedButton(
         onPressed: () {
+          abrCheckParticipation(widget.data["id"].toString());
           if (isLocationCertification) {
             showDialog(
                 context: context,
@@ -1339,12 +1349,13 @@ class _DetailContentViewState extends State<DetailContentView> {
                   );
                 });
           } else {
+            abrRegionCertificationRequest();
             showDialog(
                 context: context,
                 barrierDismissible: true,
                 builder: (context) {
                   return StatefulBuilder(
-                      builder: (BuildContext context, StateSetter setState) {
+                    builder: (BuildContext context, StateSetter setState) {
                     return AlertDialog(
                       content: Text("지역 인증이 필요한 서비스입니다!"),
                       actions: [
@@ -1358,7 +1369,6 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   });
                                   print(
                                       "showIndicator ${showIndicator} changed");
-
                                   int isCertification =
                                       await getCurrentPosition();
                                   setState(() {
@@ -1375,7 +1385,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                       });
                                       prefs.setBool(
                                           "isLocationCertification", true);
-
+                                      abrRegionCertificationCompleted();
                                       showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
@@ -1389,6 +1399,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                           barrierDismissible: false,
                                           context: context,
                                           builder: (BuildContext context) {
+                                            abrRegionCertificationFailed();
                                             return AlertDialog(
                                               content: RichText(
                                                 text: TextSpan(
@@ -1949,4 +1960,94 @@ class _DetailContentViewState extends State<DetailContentView> {
       Radius.circular(5),
     )),
   );
+}
+
+
+Future<void> abrCheckParticipation(String dealId) async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Check participation");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Check Participation',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "provider": payload['provider'].toString(),
+          "dealId" : dealId,
+          "title" : title
+        },
+      ),
+    ));
+  }
+}
+
+Future<void> abrRegionCertificationRequest() async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Check participation");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Region Certfication Request',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "provider" : payload['provider'].toString()
+        },
+      ),
+    ));
+  }
+}
+
+Future<void> abrRegionCertificationCompleted() async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Check participation");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Region Certfication Completed',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "realLoc": "${newloc2} ${newloc3}",
+          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+        },
+      ),
+    ));
+  }
+}
+
+
+Future<void> abrRegionCertificationFailed() async {
+  // Create the instance
+  final SharedPreferences prefs =
+  await SharedPreferences.getInstance();
+  String? token = prefs.getString("userToken");
+  print("participation token ${token}");
+  if(token != null) {
+    print("Region Certification Failed");
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    Airbridge.event.send(Event(
+      'Region Certfication Failed',
+      option: EventOption(
+        attributes: {
+          "userId": payload['id'].toString(),
+          "realLoc": "${newloc2} ${newloc3}",
+          "requestLoc3": "${prefs.getString("loc2")} ${prefs.getString("loc3")}",
+        },
+      ),
+    ));
+  }
 }

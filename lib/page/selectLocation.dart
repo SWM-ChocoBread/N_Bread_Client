@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
 import 'package:http/http.dart' as http;
 import 'package:chocobread/page/app.dart';
@@ -268,6 +269,20 @@ class SelectLocation extends State<LocationPage> {
 
                                       if (widget.isComeFromNick) {
                                         prefs.setBool("showEventPopUp", true);
+                                        String? userToken = prefs.getString('userToken');
+                                        if (userToken != null) {
+                                          Map<String, dynamic> payload = Jwt.parseJwt(userToken);
+                                          String userId = payload['id'].toString();
+                                          Airbridge.event.send(Event(
+                                            'Start Onboarding',
+                                            option: EventOption(
+                                              attributes: {
+                                                "userId": payload['id'].toString(),
+                                                "provider": payload['provider'].toString(),
+                                              },
+                                            ),
+                                          ));
+                                        }
                                         Navigator.pushAndRemoveUntil(
                                             context,
                                             MaterialPageRoute(
