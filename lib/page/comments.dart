@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:chocobread/page/colordeterminants/coloruserstatus.dart';
 import 'package:chocobread/page/detail.dart';
+import 'package:chocobread/page/widgets/mychip.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
@@ -56,34 +58,40 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
     );
   }
 
-  Color _colorUserStatus(String userstatus) {
-    switch (userstatus) {
-      case "제안자":
-        return ColorStyle.seller;
-      // Colors.red; // 제안자의 색
-      case "참여자":
-        return ColorStyle.participant;
-      // Colors.blue; // 참여자의 색
-    }
-    return Colors.grey; // 지나가는 사람의 색
-  }
+  // Color _colorUserStatus(String userstatus) {
+  //   switch (userstatus) {
+  //     case "제안자":
+  //       return ColorStyle.seller;
+  //     // Colors.red; // 제안자의 색
+  //     case "참여자":
+  //       return ColorStyle.participant;
+  //     // Colors.blue; // 참여자의 색
+  //   }
+  //   return Colors.grey; // 지나가는 사람의 색
+  // }
 
   Widget _userStatusChip(String userstatus) {
     if (userstatus == "") {
       return const SizedBox.shrink();
     } else {
-      return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: _colorUserStatus(userstatus),
-          ),
-          // const Color.fromARGB(255, 137, 82, 205)),
-          child: Text(
-            userstatus,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-          ));
+      return MyChip(
+          color: colorUserStatusText(userstatus),
+          backgroundcolor: colorUserStatusBack(userstatus),
+          content: userstatus);
+      // Container(
+      //     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      //     decoration: BoxDecoration(
+      //       borderRadius: BorderRadius.circular(20),
+      //       color: colorUserStatusBack(userstatus),
+      //     ),
+      //     // const Color.fromARGB(255, 137, 82, 205)),
+      //     child: Text(
+      //       userstatus,
+      //       style: TextStyle(
+      //           fontSize: 12,
+      //           fontWeight: FontWeight.w500,
+      //           color: colorUserStatusText(userstatus)),
+      //     ));
     }
   }
 
@@ -240,8 +248,8 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                             children: [
                               Icon(
                                 Icons.circle,
-                                color: _colorUserStatus(widget.data[firstIndex]
-                                    ["User"]["userStatus"]),
+                                color: colorUserStatusBack(widget
+                                    .data[firstIndex]["User"]["userStatus"]),
                                 // size: 30,
                               ),
                               const SizedBox(
@@ -253,13 +261,13 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                     fontWeight: FontWeight.w500),
                               ),
                               const SizedBox(
-                                width: 5,
+                                width: 7,
                               ),
                               _userStatusChip(widget.data[firstIndex]["User"]
                                       ["userStatus"]
                                   .toString()),
                               const SizedBox(
-                                width: 5,
+                                width: 7,
                               ),
                               Text(
                                 MyDateUtils.dateTimeDifference(
@@ -381,7 +389,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                         children: [
                                           Icon(
                                             Icons.circle,
-                                            color: _colorUserStatus(
+                                            color: colorUserStatusBack(
                                                 widget.data[firstIndex]
                                                         ["Replies"][secondIndex]
                                                     ["User"]["userStatus"]),
@@ -396,7 +404,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           const SizedBox(
-                                            width: 5,
+                                            width: 7,
                                           ),
                                           _userStatusChip(widget
                                               .data[firstIndex]["Replies"]
@@ -404,7 +412,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                                                   ["userStatus"]
                                               .toString()),
                                           const SizedBox(
-                                            width: 5,
+                                            width: 7,
                                           ),
                                           Text(
                                             MyDateUtils.dateTimeDifference(
