@@ -1638,6 +1638,8 @@ class _DetailContentViewState extends State<DetailContentView> {
   Widget _floatingActionButtonWidget() {
     return FloatingActionButton(
       onPressed: () async {
+        //카카오
+        //sendSlackMessage('title', text)
         if (await canLaunchUrl(
             Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
           await launchUrl(Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
@@ -1828,6 +1830,18 @@ class _DetailContentViewState extends State<DetailContentView> {
       }
     }
     return 3;
+  }
+
+  Future<void> sendSlackMessage(String title, String text) async {
+    String url = 'https://www.chocobread.shop/slack/send';
+    var tmpurl = Uri.parse(url);
+    Map bodyToSend = {'title': title, 'text': text};
+    var body = json.encode(bodyToSend);
+    var response = await http.post(tmpurl, body: body);
+
+    String responseBody = utf8.decode(response.bodyBytes);
+    Map<String, dynamic> list = jsonDecode(responseBody);
+    print('slack send response : ${list}');
   }
 
   Future<bool> checkLocationPermission() async {
