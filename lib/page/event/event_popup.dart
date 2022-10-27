@@ -9,6 +9,7 @@ import '../app.dart';
 import '../repository/content_repository.dart';
 import '../serviceinfo.dart';
 import '../webview/webviewin.dart';
+import 'event_page.dart';
 
 class EventPopUp extends StatefulWidget {
   ExtendedImage eventPopUpImage;
@@ -56,6 +57,9 @@ class _EventPopUpState extends State<EventPopUp> {
               } else {
                 throw '인 앱 웹뷰를 띄울 수 없습니다! : ${widget.target}';
               }
+            } else if (widget.type == "EventPage") {
+              // 이벤트 페이지로 이동
+              Get.to(() => const EventPage());
             } else {
               Get.to(const App());
             }
