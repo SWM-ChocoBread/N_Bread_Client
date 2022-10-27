@@ -8,6 +8,7 @@ import 'package:chocobread/page/widgets/mychip.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:chocobread/utils/datetime_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../constants/sizes_helper.dart';
@@ -24,11 +25,13 @@ class DetailCommentsView extends StatefulWidget {
       required this.replyTo,
       required this.replyToId,
       required this.id,
+      required this.title,
       required this.currentUserId})
       : super(key: key);
   String replyTo;
   String replyToId;
   String id;
+  String title;
   String currentUserId;
 
   @override
@@ -704,9 +707,15 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
 
   //댓글을 썼을 때 현재 게시글의 id를 받아오는 방법 + 알 수 없는 인덱스 오류, 현재 글의 83번째 줄에서 에러 발생
   Future createComment(String comment) async {
-    print("create Comment called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('userToken');
+    String? userToken = prefs.getString("userToken");
+    int userId = 0;
+    if (userToken != null) {
+      userId = Jwt.parseJwt(userToken)['id'];
+    }
+    await sendSlackMessage('[댓글 생성]',
+        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 댓글을 생성하였습니다.');
+    print("create Comment called");
 
     var jsonString = '{"content":""}';
     Map mapToSend = jsonDecode(jsonString);
@@ -732,9 +741,16 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   }
 
   Future createReply(String comment, String parId) async {
-    print("createReply called");
     final prefs = await SharedPreferences.getInstance();
-    String? userToken = prefs.getString('userToken');
+    String? userToken = prefs.getString("userToken");
+    int userId = 0;
+    if (userToken != null) {
+      userId = Jwt.parseJwt(userToken)['id'];
+    }
+    await sendSlackMessage('[대댓글 생성]',
+        '${userId}번 유저가 ${widget.title}(${widget.id}번) 거래에 대댓글을 생성하였습니다.');
+    print("createReply called");
+
     print("create Reply usertoken is ${userToken}");
 
     var jsonString = '{"content": "", "parentId": ""}';
@@ -756,4 +772,17 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
       print('failed to create comment');
     }
   }
+}
+
+Future<void> sendSlackMessage(String title, String text) async {
+  String url = 'https://www.chocobread.shop/slack/send';
+  var tmpurl = Uri.parse(url);
+  Map bodyToSend = {'title': title, 'text': text};
+  var body = json.encode(bodyToSend);
+  print("slack body ${body}");
+  var response = await http.post(tmpurl, body: bodyToSend);
+
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  print('slack send response : ${list}');
 }

@@ -869,6 +869,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                                   replyToId:
                                       dataComments[firstIndex]["id"].toString(),
                                   id: widget.data["id"].toString(),
+                                  title: widget.data["title"].toString(),
                                   currentUserId: currentUserId,
                                 );
                               })).then((_) => setState(() {
@@ -1278,6 +1279,7 @@ class _DetailContentViewState extends State<DetailContentView> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (BuildContext context) {
                   return DetailCommentsView(
+                    title: widget.data['title'].toString(),
                     data: dataComments,
                     replyTo: "",
                     replyToId: "",
@@ -1645,7 +1647,7 @@ class _DetailContentViewState extends State<DetailContentView> {
         if (userToken != null) {
           userId = Jwt.parseJwt(userToken)['id'];
         }
-        await sendSlackMessage('[판매자에게 문의하기 버튼]',
+        await sendSlackMessage('[판매자에게 문의]',
             '${widget.data['title']}(${widget.data['id']}번 거래글)에서 ${userId}번 유저가 판매자에게 문의하기 버튼을 눌렀습니다.');
         if (await canLaunchUrl(
             Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {

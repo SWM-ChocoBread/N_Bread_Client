@@ -168,7 +168,7 @@ class _CheckParticipationTestState extends State<CheckParticipation> {
             if (userToken != null) {
               userId = Jwt.parseJwt(userToken)['id'];
             }
-            await sendSlackMessage('[거래 참여',
+            await sendSlackMessage('[거래 참여]',
                 '${widget.data['title']}(${widget.data['id']}번 거래글)에서 ${userId}번 유저가 참여하기 버튼을 눌렀습니다.');
             joinDeal();
             Navigator.push(context,
