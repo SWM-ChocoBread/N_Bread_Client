@@ -5,14 +5,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../style/colorstyles.dart';
 
-class CertifiedChip extends StatefulWidget {
-  const CertifiedChip({super.key});
+class CertificatedChip extends StatefulWidget {
+  const CertificatedChip({super.key});
 
   @override
-  State<CertifiedChip> createState() => _CertifiedChipState();
+  State<CertificatedChip> createState() => _CertificatedChipState();
 }
 
-class _CertifiedChipState extends State<CertifiedChip> {
+class _CertificatedChipState extends State<CertificatedChip> {
   @override
   Widget build(BuildContext context) {
     return Row(
