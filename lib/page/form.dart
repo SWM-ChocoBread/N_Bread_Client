@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/datetime_utils.dart';
@@ -1144,6 +1145,13 @@ Future getApiTest(Map jsonbody, FormData formData) async {
       "content": dealCreateResponseResult['content'].toString(),
     });
 
+    int userId = 0;
+    if (userToken != null) {
+      userId = Jwt.parseJwt(userToken)['id'];
+    }
+    await sendSlackMessage('[거래 생성]',
+        '${userId}번 유저가 ${dealCreateResponseResult['title']}(${dealCreateResponseResult['id']}번) 거래를 생성하였습니다.');
+
     Airbridge.event.send(Event(
       'Deal Create',
       option: EventOption(
@@ -1164,4 +1172,17 @@ Future getApiTest(Map jsonbody, FormData formData) async {
   } else {
     print("오류발생");
   }
+}
+
+Future<void> sendSlackMessage(String title, String text) async {
+  String url = 'https://www.chocobread.shop/slack/send';
+  var tmpurl = Uri.parse(url);
+  Map bodyToSend = {'title': title, 'text': text};
+  var body = json.encode(bodyToSend);
+  print("slack body ${body}");
+  var response = await http.post(tmpurl, body: bodyToSend);
+
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  print('slack send response : ${list}');
 }

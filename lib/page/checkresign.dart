@@ -34,6 +34,7 @@ class _CheckResignState extends State<CheckResign> {
               // Navigator.of(context).popUntil((_) => count++ >= 2);
               Airbridge.event.send(SignOutEvent());
               await resign();
+
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (BuildContext context) => Login()),
@@ -48,6 +49,15 @@ class _CheckResignState extends State<CheckResign> {
   Future<void> resign() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
+    String provider = 'default provider';
+
+    int userId = 0;
+    if (token != null) {
+      userId = Jwt.parseJwt(token)['id'];
+      provider = Jwt.parseJwt(token)['provider'];
+    }
+
+    await sendSlackMessage('[회원 탈퇴]', '[${provider}] ${userId}번 유저가 탈퇴하였습니다.');
 
     if (token != null) {
       Map<String, dynamic> payload = Jwt.parseJwt(token);
@@ -98,4 +108,17 @@ class _CheckResignState extends State<CheckResign> {
       ));
     }
   }
+}
+
+Future<void> sendSlackMessage(String title, String text) async {
+  String url = 'https://www.chocobread.shop/slack/send';
+  var tmpurl = Uri.parse(url);
+  Map bodyToSend = {'title': title, 'text': text};
+  var body = json.encode(bodyToSend);
+  print("slack body ${body}");
+  var response = await http.post(tmpurl, body: bodyToSend);
+
+  String responseBody = utf8.decode(response.bodyBytes);
+  Map<String, dynamic> list = jsonDecode(responseBody);
+  print('slack send response : ${list}');
 }
