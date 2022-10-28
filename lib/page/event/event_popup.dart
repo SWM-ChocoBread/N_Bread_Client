@@ -80,7 +80,10 @@ class _EventPopUpState extends State<EventPopUp> {
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10)),
                       child: widget.eventPopUpImage)),
-              IntrinsicHeight(
+              SizedBox(
+                // 플레이스토어에서 다운로드 받은 경우 : 버튼의 높이가 길어지는 문제를 해결하기 위해 높이를 제한함
+                height: 40,
+                // IntrinsicHeight(
                 // vertical divider 를 추가하기 위해 필요
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
