@@ -8,6 +8,8 @@ import '../utils/price_utils.dart';
 import 'app.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 
+import 'colordeterminants/colorstatusdone.dart';
+
 class ConfirmParticipation extends StatefulWidget {
   Map<String, dynamic> data;
   ConfirmParticipation({Key? key, required this.data}) : super(key: key);
@@ -24,20 +26,6 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
       backgroundColor: Colors.transparent,
       automaticallyImplyLeading: false,
     );
-  }
-
-  Color _colorStatusDone(String currentMember, String totalMember) {
-    if ((int.parse(currentMember) + 1) < int.parse(totalMember)) {
-      // 모집중인 경우의 색
-      return ColorStyle.ongoing;
-      // Colors.green;
-    } else if ((int.parse(currentMember) + 1) == int.parse(totalMember)) {
-      // 모집완료인 경우의 색
-      return ColorStyle.recruitcomplete;
-      // Colors.brown;
-    } else {
-      return ColorStyle.mainColor;
-    }
   }
 
   String _resultStatus(String currentMember, String totalMember) {
@@ -77,8 +65,8 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
               // 사진 확대되는 애니메이션
               tag: productContents["cid"].toString(),
               child: ExtendedImage.network(
-                cache:true,
-                enableLoadState:true,
+                cache: true,
+                enableLoadState: true,
                 productContents["DealImages"][0]["dealImage"].toString(),
                 width: 110,
                 height: 110,
@@ -96,16 +84,17 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
-          color: _colorStatusDone(widget.data["currentMember"].toString(),
-              widget.data["totalMember"].toString())
-          // const Color.fromARGB(255, 137, 82, 205)
-          ),
+          color: colorStatusDoneBack(widget.data["currentMember"].toString(),
+              widget.data["totalMember"].toString())),
       child: Text(
         _resultStatus(widget.data["currentMember"].toString(),
             widget.data["totalMember"].toString()),
         // '${widget.data["status"]}',
-        style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: colorStatusDoneText(widget.data["currentMember"].toString(),
+                widget.data["totalMember"].toString())),
       ),
     );
   }
@@ -139,35 +128,6 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     // Expanded(
-                          //     //   child: Text(
-                          //     //       '${widget.data["current"]}/${widget.data["total"]}'),
-                          //     // ),
-                          //     Container(
-                          //       padding: const EdgeInsets.symmetric(
-                          //           horizontal: 7, vertical: 3),
-                          //       decoration: BoxDecoration(
-                          //           borderRadius: BorderRadius.circular(10),
-                          //           color: _colorStatusDone(
-                          //               widget.data["currentMember"],
-                          //               widget.data["totalMember"])
-                          //           // const Color.fromARGB(255, 137, 82, 205)
-                          //           ),
-                          //       child: Text(
-                          //         _resultStatus(widget.data["currentMember"],
-                          //             widget.data["totalMember"]),
-                          //         // '${widget.data["status"]}',
-                          //         style: const TextStyle(
-                          //             fontSize: 12,
-                          //             fontWeight: FontWeight.w500,
-                          //             color: Colors.white),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
                           const SizedBox(height: 7),
                           Text(
                             widget.data["title"].toString(),
@@ -202,36 +162,6 @@ class _ConfirmParticipationState extends State<ConfirmParticipation> {
                                 ),
                               ]),
                           const SizedBox(height: 5),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     // Expanded(
-                          //     //   child: Text(
-                          //     //       '${widget.data["current"]}/${widget.data["total"]}'),
-                          //     // ),
-                          //     Container(
-                          //       padding: const EdgeInsets.symmetric(
-                          //           horizontal: 7, vertical: 3),
-                          //       decoration: BoxDecoration(
-                          //           borderRadius: BorderRadius.circular(10),
-                          //           color: _colorStatusDone(
-                          //               widget.data["currentMember"],
-                          //               widget.data["totalMember"])
-                          //           // const Color.fromARGB(255, 137, 82, 205)
-                          //           ),
-                          //       child: Text(
-                          //         _resultStatus(widget.data["currentMember"],
-                          //             widget.data["totalMember"]),
-                          //         // '${widget.data["status"]}',
-                          //         style: const TextStyle(
-                          //             fontSize: 12,
-                          //             fontWeight: FontWeight.w500,
-                          //             color: Colors.white),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 5),
                           Row(
                             children: [
                               const Padding(

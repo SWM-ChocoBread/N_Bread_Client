@@ -25,7 +25,7 @@ class ColorStyle {
   static const ongoingText = Color(0xff703ACF);
 
   // 모집완료 배경색 : 0xff2D1674(dark-purple), 0xffA98AB0(light-purple)
-  static const recruitcomplete = Color(0xff2D1674);
+  static const recruitcomplete = Color(0xffcfbfff);
   // 모집완료 텍스트 색
   static const recruitcompleteText = Color(0xff2D1674);
 
