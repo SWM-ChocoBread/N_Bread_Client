@@ -8,7 +8,7 @@ colorStatusBack(String status) {
     case "모집중":
       return ColorStyle.ongoing; // 모집중인 경우의 색
     case "모집완료":
-      return Color.fromARGB(255, 207, 191, 255); // 모집완료인 경우의 색
+      return ColorStyle.recruitcomplete; // 모집완료인 경우의 색
     case "거래완료": // 거래완료인 경우의 색
       return ColorStyle.dealcomplete;
     case "모집실패":
