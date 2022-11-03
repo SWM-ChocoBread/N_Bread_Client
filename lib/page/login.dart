@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:chocobread/page/nicknameset.dart';
 import 'package:chocobread/page/onboarding/onboarding.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:chocobread/page/mypage.dart';
@@ -367,8 +368,6 @@ class _LoginState extends State<Login> {
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20)),
       onPressed: () async {
         // await firebaseTest();
-        await exampleForAmplitude();
-        Airbridge.Airbridge.event.send(Airbridge.SignOutEvent());
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return AppleLoginWebview();
@@ -513,6 +512,7 @@ class _LoginState extends State<Login> {
       print("result의 accessToken값 : ${list['result']['accessToken']}");
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('userToken', list['result']['accessToken']);
+      fcmTokenGenerate();
     }
     code = list['code'];
     userId = list['result']['id'].toString();
@@ -520,7 +520,21 @@ class _LoginState extends State<Login> {
 
     return list;
   }
-    Future<void> saveTokenToDynamo(String fcmToken) async {
+
+  Future<void> fcmTokenGenerate() async{
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("kakao login에서 fcmToken : ${fcmToken}");
+      await saveTokenToDynamo(fcmToken!);
+      FirebaseMessaging.instance.onTokenRefresh
+        .listen((fcmToken) {
+          saveTokenToDynamo(fcmToken);
+        })
+        .onError((err) {
+          // Error getting token.
+        });
+  }
+
+  Future<void> saveTokenToDynamo(String fcmToken) async {
     print("saveTokenToDyanmostart");
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
