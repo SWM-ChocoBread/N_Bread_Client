@@ -50,6 +50,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
   String commentToServer = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 댓글 저장하기
   String toWhom = ""; // send 버튼을 눌렀을 때 서버에 보내기 위해 누구한테 답글을 쓰는지 저장하기
   bool enableSend = false;
+  bool showIndicator = false; // 댓글 보내기 버튼 누를 때 로딩 인디케이터 활성화 여부
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -639,45 +640,50 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
                   ),
                   IconButton(
                     // enableSend 가 false이면, 댓글창에 아무것도 없으면, send 버튼 비활성화 (send 버튼 눌러도 변화 없음)
-                    onPressed: enableSend
-                        ? () async {
-                            // send 버튼을 누르면 작동한다.
-                            // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
-                            print(commentToServer + " 2"); //
-                            //print("createComment called");
+                    onPressed: showIndicator
+                        ? null
+                        : () async {
+                            if (enableSend == true) {
+                              // send 버튼을 누르면 작동한다.
+                              // 입력한 댓글을 서버에 보내기 위해 임시 저장소에 저장한다.
+                              setState(() {
+                                showIndicator = true;
+                              });
+                              print(commentToServer + " 2");
+                              if (replyToHereId != "") {
+                                toWhom = replyToHereId;
+                              } else if (widget.replyToId != "") {
+                                toWhom = widget.replyToId;
+                              }
 
-                            //createComment(commentToServer);
-                            // print("$replyToHere");
-                            // print("${widget.replyTo}");
-                            if (replyToHereId != "") {
-                              toWhom = replyToHereId;
-                            } else if (widget.replyToId != "") {
-                              toWhom = widget.replyToId;
-                            }
-
-                            if (toWhom == "") {
-                              // 댓글을 썼을 경우
-                              print("댓글을 썼을 경우 댓글 내용은 ${commentToServer}");
-                              await createComment(commentToServer);
+                              if (toWhom == "") {
+                                // 댓글을 썼을 경우
+                                print("댓글을 썼을 경우 댓글 내용은 ${commentToServer}");
+                                await createComment(commentToServer);
+                              } else {
+                                // 대댓글을 썼을 경우, 서버에 보내는 API
+                                print("답글을 썼을 경우");
+                                await createReply(commentToServer, toWhom);
+                              }
+                              setState(() {
+                                showIndicator = false;
+                              });
+                              print(
+                                  "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
+                              Navigator.pop(
+                                  context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
                             } else {
-                              // 대댓글을 썼을 경우, 서버에 보내는 API
-                              print("답글을 썼을 경우");
-                              await createReply(commentToServer, toWhom);
+                              null;
                             }
-                            print(
-                                "***$toWhom***"); // 누구한테 답글을 쓰는지를 나타낸다. (서버에 전송)
-                            // Navigator.push(context, MaterialPageRoute(
-                            //     builder: (BuildContext context) {
-                            //   return DetailContentView(data: {},);
-                            // }));
-                            Navigator.pop(
-                                context); // 댓글을 입력하면 이전 디테일 페이지로 이동한다.
-                          }
-                        : null,
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color: (enableSend) ? ColorStyle.mainColor : Colors.grey,
-                    ),
+                          },
+                    icon: showIndicator
+                        ? const CircularProgressIndicator()
+                        : Icon(
+                            Icons.send_rounded,
+                            color: (enableSend)
+                                ? ColorStyle.mainColor
+                                : Colors.grey,
+                          ),
                     padding: const EdgeInsets.only(
                         left: 10, right: 0, top: 0, bottom: 0),
                     constraints: const BoxConstraints(),
@@ -740,9 +746,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
         'Create Comment',
         option: EventOption(
           attributes: {
-            "userId" : userId,
-            "dealId" : widget.id.toString(),
-            "commentId" : list["result"]["id"].toString(),
+            "userId": userId,
+            "dealId": widget.id.toString(),
+            "commentId": list["result"]["id"].toString(),
           },
         ),
       ));
@@ -789,9 +795,9 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
         'Create Reply',
         option: EventOption(
           attributes: {
-            "userId" : userId,
-            "dealId" : widget.id.toString(),
-            "replyId" : list["result"]["id"].toString(),
+            "userId": userId,
+            "dealId": widget.id.toString(),
+            "replyId": parId,
           },
         ),
       ));
