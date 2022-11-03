@@ -588,7 +588,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
         elevation: 55,
         child: Container(
           height: heightcontroller(),
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
