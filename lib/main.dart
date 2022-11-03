@@ -7,6 +7,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:chocobread/page/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -22,6 +23,44 @@ import 'firebase_options.dart';
 // void main() {
 //   runApp(const MyApp());
 // }
+
+Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    // 여기서 Navigator 작업
+    // if (message.data['type'] == 'chat') {
+    //   Navigator.pushNamed(context, '/chat',
+    //     arguments: ChatArguments(message),
+    //   );
+    // }
+    if (message.data['type'] == 'deal'){
+      // 채은 : 디테일 상세 페이지 이동
+      print("이건 DEAL 이다");
+      print(message.data);
+    }
+  }
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  print("Handling a background message: ${message.messageId}");
+}
+
 const snackBar = SnackBar(
   content: Text(
     "위치 권한이 거부된 상태입니다. 앱 설정에서 위치 권한을 허용해주세요.",
@@ -42,6 +81,8 @@ Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  setupInteractedMessage();
   
   runApp(const MyApp());
 }

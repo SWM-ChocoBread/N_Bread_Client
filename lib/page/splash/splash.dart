@@ -15,6 +15,7 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../repository/content_repository.dart';
 import '../repository/contents_repository.dart';
@@ -157,8 +158,45 @@ class _SplashState extends State<Splash> {
       prefs.setString('range', 'loc2');
       print('range의 값이 null입니다. range를 loc2로 설정하였습니다');
     }
-    String? userToken = prefs.getString("userToken");
 
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    print("[*]SPLASH 에서 이 기기의 fcmToken = ${fcmToken}");
+
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    print("[*] Notification Settings ${settings}");
+    await saveTokenToDynamo(fcmToken!);
+    print("[*] FCM Token 저장이 완료되었습니다.");
+    FirebaseMessaging.instance.onTokenRefresh
+    .listen((fcmToken) {
+      saveTokenToDynamo(fcmToken);
+    })
+    .onError((err) {
+      // Error getting token.
+    });
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('Splash : User granted permission');
+    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      print('Splash : User granted provisional permission');
+    } else {
+      print('Splash : User declined or has not accepted permission');
+    }
+
+    String? userToken = prefs.getString("userToken");
     if (userToken != null) {
       print("splash 화면에서의 checkStatus 에서의 userToken은 : ${userToken}");
       await getDeepLink();
@@ -244,5 +282,44 @@ class _SplashState extends State<Splash> {
             ),
           ],
         ));
+  }
+
+    Future<void> saveTokenToDynamo(String fcmToken) async {
+    print("saveTokenToDyanmostart");
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("userToken");
+    if (token != null) {
+      try{
+        Map<String, dynamic> payload = Jwt.parseJwt(token);
+        String userId = payload['id'].toString();
+        var userToken = prefs.getString("userToken");
+        DateTime now = DateTime.now();
+        var epochTime = now.millisecondsSinceEpoch / 1000;
+        const expireTime = 5260000;
+        Map jsonBody = {
+          "userId": userId,
+          "fcmToken" : fcmToken,
+          "createTime" : epochTime,
+          "deleteTime" : epochTime + expireTime,
+        };
+        var encodedBody = json.encode(jsonBody);
+        String targetUrl = 'https://d3wcvzzxce.execute-api.ap-northeast-2.amazonaws.com/tokens';
+        var url = Uri.parse(
+          targetUrl,
+        );
+        var response = await http.put(url,
+            body: encodedBody);
+        String responseBody = utf8.decode(response.bodyBytes);
+        Map<String, dynamic> list = jsonDecode(responseBody);
+        print("fcm Store reponse list ${list}");
+        if (list.length == 0) {
+          print("length of list is 0");
+        } else {
+          print("fcm Store reponse list");
+        }
+      }catch(error){
+        print("dynamoDB store ${error}");
+      }
+    }
   }
 }
