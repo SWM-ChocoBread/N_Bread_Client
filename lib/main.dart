@@ -1,6 +1,8 @@
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
+import 'package:chocobread/page/repository/content_repository.dart';
 import 'package:chocobread/page/splash/splash.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -38,10 +40,12 @@ Future<void> setupInteractedMessage() async {
 
     // Also handle any interaction when the app is in the background via a
     // Stream listener
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    FirebaseMessaging.onMessage.listen(_handleMessage);
   }
 
-  void _handleMessage(RemoteMessage message) {
+  void _handleMessage(RemoteMessage message) async{
     // 여기서 Navigator 작업
     // if (message.data['type'] == 'chat') {
     //   Navigator.pushNamed(context, '/chat',
@@ -52,6 +56,9 @@ Future<void> setupInteractedMessage() async {
       // 채은 : 디테일 상세 페이지 이동
       print("이건 DEAL 이다");
       print(message.data);
+      var temp = await loadContentByDealId(int.parse(message.data['dealId']));
+        Get.to(() => DetailContentView(data: temp, isFromHome: true));
+      // message.data['dealId'] <- 여기로 거래 상세 이동.
     }
   }
 
@@ -59,6 +66,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   print("Handling a background message: ${message.messageId}");
+  // _handleMessage(message);
 }
 
 const snackBar = SnackBar(
