@@ -348,6 +348,18 @@ class _SplashState extends State<Splash> {
     }
   }
 
+    void _handleForeGroundMessage(RemoteMessage message) async {
+    // 여기서 Navigator 작업
+    // if (message.data['type'] == 'chat') {
+    //   Navigator.pushNamed(context, '/chat',
+    //     arguments: ChatArguments(message),
+    //   );
+    // }
+    print("HELP");
+    print(message.toMap());
+    print("message.notification : ${message.notification}");
+  }
+
   Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
     // If you're going to use other Firebase services in the background, such as Firestore,
@@ -372,6 +384,6 @@ class _SplashState extends State<Splash> {
     // Stream listener
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-    FirebaseMessaging.onMessage.listen(_handleMessage);
+    FirebaseMessaging.onMessage.listen(_handleForeGroundMessage);
   }
 }
