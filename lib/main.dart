@@ -1,6 +1,8 @@
 import 'package:chocobread/page/app.dart';
+import 'package:chocobread/page/detail.dart';
 import 'package:chocobread/page/login.dart';
 import 'package:chocobread/page/nicknameset.dart';
+import 'package:chocobread/page/repository/content_repository.dart';
 import 'package:chocobread/page/splash/splash.dart';
 import 'package:chocobread/page/termscheck.dart';
 import 'package:chocobread/style/colorstyles.dart';
@@ -25,40 +27,47 @@ import 'firebase_options.dart';
 // }
 
 Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
+  // Get any messages which caused the application to open from
+  // a terminated state.
+  RemoteMessage? initialMessage =
+      await FirebaseMessaging.instance.getInitialMessage();
 
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  // If the message also contains a data property with a "type" of "chat",
+  // navigate to a chat screen
+  if (initialMessage != null) {
+    _handleMessage(initialMessage);
   }
 
-  void _handleMessage(RemoteMessage message) {
-    // 여기서 Navigator 작업
-    // if (message.data['type'] == 'chat') {
-    //   Navigator.pushNamed(context, '/chat',
-    //     arguments: ChatArguments(message),
-    //   );
-    // }
-    if (message.data['type'] == 'deal'){
-      // 채은 : 디테일 상세 페이지 이동
-      print("이건 DEAL 이다");
-      print(message.data);
-    }
+  // Also handle any interaction when the app is in the background via a
+  // Stream listener
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  FirebaseMessaging.onMessage.listen(_handleMessage);
+}
+
+void _handleMessage(RemoteMessage message) async {
+  // 여기서 Navigator 작업
+  // if (message.data['type'] == 'chat') {
+  //   Navigator.pushNamed(context, '/chat',
+  //     arguments: ChatArguments(message),
+  //   );
+  // }
+  print("HELP");
+  if (message.data['type'] == 'deal') {
+    // 채은 : 디테일 상세 페이지 이동
+    print("이건 DEAL 이다");
+    print(message.data);
+    var temp = await loadContentByDealId(int.parse(message.data['dealId']));
+    Get.to(() => DetailContentView(data: temp, isFromHome: true));
+    // message.data['dealId'] <- 여기로 거래 상세 이동.
   }
+}
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   print("Handling a background message: ${message.messageId}");
+  // _handleMessage(message);
 }
 
 const snackBar = SnackBar(
@@ -81,9 +90,6 @@ Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // SharePreferences 랑 Firebase Analytics 가 초기 설정될 때 정상적으로 동작하게 하기 위한 것
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  setupInteractedMessage();
-  
   runApp(const MyApp());
 }
 
