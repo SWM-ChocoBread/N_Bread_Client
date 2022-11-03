@@ -22,6 +22,7 @@ import '../repository/contents_repository.dart';
 import 'package:uni_links/uni_links.dart';
 
 bool isComeFromSplash = true;
+bool isComeFromFcm = false;
 
 //test comment
 class Splash extends StatefulWidget {
@@ -176,21 +177,21 @@ class _SplashState extends State<Splash> {
     print("[*] Notification Settings ${settings}");
     await saveTokenToDynamo(fcmToken!);
     print("[*] FCM Token 저장이 완료되었습니다.");
-    FirebaseMessaging.instance.onTokenRefresh
-    .listen((fcmToken) {
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
       saveTokenToDynamo(fcmToken);
-    })
-    .onError((err) {
+    }).onError((err) {
       // Error getting token.
     });
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true, // Required to display a heads up notification
       badge: true,
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('Splash : User granted permission');
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
       print('Splash : User granted provisional permission');
     } else {
       print('Splash : User declined or has not accepted permission');
@@ -245,10 +246,15 @@ class _SplashState extends State<Splash> {
           currentLocation = prefs.getString("loc3");
         }
         //태현 : 홈 화면으로 리다이렉트. 즉 재로그인
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (BuildContext context) => const App()),
-            (route) => false);
+        FirebaseMessaging.onBackgroundMessage(
+            _firebaseMessagingBackgroundHandler);
+        setupInteractedMessage();
+        if (!isComeFromFcm) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (BuildContext context) => const App()),
+              (route) => false);
+        }
       } else if (list['code'] == 300 || list['code'] == 404) {
         print("코드가 ${list['code']}입니다. 약관동의 화면으로 리다이렉트합니다.");
         Navigator.pushNamedAndRemoveUntil(
@@ -284,12 +290,12 @@ class _SplashState extends State<Splash> {
         ));
   }
 
-    Future<void> saveTokenToDynamo(String fcmToken) async {
+  Future<void> saveTokenToDynamo(String fcmToken) async {
     print("saveTokenToDyanmostart");
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("userToken");
     if (token != null) {
-      try{
+      try {
         Map<String, dynamic> payload = Jwt.parseJwt(token);
         String userId = payload['id'].toString();
         var userToken = prefs.getString("userToken");
@@ -298,17 +304,17 @@ class _SplashState extends State<Splash> {
         const expireTime = 5260000;
         Map jsonBody = {
           "userId": userId,
-          "fcmToken" : fcmToken,
-          "createTime" : epochTime,
-          "deleteTime" : epochTime + expireTime,
+          "fcmToken": fcmToken,
+          "createTime": epochTime,
+          "deleteTime": epochTime + expireTime,
         };
         var encodedBody = json.encode(jsonBody);
-        String targetUrl = 'https://d3wcvzzxce.execute-api.ap-northeast-2.amazonaws.com/tokens';
+        String targetUrl =
+            'https://d3wcvzzxce.execute-api.ap-northeast-2.amazonaws.com/tokens';
         var url = Uri.parse(
           targetUrl,
         );
-        var response = await http.put(url,
-            body: encodedBody);
+        var response = await http.put(url, body: encodedBody);
         String responseBody = utf8.decode(response.bodyBytes);
         Map<String, dynamic> list = jsonDecode(responseBody);
         print("fcm Store reponse list ${list}");
@@ -317,9 +323,55 @@ class _SplashState extends State<Splash> {
         } else {
           print("fcm Store reponse list");
         }
-      }catch(error){
+      } catch (error) {
         print("dynamoDB store ${error}");
       }
     }
+  }
+
+  void _handleMessage(RemoteMessage message) async {
+    // 여기서 Navigator 작업
+    // if (message.data['type'] == 'chat') {
+    //   Navigator.pushNamed(context, '/chat',
+    //     arguments: ChatArguments(message),
+    //   );
+    // }
+    print("HELP");
+    if (message.data['type'] == 'deal') {
+      // 채은 : 디테일 상세 페이지 이동
+      print("이건 DEAL 이다");
+      print(message.data);
+      var temp = await loadContentByDealId(int.parse(message.data['dealId']));
+      isComeFromFcm = true;
+      Get.to(() => DetailContentView(data: temp, isFromHome: true));
+      // message.data['dealId'] <- 여기로 거래 상세 이동.
+    }
+  }
+
+  Future<void> _firebaseMessagingBackgroundHandler(
+      RemoteMessage message) async {
+    // If you're going to use other Firebase services in the background, such as Firestore,
+    // make sure you call `initializeApp` before using other Firebase services.
+    print("Handling a background message: ${message.messageId}");
+    // _handleMessage(message);
+  }
+
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    FirebaseMessaging.onMessage.listen(_handleMessage);
   }
 }
