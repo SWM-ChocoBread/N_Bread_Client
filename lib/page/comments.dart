@@ -791,7 +791,7 @@ class _DetailCommentsViewState extends State<DetailCommentsView> {
           attributes: {
             "userId" : userId,
             "dealId" : widget.id.toString(),
-            "replyId" : list["result"]["id"].toString(),
+            "replyId" : parId,
           },
         ),
       ));
