@@ -1,6 +1,6 @@
 {
     "sessionTimeoutSeconds": 300,
-    "autoStartTrackingEnabled": false,
+    "autoStartTrackingEnabled": true,
     "userInfoHashEnabled": true,
     "trackAirbridgeLinkOnly": false,
     "facebookDeferredAppLinkEnabled": false,
