@@ -1109,7 +1109,7 @@ class _DetailContentViewState extends State<DetailContentView> {
           final Uri url = Uri.parse(widget.data["link"]);
           if (await canLaunchUrl(url)) {
             // can launch function checks whether the device can launch url before invoking the launch function
-            await launchUrl(url);
+            await launchUrl(url, mode: LaunchMode.externalApplication);
           } else {
             // throw "could not launch $url";
             // url을 열 수 없는 경우, url을 눌러도 반응하지 않는다.
