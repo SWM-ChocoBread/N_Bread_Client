@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
@@ -1109,7 +1110,11 @@ class _DetailContentViewState extends State<DetailContentView> {
           final Uri url = Uri.parse(widget.data["link"]);
           if (await canLaunchUrl(url)) {
             // can launch function checks whether the device can launch url before invoking the launch function
-            await launchUrl(url);
+            if (Platform.isIOS) {
+              await launchUrl(url);
+            } else {
+              await launchUrl(url, mode: LaunchMode.externalApplication);
+            }
           } else {
             // throw "could not launch $url";
             // url을 열 수 없는 경우, url을 눌러도 반응하지 않는다.
