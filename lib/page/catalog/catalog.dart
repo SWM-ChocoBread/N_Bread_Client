@@ -129,11 +129,7 @@ class _CatalogState extends State<Catalog> {
               return null;
             }
             if (await canLaunchUrl(Uri.parse(catalogItems[index]["link"]))) {
-              // await launchUrl(
-              //   Uri.parse(catalogItems[index]["link"]),
-              //   // mode: LaunchMode.externalApplication
-              // );
-              Get.to(() => CatalogWebview(url: catalogItems[index]["link"]));
+              Get.to(() => CatalogWebview(data: catalogItems[index]));
             }
           },
           child: Padding(

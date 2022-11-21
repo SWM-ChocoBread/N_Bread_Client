@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 import 'checkquit.dart';
 
 class CreateNew extends StatefulWidget {
-  CreateNew({Key? key}) : super(key: key);
+  bool isFromCatalog = false; // Catalog에서 왔는지 확인하는 코드
+  Map dataFromCatalog; // Catalog에서 온 data
+  CreateNew(
+      {Key? key, required this.isFromCatalog, required this.dataFromCatalog})
+      : super(key: key);
 
   @override
   State<CreateNew> createState() => _CreateNewState();
@@ -50,7 +54,14 @@ class _CreateNewState extends State<CreateNew> {
           child: Column(
             children: [
               // imageUploader(),
-              customForm(),
+              (widget.dataFromCatalog == {})
+                  ? customForm(
+                      catalogData: const {},
+                    )
+                  : customForm(
+                      catalogData: widget.dataFromCatalog,
+                    ),
+              // customForm(),
             ],
           ),
         ));

@@ -781,7 +781,10 @@ class _HomeState extends State<Home> {
                     onPressed: () async {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (BuildContext context) {
-                        return CreateNew();
+                        return CreateNew(
+                          dataFromCatalog: const {},
+                          isFromCatalog: false,
+                        );
                       })).then((_) => setState(() {
                             _bodyWidget();
                           }));
@@ -806,7 +809,10 @@ class _HomeState extends State<Home> {
         if (isLocationCertification) {
           Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
-            return CreateNew();
+            return CreateNew(
+              dataFromCatalog: const {},
+              isFromCatalog: false,
+            );
           })).then((_) => setState(() {
                 _bodyWidget();
               }));
@@ -862,7 +868,10 @@ class _HomeState extends State<Home> {
                                     abrRegionCertificationCompleted();
                                     Navigator.push(context, MaterialPageRoute(
                                         builder: (BuildContext context) {
-                                      return CreateNew();
+                                      return CreateNew(
+                                        dataFromCatalog: const {},
+                                        isFromCatalog: false,
+                                      );
                                     }));
                                     break;
                                   case 2:

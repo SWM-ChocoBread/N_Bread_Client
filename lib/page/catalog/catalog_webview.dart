@@ -1,10 +1,13 @@
+import 'package:chocobread/page/create.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class CatalogWebview extends StatefulWidget {
-  String url;
-  CatalogWebview({super.key, required this.url});
+  Map data;
+  CatalogWebview({super.key, required this.data});
 
   @override
   State<CatalogWebview> createState() => _CatalogWebviewState();
@@ -32,7 +35,10 @@ class _CatalogWebviewState extends State<CatalogWebview> {
         padding: const EdgeInsets.only(right: 50.0),
         child: Center(
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(() =>
+                  CreateNew(isFromCatalog: true, dataFromCatalog: widget.data));
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
@@ -51,7 +57,7 @@ class _CatalogWebviewState extends State<CatalogWebview> {
       appBar: _appbarWidget(),
       body: SafeArea(
         child: WebView(
-          initialUrl: widget.url,
+          initialUrl: widget.data["link"],
           javascriptMode: JavascriptMode.unrestricted,
           gestureNavigationEnabled: true,
         ),
