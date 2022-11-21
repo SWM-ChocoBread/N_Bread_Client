@@ -3,8 +3,11 @@ import 'package:chocobread/page/repository/catalog_repository.dart';
 import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../widgets/mychip.dart';
 
 class Catalog extends StatefulWidget {
   const Catalog({super.key});
@@ -25,25 +28,101 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
-  Widget _imageHolder(int index) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(10)),
-      child: ExtendedImage.network(catalogItems[index]["image_link"].toString(),
-          height: 120,
-          fit: BoxFit.cover,
-          cache: true,
-          enableLoadState: true,
-          retries: 10,
-          timeLimit: const Duration(seconds: 100),
-          timeRetry: const Duration(seconds: 5)),
+  Widget RankChip(String content, Color textcolor, Color bgcolor) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 7),
+          decoration: BoxDecoration(
+              color: bgcolor,
+              borderRadius: const BorderRadius.all(Radius.circular(10))),
+          child: Row(
+            children: [
+              FaIcon(
+                FontAwesomeIcons.medal,
+                size: 12,
+                color: textcolor,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Text(
+                content,
+                style: TextStyle(
+                    color: textcolor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
+  }
+
+  Widget WhichChip(int index) {
+    if (index == 0) {
+      return RankChip(
+        "1위",
+        ColorStyle.sellerText,
+        ColorStyle.seller,
+      );
+    } else if (index == 1) {
+      return RankChip(
+        "2위",
+        Color.fromARGB(255, 253, 169, 91),
+        Color.fromARGB(255, 253, 240, 227),
+      );
+    } else if (index == 2) {
+      return RankChip(
+        "3위",
+        ColorStyle.myYellow,
+        Color.fromARGB(255, 254, 244, 213),
+      );
+    } else if (index == 3) {
+      return RankChip(
+        "4위",
+        ColorStyle.participantText,
+        ColorStyle.participant,
+      );
+    } else if (index == 4) {
+      return RankChip(
+        "5위",
+        ColorStyle.failText,
+        ColorStyle.fail,
+      );
+    }
+    //
+    return const SizedBox.shrink();
+  }
+
+  Widget _imageHolder(int index) {
+    return Stack(children: [
+      ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        child: ExtendedImage.network(
+            catalogItems[index]["image_link"].toString(),
+            width: double.infinity,
+            height: 120,
+            fit: BoxFit.contain,
+            cache: true,
+            enableLoadState: true,
+            retries: 10,
+            timeLimit: const Duration(seconds: 100),
+            timeRetry: const Duration(seconds: 5)),
+      ),
+      WhichChip(index),
+    ]);
   }
 
   Widget _bodyWidget() {
     return GridView.builder(
       itemCount: catalogItems.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
+        crossAxisCount: 2,
+        mainAxisSpacing: 40, // 수직 기준 자식 위젯간의 간격
+        crossAxisSpacing: 10,
+      ),
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           onTap: () async {
@@ -58,22 +137,36 @@ class _CatalogState extends State<Catalog> {
               Get.to(() => CatalogWebview(url: catalogItems[index]["link"]));
             }
           },
-          child: Column(
-            children: [
-              _imageHolder(index),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Row(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              children: [
+                _imageHolder(index),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Text(
+                      catalogItems[index]["name"],
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ))
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
                       catalogItems[index]["discount_percent"],
                       style: const TextStyle(
-                          color: ColorStyle.certificated,
-                          fontWeight: FontWeight.bold),
+                        color: ColorStyle.certificated,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(
                       width: 10,
@@ -85,19 +178,16 @@ class _CatalogState extends State<Catalog> {
                     ),
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Row(
+                Row(
                   children: [
                     Text(
                       catalogItems[index]["unit_price"],
                       style: const TextStyle(fontSize: 13),
                     )
                   ],
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         );
       },
