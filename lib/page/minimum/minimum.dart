@@ -55,7 +55,7 @@ class _MinimumListState extends State<MinimumList> {
     );
   }
 
-  Widget _minimumChip() {
+  Widget _nbreadChip() {
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -63,7 +63,7 @@ class _MinimumListState extends State<MinimumList> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       child: const Text(
-        "최저가",
+        "N빵가",
         style: TextStyle(
             color: ColorStyle.failText,
             fontSize: 11,
@@ -256,7 +256,7 @@ class _MinimumListState extends State<MinimumList> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            (index == 0) ? _minimumChip() : const SizedBox.shrink(),
+            (index == 0) ? _nbreadChip() : const SizedBox.shrink(),
             const SizedBox(
               width: 7,
             ),
