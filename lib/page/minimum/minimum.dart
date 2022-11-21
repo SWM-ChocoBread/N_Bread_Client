@@ -113,9 +113,15 @@ class _MinimumListState extends State<MinimumList> {
   }
 
   getCategory() {
-    category1 = "" ?? dataMinimum[1]["category1"];
-    category2 = "" ?? dataMinimum[1]["category2"];
-    category3 = "" ?? dataMinimum[1]["category3"];
+    if (dataMinimum.length <= 1) {
+      category1 = "";
+      category2 = "";
+      category3 = "";
+    } else {
+      category1 = dataMinimum[1]["category1"];
+      category2 = dataMinimum[1]["category2"];
+      category3 = dataMinimum[1]["category3"];
+    }
   }
 
   Widget _category() {

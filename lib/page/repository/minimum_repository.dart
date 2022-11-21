@@ -31,6 +31,4 @@ class Minimum {
       return [];
     }
   }
-
-  //List dataMinimum = dataMinimumAPI["result"];
 }
