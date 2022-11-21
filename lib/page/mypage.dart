@@ -281,16 +281,16 @@ class _MyPageState extends State<MyPage> {
         })).then((value) => setState(() {}));
       },
       child: Container(
-        width: _textSize(
-                    setUserNickName,
-                    const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
-                        ))
-                .width +
-            100, // text 의 width + 아이콘들 width + padding의 width = gesturedetector 가 작동하는 영역 제한
-        // width: 220, // gesturedetector 가 닉네임 길이 최대 10일때 작동하는 가로 길이
+        // width: _textSize(
+        //             setUserNickName,
+        //             const TextStyle(
+        //                 fontWeight: FontWeight.bold,
+        //                 fontSize: 16,
+        //                 height: 1.25 // height는 아이콘과 텍스트의 정렬을 위한 것
+        //                 ))
+        //         .width +
+        //     100, // text 의 width + 아이콘들 width + padding의 width = gesturedetector 가 작동하는 영역 제한
+        // // width: 220, // gesturedetector 가 닉네임 길이 최대 10일때 작동하는 가로 길이
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -301,11 +301,9 @@ class _MyPageState extends State<MyPage> {
               // size: 30,
             ),
             Padding(
-              // ignore: prefer_const_constructors
               padding: EdgeInsets.symmetric(horizontal: 15.0),
               child: Text(
-                // user nickname 이 들어와야 하는 공간
-                setUserNickName,
+                "$mypageLocation   |   $setUserNickName",
                 style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -606,7 +604,10 @@ class _MyPageState extends State<MyPage> {
                   height: 20,
                 ),
                 _nickname(),
-                _userLocation(),
+                const SizedBox(
+                  height: 20,
+                ),
+                // _userLocation(),
                 _line(),
                 _ongoingTitle(),
                 _makeOngoingList(snapshot.data as List<Map<String, dynamic>>),
