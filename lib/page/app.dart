@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'catalog/catalog.dart';
 import 'home.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'mypage.dart';
@@ -73,7 +74,7 @@ class _AppState extends State<App> {
           _currentPageIndex = newPageIndex;
         });
       },
-      children: [CustomerService(), const Home(), MyPage()],
+      children: [Catalog(), const Home(), MyPage()],
     );
     //   switch (_currentPageIndex) {
     //     case 0:
@@ -100,23 +101,41 @@ class _AppState extends State<App> {
         selectedItemColor: ColorStyle.mainColor,
         selectedLabelStyle: const TextStyle(color: ColorStyle.mainColor),
         items: const <BottomNavigationBarItem>[
+          // BottomNavigationBarItem(
+          //   // icon: SvgPicture.asset("assets/svg/")
+          //   icon: Padding(
+          //     padding: EdgeInsets.only(bottom: 3),
+          //     child: Icon(
+          //       Icons.headset_rounded,
+          //       size: 22,
+          //     ),
+          //   ),
+          //   activeIcon: Padding(
+          //     padding: EdgeInsets.only(bottom: 3),
+          //     child: Icon(
+          //       Icons.headset_rounded,
+          //       size: 24,
+          //     ),
+          //   ),
+          //   label: "고객센터",
+          // ),
           BottomNavigationBarItem(
             // icon: SvgPicture.asset("assets/svg/")
             icon: Padding(
               padding: EdgeInsets.only(bottom: 3),
-              child: Icon(
-                Icons.headset_rounded,
-                size: 22,
+              child: FaIcon(
+                FontAwesomeIcons.solidStar,
+                size: 20,
               ),
             ),
             activeIcon: Padding(
               padding: EdgeInsets.only(bottom: 3),
-              child: Icon(
-                Icons.headset_rounded,
-                size: 24,
+              child: FaIcon(
+                FontAwesomeIcons.solidStar,
+                size: 22,
               ),
             ),
-            label: "고객센터",
+            label: "추천",
           ),
           BottomNavigationBarItem(
             icon: Padding(
