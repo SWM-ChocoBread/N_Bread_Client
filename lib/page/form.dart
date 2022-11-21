@@ -33,6 +33,7 @@ import 'imageuploader.dart';
 
 var jsonString =
     '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":""}';
+var coupangString = '{"url" : ""}';
 bool showindicator = false;
 
 class customForm extends StatefulWidget {
@@ -1171,86 +1172,101 @@ class _customFormState extends State<customForm> {
       ],
     );
   }
-}
 
-Future getApiTest(Map jsonbody, dio.FormData formData) async {
-  final prefs = await SharedPreferences.getInstance();
-  var dealCreateUrl = "https://www.chocobread.shop/deals/create";
-  var url = Uri.parse(
-    dealCreateUrl,
-  );
-  var body2 = json.encode(jsonbody);
-  var userToken = prefs.getString("userToken");
-  //File _image="assets/images/maltesers.png";
-
-  var map = new Map<String, dynamic>();
-  map['body'] = jsonbody;
-  print("value of map");
-  print(map);
-  print(map.toString());
-  var dioInstance = dio.Dio();
-  var dioFormData = dio.FormData.fromMap(map);
-
-  if (userToken != null) {
-    var response = await http.post(url,
-        headers: {
-          "Authorization": userToken,
-        },
-        body: jsonbody);
-    print(response);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    print(list);
-    dioInstance.options.contentType = 'multipart/form-data';
-    dioInstance.options.headers['Authorization'] = userToken;
-    //  list[result][id] 예외처리 ex) 404 안하면 crash
-    print("dealId : ${list['result']['id']} ");
-    var imgCreateUrl =
-        "https://www.chocobread.shop/deals/${list['result']['id']}/img";
-
-    final dioResponse = await dioInstance.post(
-      imgCreateUrl,
-      data: formData,
+  Future getApiTest(Map jsonbody, dio.FormData formData) async {
+    final prefs = await SharedPreferences.getInstance();
+    var dealCreateUrl = "https://www.chocobread.shop/deals/create";
+    var url = Uri.parse(
+      dealCreateUrl,
     );
-    var dealCreateResponseResult = list['result'];
-    await FirebaseAnalytics.instance.logEvent(name: "deal_create", parameters: {
-      "dealId": dealCreateResponseResult['id'].toString(),
-      "title": dealCreateResponseResult['title'].toString(),
-      "productLink": dealCreateResponseResult['link'].toString(),
-      "totalPrice": dealCreateResponseResult['totalPrice'].toString(),
-      "totalMember": dealCreateResponseResult['totalMember'].toString(),
-      "personalPrice": dealCreateResponseResult['personalPrice'].toString(),
-      "dealDate": dealCreateResponseResult['dealDate'].toString(),
-      "dealPlace": dealCreateResponseResult['dealPlace'].toString(),
-      "content": dealCreateResponseResult['content'].toString(),
-    });
+    var body2 = json.encode(jsonbody);
+    var userToken = prefs.getString("userToken");
+    //File _image="assets/images/maltesers.png";
 
-    int userId = 0;
+    var map = new Map<String, dynamic>();
+    map['body'] = jsonbody;
+    print("value of map");
+    print(map);
+    print(map.toString());
+    var dioInstance = dio.Dio();
+    var dioFormData = dio.FormData.fromMap(map);
+
     if (userToken != null) {
-      userId = Jwt.parseJwt(userToken)['id'];
-    }
-    await sendSlackMessage('[거래 생성]',
-        '${userId}번 유저가 ${dealCreateResponseResult['title']}(${dealCreateResponseResult['id']}번) 거래를 생성하였습니다.');
+      var response = await http.post(url,
+          headers: {
+            "Authorization": userToken,
+          },
+          body: jsonbody);
+      print(response);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      dioInstance.options.contentType = 'multipart/form-data';
+      dioInstance.options.headers['Authorization'] = userToken;
+      //  list[result][id] 예외처리 ex) 404 안하면 crash
+      print("dealId : ${list['result']['id']} ");
+      var imgCreateUrl =
+          "https://www.chocobread.shop/deals/${list['result']['id']}/img";
 
-    Airbridge.event.send(Event(
-      'Deal Create',
-      option: EventOption(
-        semantics: {
-          'transactionID': list['result']['id'].toString(),
-          'products': [
-            {
-              'productID': jsonbody['id'],
-              'name': dealCreateResponseResult['totalPrice'].toString(),
-              "price": dealCreateResponseResult['totalPrice'].toString(),
-              "currency": 'KRW',
-              "quantity": 1,
-            }
-          ]
-        },
-      ),
-    ));
-  } else {
-    print("오류발생");
+      final dioResponse = await dioInstance.post(
+        imgCreateUrl,
+        data: formData,
+      );
+      if (widget.catalogData.isNotEmpty) {
+        var coupangImageRequestUrl =
+            "https://www.chocobread.shop/deals/${list['result']['id']}/img/coupang";
+        var coupangCreateurl = Uri.parse(
+          coupangImageRequestUrl,
+        );
+        Map coupangBody = jsonDecode(coupangString);
+        coupangBody['url'] = widget.catalogData["image_link"].toString();
+        var coupangResponse =
+            await http.post(coupangCreateurl, body: coupangBody);
+        String coupangResponseBody = utf8.decode(coupangResponse.bodyBytes);
+        Map<String, dynamic> coupangList = jsonDecode(coupangResponseBody);
+        print('coupang response : ${coupangList}');
+      }
+      var dealCreateResponseResult = list['result'];
+      await FirebaseAnalytics.instance
+          .logEvent(name: "deal_create", parameters: {
+        "dealId": dealCreateResponseResult['id'].toString(),
+        "title": dealCreateResponseResult['title'].toString(),
+        "productLink": dealCreateResponseResult['link'].toString(),
+        "totalPrice": dealCreateResponseResult['totalPrice'].toString(),
+        "totalMember": dealCreateResponseResult['totalMember'].toString(),
+        "personalPrice": dealCreateResponseResult['personalPrice'].toString(),
+        "dealDate": dealCreateResponseResult['dealDate'].toString(),
+        "dealPlace": dealCreateResponseResult['dealPlace'].toString(),
+        "content": dealCreateResponseResult['content'].toString(),
+      });
+
+      int userId = 0;
+      if (userToken != null) {
+        userId = Jwt.parseJwt(userToken)['id'];
+      }
+      await sendSlackMessage('[거래 생성]',
+          '${userId}번 유저가 ${dealCreateResponseResult['title']}(${dealCreateResponseResult['id']}번) 거래를 생성하였습니다.');
+
+      Airbridge.event.send(Event(
+        'Deal Create',
+        option: EventOption(
+          semantics: {
+            'transactionID': list['result']['id'].toString(),
+            'products': [
+              {
+                'productID': jsonbody['id'],
+                'name': dealCreateResponseResult['totalPrice'].toString(),
+                "price": dealCreateResponseResult['totalPrice'].toString(),
+                "currency": 'KRW',
+                "quantity": 1,
+              }
+            ]
+          },
+        ),
+      ));
+    } else {
+      print("오류발생");
+    }
   }
 }
 

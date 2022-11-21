@@ -619,7 +619,7 @@ class _DetailContentViewState extends State<DetailContentView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Text("최저가 비교하기"),
+              Text("가격 비교하기"),
               SizedBox(
                 width: 5,
               ),
