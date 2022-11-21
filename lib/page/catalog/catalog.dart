@@ -96,15 +96,14 @@ class _CatalogState extends State<Catalog> {
     return const SizedBox.shrink();
   }
 
-  Widget _imageHolder(int index) {
+  Widget _imageHolder(int index, String imageLink) {
     return Stack(children: [
       ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
-        child: ExtendedImage.network(
-            catalogItems[index]["image_link"].toString(),
+        child: ExtendedImage.network(imageLink.toString(),
             width: double.infinity,
             height: 120,
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
             cache: true,
             enableLoadState: true,
             retries: 10,
@@ -115,13 +114,13 @@ class _CatalogState extends State<Catalog> {
     ]);
   }
 
-  Widget _bodyWidget() {
+  Widget _catalogGrid(List catalogItems) {
     return GridView.builder(
       itemCount: catalogItems.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 40, // 수직 기준 자식 위젯간의 간격
-        crossAxisSpacing: 10,
+        crossAxisSpacing: 0,
       ),
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
@@ -141,7 +140,7 @@ class _CatalogState extends State<Catalog> {
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Column(
               children: [
-                _imageHolder(index),
+                _imageHolder(index, catalogItems[index]["image_link"]),
                 const SizedBox(
                   height: 10,
                 ),
@@ -161,16 +160,18 @@ class _CatalogState extends State<Catalog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      catalogItems[index]["discount_percent"],
-                      style: const TextStyle(
-                        color: ColorStyle.certificated,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    (catalogItems[index]["discount_percent"] == null)
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: Text(
+                              catalogItems[index]["discount_percent"],
+                              style: const TextStyle(
+                                color: ColorStyle.certificated,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                     Text(
                       "${catalogItems[index]["price"]}원",
                       style: const TextStyle(
@@ -192,6 +193,19 @@ class _CatalogState extends State<Catalog> {
         );
       },
     );
+  }
+
+  Widget _bodyWidget() {
+    return FutureBuilder(
+        future: loadCatalog(),
+        builder: (context, snapshot) {
+          print("snapshot.data : ${snapshot.data}");
+          if (snapshot.hasData) {
+            print("snapshot.data : ${snapshot.data}");
+            return _catalogGrid(snapshot.data as List<dynamic>);
+          }
+          return const Center(child: CircularProgressIndicator());
+        });
   }
 
   @override

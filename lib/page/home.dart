@@ -387,7 +387,7 @@ class _HomeState extends State<Home> {
                     productContents["DealImages"][0]["dealImage"].toString(),
                     width: 110,
                     height: 110,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
                     cache: true,
                     enableLoadState: true,
                     retries: 10,
