@@ -6,6 +6,7 @@ import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/alertnoservice.dart';
 import 'package:chocobread/page/app.dart';
 import 'package:chocobread/page/checkparticipation.dart';
+import 'package:chocobread/page/minimum/minimum.dart';
 import 'package:chocobread/page/modify.dart';
 import 'package:chocobread/page/policereport.dart';
 import 'package:chocobread/page/repository/comments_repository.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -600,6 +602,33 @@ class _DetailContentViewState extends State<DetailContentView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _minimumButton() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      // width: double.infinity,
+      child: ElevatedButton(
+          onPressed: () {
+            Get.to(() => MinimumList(
+                  dealId: widget.data["id"],
+                ));
+          },
+          // style: OutlinedButton.styleFrom(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text("최저가 비교하기"),
+              SizedBox(
+                width: 5,
+              ),
+              FaIcon(
+                FontAwesomeIcons.chevronRight,
+                size: 13,
+              )
+            ],
+          )),
     );
   }
 
@@ -1265,6 +1294,8 @@ class _DetailContentViewState extends State<DetailContentView> {
             _contentsTable(),
             const SizedBox(height: 10),
             _contentsDetail(),
+            _minimumButton(),
+            const SizedBox(height: 10),
             _policeReport(),
             _line(),
             _commentTitle(),

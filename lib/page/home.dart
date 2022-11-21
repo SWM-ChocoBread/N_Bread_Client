@@ -39,6 +39,7 @@ import '../utils/price_utils.dart';
 import 'create.dart';
 import 'event/event_banner.dart';
 import 'event/event_popup.dart';
+import 'minimum/minimum.dart';
 
 // develop
 // late String currentLocation;
@@ -291,6 +292,17 @@ class _HomeState extends State<Home> {
           },
         ),
         actions: [
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(context,
+          //           MaterialPageRoute(builder: (BuildContext context) {
+          //         return MinimumList(dealId: null,);
+          //       }));
+          //     },
+          //     icon: const FaIcon(
+          //       FontAwesomeIcons.dollarSign,
+          //       size: 18,
+          //     )),
           IconButton(
               onPressed: () {
                 Navigator.push(context,
