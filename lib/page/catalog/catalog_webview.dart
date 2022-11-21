@@ -53,6 +53,7 @@ class _CatalogWebviewState extends State<CatalogWebview> {
         child: WebView(
           initialUrl: widget.url,
           javascriptMode: JavascriptMode.unrestricted,
+          gestureNavigationEnabled: true,
         ),
       ),
     );
