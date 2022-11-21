@@ -6,17 +6,22 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../utils/price_utils.dart';
 import '../repository/minimum_repository.dart';
 
+
+
 class MinimumList extends StatefulWidget {
   const MinimumList({super.key});
+  
 
   @override
   State<MinimumList> createState() => _MinimumListState();
+
 }
 
 class _MinimumListState extends State<MinimumList> {
   String category1 = "";
   String category2 = "";
   String category3 = "";
+  MinimumList minimumList = MinimumList();
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -83,13 +88,9 @@ class _MinimumListState extends State<MinimumList> {
   }
 
   getCategory() {
-    for (var i = 0; i < dataMinimum.length; i++) {
-      if (dataMinimum[i]["mallName"] == "N빵") {
-        category1 = dataMinimum[i]["category1"];
-        category2 = dataMinimum[i]["category2"];
-        category3 = dataMinimum[i]["category3"];
-      }
-    }
+    category1 = dataMinimum[1]["category1"];
+    category2 = dataMinimum[1]["category2"];
+    category3 = dataMinimum[1]["category3"];
   }
 
   Widget _category() {
