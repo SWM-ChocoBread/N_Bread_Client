@@ -296,7 +296,7 @@ class _HomeState extends State<Home> {
           //     onPressed: () {
           //       Navigator.push(context,
           //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return MinimumList();
+          //         return MinimumList(dealId: null,);
           //       }));
           //     },
           //     icon: const FaIcon(

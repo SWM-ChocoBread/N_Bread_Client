@@ -2,26 +2,37 @@ import 'package:chocobread/style/colorstyles.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/price_utils.dart';
 import '../repository/minimum_repository.dart';
 
-
+List dataMinimum = [];
 
 class MinimumList extends StatefulWidget {
-  const MinimumList({super.key});
-  
+  late int dealId;
+  MinimumList({super.key, required this.dealId});
 
   @override
   State<MinimumList> createState() => _MinimumListState();
-
 }
 
 class _MinimumListState extends State<MinimumList> {
   String category1 = "";
   String category2 = "";
   String category3 = "";
-  MinimumList minimumList = MinimumList();
+  Minimum minimumList = Minimum();
+
+  Future<List> _loadPriceInfobyDealId(int dealId) async {
+    print("[*] loadPriceInfobyDealId called!");
+    dataMinimum = await Minimum().loadPriceByDealId(widget.dealId);
+    return await Minimum().loadPriceByDealId(widget.dealId);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -76,21 +87,35 @@ class _MinimumListState extends State<MinimumList> {
   }
 
   Widget _bodyWidget() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _category(),
-          _line(),
-          _minimumList(),
-        ],
-      ),
-    );
+    print("[*]body widget의 dataMinimum: ${dataMinimum}");
+    return FutureBuilder(
+        future: _loadPriceInfobyDealId(widget.dealId),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            print("[*] snapshot.data : ${snapshot.data}");
+            print("[*] snapshot 받은 뒤 dataMinimum : ${dataMinimum}");
+            getCategory();
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _category(),
+                  _line(),
+                  _minimumList(),
+                ],
+              ),
+            );
+          }
+          if (snapshot.hasError) {
+            return Text("데이터 오류");
+          }
+          return const Center(child: CircularProgressIndicator());
+        });
   }
 
   getCategory() {
-    category1 = dataMinimum[1]["category1"];
-    category2 = dataMinimum[1]["category2"];
-    category3 = dataMinimum[1]["category3"];
+    category1 = "" ?? dataMinimum[1]["category1"];
+    category2 = "" ?? dataMinimum[1]["category2"];
+    category3 = "" ?? dataMinimum[1]["category3"];
   }
 
   Widget _category() {
@@ -125,33 +150,35 @@ class _MinimumListState extends State<MinimumList> {
               ],
             ),
           ),
-          Row(
-            children: [
-              Text(category1),
-              const SizedBox(
-                width: 5,
-              ),
-              const FaIcon(
-                FontAwesomeIcons.chevronRight,
-                size: 12,
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Text(category2),
-              const SizedBox(
-                width: 5,
-              ),
-              const FaIcon(
-                FontAwesomeIcons.chevronRight,
-                size: 12,
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Text(category3),
-            ],
-          ),
+          (category1 == "")
+              ? const SizedBox.shrink()
+              : Row(
+                  children: [
+                    Text(category1),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const FaIcon(
+                      FontAwesomeIcons.chevronRight,
+                      size: 12,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(category2),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const FaIcon(
+                      FontAwesomeIcons.chevronRight,
+                      size: 12,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(category3),
+                  ],
+                ),
         ],
       ),
     );
@@ -208,6 +235,13 @@ class _MinimumListState extends State<MinimumList> {
     );
   }
 
+  _minusNum(String mallName) {
+    if (mallName == "N빵") {
+      return 0;
+    }
+    return 3000;
+  }
+
   Widget _rowItemTwo(int index) {
     return Expanded(
         child: Column(
@@ -221,7 +255,7 @@ class _MinimumListState extends State<MinimumList> {
               width: 7,
             ),
             Text(
-              "${PriceUtils.calcStringToWonOnly(dataMinimum[index]["lprice"].toString())}원",
+              "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lPrice"] - _minusNum(dataMinimum[index]["mallName"])).toString())}원",
               style: TextStyle(
                 color: lmoneyColor(dataMinimum[index]["mallName"]),
                 fontWeight: (dataMinimum[index]["mallName"] == "N빵")
@@ -249,7 +283,7 @@ class _MinimumListState extends State<MinimumList> {
                     width: 5,
                   ),
                   Text(
-                    "3,500원",
+                    "3,000원",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -263,7 +297,7 @@ class _MinimumListState extends State<MinimumList> {
         (dataMinimum[index]["mallName"] == "N빵")
             ? const SizedBox.shrink()
             : Text(
-                "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lprice"] + 3500).toString())}원",
+                "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lPrice"]).toString())}원",
                 style: const TextStyle(fontWeight: FontWeight.bold),
               )
       ],
@@ -276,18 +310,29 @@ class _MinimumListState extends State<MinimumList> {
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _imageHolder(index),
-                const SizedBox(
-                  width: 20,
-                ),
-                _rowItemOne(index),
-                _rowItemTwo(index),
-              ],
+          return GestureDetector(
+            onTap: () async {
+              if (dataMinimum[index]["link"] == null) {
+                return null;
+              }
+              if (await canLaunchUrl(Uri.parse(dataMinimum[index]["link"]))) {
+                await launchUrl(Uri.parse(dataMinimum[index]["link"]),
+                    mode: LaunchMode.externalApplication);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _imageHolder(index),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  _rowItemOne(index),
+                  _rowItemTwo(index),
+                ],
+              ),
             ),
           );
         },
@@ -302,7 +347,6 @@ class _MinimumListState extends State<MinimumList> {
 
   @override
   Widget build(BuildContext context) {
-    getCategory();
     return Scaffold(
       appBar: _appbarWidget(),
       body: _bodyWidget(),
