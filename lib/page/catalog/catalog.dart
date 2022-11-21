@@ -70,13 +70,13 @@ class _CatalogState extends State<Catalog> {
     } else if (index == 1) {
       return RankChip(
         "2위",
-        Color.fromARGB(255, 253, 169, 91),
+        Color.fromARGB(255, 250, 159, 74),
         Color.fromARGB(255, 253, 240, 227),
       );
     } else if (index == 2) {
       return RankChip(
         "3위",
-        ColorStyle.myYellow,
+        Color.fromARGB(255, 251, 174, 59),
         Color.fromARGB(255, 254, 244, 213),
       );
     } else if (index == 3) {
@@ -111,7 +111,7 @@ class _CatalogState extends State<Catalog> {
               timeLimit: const Duration(seconds: 100),
               timeRetry: const Duration(seconds: 5)),
         ),
-        WhichChip(index),
+        Positioned(top: 5, left: 5, child: WhichChip(index)),
       ]),
     );
   }
