@@ -23,6 +23,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'colordeterminants/colorstatus.dart';
 import 'repository/contents_repository.dart' as cont;
 import 'repository/userInfo_repository.dart';
@@ -619,6 +620,48 @@ class _MyPageState extends State<MyPage> {
         });
   }
 
+  Widget _floatingActionButtonWidget() {
+    return FloatingActionButton(
+      onPressed: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString("userToken");
+        print("TOKEN : ${token}");
+        if (token != null) {
+          Map<String, dynamic> payload = Jwt.parseJwt(token);
+          await FirebaseAnalytics.instance.logEvent(
+              name: "kakao_cs",
+              parameters: {
+                "userId": payload['id'].toString(),
+                "provider": payload['provider'].toString()
+              });
+          Airbridge.event.send(Event(
+            'Kakao CS',
+            option: EventOption(
+              attributes: {
+                "userId": payload['id'].toString(),
+                "provider": payload['provider'].toString()
+              },
+            ),
+          ));
+        }
+        if (await canLaunchUrl(
+            Uri.parse("http://pf.kakao.com/_xotxibxj/chat"))) {
+          await launchUrl(Uri.parse("http://pf.kakao.com/_xotxibxj/chat"),
+              mode: LaunchMode.externalApplication);
+        } else {
+          throw 'Could not launch Kakao Openchatting';
+        }
+      },
+      backgroundColor: ColorStyle.mainColor, // floactingactionbutton의 색
+      splashColor: Colors.purple, // button을 눌렀을 때 변하는 버튼의 색
+      elevation: 3,
+      child: const Icon(
+        Icons.headset_rounded,
+        size: 33,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     setUserNickname();
@@ -626,6 +669,7 @@ class _MyPageState extends State<MyPage> {
       resizeToAvoidBottomInset: false,
       appBar: _appBarWidget(),
       body: _bodyWidget(),
+      floatingActionButton: _floatingActionButtonWidget(),
     );
   }
 
