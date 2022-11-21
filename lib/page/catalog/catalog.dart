@@ -14,11 +14,21 @@ class Catalog extends StatefulWidget {
 }
 
 class _CatalogState extends State<Catalog> {
+  PreferredSizeWidget _appbarWidget() {
+    return AppBar(
+      elevation: 0,
+      bottomOpacity: 0,
+      backgroundColor: Colors.transparent,
+      title: const Text("N빵 추천 상품"),
+      centerTitle: false,
+      titleSpacing: 23,
+    );
+  }
+
   Widget _imageHolder(int index) {
     return ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(10)),
       child: ExtendedImage.network(catalogItems[index]["image_link"].toString(),
-          // width: double.infinity / 2,
           height: 120,
           fit: BoxFit.cover,
           cache: true,
@@ -29,8 +39,7 @@ class _CatalogState extends State<Catalog> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _bodyWidget() {
     return GridView.builder(
       itemCount: catalogItems.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -72,7 +81,7 @@ class _CatalogState extends State<Catalog> {
                     Text(
                       "${catalogItems[index]["price"]}원",
                       style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -80,13 +89,26 @@ class _CatalogState extends State<Catalog> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: Row(
-                  children: [Text(catalogItems[index]["unit_price"])],
+                  children: [
+                    Text(
+                      catalogItems[index]["unit_price"],
+                      style: const TextStyle(fontSize: 13),
+                    )
+                  ],
                 ),
               )
             ],
           ),
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _appbarWidget(),
+      body: _bodyWidget(),
     );
   }
 }
