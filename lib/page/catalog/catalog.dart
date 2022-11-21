@@ -97,21 +97,23 @@ class _CatalogState extends State<Catalog> {
   }
 
   Widget _imageHolder(int index, String imageLink) {
-    return Stack(children: [
-      ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        child: ExtendedImage.network(imageLink.toString(),
-            width: double.infinity,
-            height: 120,
-            fit: BoxFit.cover,
-            cache: true,
-            enableLoadState: true,
-            retries: 10,
-            timeLimit: const Duration(seconds: 100),
-            timeRetry: const Duration(seconds: 5)),
-      ),
-      WhichChip(index),
-    ]);
+    return Expanded(
+      child: Stack(children: [
+        ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          child: ExtendedImage.network(imageLink.toString(),
+              width: double.infinity,
+              height: 120,
+              fit: BoxFit.cover,
+              cache: true,
+              enableLoadState: true,
+              retries: 10,
+              timeLimit: const Duration(seconds: 100),
+              timeRetry: const Duration(seconds: 5)),
+        ),
+        WhichChip(index),
+      ]),
+    );
   }
 
   Widget _catalogGrid(List catalogItems) {
