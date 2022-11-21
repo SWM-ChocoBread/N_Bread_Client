@@ -156,35 +156,34 @@ class _MinimumListState extends State<MinimumList> {
               ],
             ),
           ),
-          (category1 == "")
-              ? const SizedBox.shrink()
-              : Row(
-                  children: [
-                    Text(category1),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const FaIcon(
-                      FontAwesomeIcons.chevronRight,
-                      size: 12,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(category2),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const FaIcon(
-                      FontAwesomeIcons.chevronRight,
-                      size: 12,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(category3),
-                  ],
-                ),
+          (category1 == "") ? const SizedBox.shrink() : Text(category1)
+          // : Row(
+          //     children: [
+          //       Text(category1),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       const FaIcon(
+          //         FontAwesomeIcons.chevronRight,
+          //         size: 12,
+          //       ),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       Text(category2),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       const FaIcon(
+          //         FontAwesomeIcons.chevronRight,
+          //         size: 12,
+          //       ),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       Text(category3),
+          //     ],
+          //   ),
         ],
       ),
     );
