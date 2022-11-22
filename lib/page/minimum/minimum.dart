@@ -240,11 +240,11 @@ class _MinimumListState extends State<MinimumList> {
     );
   }
 
-  _minusNum(String mallName) {
+  String _productPrice(String mallName, int index) {
     if (mallName == "N빵") {
-      return 0;
+      return "${PriceUtils.calcStringToWonOnly(dataMinimum[index]["lPrice"].toString())}원";
     }
-    return 3000;
+    return "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lPrice"] - 3000).toString())}원";
   }
 
   Widget _rowItemTwo(int index) {
@@ -260,7 +260,7 @@ class _MinimumListState extends State<MinimumList> {
               width: 7,
             ),
             Text(
-              "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lPrice"] - _minusNum(dataMinimum[index]["mallName"])).toString())}원",
+              _productPrice(dataMinimum[index]["mallName"], index),
               style: TextStyle(
                 color: lmoneyColor(dataMinimum[index]["mallName"]),
                 fontWeight: (dataMinimum[index]["mallName"] == "N빵")
