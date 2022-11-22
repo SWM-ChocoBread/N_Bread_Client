@@ -1400,17 +1400,13 @@ class _DetailContentViewState extends State<DetailContentView> {
                               ? () => null
                               : () async {
                                   setState(() {
-                                    print('hhehehehehe');
                                     showIndicator = true;
                                   });
-                                  print(
-                                      "showIndicator ${showIndicator} changed");
                                   int isCertification =
                                       await getCurrentPosition();
                                   setState(() {
                                     showIndicator = false;
                                   });
-                                  print("${showIndicator} changed");
                                   Navigator.of(context).pop();
                                   final SharedPreferences prefs =
                                       await SharedPreferences.getInstance();
