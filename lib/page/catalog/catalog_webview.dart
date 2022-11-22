@@ -66,13 +66,8 @@ class _CatalogWebviewState extends State<CatalogWebview> {
                   await prefs.getBool("isLocationCertification") ?? false;
               print('isLocatinCert : ${isLocationCertification}');
               if (isLocationCertification) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return CreateNew(
-                    dataFromCatalog: const {},
-                    isFromCatalog: false,
-                  );
-                }));
+                Get.to(() => CreateNew(
+                    isFromCatalog: true, dataFromCatalog: widget.data));
               } else {
                 print("지역 인증 시도");
                 abrRegionCertificationRequest();
