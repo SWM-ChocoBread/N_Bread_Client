@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:chocobread/page/create.dart';
@@ -31,6 +30,13 @@ class CatalogWebview extends StatefulWidget {
   State<CatalogWebview> createState() => _CatalogWebviewState();
 }
 
+Future<void> getIsLocationCert() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  print(
+      "isLocationCertification value is ${isLocationCertification} on catalog_webview.dart");
+}
+
 class _CatalogWebviewState extends State<CatalogWebview> {
   PreferredSizeWidget _appbarWidget() {
     return AppBar(
@@ -53,7 +59,12 @@ class _CatalogWebviewState extends State<CatalogWebview> {
         padding: const EdgeInsets.only(right: 50.0),
         child: Center(
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              print("N빵하기 버튼이 눌렸습니다.");
+              final prefs = await SharedPreferences.getInstance();
+              isLocationCertification =
+                  await prefs.getBool("isLocationCertification") ?? false;
+              print('isLocatinCert : ${isLocationCertification}');
               if (isLocationCertification) {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (BuildContext context) {
@@ -63,6 +74,7 @@ class _CatalogWebviewState extends State<CatalogWebview> {
                   );
                 }));
               } else {
+                print("지역 인증 시도");
                 abrRegionCertificationRequest();
                 showDialog(
                     context: context,
