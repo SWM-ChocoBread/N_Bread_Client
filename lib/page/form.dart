@@ -69,7 +69,11 @@ class _customFormState extends State<customForm> {
 
     productName = widget.catalogData["name"] ?? ""; // 제품명
     productLink = widget.catalogData["link"] ?? ""; // 판매 링크
-    totalPrice = widget.catalogData["price"].replaceAll(",", "") ?? ""; // 총가격
+    totalPrice = widget.catalogData["price"] ?? ""; // 총가격
+    if (totalPrice != "") {
+      print("total price is ${totalPrice}");
+      totalPrice = totalPrice.replaceAll(",", "");
+    }
 
     // images = [];
     print("[*] widget.catalogData : ${widget.catalogData}");
