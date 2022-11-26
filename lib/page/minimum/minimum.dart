@@ -55,7 +55,7 @@ class _MinimumListState extends State<MinimumList> {
     );
   }
 
-  Widget _minimumChip() {
+  Widget _nbreadChip() {
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -63,7 +63,7 @@ class _MinimumListState extends State<MinimumList> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       child: const Text(
-        "최저가",
+        "N빵가",
         style: TextStyle(
             color: ColorStyle.failText,
             fontSize: 11,
@@ -113,9 +113,15 @@ class _MinimumListState extends State<MinimumList> {
   }
 
   getCategory() {
-    category1 = "" ?? dataMinimum[1]["category1"];
-    category2 = "" ?? dataMinimum[1]["category2"];
-    category3 = "" ?? dataMinimum[1]["category3"];
+    if (dataMinimum.length <= 1) {
+      category1 = "";
+      category2 = "";
+      category3 = "";
+    } else {
+      category1 = dataMinimum[1]["category1"];
+      category2 = dataMinimum[1]["category2"];
+      category3 = dataMinimum[1]["category3"];
+    }
   }
 
   Widget _category() {
@@ -150,35 +156,34 @@ class _MinimumListState extends State<MinimumList> {
               ],
             ),
           ),
-          (category1 == "")
-              ? const SizedBox.shrink()
-              : Row(
-                  children: [
-                    Text(category1),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const FaIcon(
-                      FontAwesomeIcons.chevronRight,
-                      size: 12,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(category2),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const FaIcon(
-                      FontAwesomeIcons.chevronRight,
-                      size: 12,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(category3),
-                  ],
-                ),
+          (category1 == "") ? const SizedBox.shrink() : Text(category1)
+          // : Row(
+          //     children: [
+          //       Text(category1),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       const FaIcon(
+          //         FontAwesomeIcons.chevronRight,
+          //         size: 12,
+          //       ),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       Text(category2),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       const FaIcon(
+          //         FontAwesomeIcons.chevronRight,
+          //         size: 12,
+          //       ),
+          //       const SizedBox(
+          //         width: 5,
+          //       ),
+          //       Text(category3),
+          //     ],
+          //   ),
         ],
       ),
     );
@@ -235,11 +240,11 @@ class _MinimumListState extends State<MinimumList> {
     );
   }
 
-  _minusNum(String mallName) {
+  String _productPrice(String mallName, int index) {
     if (mallName == "N빵") {
-      return 0;
+      return "${PriceUtils.calcStringToWonOnly(dataMinimum[index]["lPrice"].toString())}원";
     }
-    return 3000;
+    return "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lPrice"] - 3000).toString())}원";
   }
 
   Widget _rowItemTwo(int index) {
@@ -250,12 +255,12 @@ class _MinimumListState extends State<MinimumList> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            (index == 0) ? _minimumChip() : const SizedBox.shrink(),
+            (index == 0) ? _nbreadChip() : const SizedBox.shrink(),
             const SizedBox(
               width: 7,
             ),
             Text(
-              "${PriceUtils.calcStringToWonOnly((dataMinimum[index]["lPrice"] - _minusNum(dataMinimum[index]["mallName"])).toString())}원",
+              _productPrice(dataMinimum[index]["mallName"], index),
               style: TextStyle(
                 color: lmoneyColor(dataMinimum[index]["mallName"]),
                 fontWeight: (dataMinimum[index]["mallName"] == "N빵")

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:chocobread/page/imageuploader.dart' as imageFile;
 import 'package:chocobread/page/widgets/mysnackbar.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -19,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/datetime_utils.dart';
 import 'checkmovetophotosettings.dart';
 import 'repository/contents_repository.dart' as contents;
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:amplitude_flutter/amplitude.dart';
@@ -32,10 +33,12 @@ import 'imageuploader.dart';
 
 var jsonString =
     '{"title": "","link":"","totalPrice":"","personalPrice": "","totalMember": "", "dealDate": "","place": "","content": "","region":""}';
+var coupangString = '{"url" : ""}';
 bool showindicator = false;
 
 class customForm extends StatefulWidget {
-  customForm({Key? key}) : super(key: key);
+  Map catalogData;
+  customForm({Key? key, required this.catalogData}) : super(key: key);
 
   @override
   State<customForm> createState() => _customFormState();
@@ -59,6 +62,27 @@ class _customFormState extends State<customForm> {
 
     isOnTappedDate = false; // 처음에는 datepicker로 값을 변경하지 않음
     isOnTappedTime = false; // 처음에는 timepicker로 값을 변경하지 않음
+
+    productNameController.text = widget.catalogData["name"] ?? "";
+    productLinkController.text = widget.catalogData["link"] ?? "";
+    totalPriceController.text = widget.catalogData["price"] ?? "";
+
+    productName = widget.catalogData["name"] ?? ""; // 제품명
+    productLink = widget.catalogData["link"] ?? ""; // 판매 링크
+    totalPrice = widget.catalogData["price"] ?? ""; // 총가격
+    if (totalPrice != "") {
+      print("total price is ${totalPrice}");
+      totalPrice = totalPrice.replaceAll(",", "");
+    }
+
+    // images = [];
+    print("[*] widget.catalogData : ${widget.catalogData}");
+    print(
+        "[*] widget.catalogData[image_link] : ${widget.catalogData["image_link"]}");
+    if (widget.catalogData.isNotEmpty) {
+      print("[*] 데이터가 전달되지 않은 경우 print되면 안 된다.");
+      images.add(widget.catalogData["image_link"]);
+    }
   }
 
   // 각각의 textfield에 붙는 controller
@@ -91,6 +115,7 @@ class _customFormState extends State<customForm> {
   String productDate = "";
   String personalPrice = ""; // 1인당 가격
   String dateToSend = "";
+  List images = []; // Catalog에서 온 이미지를 넣는 리스트
   List<XFile>? finalImageFileList = [];
 
   final GlobalKey<FormState> _formKey = GlobalKey<
@@ -145,6 +170,7 @@ class _customFormState extends State<customForm> {
   }
 
   Widget _getPhotoButton() {
+    print("[*] images: ${images}");
     return OutlinedButton(
         onPressed: () {
           showModalBottomSheet(
@@ -273,9 +299,66 @@ class _customFormState extends State<customForm> {
               Icons.camera_alt_rounded,
               size: 30,
             ),
-            Text("${_getNumberOfImages()}/3") // 0 자리에 사진의 개수가 들어간다.
+            (images.isNotEmpty)
+                ? const Text("1/3")
+                : Text("${_getNumberOfImages()}/3") // 0 자리에 사진의 개수가 들어간다.
           ],
         ));
+  }
+
+  Widget _showPhotoGrid() {
+    print("images");
+    if (images.isNotEmpty && imageFileList!.isEmpty) {
+      // 전달받은 이미지가 있는 경우 : 전달받은 이미지를 보여준다.
+      return Flexible(
+        child: GridView.count(
+            physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              images.length,
+              (index) => ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+                // decoration: const BoxDecoration(borderRadius:
+                //             BorderRadius.all(Radius.circular(25)),),
+                child: ExtendedImage.network(
+                  cache: true,
+                  enableLoadState: true,
+                  images[index].toString(),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )),
+      );
+    } else {
+      // 전달받은 이미지들이 없는 경우 : imageFileList 를 보여준다.
+      print("######## imageList : ${imageFileList?.length}");
+      return Flexible(
+        child: GridView.count(
+            physics: const NeverScrollableScrollPhysics(), // 스크롤 막아놓기
+            crossAxisCount: 3,
+            crossAxisSpacing: 15,
+            padding: const EdgeInsets.all(15),
+            shrinkWrap: true,
+            children: List.generate(
+              3,
+              (index) => Container(
+                decoration: index < imageFileList!.length
+                    ? BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(25)),
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(File(imageFileList![index].path))))
+                    : null,
+                child: _boxContents[index],
+              ),
+            )),
+      );
+    }
   }
 
 // 3개의 사진이 들어갈 공간
@@ -286,30 +369,31 @@ class _customFormState extends State<customForm> {
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Row(children: [
           _getPhotoButton(),
-          Flexible(
-            child: GridView.count(
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                crossAxisSpacing: 15,
-                padding: const EdgeInsets.all(15),
-                shrinkWrap: true,
-                children: List.generate(
-                  3,
-                  (index) => Container(
-                    decoration: index < imageFileList!.length
-                        ? BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(25)),
-                            color: Colors.grey,
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(
-                                    File(imageFileList![index].path))))
-                        : null,
-                    child: _boxContents[index],
-                  ),
-                )),
-          )
+          _showPhotoGrid(),
+          // Flexible(
+          //   child: GridView.count(
+          //       physics: const NeverScrollableScrollPhysics(),
+          //       crossAxisCount: 3,
+          //       crossAxisSpacing: 15,
+          //       padding: const EdgeInsets.all(15),
+          //       shrinkWrap: true,
+          //       children: List.generate(
+          //         3,
+          //         (index) => Container(
+          //           decoration: index < imageFileList!.length
+          //               ? BoxDecoration(
+          //                   borderRadius:
+          //                       const BorderRadius.all(Radius.circular(25)),
+          //                   color: Colors.grey,
+          //                   image: DecorationImage(
+          //                       fit: BoxFit.cover,
+          //                       image: FileImage(
+          //                           File(imageFileList![index].path))))
+          //               : null,
+          //           child: _boxContents[index],
+          //         ),
+          //       )),
+          // )
         ]));
   }
 
@@ -1010,9 +1094,10 @@ class _customFormState extends State<customForm> {
                                                 mapToSend['content'] = extra;
                                                 mapToSend['region'] =
                                                     prefs.getString('loc3');
-                                                final List<MultipartFile>
+                                                final List<dio.MultipartFile>
                                                     _files = imageFileList!
-                                                        .map((img) => MultipartFile
+                                                        .map((img) => dio
+                                                                .MultipartFile
                                                             .fromFileSync(
                                                                 img.path,
                                                                 contentType:
@@ -1020,8 +1105,8 @@ class _customFormState extends State<customForm> {
                                                                         "image",
                                                                         "jpg")))
                                                         .toList();
-                                                FormData _formData =
-                                                    FormData.fromMap(
+                                                dio.FormData _formData =
+                                                    dio.FormData.fromMap(
                                                         {"img": _files});
 
                                                 setState(() {
@@ -1091,86 +1176,101 @@ class _customFormState extends State<customForm> {
       ],
     );
   }
-}
 
-Future getApiTest(Map jsonbody, FormData formData) async {
-  final prefs = await SharedPreferences.getInstance();
-  var dealCreateUrl = "https://www.chocobread.shop/deals/create";
-  var url = Uri.parse(
-    dealCreateUrl,
-  );
-  var body2 = json.encode(jsonbody);
-  var userToken = prefs.getString("userToken");
-  //File _image="assets/images/maltesers.png";
-
-  var map = new Map<String, dynamic>();
-  map['body'] = jsonbody;
-  print("value of map");
-  print(map);
-  print(map.toString());
-  var dio = Dio();
-  var dioFormData = FormData.fromMap(map);
-
-  if (userToken != null) {
-    var response = await http.post(url,
-        headers: {
-          "Authorization": userToken,
-        },
-        body: jsonbody);
-    print(response);
-    String responseBody = utf8.decode(response.bodyBytes);
-    Map<String, dynamic> list = jsonDecode(responseBody);
-    print(list);
-    dio.options.contentType = 'multipart/form-data';
-    dio.options.headers['Authorization'] = userToken;
-    //  list[result][id] 예외처리 ex) 404 안하면 crash
-    print("dealId : ${list['result']['id']} ");
-    var imgCreateUrl =
-        "https://www.chocobread.shop/deals/${list['result']['id']}/img";
-
-    final dioResponse = await dio.post(
-      imgCreateUrl,
-      data: formData,
+  Future getApiTest(Map jsonbody, dio.FormData formData) async {
+    final prefs = await SharedPreferences.getInstance();
+    var dealCreateUrl = "https://www.chocobread.shop/deals/create";
+    var url = Uri.parse(
+      dealCreateUrl,
     );
-    var dealCreateResponseResult = list['result'];
-    await FirebaseAnalytics.instance.logEvent(name: "deal_create", parameters: {
-      "dealId": dealCreateResponseResult['id'].toString(),
-      "title": dealCreateResponseResult['title'].toString(),
-      "productLink": dealCreateResponseResult['link'].toString(),
-      "totalPrice": dealCreateResponseResult['totalPrice'].toString(),
-      "totalMember": dealCreateResponseResult['totalMember'].toString(),
-      "personalPrice": dealCreateResponseResult['personalPrice'].toString(),
-      "dealDate": dealCreateResponseResult['dealDate'].toString(),
-      "dealPlace": dealCreateResponseResult['dealPlace'].toString(),
-      "content": dealCreateResponseResult['content'].toString(),
-    });
+    var body2 = json.encode(jsonbody);
+    var userToken = prefs.getString("userToken");
+    //File _image="assets/images/maltesers.png";
 
-    int userId = 0;
+    var map = new Map<String, dynamic>();
+    map['body'] = jsonbody;
+    print("value of map");
+    print(map);
+    print(map.toString());
+    var dioInstance = dio.Dio();
+    var dioFormData = dio.FormData.fromMap(map);
+
     if (userToken != null) {
-      userId = Jwt.parseJwt(userToken)['id'];
-    }
-    await sendSlackMessage('[거래 생성]',
-        '${userId}번 유저가 ${dealCreateResponseResult['title']}(${dealCreateResponseResult['id']}번) 거래를 생성하였습니다.');
+      var response = await http.post(url,
+          headers: {
+            "Authorization": userToken,
+          },
+          body: jsonbody);
+      print(response);
+      String responseBody = utf8.decode(response.bodyBytes);
+      Map<String, dynamic> list = jsonDecode(responseBody);
+      print(list);
+      dioInstance.options.contentType = 'multipart/form-data';
+      dioInstance.options.headers['Authorization'] = userToken;
+      //  list[result][id] 예외처리 ex) 404 안하면 crash
+      print("dealId : ${list['result']['id']} ");
+      var imgCreateUrl =
+          "https://www.chocobread.shop/deals/${list['result']['id']}/img";
 
-    Airbridge.event.send(Event(
-      'Deal Create',
-      option: EventOption(
-        semantics: {
-          'transactionID': list['result']['id'].toString(),
-          'products': [
-            {
-              'productID': jsonbody['id'],
-              'name': dealCreateResponseResult['totalPrice'].toString(),
-              "price": dealCreateResponseResult['totalPrice'].toString(),
-              "currency": 'KRW',
-              "quantity": 1,
-            }
-          ]
-        },
-      ),
-    ));
-  } else {
-    print("오류발생");
+      final dioResponse = await dioInstance.post(
+        imgCreateUrl,
+        data: formData,
+      );
+      if (widget.catalogData.isNotEmpty) {
+        var coupangImageRequestUrl =
+            "https://www.chocobread.shop/deals/${list['result']['id']}/img/coupang";
+        var coupangCreateurl = Uri.parse(
+          coupangImageRequestUrl,
+        );
+        Map coupangBody = jsonDecode(coupangString);
+        coupangBody['url'] = widget.catalogData["image_link"].toString();
+        var coupangResponse =
+            await http.post(coupangCreateurl, body: coupangBody);
+        String coupangResponseBody = utf8.decode(coupangResponse.bodyBytes);
+        Map<String, dynamic> coupangList = jsonDecode(coupangResponseBody);
+        print('coupang response : ${coupangList}');
+      }
+      var dealCreateResponseResult = list['result'];
+      await FirebaseAnalytics.instance
+          .logEvent(name: "deal_create", parameters: {
+        "dealId": dealCreateResponseResult['id'].toString(),
+        "title": dealCreateResponseResult['title'].toString(),
+        "productLink": dealCreateResponseResult['link'].toString(),
+        "totalPrice": dealCreateResponseResult['totalPrice'].toString(),
+        "totalMember": dealCreateResponseResult['totalMember'].toString(),
+        "personalPrice": dealCreateResponseResult['personalPrice'].toString(),
+        "dealDate": dealCreateResponseResult['dealDate'].toString(),
+        "dealPlace": dealCreateResponseResult['dealPlace'].toString(),
+        "content": dealCreateResponseResult['content'].toString(),
+      });
+
+      int userId = 0;
+      if (userToken != null) {
+        userId = Jwt.parseJwt(userToken)['id'];
+      }
+      await sendSlackMessage('[거래 생성]',
+          '${userId}번 유저가 ${dealCreateResponseResult['title']}(${dealCreateResponseResult['id']}번) 거래를 생성하였습니다.');
+
+      Airbridge.event.send(Event(
+        'Deal Create',
+        option: EventOption(
+          semantics: {
+            'transactionID': list['result']['id'].toString(),
+            'products': [
+              {
+                'productID': jsonbody['id'],
+                'name': dealCreateResponseResult['totalPrice'].toString(),
+                "price": dealCreateResponseResult['totalPrice'].toString(),
+                "currency": 'KRW',
+                "quantity": 1,
+              }
+            ]
+          },
+        ),
+      ));
+    } else {
+      print("오류발생");
+    }
   }
 }
 

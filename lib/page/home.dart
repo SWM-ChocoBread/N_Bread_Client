@@ -292,17 +292,6 @@ class _HomeState extends State<Home> {
           },
         ),
         actions: [
-          // IconButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           MaterialPageRoute(builder: (BuildContext context) {
-          //         return MinimumList(dealId: null,);
-          //       }));
-          //     },
-          //     icon: const FaIcon(
-          //       FontAwesomeIcons.dollarSign,
-          //       size: 18,
-          //     )),
           IconButton(
               onPressed: () {
                 Navigator.push(context,
@@ -398,7 +387,7 @@ class _HomeState extends State<Home> {
                     productContents["DealImages"][0]["dealImage"].toString(),
                     width: 110,
                     height: 110,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
                     cache: true,
                     enableLoadState: true,
                     retries: 10,
@@ -792,7 +781,10 @@ class _HomeState extends State<Home> {
                     onPressed: () async {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (BuildContext context) {
-                        return CreateNew();
+                        return CreateNew(
+                          dataFromCatalog: const {},
+                          isFromCatalog: false,
+                        );
                       })).then((_) => setState(() {
                             _bodyWidget();
                           }));
@@ -817,7 +809,10 @@ class _HomeState extends State<Home> {
         if (isLocationCertification) {
           Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
-            return CreateNew();
+            return CreateNew(
+              dataFromCatalog: const {},
+              isFromCatalog: false,
+            );
           })).then((_) => setState(() {
                 _bodyWidget();
               }));
@@ -873,7 +868,10 @@ class _HomeState extends State<Home> {
                                     abrRegionCertificationCompleted();
                                     Navigator.push(context, MaterialPageRoute(
                                         builder: (BuildContext context) {
-                                      return CreateNew();
+                                      return CreateNew(
+                                        dataFromCatalog: const {},
+                                        isFromCatalog: false,
+                                      );
                                     }));
                                     break;
                                   case 2:

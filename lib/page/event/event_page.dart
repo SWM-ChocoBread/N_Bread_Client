@@ -37,7 +37,7 @@ class _EventPageState extends State<EventPage> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Image.asset("assets/eventpageimages/starbucks_cardnews.png"),
+            Image.asset("assets/eventpageimages/starbucks_cardnews_ver.2.png"),
             const SizedBox(
               height: 15,
             ),
