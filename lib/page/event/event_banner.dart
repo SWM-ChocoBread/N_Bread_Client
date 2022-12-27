@@ -1,3 +1,4 @@
+import 'package:airbridge_flutter_sdk/airbridge_flutter_sdk.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chocobread/constants/sizes_helper.dart';
 import 'package:chocobread/page/detail.dart';
@@ -14,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../app.dart';
 import '../repository/content_repository.dart';
 import '../repository/event_banner_repository.dart';
+import '../repository/userInfo_repository.dart';
 import '../serviceinfo.dart';
 
 class EventBanner extends StatefulWidget {
@@ -23,16 +25,27 @@ class EventBanner extends StatefulWidget {
   State<EventBanner> createState() => _EventBannerState();
 }
 
+UserInfoRepository userInfoRepository = UserInfoRepository();
+
 class _EventBannerState extends State<EventBanner> {
   // late List eventBannerImages; // loadEventBanner의 결과를 받아오기 위한 변수
   late String type; // loadEventBanner의 type을 받아오기 위한 변수
   late String target; // loadEventBanner의 target을 받아오기 위한 변수
+  String currentUserId = ""; // 현재 유저의 id
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   eventBannerImages = [];
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _getUserId();
+    print("initState 에서의 currentUserId는 : $currentUserId");
+  }
+
+  _getUserId() async {
+    Map<String, dynamic> getTokenPayload =
+        await userInfoRepository.getUserInfo();
+    currentUserId = getTokenPayload['id'].toString();
+    print("_getUserId() 에서의 currentUserId는 : $currentUserId");
+  }
 
   // @override
   // void didChangeDependencies() async {
@@ -69,6 +82,14 @@ class _EventBannerState extends State<EventBanner> {
             }
           } else if (map["type"] == "EventPage") {
             // 이벤트 페이지로 이동
+            Airbridge.event.send(Event(
+              'Event Banner Tapped',
+              option: EventOption(
+                attributes: {
+                  "userId": currentUserId,
+                },
+              ),
+            ));
             Get.to(() => const EventPage());
           } else {
             Get.to(const App());

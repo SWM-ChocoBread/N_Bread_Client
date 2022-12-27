@@ -87,7 +87,7 @@ class _EventPageState extends State<EventPage> {
                       throw 'Could not launch Kakao Openchatting';
                     }
                   },
-                  child: const Text("이벤트 인증하기")),
+                  child: const Text("문의하기")),
             ),
           ],
         ),
